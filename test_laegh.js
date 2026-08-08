@@ -3813,14 +3813,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۷.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۸.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '17.5.17', 'نسخه meta باید 17.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای پورتال داک)');
+  assertEqual(metaVer, '18.5.17', 'نسخه meta باید 18.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای رفع خرابی داک)');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/17', 'app-date باید 1405/05/17 باشد');
-  assertContainsString(html, 'نسخه ۱۷.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۷.۵.۱۷ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۸.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۸.۵.۱۷ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '17.5.17'", 'فیلد version بک‌آپ باید 17.5.17 باشد');
+  assertContainsString(buildSrc, "version: '18.5.17'", 'فیلد version بک‌آپ باید 18.5.17 باشد');
 });
 
 console.log('');
@@ -4047,18 +4047,21 @@ test('تم داک پایین باید CSS، زیرمنوی بالا، و گزی�
 test('داک باید هاور بالارونده و زیرمنوی کشویی بدون :scope داشته باشد', () => {
   assertTrue(!/:scope/.test(html), 'سلکتور :scope نباید باشد — در بعضی مرورگرها ارور می‌دهد');
   assertContainsString(html, 'function _dockDirectChild(', 'باید فرزند مستقیم بدون :scope پیدا شود');
-  assertContainsString(html, 'translateY(-12px) scale(1.12)', 'هاور باید آیکون را بالا ببرد');
+  assertContainsString(html, 'translateY(-10px) scale(1.1)', 'هاور باید آیکون را بالا ببرد');
   assertContainsString(html, 'function openDockFlyout(', 'تابع openDockFlyout باید باشد');
   assertContainsString(html, 'function closeAllDockFlyouts(', 'تابع closeAllDockFlyouts باید باشد');
   assertContainsString(html, 'function positionDockFlyout(', 'تابع positionDockFlyout باید باشد');
   assertContainsString(html, 'dock-flyout-portal', 'زیرمنو باید به صورت portal روی body بیاید');
   assertContainsString(html, 'z-index:10050', 'زیرمنو باید بالای محتوای وسط باشد');
-  assertContainsString(html, 'overflow:visible!important', 'داک نباید overflow ببرد تا زیرمنو مخفی نشود');
+  assertContainsString(html, 'body.sb-dock .dock-flyout{\n  display:none!important;', 'در داک زیرمنوی غیرپورتال باید مخفی باشد تا آیتم‌ها نشت نکنند');
+  assertContainsString(html, 'body.sb-dock .sb-group .nav-it{display:none!important;}', 'فرزندان گروه نباید داخل داک پخش شوند');
+  assertContainsString(html, 'max-height:88px!important', 'ارتفاع داک باید محدود و جمع‌وجور باشد');
+  assertContainsString(html, 'dock-face', 'دکمه گروه باید چهره آیکون (dock-face) داشته باشد');
   assertContainsString(html, 'max-width:1080px!important', 'صفحه وسط باید وسط‌چین/متقارن باشد');
   assertContainsString(html, 'margin-left:auto!important', 'صفحه باید با margin auto وسط مانیتور باشد');
   const ens = extractFunctionSource(html, 'ensureDockFlyouts');
   assertContainsString(ens, '_dockDirectChildren', 'ensureDockFlyouts باید از helper بدون :scope استفاده کند');
-  assertContainsString(ens, 'try{', 'ensureDockFlyouts باید خطا را بگیرد تا کل برنامه نخوابد');
+  assertContainsString(ens, 'dock-face', 'ensureDockFlyouts باید dock-face بسازد');
 });
 
 test('شبیه‌سازی واقعی: addDashShortcut باید شورتکات را در localStorage ذخیره کند و تکراری نسازد', () => {
