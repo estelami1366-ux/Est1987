@@ -136,23 +136,46 @@ body.depth-3d .nav-it{margin:2px 4px;max-width:calc(100% - 8px);}
 body.depth-3d .nav-it:hover{background:rgba(255,255,255,.12);}
 
 /* ══════ ریل آیکون + پس‌زمینه‌های مجزا + شورتکات داشبورد ══════ */
+/* عکس فقط داخل لایهٔ clipped (::before) — روی خود عنصر نیست تا از چارچوب بیرون نزند */
 .sb, .main, #page-dashboard .dash-shell{
   background-size:cover!important;
   background-position:center center!important;
   background-repeat:no-repeat!important;
 }
-.sb.has-custom-bg{background-image:var(--sb-bg-img)!important;}
+.sb.has-custom-bg{
+  background-image:none!important;
+  position:relative;
+  isolation:isolate;
+  overflow-x:hidden;
+  background-clip:padding-box;
+}
+.sb.has-custom-bg::before{
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:var(--sb-bg-img);
+  background-size:cover!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  background-clip:padding-box;
+}
+.sb.has-custom-bg > *{position:relative;z-index:1;}
 .main.has-custom-bg{
-  background-image:var(--main-bg-img);
+  background-image:none!important;
   background-color:transparent;
   position:relative;
+  isolation:isolate;
+  /* اسکرول صفحه قطع نشود؛ فقط لایهٔ عکس clip می‌شود */
 }
 .main.has-custom-bg::before{
-  content:'';position:fixed;top:0;left:0;right:var(--sidebar);bottom:0;z-index:-1;
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
   background-image:var(--main-bg-img);
-  background-size:cover;background-position:center;background-repeat:no-repeat;
-  pointer-events:none;
+  background-size:cover!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  background-clip:padding-box;
+  /* حداقل ارتفاع ویوپورت تا در صفحات کوتاه هم چارچوب را پر کند */
+  min-height:100%;
 }
+.main.has-custom-bg > *{position:relative;z-index:1;}
 #page-dashboard .dash-shell{
   min-height:calc(100vh - 0px);
   position:relative;
@@ -160,10 +183,19 @@ body.depth-3d .nav-it:hover{background:rgba(255,255,255,.12);}
   border-radius:0;
   background:var(--dash-tint);
   box-shadow:inset 0 0 0 1px rgba(11,79,108,.08);
+  isolation:isolate;
 }
 #page-dashboard .dash-shell.has-dash-bg{
-  background-image:var(--dash-bg-img);
+  background-image:none!important;
   background-color:transparent;
+}
+#page-dashboard .dash-shell.has-dash-bg::before{
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:var(--dash-bg-img);
+  background-size:cover!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  background-clip:padding-box;
 }
 body.theme-dark #page-dashboard .dash-shell:not(.has-dash-bg){
   background:var(--dash-tint, linear-gradient(165deg,#1a2833 0%,#1e2f3a 50%,#243028 100%));
@@ -206,7 +238,6 @@ body.sb-icons-only .sb-nav{
   padding:4px 0 12px;
 }
 body.sb-icons-only .main{margin-right:78px;max-width:calc(100% - 78px);}
-body.sb-icons-only .main.has-custom-bg::before{right:78px;}
 body.sb-icons-only .sb-brand,
 body.sb-icons-only #sb-clock,
 body.sb-icons-only .gs-wrap,
@@ -377,7 +408,6 @@ body.sb-dock .main{
   min-height:100vh;min-height:100dvh;
   position:relative;z-index:1;
 }
-body.sb-dock .main.has-custom-bg::before{right:0!important;left:0;bottom:0;}
 body.sb-dock .page,
 body.sb-dock .page.active{
   max-width:1080px!important;
@@ -3018,7 +3048,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 
     <div class="card">
       <div class="card-title">🖼 پس‌زمینه‌ها (جدا از هم)</div>
-      <p style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.7">هر ناحیه پس‌زمینهٔ خودش را دارد. عکس با <b>cover</b> دقیقاً در چهارچوب می‌نشیند و بیرون نمی‌زند (هر سایزی).</p>
+      <p style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.7">هر ناحیه پس‌زمینهٔ خودش را دارد. عکس با <b>cover</b> داخل همان چارچوب (منو / وسط / داشبورد) می‌نشیند و بیرون نمی‌زند.</p>
       <div class="g2" style="margin-bottom:10px">
         <div>
           <div class="card-title">ستون راست (منو)</div>
@@ -12254,7 +12284,8 @@ function printBgCss(sectionOrSettings){
     var op = (s.bgImageOpacity!=null ? s.bgImageOpacity : 0.18);
     var fit = s.bgImageFit || 'cover';
     var url = String(s.bgImage).replace(/\\/g,'\\').replace(/"/g,'%22');
-    return 'html,body{min-height:100%;}body{background:'+colorBg+';position:relative;}'
+    return 'html,body{min-height:100%;height:100%;margin:0;}'
+      + 'body{background:'+colorBg+';position:relative;overflow:hidden;}'
       + 'body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;'
       + 'background-image:url("'+url+'");background-repeat:no-repeat;background-position:center center;'
       + 'background-size:'+fit+';opacity:'+op+';}'

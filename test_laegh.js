@@ -3955,6 +3955,9 @@ test('پس‌زمینه‌های مجزا (ستون/وسط/داشبورد) با 
   assertContainsString(html, 'background-size:cover!important', 'پس‌زمینه‌ها باید cover باشند تا بیرون نزنند');
   assertContainsString(html, '#page-dashboard .dash-shell', 'پوسته داشبورد برای والپیپر پیدا نشد');
   assertContainsString(html, 'overflow:hidden', 'داشبورد باید overflow:hidden داشته باشد تا عکس بیرون نزند');
+  assertContainsString(html, '.sb.has-custom-bg::before', 'پس‌زمینه منو باید لایه ::before داخل چارچوب باشد');
+  assertContainsString(html, '.main.has-custom-bg::before', 'پس‌زمینه وسط باید لایه ::before داخل چارچوب باشد');
+  assertContainsString(html, '.dash-shell.has-dash-bg::before', 'پس‌زمینه داشبورد باید لایه ::before داخل چارچوب باشد');
   const appSrc = extractFunctionSource(html, 'applyAppearanceSettings');
   assertContainsString(appSrc, 'applyLayerBackgrounds()', 'applyAppearanceSettings باید لایه‌های پس‌زمینه را اعمال کند');
 });
