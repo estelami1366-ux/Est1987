@@ -3212,7 +3212,7 @@ test('کارت thumbnail سند باید کلیک‌شدن و openDocViewer را
   const src = extractFunctionSource(html, '_renderDocThumb');
   assertTrue(src !== null, 'تابع _renderDocThumb پیدا نشد');
   assertContainsString(src, 'doc-thumb', 'کلاس doc-thumb باید باشد');
-  assertContainsString(src, 'openDocViewer', 'thumbnail باید openDocViewer را صدا بزند');
+  assertContainsString(src, 'openDocViewerNamed', 'thumbnail باید openDocViewerNamed را صدا بزند (رفع باگ let/window)');
 });
 
 // تست ۷: ضمیمه سند به هر دستگاه گارانتی — تابع addWDevDocs باید تعریف شده باشد
@@ -3815,14 +3815,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۱۷γ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۱۷δ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.17γ', 'نسخه meta باید 1405.5.17γ باشد');
+  assertEqual(metaVer, '1405.5.17δ', 'نسخه meta باید 1405.5.17δ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/17', 'app-date باید 1405/05/17 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۷γ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۷γ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۷δ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۷δ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.17γ'", 'فیلد version بک‌آپ باید 1405.5.17γ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.17δ'", 'فیلد version بک‌آپ باید 1405.5.17δ باشد');
 });
 
 console.log('');
@@ -4435,6 +4435,46 @@ test('پل اعلان ویندوز باید از showLaeghNotification صدا ز
   const bridge = extractFunctionSource(html, 'pushWindowsNotifyBridge');
   assertContainsString(bridge, '127.0.0.1:8766', 'آدرس پل اعلان باید 8766 باشد');
   assertContainsString(html, 'اعلان_سیرمان.ps1', 'راهنما باید به اسکریپت پل اشاره کند');
+});
+
+
+test('resolveDocArray باید wDocs/saleDocs را از let پیدا کند نه window', () => {
+  const src = extractFunctionSource(html, 'resolveDocArray');
+  assertTrue(src !== null, 'resolveDocArray پیدا نشد');
+  assertContainsString(src, "arrName === 'wDocs'", 'باید wDocs را مستقیم resolve کند');
+  assertContainsString(src, "arrName === 'saleDocs'", 'باید saleDocs را مستقیم resolve کند');
+  const named = extractFunctionSource(html, 'openDocViewerNamed');
+  assertTrue(named !== null, 'openDocViewerNamed پیدا نشد');
+  assertContainsString(named, 'resolveDocArray', 'openDocViewerNamed باید resolveDocArray را صدا بزند');
+});
+
+test('شبیه‌سازی: openDocViewerNamed با آرایه let باید viewer را باز کند', () => {
+  const resolveSrc = extractFunctionSource(html, 'resolveDocArray');
+  const namedSrc = extractFunctionSource(html, 'openDocViewerNamed');
+  const openSrc = extractFunctionSource(html, 'openDocViewer');
+  const showSrc = extractFunctionSource(html, '_dvShowCurrent');
+  const applySrc = extractFunctionSource(html, '_dvApplyTransform');
+  assertTrue(!!(resolveSrc && namedSrc && openSrc && showSrc && applySrc), 'توابع viewer استخراج نشدند');
+  const els = {
+    'doc-viewer': { classList: { add(){ this._open=true; }, remove(){ this._open=false; }, contains(){ return !!this._open; }, _open:false }, style:{display:''}, className:'' },
+    'dv-img': { src:'', style:{} },
+    'dv-title': { textContent:'' },
+    'dv-zoom-val': { textContent:'' }
+  };
+  const wDocs = [{data:'data:image/png;base64,XX', name:'تست'}];
+  const fakeDoc = { getElementById(id){ return els[id]||null; } };
+  const ctx = { document: fakeDoc, window: { _dvDocs:[], _dvIdx:0, _dvZoom:1, _dvRotate:0 }, wDocs, saleDocs: [], ntf(){} };
+  // eslint-disable-next-line no-new-func
+  const fn = new Function('document','window','wDocs','saleDocs','ntf',
+    resolveSrc + '\n' + openSrc + '\n' + showSrc + '\n' + applySrc + '\n' + namedSrc + '\n' +
+    'return {openDocViewerNamed, openDocViewer};'
+  );
+  const api = fn(ctx.document, ctx.window, ctx.wDocs, ctx.saleDocs, ctx.ntf);
+  // bind window refs used inside functions
+  ctx.window._dvDocs = [];
+  api.openDocViewerNamed('wDocs', 0);
+  assertEqual(els['dv-img'].src, 'data:image/png;base64,XX', 'عکس باید در viewer ست شود');
+  assertTrue(els['doc-viewer'].classList._open === true || els['doc-viewer'].style.display === 'flex', 'مودال viewer باید باز شود');
 });
 
 test('viewer سراسری باید برای کالا، لوگو و پس‌زمینه چاپ هم در دسترس باشد', () => {

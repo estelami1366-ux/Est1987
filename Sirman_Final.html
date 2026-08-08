@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17γ">
+<meta name="app-version" content="1405.5.17δ">
 <meta name="app-date" content="1405/05/17">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -739,17 +739,16 @@ body.sb-dock .fab{bottom:110px;z-index:8000;}
 .viewable-img{cursor:zoom-in}
 .prod-img.viewable-img:hover{outline:2px solid var(--blue);outline-offset:1px}
 /* ───── مودال نمایش سند/عکس (viewer) با زوم و پرینت ───── */
-#doc-viewer{background:rgba(0,0,0,.92);z-index:9999;padding:0;}
-#doc-viewer.open{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;}
-.dv-toolbar{position:fixed;top:0;left:0;right:0;z-index:10001;display:flex;gap:8px;align-items:center;justify-content:center;padding:10px 16px;background:rgba(20,20,20,.85);backdrop-filter:blur(4px);}
+#doc-viewer{background:rgba(0,0,0,.92);z-index:200000!important;padding:0;}
+#doc-viewer.open{display:flex!important;flex-direction:column;align-items:center;justify-content:flex-start;}
+.dv-toolbar{position:fixed;top:0;left:0;right:0;z-index:200001!important;display:flex;gap:8px;align-items:center;justify-content:center;padding:10px 16px;background:rgba(20,20,20,.92);}
 .dv-toolbar button{background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:var(--font);transition:.15s;display:inline-flex;align-items:center;gap:4px;}
 .dv-toolbar button:hover{background:rgba(255,255,255,.25);}
 .dv-toolbar .dv-title{color:#fff;font-size:12px;margin-left:auto;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font);}
 .dv-toolbar .dv-zoom-val{color:#fff;font-size:13px;font-weight:700;min-width:50px;text-align:center;}
-.dv-img-wrap{flex:1;width:100%;overflow:auto;display:flex;align-items:center;justify-content:center;padding:60px 20px 20px;cursor:grab;}
-.dv-img-wrap:active{cursor:grabbing;}
-.dv-img-wrap img{max-width:none;transition:transform .2s;box-shadow:0 8px 40px rgba(0,0,0,.6);border-radius:4px;transform-origin:center center;}
-.dv-hint{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:11px;z-index:10001;font-family:var(--font);background:rgba(0,0,0,.4);padding:6px 14px;border-radius:20px;}
+.dv-img-wrap{flex:1;width:100%;height:100%;overflow:auto;display:flex;align-items:center;justify-content:center;padding:70px 20px 40px;cursor:default;box-sizing:border-box;}
+.dv-img-wrap img#dv-img{max-width:min(96vw,1200px);max-height:80vh;width:auto;height:auto;object-fit:contain;transition:transform .15s;box-shadow:0 8px 40px rgba(0,0,0,.6);border-radius:4px;transform-origin:center center;cursor:zoom-in;background:#111;}
+.dv-hint{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.75);font-size:11px;z-index:200001!important;font-family:var(--font);background:rgba(0,0,0,.55);padding:6px 14px;border-radius:20px;}
 @media print{#doc-viewer,.dv-toolbar,.dv-hint{display:none!important;}body{background:#fff!important;}}
 /* ───── کارت ضمیمه سند کلیک‌شدنی ───── */
 .doc-thumb{position:relative;display:inline-block;cursor:pointer;transition:transform .15s;}
@@ -947,7 +946,7 @@ body.has-bg-image::after{
 }
 body.has-bg-image.theme-dark::after{background:rgba(10,12,15,var(--bg-overlay,0.55));}
 
-/* ══════ اسکین قوی / Skin Pack (v1405.5.17γ) ══════ */
+/* ══════ اسکین قوی / Skin Pack (v1405.5.17δ) ══════ */
 .skin-card{width:148px;border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--card);transition:.18s;text-align:right;}
 .skin-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,40,55,.10);}
 .skin-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 25%,transparent);}
@@ -1562,7 +1561,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۱۷γ — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۱۷δ — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-sm" onclick="promptExitBackup()" style="width:100%;margin-top:6px">🚪 خروج / بستن برنامه</button>
 </div>
 
@@ -4020,7 +4019,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۱۷γ
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۱۷δ
 </div>
 </div>
 
@@ -4530,9 +4529,9 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
     <button onclick="closeDocViewer()" title="بستن" style="background:var(--red)">✕</button>
   </div>
   <div class="dv-img-wrap" id="dv-img-wrap" onclick="dvClickOutside(event)">
-    <img id="dv-img" src="" alt="سند">
+    <img id="dv-img" src="" alt="سند" onclick="event.stopPropagation();docViewerZoom(0.25)" title="کلیک = زوم">
   </div>
-  <div class="dv-hint">رول‌ماوس برای زوم · کلیک بیرون برای بستن</div>
+  <div class="dv-hint" onclick="event.stopPropagation()">➖ ➕ زوم · رول‌ماوس · کلیک روی عکس · ✕ بستن</div>
 </div>
 
 
@@ -4597,7 +4596,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 
 <script>
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.17γ';
+var APP_VERSION = '1405.5.17δ';
 var APP_DATE = '1405/05/17';
 var BRAND_DEFAULTS = {
   nameFa: 'سیرمان',
@@ -4688,7 +4687,7 @@ function _safeStr(s){ return (s==null)?'':String(s); }
 
 function _buildFullBackupData(){
   var data = {
-    version: '1405.5.17γ',
+    version: '1405.5.17δ',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -6242,7 +6241,7 @@ function buildPH(list){
 
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 const w=window.open('','_blank'); w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17γ">
+<meta name="app-version" content="1405.5.17δ">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`); w.document.close(); w.focus(); w.print(); w.close();}
 function expPDF(){printInv();}
 
@@ -6259,7 +6258,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17γ">
+<meta name="app-version" content="1405.5.17δ">
 <meta name="app-date" content="1405/05/17"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -6319,7 +6318,7 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);const w=window.open('','_blank');w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17γ">
+<meta name="app-version" content="1405.5.17δ">
 <meta name="app-date" content="1405/05/17"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);w.document.close();w.focus();w.print();w.close();}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -6339,11 +6338,11 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];const w=window.open('','_blank');w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17γ">
+<meta name="app-version" content="1405.5.17δ">
 <meta name="app-date" content="1405/05/17"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);w.document.close();w.focus();w.print();w.close();}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17γ">
+<meta name="app-version" content="1405.5.17δ">
 <meta name="app-date" content="1405/05/17"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -6699,7 +6698,7 @@ function printPostal(){
   const w=window.open('','_blank');
   const cont=document.getElementById('postal-preview').innerHTML;
   w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17γ">
+<meta name="app-version" content="1405.5.17δ">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
   w.document.close(); w.focus(); w.print(); w.close();
 }
@@ -7865,7 +7864,7 @@ function enableTaskNotifications(){
 }
 function registerLaeghSW(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('sw.js?v=1405.5.17γ').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=1405.5.17δ').then(reg=>{
     _swReg=reg;
     // Check for SW updates
     reg.addEventListener('updatefound', ()=>{
@@ -9011,7 +9010,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.17γ">'+
+    '<meta name="app-version" content="1405.5.17δ">'+
     '<meta name="app-date" content="1405/05/17">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -9162,7 +9161,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.17γ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.17δ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -9979,31 +9978,65 @@ window._dvDocs=[]; // پشته‌ی اسناد فعلی viewer (اختیاری �
 window._dvIdx=0;
 // باز کردن viewer با یک سند یا لیستی از اسناد
 // docs: {data,name} یا آرایه‌ای از آن‌ها؛ idx: اندیس اولیه (اختیاری)
+// آرایه‌های let (مثل wDocs/saleDocs) روی window نیستند
+function resolveDocArray(arrName){
+  if(!arrName) return null;
+  if(arrName === 'wDocs' && typeof wDocs !== 'undefined') return wDocs;
+  if(arrName === 'saleDocs' && typeof saleDocs !== 'undefined') return saleDocs;
+  try{ if(typeof window !== 'undefined' && window[arrName]) return window[arrName]; }catch(_e){}
+  return null;
+}
+function openDocViewerNamed(arrName, idx){
+  var arr = resolveDocArray(arrName);
+  if(!arr || !arr.length){ if(typeof ntf==='function') ntf('سندی برای نمایش نیست','err'); return; }
+  openDocViewer(arr, idx||0);
+}
+function spliceDocNamed(arrName, idx, renderCall){
+  var arr = resolveDocArray(arrName);
+  if(!arr) return;
+  arr.splice(idx,1);
+  try{
+    if(typeof renderCall === 'function'){ renderCall(); return; }
+    var code = String(renderCall||'').trim();
+    if(!code) return;
+    if(code.indexOf('(')===-1) code += '()';
+    (new Function(code))();
+  }catch(_e){}
+}
 function openDocViewer(docs, idx){
   if(!docs) return;
   var list = Array.isArray(docs) ? docs : [docs];
+  list = list.map(function(d){
+    if(!d) return null;
+    if(typeof d === 'string') return {data:d, name:'سند'};
+    if(d.data) return d;
+    if(d.src) return {data:d.src, name:d.name||'سند'};
+    return null;
+  }).filter(Boolean);
   if(!list.length) return;
   window._dvDocs=list;
-  window._dvIdx=idx||0;
+  window._dvIdx = Math.max(0, Math.min(idx||0, list.length-1));
   _dvShowCurrent();
-  document.getElementById('doc-viewer').classList.add('open');
+  var m=document.getElementById('doc-viewer');
+  if(m){ m.classList.add('open'); m.style.display='flex'; }
 }
 function _dvShowCurrent(){
   var d=window._dvDocs[window._dvIdx];
   if(!d) return;
   var img=document.getElementById('dv-img');
   var titleEl=document.getElementById('dv-title');
-  img.src=d.data;
+  if(!img) return;
+  img.src = d.data || d.src || '';
   if(titleEl) titleEl.textContent=d.name||('سند '+(window._dvIdx+1));
   window._dvZoom=1; window._dvRotate=0;
   _dvApplyTransform();
 }
 function closeDocViewer(){
   var m=document.getElementById('doc-viewer');
-  if(m) m.classList.remove('open');
+  if(m){ m.classList.remove('open'); m.style.display=''; }
 }
-// کلیک روی پس‌زمینه (نه روی عکس یا تول‌بار) → بستن مودال
 function dvClickOutside(e){
+  if(!e || !e.target) return;
   if(e.target.id==='doc-viewer' || e.target.id==='dv-img-wrap') closeDocViewer();
 }
 function docViewerZoom(delta){
@@ -10021,9 +10054,12 @@ function docViewerRotate(){
 function _dvApplyTransform(){
   var img=document.getElementById('dv-img');
   if(!img) return;
-  img.style.transform='scale('+window._dvZoom+') rotate('+window._dvRotate+'deg)';
+  var z = window._dvZoom || 1;
+  img.style.transform='scale('+z+') rotate('+(window._dvRotate||0)+'deg)';
+  if(z > 1.05){ img.style.maxWidth='none'; img.style.maxHeight='none'; }
+  else { img.style.maxWidth=''; img.style.maxHeight=''; }
   var zEl=document.getElementById('dv-zoom-val');
-  if(zEl) zEl.textContent=Math.round(window._dvZoom*100).toLocaleString('fa-IR')+'٪';
+  if(zEl) zEl.textContent=Math.round(z*100).toLocaleString('fa-IR')+'٪';
 }
 // چاپ سند: یک پنجره جدید باز می‌کند و فقط عکس را چاپ می‌کند
 function docViewerPrint(){
@@ -10062,10 +10098,14 @@ document.addEventListener('wheel', function(e){
 // arrName: نام متغیر آرایه (رشته، مثلاً 'wDocs')، d: آبجکت سند، idx: اندیس، renderFn: تابع رندر
 function _renderDocThumb(arrName, d, idx, renderFn){
   if(!d) return '';
-  return '<div class="doc-thumb" onclick="openDocViewer(window[\''+arrName+'\'],'+idx+')">'+
-    '<img src="'+d.data+'" title="'+escapeAttr(d.name||'سند')+'">'+
+  var src = d.data || d.src || '';
+  if(!src) return '';
+  var rf = (typeof renderFn === 'string') ? renderFn : '';
+  // مهم: openDocViewerNamed — چون آرایه‌های let روی window نیستند
+  return '<div class="doc-thumb" onclick="openDocViewerNamed(\''+arrName+'\','+idx+')" title="کلیک برای بزرگ‌نمایی">'+
+    '<img src="'+src+'" alt="'+escapeAttr(d.name||'سند')+'">'+
     '<span class="doc-zoom-badge">🔍</span>'+
-    '<button class="doc-del" onclick="event.stopPropagation();window[\''+arrName+'\'].splice('+idx+',1);'+renderFn+'()">✕</button>'+
+    '<button type="button" class="doc-del" onclick="event.stopPropagation();spliceDocNamed(\''+arrName+'\','+idx+',\''+String(rf).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">✕</button>'+
     '</div>';
 }
 function escapeAttr(s){ return String(s).replace(/'/g,'\\\'').replace(/"/g,'&quot;'); }
@@ -10204,7 +10244,7 @@ function doPrint(paperSize){
   const effPaper = pw.paper || paperSize;
   const w = window.open('','_blank');
   w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17γ">
+<meta name="app-version" content="1405.5.17δ">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -10315,7 +10355,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.17γ">'+
+    '<meta name="app-version" content="1405.5.17δ">'+
     '<meta name="app-date" content="1405/05/17">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -10391,7 +10431,7 @@ function printCompanyReport(idx){
   var qcResultLbl = {'pass':'✅ تأیید کیفیت','fail':'❌ رد شد — نیاز به اصلاح','pending':'در حال بررسی'};
   var mgrApproveLbl = {'approved':'✅ تأیید نهایی','pending':'در انتظار بررسی','rejected':'❌ رد شد'};
 
-  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.17γ';
+  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.17δ';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
     '<title>گزارش داخلی شرکت — '+wHdr.id+'</title>'+
     '<style>'+
@@ -11022,7 +11062,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.17γ">'+
+    '<meta name="app-version" content="1405.5.17δ">'+
     '<meta name="app-date" content="1405/05/17">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -11242,7 +11282,7 @@ function expSalesExcel(){
 // ══════ حسابداری ══════
 // ═══════════════════════════════════════════════════════════════════════════
 // ماژول داغی (پیگیری رسید امضا‌شده‌ی نمایندگی‌های خدمات)
-// نسخه ۱۴۰۵.۵.۱۷γ — فاز داغی
+// نسخه ۱۴۰۵.۵.۱۷δ — فاز داغی
 //
 // «داغی» یعنی وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستیم، آن‌ها باید رسید امضا‌شده
 // (داغی) را به ما برگردانند. این ماژول پیگیری می‌کند که چه کسانی داغی معوقه دارند.
@@ -12385,7 +12425,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.17γ">'+
+    '<meta name="app-version" content="1405.5.17δ">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
