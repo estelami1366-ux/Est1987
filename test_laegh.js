@@ -3815,14 +3815,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۱۷β باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۱۷γ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.17β', 'نسخه meta باید 1405.5.17β باشد');
+  assertEqual(metaVer, '1405.5.17γ', 'نسخه meta باید 1405.5.17γ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/17', 'app-date باید 1405/05/17 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۷β', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۷β را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۷γ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۷γ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.17β'", 'فیلد version بک‌آپ باید 1405.5.17β باشد');
+  assertContainsString(buildSrc, "version: '1405.5.17γ'", 'فیلد version بک‌آپ باید 1405.5.17γ باشد');
 });
 
 console.log('');
@@ -4368,6 +4368,83 @@ test('شبیه‌سازی: setTextSize باید درصد را بین ۹۰ تا �
   api.setTextSize(135, true);
   assertEqual(store['laegh_text_size'], '135', 'درصد باید ذخیره شود');
   assertEqual(rootProps['--text-scale'], '1.35', '--text-scale باید ست شود');
+});
+
+console.log('');
+console.log('📋 گروه: جستجوی دفترچه در داغی + برش پس‌زمینه + پل اعلان + viewer سراسری');
+
+test('داغی باید کشویی قابل‌جستجو از دفترچه داشته باشد نه فقط select ساده', () => {
+  assertContainsString(html, 'id="daqi-agency-search"', 'ورودی جستجوی نمایندگی داغی پیدا نشد');
+  assertContainsString(html, 'id="daqi-agency-combo"', 'کامبوی دفترچه داغی پیدا نشد');
+  assertContainsString(html, 'function filterDaqiAgencyCombo(', 'تابع فیلتر داغی پیدا نشد');
+  assertContainsString(html, 'function pickDaqiAgency(', 'تابع انتخاب مخاطب داغی پیدا نشد');
+  assertTrue(!/<select id="daqi-agency-sel"/.test(html), 'select قدیمی داغی باید با کامبوی جستجو جایگزین شده باشد');
+});
+
+test('شبیه‌سازی: filterDaqiAgencyCombo باید مخاطب را با نام/تلفن پیدا کند و pick پر کند', () => {
+  const labelSrc = extractFunctionSource(html, '_daqiAgencyLabel');
+  const filterSrc = extractFunctionSource(html, 'filterDaqiAgencyCombo');
+  const pickSrc = extractFunctionSource(html, 'pickDaqiAgency');
+  assertTrue(!!(labelSrc && filterSrc && pickSrc), 'توابع جستجوی داغی استخراج نشدند');
+  const store = {};
+  const els = {
+    'daqi-agency-list': { innerHTML: '' },
+    'daqi-agency-sel': { value: '' },
+    'daqi-agency-search': { value: '' },
+    'daqi-agency-name': { value: '' },
+    'daqi-agency-phone': { value: '' },
+    'daqi-agency-combo': { classList: { remove(){}, add(){} } }
+  };
+  const phonebook = [
+    { fn:'علی', ln:'رضایی', shop:'نمایندگی شمال', phones:['09120001111'] },
+    { fn:'مریم', ln:'کریمی', shop:'خدمات جنوب', phones:['09350002222'] }
+  ];
+  const fakeDoc = { getElementById(id){ return els[id] || null; } };
+  // eslint-disable-next-line no-new-func
+  const fn = new Function('document','phonebook',
+    labelSrc + '\n' + filterSrc + '\n' + pickSrc + '\n return {filterDaqiAgencyCombo, pickDaqiAgency};'
+  );
+  const api = fn(fakeDoc, phonebook);
+  api.filterDaqiAgencyCombo('جنوب');
+  assertTrue(String(els['daqi-agency-list'].innerHTML).indexOf('مریم') !== -1, 'جستجوی جنوب باید مریم را نشان دهد');
+  assertTrue(String(els['daqi-agency-list'].innerHTML).indexOf('علی') === -1, 'علی نباید در نتیجه جنوب باشد');
+  api.pickDaqiAgency(0);
+  assertEqual(els['daqi-agency-sel'].value, '0', 'اندیس مخاطب باید در hidden ست شود');
+  assertEqual(els['daqi-agency-name'].value, 'علی رضایی', 'نام نمایندگی باید پر شود');
+  assertEqual(els['daqi-agency-phone'].value, '09120001111', 'تلفن باید پر شود');
+});
+
+test('مودال برش چارچوب پس‌زمینه و اتصال به set*BgImage باید موجود باشد', () => {
+  assertContainsString(html, 'id="bg-crop-modal"', 'مودال برش پس‌زمینه پیدا نشد');
+  assertContainsString(html, 'function openBgCropModal(', 'openBgCropModal پیدا نشد');
+  assertContainsString(html, 'function confirmBgCrop(', 'confirmBgCrop پیدا نشد');
+  assertContainsString(html, 'function _beginBgCropFromFile(', '_beginBgCropFromFile پیدا نشد');
+  const sb = extractFunctionSource(html, 'setSbBgImage');
+  const app = extractFunctionSource(html, 'setAppBgImage');
+  const print = extractFunctionSource(html, 'setPrintBgImage');
+  assertContainsString(sb, '_setCoverBg(', 'setSbBgImage باید از مسیر برش استفاده کند');
+  assertContainsString(app, '_beginBgCropFromFile(', 'setAppBgImage باید برش را باز کند');
+  assertContainsString(print, '_beginBgCropFromFile(', 'setPrintBgImage باید برش را باز کند');
+  assertContainsString(html, 'contain:paint', 'CSS باید contain:paint برای جلوگیری از بیرون‌زدن داشته باشد');
+});
+
+test('پل اعلان ویندوز باید از showLaeghNotification صدا زده شود', () => {
+  assertContainsString(html, 'function pushWindowsNotifyBridge(', 'تابع پل ویندوز پیدا نشد');
+  const src = extractFunctionSource(html, 'showLaeghNotification');
+  assertContainsString(src, 'pushWindowsNotifyBridge(', 'showLaeghNotification باید پل را صدا بزند');
+  const bridge = extractFunctionSource(html, 'pushWindowsNotifyBridge');
+  assertContainsString(bridge, '127.0.0.1:8766', 'آدرس پل اعلان باید 8766 باشد');
+  assertContainsString(html, 'اعلان_سیرمان.ps1', 'راهنما باید به اسکریپت پل اشاره کند');
+});
+
+test('viewer سراسری باید برای کالا، لوگو و پس‌زمینه چاپ هم در دسترس باشد', () => {
+  assertContainsString(html, 'function viewProductByCode(', 'viewProductByCode پیدا نشد');
+  assertContainsString(html, 'function previewPrintBg(', 'previewPrintBg پیدا نشد');
+  assertContainsString(html, 'function previewStoredBg(', 'previewStoredBg پیدا نشد');
+  assertContainsString(html, 'function viewProdImg(', 'viewProdImg پیدا نشد');
+  assertContainsString(html, 'viewable-img', 'کلاس viewable-img پیدا نشد');
+  assertContainsString(html, 'onclick="previewPrintBg(', 'دکمه پیش‌نمایش چاپ پیدا نشد');
+  assertContainsString(html, 'چارچوب پس‌زمینه', 'راهنمای چارچوب پس‌زمینه پیدا نشد');
 });
 
 // نتیجه نهایی
