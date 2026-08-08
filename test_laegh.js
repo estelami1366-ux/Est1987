@@ -3815,14 +3815,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۱۷α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۱۷β باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.17α', 'نسخه meta باید 1405.5.17α باشد');
+  assertEqual(metaVer, '1405.5.17β', 'نسخه meta باید 1405.5.17β باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/17', 'app-date باید 1405/05/17 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۷α', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۷α را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۷β', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۷β را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.17α'", 'فیلد version بک‌آپ باید 1405.5.17α باشد');
+  assertContainsString(buildSrc, "version: '1405.5.17β'", 'فیلد version بک‌آپ باید 1405.5.17β باشد');
 });
 
 console.log('');
@@ -4319,6 +4319,52 @@ test('شبیه‌سازی: printBgCss با تصویر باید CSS پس‌زمی
   const css = fn(fakeLS, 'laegh_printSettings', {});
   assertTrue(String(css).indexOf('background-image:url(') !== -1, 'باید background-image داشته باشد');
   assertTrue(String(css).indexOf('opacity:0.2') !== -1, 'باید شفافیت تصویر را اعمال کند');
+});
+
+console.log('');
+console.log('📋 گروه: اندازه متن کشویی/عددی');
+
+test('اندازه متن باید کشویی و عددی باشد نه فقط ۳ حالت', () => {
+  assertContainsString(html, 'id="txtSizeRange"', 'کشویی اندازه متن پیدا نشد');
+  assertContainsString(html, 'id="txtSizeNum"', 'ورودی عددی اندازه متن پیدا نشد');
+  assertContainsString(html, 'id="txtSizeVal"', 'نمایش درصد اندازه متن پیدا نشد');
+  assertTrue(!html.includes('id="text-size-select"'), 'سلکتور سه‌حالتی قدیمی باید حذف شده باشد');
+  assertContainsString(html, '--text-scale', 'متغیر --text-scale پیدا نشد');
+  assertContainsString(html, 'function _normalizeTextSizePct(', 'نرمال‌سازی درصد پیدا نشد');
+  assertContainsString(html, 'function applyTextSize(', 'applyTextSize پیدا نشد');
+});
+
+test('شبیه‌سازی: setTextSize باید درصد را بین ۹۰ تا ۱۸۰ نگه دارد و sm/lg را مهاجرت دهد', () => {
+  const norm = extractFunctionSource(html, '_normalizeTextSizePct');
+  const setSrc = extractFunctionSource(html, 'setTextSize');
+  assertTrue(!!(norm && setSrc), 'توابع اندازه متن استخراج نشدند');
+  const store = {};
+  const rootProps = {};
+  const fakeDocument = {
+    body: { classList: { remove(){}, add(){} } },
+    documentElement: { style: { setProperty(n,v){ rootProps[n]=v; } } },
+    getElementById(id){
+      if(id==='txtSizeVal') return { textContent:'' };
+      if(id==='txtSizeRange' || id==='txtSizeNum') return { value:'' };
+      return null;
+    }
+  };
+  const fakeLS = {
+    getItem(k){ return store[k]===undefined?null:store[k]; },
+    setItem(k,v){ store[k]=String(v); }
+  };
+  // eslint-disable-next-line no-new-func
+  const fn = new Function('document','localStorage','ntf',
+    norm + '\n' + setSrc + '\n return {setTextSize, _normalizeTextSizePct};'
+  );
+  const api = fn(fakeDocument, fakeLS, ()=>{});
+  assertEqual(api._normalizeTextSizePct('sm'), 92, 'sm باید به ۹۲٪ مهاجرت کند');
+  assertEqual(api._normalizeTextSizePct('lg'), 120, 'lg باید به ۱۲۰٪ مهاجرت کند');
+  assertEqual(api._normalizeTextSizePct(50), 90, 'زیر ۹۰٪ باید به کف ۹۰٪ برود');
+  assertEqual(api._normalizeTextSizePct(200), 180, 'بالای ۱۸۰٪ باید سقف شود');
+  api.setTextSize(135, true);
+  assertEqual(store['laegh_text_size'], '135', 'درصد باید ذخیره شود');
+  assertEqual(rootProps['--text-scale'], '1.35', '--text-scale باید ست شود');
 });
 
 // نتیجه نهایی
