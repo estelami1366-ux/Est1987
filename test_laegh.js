@@ -3872,6 +3872,14 @@ test('شبیه‌سازی واقعی: setDepth3D باید کلاس depth-3d و l
   assertEqual(store['laegh_depth3d'], 'off', 'localStorage باید off شود');
 });
 
+test('عمق سه‌بعدی نباید GPU سنگین (perspective/translateZ/blur) داشته باشد — رفع لگ و بریدن سایدبار', () => {
+  assertTrue(!/perspective\s*:\s*1400px/.test(html), 'perspective نباید باشد — باعث بریدن سایدبار و لگ می‌شود');
+  assertTrue(!/transform\s*:\s*translateZ\(40px\)/.test(html), 'translateZ روی سایدبار نباید باشد');
+  assertTrue(!/\.topbar\{[^}]*backdrop-filter\s*:\s*blur\(10px\)/.test(html), 'blur روی topbar نباید باشد');
+  assertContainsString(html, 'transform:none!important', 'سایدبار باید transform:none داشته باشد تا از لبه نپرد');
+  assertContainsString(html, 'padding-right:max(10px', 'سایدبار باید padding راست امن داشته باشد');
+});
+
 
 console.log('');
 console.log('📋 گروه ۳۹: آیکون کلاسیک منو + رفع بریدن متن سایدبار');
