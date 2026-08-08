@@ -3724,6 +3724,105 @@ test('شبیه‌سازی واقعی: ثبت داغی + دریافت + تجمی�
   assertEqual(pendingB2.length, 0, 'بعد از لغو، نمایندگی ب نباید داغی معوقه داشته باشد');
 });
 
+console.log('');
+console.log('📋 گروه ۳۷: اسکین قوی / Skin Pack (پوسته کامل برنامه)');
+
+test('SKIN_PRESETS باید حداقل ۵ اسکین با پالت کامل تعریف کرده باشد', () => {
+  assertContainsString(html, 'const SKIN_PRESETS', 'آبجکت SKIN_PRESETS پیدا نشد');
+  const m = html.match(/const SKIN_PRESETS = \{([\s\S]*?)\n\};\n\nconst COLOR_THEMES/);
+  assertTrue(m !== null, 'بدنه SKIN_PRESETS استخراج نشد');
+  const keys = [...m[1].matchAll(/^\s{2}(\w+):\s*\{/gm)].map(x => x[1]);
+  assertTrue(keys.length >= 5, 'باید حداقل ۵ اسکین تعریف شده باشد — یافت‌شده: ' + keys.join(', '));
+  assertTrue(keys.includes('parsian'), 'اسکین parsian (برند) باید وجود داشته باشد');
+  assertTrue(keys.includes('classic'), 'اسکین classic (سازگاری با نسخه قبل) باید وجود داشته باشد');
+  assertContainsString(m[1], 'atmosphere', 'اسکین‌ها باید فلگ atmosphere داشته باشند');
+  assertContainsString(m[1], 'preview:', 'هر اسکین باید preview گرادیان برای کارت انتخاب داشته باشد');
+});
+
+test('UI انتخاب اسکین و توابع setSkin/applySkinVars/renderSkinCards باید موجود باشند', () => {
+  assertContainsString(html, 'id="skin-preset-cards"', 'باکس کارت‌های اسکین در تنظیمات ظاهر پیدا نشد');
+  assertContainsString(html, 'function setSkin(', 'تابع setSkin پیدا نشد');
+  assertContainsString(html, 'function applySkinVars(', 'تابع applySkinVars پیدا نشد');
+  assertContainsString(html, 'function renderSkinCards(', 'تابع renderSkinCards پیدا نشد');
+  assertContainsString(html, 'has-skin-atmosphere', 'کلاس جوّ پس‌زمینه اسکین پیدا نشد');
+  assertContainsString(html, 'پوسته / اسکین برنامه', 'عنوان بخش اسکین در تنظیمات پیدا نشد');
+});
+
+test('اسکین باید در بک‌آپ appearance ذخیره و هنگام بازگردانی اعمال شود', () => {
+  const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
+  assertTrue(buildSrc !== null, 'تابع _buildFullBackupData پیدا نشد');
+  assertContainsString(buildSrc, "skin: localStorage.getItem('laegh_skin')", 'appearance.skin باید در بک‌آپ ذخیره شود');
+  assertContainsString(html, "localStorage.setItem('laegh_skin', ap.skin)", 'بازگردانی باید laegh_skin را بنویسد');
+  assertContainsString(html, "if(typeof applyAppearanceSettings==='function') applyAppearanceSettings();", 'بعد از بازگردانی ظاهر باید applyAppearanceSettings صدا زده شود');
+});
+
+test('applyAppearanceSettings باید اسکین را قبل از تم رنگی اعمال کند و پیش‌فرض parsian باشد', () => {
+  const fnSrc = extractFunctionSource(html, 'applyAppearanceSettings');
+  assertTrue(fnSrc !== null, 'تابع applyAppearanceSettings پیدا نشد');
+  const skinPos = fnSrc.indexOf('applySkinVars');
+  const colorPos = fnSrc.indexOf('applyColorThemeVars');
+  assertTrue(skinPos !== -1, 'applyAppearanceSettings باید applySkinVars را صدا بزند');
+  assertTrue(colorPos !== -1, 'applyAppearanceSettings باید همچنان applyColorThemeVars را پشتیبانی کند');
+  assertTrue(skinPos < colorPos, 'اسکین باید قبل از تم رنگی اعمال شود تا پالت پایه درست باشد');
+  assertContainsString(fnSrc, "|| 'parsian'", 'پیش‌فرض اسکین باید parsian باشد');
+});
+
+test('شبیه‌سازی واقعی: setSkin باید کلاس اسکین، متغیرهای CSS و localStorage را تنظیم کند (execution-based)', () => {
+  const applySrc = extractFunctionSource(html, 'applySkinVars');
+  const setSrc = extractFunctionSource(html, 'setSkin');
+  assertTrue(applySrc && setSrc, 'توابع اسکین استخراج نشدند');
+  const m = html.match(/const SKIN_PRESETS = \{[\s\S]*?\n\};\n\nconst COLOR_THEMES/);
+  assertTrue(m !== null, 'SKIN_PRESETS برای sandbox استخراج نشد');
+  const presetsSrc = m[0].replace(/\n\nconst COLOR_THEMES$/, '');
+
+  const props = {};
+  const classes = new Set();
+  const store = {};
+  const fakeDocument = {
+    documentElement: { style: { setProperty(n,v){ props[n]=v; } } },
+    body: {
+      classList: {
+        remove(...cs){ cs.forEach(c => classes.delete(c)); },
+        add(...cs){ cs.forEach(c => classes.add(c)); },
+        contains(c){ return classes.has(c); }
+      }
+    },
+    getElementById: () => null,
+    querySelectorAll: () => []
+  };
+  const fakeLS = {
+    getItem: k => (Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null),
+    setItem: (k,v) => { store[k]=String(v); },
+    removeItem: k => { delete store[k]; }
+  };
+  const runner = new Function(
+    'document','localStorage','ntf','setAppFont','renderSkinCards','renderColorThemeSwatches',
+    presetsSrc + '\n' + applySrc + '\n' + setSrc + '\nsetSkin("ocean");'
+  );
+  runner(fakeDocument, fakeLS, function(){}, function(){}, function(){}, function(){});
+  assertEqual(store['laegh_skin'], 'ocean', 'laegh_skin باید ocean شود');
+  assertTrue(classes.has('skin-ocean'), 'کلاس skin-ocean باید روی body باشد');
+  assertTrue(classes.has('has-skin-atmosphere'), 'اسکین ocean باید جوّ پس‌زمینه داشته باشد');
+  assertEqual(props['--blue'], '#0F766E', 'رنگ اصلی اسکین ocean باید ست شده باشد');
+  assertTrue(store['laegh_color_theme'] === undefined, 'با انتخاب اسکین، تم رنگی دستی باید پاک شود تا تضاد نسازد');
+});
+
+test('قانون ۷: راهنمای اسکین باید در صفحه راهنما موجود باشد', () => {
+  assertContainsString(html, 'پوسته / اسکین برنامه', 'عنوان راهنمای اسکین پیدا نشد');
+  assertContainsString(html, 'پارسیان', 'راهنما باید اسکین پارسیان را توضیح دهد');
+  assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
+});
+
+test('نسخه ۱۱.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+  const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
+  assertEqual(metaVer, '11.5.17', 'نسخه meta باید 11.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای اسکین قوی)');
+  const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
+  assertEqual(metaDate, '1405/05/17', 'app-date باید 1405/05/17 باشد');
+  assertContainsString(html, 'نسخه ۱۱.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۱.۵.۱۷ را نشان دهد');
+  const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
+  assertContainsString(buildSrc, "version: '11.5.17'", 'فیلد version بک‌آپ باید 11.5.17 باشد');
+});
+
 // نتیجه نهایی
 // ===================================================================
 Promise.all(pendingAsync).then(() => {

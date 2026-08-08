@@ -19,7 +19,7 @@ notes.project:
 notes.workflow:
   - "Follow Laegh_SKILL.md / .agents/skills/laegh-software-workflow before any Laegh edit or delivery"
 notes.memory:
-  - "Latest delivered app version in workspace: 10.5.20"
+  - "Latest delivered app version in workspace: 11.5.17"
 notes.tools:
   - "node build.js / node split.js / node test_laegh.js; sw.js for PWA notifications"
 lessons:
@@ -45,8 +45,8 @@ lessons:
 ## 当前项目
 - **نام**: لایق الکترونیک پارسیان (Laegh Electronic Parsian)
 - **نوع**: نرم‌افزار واقعی خدمات پس از فروش — فایل HTML تک‌تکه
-- **نسخه فعلی در workspace**: `10.5.20` (`Laegh_Final.html` / `Laegh_Final_10.5.20.html`)
-- **آرشیو نسخه‌ها**: `releases/` از 10.4.6 تا 10.5.20
+- **نسخه فعلی در workspace**: `11.5.17` (`Laegh_Final.html` / `Laegh_Final_11.5.17.html`)
+- **آرشیو نسخه‌ها**: `releases/` از 10.4.6 تا 11.5.17
 - **ابزارها**: `build.js`, `split.js`, `test_laegh.js`, `sw.js`, `اجرای لایق.bat`
 - **قوانین اجباری**: `Laegh_SKILL.md` و `.agents/skills/laegh-software-workflow/SKILL.md`
 - **نقشه ماژولار (مرجع ۱۰.۴.۱۶)**: `Laegh_parts_INDEX.md`
