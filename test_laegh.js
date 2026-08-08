@@ -1222,9 +1222,9 @@ test('همه متاتگ‌های app-date در سراسر فایل باید دق
 
 test('نسخه نوشته‌شده در فوتر سایدبار (نسخه ۱۰.۴.۲ — با اعداد فارسی) باید با نسخه متاتگ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  const footMatch = html.match(/sb-foot">نسخه ([۰-۹.]+)/);
+  const footMatch = html.match(/sb-foot"[^>]*>نسخه\s+([^—<]+)/);
   assertTrue(footMatch !== null, 'متن نسخه در فوتر سایدبار پیدا نشد');
-  const footVerEn = faDigitsToEn(footMatch[1]);
+  const footVerEn = faDigitsToEn(footMatch[1].trim());
   assertEqual(footVerEn, metaVer, 'نسخه فوتر سایدبار (با اعداد فارسی، به‌راحتی از چشم در جستجوی متنی رد می‌شود) با نسخه متاتگ یکی نیست — فوتر: ' + footVerEn + ' / متا: ' + metaVer);
 });
 
@@ -1239,14 +1239,16 @@ test('فیلد version داخل آبجکت بک‌آپ باید با نسخه م
   assertEqual(m[1], metaVer, 'نسخه داخل فایل بک‌آپ (' + m[1] + ') با نسخه متاتگ (' + metaVer + ') یکی نیست');
 });
 
-test('قسمت ماه/روز نسخه (فرمت Major.Month.Day) باید دقیقاً با تاریخ متاتگ app-date مطابقت داشته باشد', () => {
+test('قسمت سال/ماه/روز نسخه (فرمت Year.Month.Day + حرف یونانی اختیاری) باید با تاریخ متاتگ app-date مطابقت داشته باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertTrue(!!metaVer && !!metaDate, 'نسخه یا تاریخ متاتگ پیدا نشد');
-  const parts = metaVer.split('.');
-  assertEqual(parts.length, 3, 'فرمت نسخه باید Major.Month.Day باشد (۳ بخش): ' + metaVer);
-  const monthDay = parts[1].padStart(2,'0') + '/' + parts[2].padStart(2,'0');
-  assertTrue(metaDate.endsWith(monthDay), 'بخش ماه/روز نسخه (' + monthDay + ') با انتهای تاریخ متاتگ (' + metaDate + ') مطابقت ندارد — یعنی نسخه و تاریخ واقعی هماهنگ نیستند');
+  const vm = metaVer.match(/^(\d+)\.(\d+)\.(\d+)([αβγδεζηθικλμνξοπρστυφχψω]?)$/);
+  assertTrue(!!vm, 'فرمت نسخه باید Year.Month.Day با حرف یونانی اختیاری باشد: ' + metaVer);
+  const [y, m, d] = metaDate.split('/');
+  assertEqual(vm[1], y, 'سال نسخه با app-date یکی نیست');
+  assertEqual(vm[2].padStart(2,'0'), m, 'ماه نسخه با app-date یکی نیست');
+  assertEqual(vm[3].padStart(2,'0'), d, 'روز نسخه با app-date یکی نیست');
 });
 
 console.log('');
@@ -3813,14 +3815,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۲۰.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۱۷α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '20.5.17', 'نسخه meta باید 20.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای فونت‌ها/رنگ داشبورد)');
+  assertEqual(metaVer, '1405.5.17α', 'نسخه meta باید 1405.5.17α باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/17', 'app-date باید 1405/05/17 باشد');
-  assertContainsString(html, 'نسخه ۲۰.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۲۰.۵.۱۷ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۷α', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۷α را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '20.5.17'", 'فیلد version بک‌آپ باید 20.5.17 باشد');
+  assertContainsString(buildSrc, "version: '1405.5.17α'", 'فیلد version بک‌آپ باید 1405.5.17α باشد');
 });
 
 console.log('');
@@ -4252,6 +4254,71 @@ test('ماندگاری: فشرده‌سازی عکس و ذخیره صفحه آخ
   assertContainsString(html, "localStorage.setItem('laegh_last_page'", 'ذخیره صفحه آخر پیدا نشد');
   assertContainsString(html, 'restoreLastPageAndAppearance', 'بازیابی ظاهر/صفحه هنگام بالا آمدن پیدا نشد');
   assertContainsString(html, "'laegh_dash_tint'", 'کلید رنگ داشبورد در حفاظت/کد پیدا نشد');
+});
+
+console.log('');
+console.log('📋 گروه: برند سیرمان + نسخه یونانی + پس‌زمینه چاپ');
+
+test('برند پیش‌فرض سیرمان و getBrand/applyBrand باید موجود باشد', () => {
+  assertContainsString(html, "nameFa: 'سیرمان'", 'پیش‌فرض فارسی سیرمان نیست');
+  assertContainsString(html, "nameEn: 'Sirman'", 'پیش‌فرض انگلیسی Sirman نیست');
+  assertContainsString(html, 'function getBrand(', 'getBrand پیدا نشد');
+  assertContainsString(html, 'function applyBrand(', 'applyBrand پیدا نشد');
+  assertContainsString(html, 'id="co-name-fa"', 'فیلد نام فارسی برند نیست');
+  assertContainsString(html, 'id="co-name-en"', 'فیلد نام انگلیسی برند نیست');
+  assertContainsString(html, 'id="sb-brand-en"', 'برند سایدبار قابل‌به‌روزرسانی نیست');
+});
+
+test('شبیه‌سازی: تغییر نام شرکت باید در getBrand دیده شود', () => {
+  const getSrc = extractFunctionSource(html, 'getBrand');
+  const getCo = extractFunctionSource(html, 'getCompanyData');
+  assertTrue(!!(getSrc && getCo), 'توابع برند استخراج نشدند');
+  const store = { laegh_company: JSON.stringify({ nameFa:'لائق', nameEn:'Laegh', taglineFa:'خدمات', shortName:'لائق' }) };
+  const fakeLS = {
+    getItem(k){ return store[k]===undefined?null:store[k]; },
+    setItem(k,v){ store[k]=String(v); },
+    removeItem(k){ delete store[k]; }
+  };
+  // eslint-disable-next-line no-new-func
+  const fn = new Function('localStorage', 'BRAND_DEFAULTS',
+    'var BRAND_DEFAULTS=BRAND_DEFAULTS||{nameFa:"سیرمان",nameEn:"Sirman",taglineFa:"سیستم خدمات پس از فروش",shortName:"سیرمان"};\n'+
+    getCo + '\n' + getSrc + '\n return getBrand();'
+  );
+  const b = fn(fakeLS, {nameFa:'سیرمان',nameEn:'Sirman',taglineFa:'سیستم خدمات پس از فروش',shortName:'سیرمان'});
+  assertEqual(b.nameFa, 'لائق', 'نام فارسی برند باید لائق شود');
+  assertEqual(b.nameEn, 'Laegh', 'نام انگلیسی برند باید Laegh شود');
+});
+
+test('پس‌زمینه تصویری چاپ برای بخش‌های قابل چاپ باید موجود باشد', () => {
+  assertContainsString(html, 'function setPrintBgImage(', 'setPrintBgImage پیدا نشد');
+  assertContainsString(html, 'function printBgCss(', 'printBgCss پیدا نشد');
+  assertContainsString(html, 'function clearPrintBgImage(', 'clearPrintBgImage پیدا نشد');
+  assertContainsString(html, "setPrintBgImage('invoice'", 'UI فاکتور برای تصویر پس‌زمینه نیست');
+  assertContainsString(html, "setPrintBgImage('warranty'", 'UI گارانتی برای تصویر پس‌زمینه نیست');
+  assertContainsString(html, "setPrintBgImage('postal'", 'UI پستی برای تصویر پس‌زمینه نیست');
+  assertContainsString(html, "setPrintBgImage('list'", 'UI لیست برای تصویر پس‌زمینه نیست');
+  assertContainsString(html, 'bgImage', 'فیلد bgImage در تنظیمات چاپ نیست');
+  const invSrc = extractFunctionSource(html, 'printInv');
+  assertContainsString(invSrc, 'printBgCss', 'چاپ فاکتور باید printBgCss را اعمال کند');
+});
+
+test('شبیه‌سازی: printBgCss با تصویر باید CSS پس‌زمینه بسازد', () => {
+  const cssSrc = extractFunctionSource(html, 'printBgCss');
+  const getPs = extractFunctionSource(html, 'getPrintSettings');
+  assertTrue(!!cssSrc, 'printBgCss استخراج نشد');
+  const store = {};
+  const fakeLS = {
+    getItem(k){ return store[k]===undefined?null:store[k]; },
+    setItem(k,v){ store[k]=String(v); }
+  };
+  // eslint-disable-next-line no-new-func
+  const fn = new Function('localStorage','PS_KEY','PS_DEFAULTS',
+    (getPs||'function getPrintSettings(){return {};}') + '\n' + cssSrc + '\n' +
+    'return printBgCss({bg:"none", bgImage:"data:image/png;base64,AAA", bgImageOpacity:0.2, bgImageFit:"cover"});'
+  );
+  const css = fn(fakeLS, 'laegh_printSettings', {});
+  assertTrue(String(css).indexOf('background-image:url(') !== -1, 'باید background-image داشته باشد');
+  assertTrue(String(css).indexOf('opacity:0.2') !== -1, 'باید شفافیت تصویر را اعمال کند');
 });
 
 // نتیجه نهایی

@@ -5513,10 +5513,12 @@ function _printTable(title, headers, rows){
   var sig='<div class="print-sig-row"><div><div class="print-sig-box">امضاء کارشناس خدمات</div></div><div><div class="print-sig-box">امضاء انباردار</div></div></div>';
   var th=headers.map(function(h){return '<th>'+h+'</th>';}).join('');
   var body=rows.map(function(r){ return '<tr>'+r.map(function(c){return '<td>'+(c==null?'':String(c))+'</td>';}).join('')+'</tr>'; }).join('');
+  var brandEn='Sirman';
+  try{ if(typeof getBrand==='function'){ brandEn=getBrand().nameEn||brandEn; } }catch(_e){}
   var w=window.open('','_blank');
   w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>'+title+'</title>'
     +'<style>body{font-family:Tahoma;direction:rtl;padding:10px}h3{margin:0 0 6px}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:.5px solid #888;padding:4px 6px;text-align:right}th{background:#eee}tr:nth-child(even) td{background:#fafafa}@page{size:A4 landscape;margin:8mm}.meta{font-size:10px;color:#666;margin-bottom:8px}.print-sig-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:16px;padding-top:10px;border-top:1px solid #ccc;text-align:center;font-size:10px}.print-sig-box{min-height:52px;border-top:1px dashed #888;padding-top:6px;margin-top:28px}</style></head><body>'
-    +'<h3>'+title+' — '+((typeof getBrand==='function'&&getBrand().nameEn)||'Sirman')+'</h3><div class="meta">تعداد: '+rows.length+' — تاریخ چاپ: '+fdt()+'</div>'
+    +'<h3>'+title+' — '+brandEn+'</h3><div class="meta">تعداد: '+rows.length+' — تاریخ چاپ: '+fdt()+'</div>'
     +'<table><thead><tr>'+th+'</tr></thead><tbody>'+body+'</tbody></table>'+sig+'</body></html>');
   w.document.close(); w.focus(); w.print();
 }
