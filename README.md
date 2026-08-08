@@ -3,7 +3,7 @@
 نرم‌افزار خدمات پس از فروش (HTML تک‌تکه) + فضای کاری AutoClaw.
 
 ## نسخهٔ فعلی
-`Laegh_Final.html` / `Laegh_Final_10.5.20.html` → **10.5.20**
+`Laegh_Final.html` / `Laegh_Final_11.5.17.html` → **11.5.17** (پک اسکین قوی)
 
 ## دستورهای مهم
 ```bash
