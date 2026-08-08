@@ -3813,14 +3813,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۳.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '13.5.17', 'نسخه meta باید 13.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای کشویی نام ریل)');
+  assertEqual(metaVer, '14.5.17', 'نسخه meta باید 14.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای رنگ شورتکات)');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/17', 'app-date باید 1405/05/17 باشد');
-  assertContainsString(html, 'نسخه ۱۳.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۳.۵.۱۷ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۴.۵.۱۷ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '13.5.17'", 'فیلد version بک‌آپ باید 13.5.17 باشد');
+  assertContainsString(buildSrc, "version: '14.5.17'", 'فیلد version بک‌آپ باید 14.5.17 باشد');
 });
 
 console.log('');
@@ -4042,6 +4042,17 @@ test('شبیه‌سازی واقعی: addDashShortcut باید شورتکات ر
   assertEqual(arr[1].page, 'tasks', 'دومین شورتکات باید tasks باشد');
   assertTrue(rendered >= 2, 'renderDashShortcuts باید بعد از افزودن صدا زده شود');
   assertTrue(notes.some(n => String(n).indexOf('از قبل') >= 0), 'برای تکراری باید پیام هشدار بیاید');
+});
+
+test('شورتکات داشبورد باید رنگ آیکون منو را حفظ کند (نه سفید)', () => {
+  const fnSrc = extractFunctionSource(html, 'renderDashShortcuts');
+  assertTrue(!!fnSrc, 'renderDashShortcuts پیدا نشد');
+  assertContainsString(fnSrc, "setAttribute('data-page'", 'شورتکات باید data-page داشته باشد تا رنگ CSS اعمال شود');
+  assertContainsString(fnSrc, 'getComputedStyle', 'باید پس‌زمینه محاسبه‌شده آیکون منو کپی شود');
+  assertContainsString(html, '.dash-sc[data-page="invoice"] .nav-ico', 'CSS رنگ شورتکات فاکتور پیدا نشد');
+  assertContainsString(html, '.dash-sc[data-page="tasks"] .nav-ico', 'CSS رنگ شورتکات وظایف پیدا نشد');
+  assertContainsString(html, 'setDragImage', 'تصویر درگ رنگی باید با setDragImage تنظیم شود');
+  assertContainsString(html, 'پیش‌فرض تا سفید نشود', 'پس‌زمینه پیش‌فرض شورتکات باید تعریف شده باشد');
 });
 
 // نتیجه نهایی
