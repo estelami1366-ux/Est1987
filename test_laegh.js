@@ -3813,14 +3813,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۱.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۲.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '11.5.17', 'نسخه meta باید 11.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای اسکین قوی)');
+  assertEqual(metaVer, '12.5.17', 'نسخه meta باید 12.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای ریل آیکون/شورتکات)');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/17', 'app-date باید 1405/05/17 باشد');
-  assertContainsString(html, 'نسخه ۱۱.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۱.۵.۱۷ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۲.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۲.۵.۱۷ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '11.5.17'", 'فیلد version بک‌آپ باید 11.5.17 باشد');
+  assertContainsString(buildSrc, "version: '12.5.17'", 'فیلد version بک‌آپ باید 12.5.17 باشد');
 });
 
 console.log('');
@@ -3908,6 +3908,122 @@ test('enhanceSidebarNav باید svg را در nav-ico بپیچد و متن را
   assertContainsString(fnSrc, "querySelectorAll('.nav-it')", 'باید روی همه آیتم‌های منو حلقه بزند');
   assertContainsString(fnSrc, "querySelectorAll('.sb-section')", 'باید برای عناوین گروه هم شکل بگذارد');
   assertContainsString(fnSrc, 'sec-ico', 'باید آیکون بخش (sec-ico) بسازد');
+});
+
+console.log('');
+console.log('📋 گروه ۴۰: ریل فقط‌آیکون + شکل + پس‌زمینه مجزا + شورتکات DnD');
+
+test('حالت فقط‌آیکون و شکل آیکون باید در CSS و تنظیمات ظاهر موجود باشد', () => {
+  assertContainsString(html, 'body.sb-icons-only', 'کلاس sb-icons-only پیدا نشد');
+  assertContainsString(html, 'id="sb-mode-select"', 'سلکتور حالت منو پیدا نشد');
+  assertContainsString(html, 'id="nav-shape-select"', 'سلکتور شکل آیکون پیدا نشد');
+  assertContainsString(html, 'nav-shape-circle', 'شکل دایره پیدا نشد');
+  assertContainsString(html, 'nav-shape-rect', 'شکل مستطیل پیدا نشد');
+  assertContainsString(html, 'nav-shape-square', 'شکل مربع پیدا نشد');
+  assertContainsString(html, 'function setSbMode(', 'تابع setSbMode پیدا نشد');
+  assertContainsString(html, 'function setNavShape(', 'تابع setNavShape پیدا نشد');
+  assertContainsString(html, 'data-tip', 'تولتیپ نام آیکون (data-tip) پیدا نشد');
+  assertContainsString(html, 'body.sb-icons-only{--sidebar:78px;}', 'عرض ریل فقط‌آیکون باید ۷۸px باشد');
+});
+
+test('پس‌زمینه‌های مجزا (ستون/وسط/داشبورد) با cover و کنترل UI باید موجود باشد', () => {
+  assertContainsString(html, 'id="sb-bg-inp"', 'ورودی عکس ستون راست پیدا نشد');
+  assertContainsString(html, 'id="main-bg-inp"', 'ورودی عکس وسط پیدا نشد');
+  assertContainsString(html, 'id="dash-bg-inp"', 'ورودی عکس داشبورد پیدا نشد');
+  assertContainsString(html, 'function setSbBgImage(', 'تابع setSbBgImage پیدا نشد');
+  assertContainsString(html, 'function setMainBgImage(', 'تابع setMainBgImage پیدا نشد');
+  assertContainsString(html, 'function setDashBgImage(', 'تابع setDashBgImage پیدا نشد');
+  assertContainsString(html, 'function applyLayerBackgrounds(', 'تابع applyLayerBackgrounds پیدا نشد');
+  assertContainsString(html, 'background-size:cover!important', 'پس‌زمینه‌ها باید cover باشند تا بیرون نزنند');
+  assertContainsString(html, '#page-dashboard .dash-shell', 'پوسته داشبورد برای والپیپر پیدا نشد');
+  assertContainsString(html, 'overflow:hidden', 'داشبورد باید overflow:hidden داشته باشد تا عکس بیرون نزند');
+  const appSrc = extractFunctionSource(html, 'applyAppearanceSettings');
+  assertContainsString(appSrc, 'applyLayerBackgrounds()', 'applyAppearanceSettings باید لایه‌های پس‌زمینه را اعمال کند');
+});
+
+test('شورتکات داشبورد با drag-and-drop باید موجود باشد', () => {
+  assertContainsString(html, 'id="dash-shortcuts"', 'ناحیه شورتکات داشبورد پیدا نشد');
+  assertContainsString(html, 'function onDashDrop(', 'تابع onDashDrop پیدا نشد');
+  assertContainsString(html, 'function addDashShortcut(', 'تابع addDashShortcut پیدا نشد');
+  assertContainsString(html, 'function renderDashShortcuts(', 'تابع renderDashShortcuts پیدا نشد');
+  assertContainsString(html, 'draggable', 'آیتم‌های منو باید draggable شوند');
+  assertContainsString(html, 'text/laegh-page', 'MIME دادهٔ درگ باید text/laegh-page باشد');
+  assertContainsString(html, 'laegh_dash_shortcuts', 'کلید ذخیره شورتکات‌ها پیدا نشد');
+});
+
+test('بک‌آپ باید حالت منو/شکل/پس‌زمینه‌ها/شورتکات را ذخیره و بازگردانی کند', () => {
+  const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
+  assertContainsString(buildSrc, "sbMode: localStorage.getItem('laegh_sb_mode')", 'sbMode در بک‌آپ نیست');
+  assertContainsString(buildSrc, "navShape: localStorage.getItem('laegh_nav_shape')", 'navShape در بک‌آپ نیست');
+  assertContainsString(buildSrc, "sbBg: localStorage.getItem('laegh_sb_bg')", 'sbBg در بک‌آپ نیست');
+  assertContainsString(buildSrc, "mainBg: localStorage.getItem('laegh_main_bg')", 'mainBg در بک‌آپ نیست');
+  assertContainsString(buildSrc, "dashBg: localStorage.getItem('laegh_dash_bg')", 'dashBg در بک‌آپ نیست');
+  assertContainsString(buildSrc, "dashShortcuts: localStorage.getItem('laegh_dash_shortcuts')", 'dashShortcuts در بک‌آپ نیست');
+  assertContainsString(html, "localStorage.setItem('laegh_sb_mode', ap.sbMode)", 'بازگردانی sbMode نیست');
+  assertContainsString(html, "localStorage.setItem('laegh_dash_shortcuts', ap.dashShortcuts)", 'بازگردانی dashShortcuts نیست');
+  assertContainsString(html, 'حالت فقط‌آیکون', 'راهنما باید حالت فقط‌آیکون را توضیح دهد');
+  assertContainsString(html, 'شورتکات داشبورد', 'راهنما باید شورتکات را توضیح دهد');
+});
+
+test('شبیه‌سازی واقعی: setSbMode و setNavShape باید کلاس و localStorage را تنظیم کنند', () => {
+  const setMode = extractFunctionSource(html, 'setSbMode');
+  const setShape = extractFunctionSource(html, 'setNavShape');
+  assertTrue(!!setMode && !!setShape, 'توابع setSbMode/setNavShape استخراج نشدند');
+  const classes = new Set();
+  const store = {};
+  const fakeDocument = {
+    body: {
+      classList: {
+        toggle(c, on){ if(on) classes.add(c); else classes.delete(c); },
+        remove(){ Array.from(arguments).forEach(c => classes.delete(c)); },
+        add(c){ classes.add(c); },
+        contains(c){ return classes.has(c); }
+      }
+    },
+    querySelectorAll(){ return []; }
+  };
+  const fakeLS = {
+    getItem: k => (Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null),
+    setItem: (k,v) => { store[k]=String(v); }
+  };
+  const refreshNavTooltips = function(){};
+  const runner = new Function('document','localStorage','ntf','refreshNavTooltips',
+    setMode + '\n' + setShape + '\nsetSbMode("icons"); setNavShape("circle");');
+  runner(fakeDocument, fakeLS, function(){}, refreshNavTooltips);
+  assertTrue(classes.has('sb-icons-only'), 'حالت icons باید کلاس sb-icons-only بگذارد');
+  assertEqual(store['laegh_sb_mode'], 'icons', 'localStorage حالت منو باید icons شود');
+  assertTrue(classes.has('nav-shape-circle'), 'شکل circle باید کلاس nav-shape-circle بگذارد');
+  assertEqual(store['laegh_nav_shape'], 'circle', 'localStorage شکل باید circle شود');
+  const runnerFull = new Function('document','localStorage','ntf','refreshNavTooltips',
+    setMode + '\nsetSbMode("full");');
+  runnerFull(fakeDocument, fakeLS, function(){}, refreshNavTooltips);
+  assertTrue(!classes.has('sb-icons-only'), 'حالت full باید کلاس sb-icons-only را بردارد');
+  assertEqual(store['laegh_sb_mode'], 'full', 'localStorage حالت منو باید full شود');
+});
+
+test('شبیه‌سازی واقعی: addDashShortcut باید شورتکات را در localStorage ذخیره کند و تکراری نسازد', () => {
+  const addSrc = extractFunctionSource(html, 'addDashShortcut');
+  const loadSrc = extractFunctionSource(html, 'loadDashShortcuts');
+  const saveSrc = extractFunctionSource(html, 'saveDashShortcuts');
+  assertTrue(!!addSrc && !!loadSrc && !!saveSrc, 'توابع شورتکات استخراج نشدند');
+  const store = {};
+  const fakeLS = {
+    getItem: k => (Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null),
+    setItem: (k,v) => { store[k]=String(v); },
+    removeItem: k => { delete store[k]; }
+  };
+  let rendered = 0;
+  const notes = [];
+  const runner = new Function('localStorage','renderDashShortcuts','ntf',
+    loadSrc + '\n' + saveSrc + '\n' + addSrc +
+    '\naddDashShortcut("invoice","صدور فاکتور"); addDashShortcut("invoice","صدور فاکتور"); addDashShortcut("tasks","وظایف");');
+  runner(fakeLS, function(){ rendered++; }, function(m){ notes.push(m); });
+  const arr = JSON.parse(store['laegh_dash_shortcuts'] || '[]');
+  assertEqual(arr.length, 2, 'باید دقیقاً ۲ شورتکات یکتا ذخیره شود');
+  assertEqual(arr[0].page, 'invoice', 'اولین شورتکات باید invoice باشد');
+  assertEqual(arr[1].page, 'tasks', 'دومین شورتکات باید tasks باشد');
+  assertTrue(rendered >= 2, 'renderDashShortcuts باید بعد از افزودن صدا زده شود');
+  assertTrue(notes.some(n => String(n).indexOf('از قبل') >= 0), 'برای تکراری باید پیام هشدار بیاید');
 });
 
 // نتیجه نهایی
