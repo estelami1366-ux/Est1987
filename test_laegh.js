@@ -3813,14 +3813,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۲.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۳.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '12.5.17', 'نسخه meta باید 12.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای ریل آیکون/شورتکات)');
+  assertEqual(metaVer, '13.5.17', 'نسخه meta باید 13.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای کشویی نام ریل)');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/17', 'app-date باید 1405/05/17 باشد');
-  assertContainsString(html, 'نسخه ۱۲.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۲.۵.۱۷ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۳.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۳.۵.۱۷ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '12.5.17'", 'فیلد version بک‌آپ باید 12.5.17 باشد');
+  assertContainsString(buildSrc, "version: '13.5.17'", 'فیلد version بک‌آپ باید 13.5.17 باشد');
 });
 
 console.log('');
@@ -3917,13 +3917,29 @@ test('حالت فقط‌آیکون و شکل آیکون باید در CSS و ت�
   assertContainsString(html, 'body.sb-icons-only', 'کلاس sb-icons-only پیدا نشد');
   assertContainsString(html, 'id="sb-mode-select"', 'سلکتور حالت منو پیدا نشد');
   assertContainsString(html, 'id="nav-shape-select"', 'سلکتور شکل آیکون پیدا نشد');
+  assertContainsString(html, 'id="sb-mode-cards"', 'کارت‌های تم منو پیدا نشد');
   assertContainsString(html, 'nav-shape-circle', 'شکل دایره پیدا نشد');
   assertContainsString(html, 'nav-shape-rect', 'شکل مستطیل پیدا نشد');
   assertContainsString(html, 'nav-shape-square', 'شکل مربع پیدا نشد');
   assertContainsString(html, 'function setSbMode(', 'تابع setSbMode پیدا نشد');
   assertContainsString(html, 'function setNavShape(', 'تابع setNavShape پیدا نشد');
-  assertContainsString(html, 'data-tip', 'تولتیپ نام آیکون (data-tip) پیدا نشد');
+  assertContainsString(html, 'function renderSbModeCards(', 'تابع renderSbModeCards پیدا نشد');
   assertContainsString(html, 'body.sb-icons-only{--sidebar:78px;}', 'عرض ریل فقط‌آیکون باید ۷۸px باشد');
+});
+
+test('ریل فقط‌شکل باید نام را کشویی از راست به چپ نشان دهد و پوسته‌های قبلی حفظ شوند', () => {
+  assertContainsString(html, 'body.sb-icons-only .nav-it .nav-txt', 'برچسب کشویی nav-txt در حالت ریل باید تعریف شود');
+  assertContainsString(html, 'transform:translateY(-50%) translateX(12px)', 'حالت بستهٔ کشویی (از راست) پیدا نشد');
+  assertContainsString(html, 'body.sb-icons-only .nav-it:hover .nav-txt', 'هاور باید برچسب را باز کند');
+  assertContainsString(html, 'max-width:220px', 'باز شدن کشویی با max-width پیدا نشد');
+  assertContainsString(html, 'transform-origin:right center', 'مبدأ انیمیشن باید سمت راست (کنار آیکون) باشد');
+  assertContainsString(html, "parsian:", 'اسکین پارسیان باید حفظ شود');
+  assertContainsString(html, "ocean:", 'اسکین اقیانوس باید حفظ شود');
+  assertContainsString(html, "graphite:", 'اسکین ذغال‌سنگی باید حفظ شود');
+  assertContainsString(html, "ember:", 'اسکین مس صنعتی باید حفظ شود');
+  assertContainsString(html, "classic:", 'اسکین کلاسیک باید حفظ شود');
+  assertContainsString(html, 'ریل فقط‌شکل', 'برچسب UI ریل فقط‌شکل پیدا نشد');
+  assertContainsString(html, 'content:none!important', 'تولتیپ سراسری روی منو در ریل باید خاموش باشد');
 });
 
 test('پس‌زمینه‌های مجزا (ستون/وسط/داشبورد) با cover و کنترل UI باید موجود باشد', () => {
@@ -3961,7 +3977,7 @@ test('بک‌آپ باید حالت منو/شکل/پس‌زمینه‌ها/شو�
   assertContainsString(buildSrc, "dashShortcuts: localStorage.getItem('laegh_dash_shortcuts')", 'dashShortcuts در بک‌آپ نیست');
   assertContainsString(html, "localStorage.setItem('laegh_sb_mode', ap.sbMode)", 'بازگردانی sbMode نیست');
   assertContainsString(html, "localStorage.setItem('laegh_dash_shortcuts', ap.dashShortcuts)", 'بازگردانی dashShortcuts نیست');
-  assertContainsString(html, 'حالت فقط‌آیکون', 'راهنما باید حالت فقط‌آیکون را توضیح دهد');
+  assertContainsString(html, 'تم منو', 'راهنما باید تم منو را توضیح دهد');
   assertContainsString(html, 'شورتکات داشبورد', 'راهنما باید شورتکات را توضیح دهد');
 });
 
@@ -3980,23 +3996,25 @@ test('شبیه‌سازی واقعی: setSbMode و setNavShape باید کلاس
         contains(c){ return classes.has(c); }
       }
     },
-    querySelectorAll(){ return []; }
+    querySelectorAll(){ return []; },
+    getElementById(){ return null; }
   };
   const fakeLS = {
     getItem: k => (Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null),
     setItem: (k,v) => { store[k]=String(v); }
   };
   const refreshNavTooltips = function(){};
-  const runner = new Function('document','localStorage','ntf','refreshNavTooltips',
+  const renderSbModeCards = function(){};
+  const runner = new Function('document','localStorage','ntf','refreshNavTooltips','renderSbModeCards',
     setMode + '\n' + setShape + '\nsetSbMode("icons"); setNavShape("circle");');
-  runner(fakeDocument, fakeLS, function(){}, refreshNavTooltips);
+  runner(fakeDocument, fakeLS, function(){}, refreshNavTooltips, renderSbModeCards);
   assertTrue(classes.has('sb-icons-only'), 'حالت icons باید کلاس sb-icons-only بگذارد');
   assertEqual(store['laegh_sb_mode'], 'icons', 'localStorage حالت منو باید icons شود');
   assertTrue(classes.has('nav-shape-circle'), 'شکل circle باید کلاس nav-shape-circle بگذارد');
   assertEqual(store['laegh_nav_shape'], 'circle', 'localStorage شکل باید circle شود');
-  const runnerFull = new Function('document','localStorage','ntf','refreshNavTooltips',
+  const runnerFull = new Function('document','localStorage','ntf','refreshNavTooltips','renderSbModeCards',
     setMode + '\nsetSbMode("full");');
-  runnerFull(fakeDocument, fakeLS, function(){}, refreshNavTooltips);
+  runnerFull(fakeDocument, fakeLS, function(){}, refreshNavTooltips, renderSbModeCards);
   assertTrue(!classes.has('sb-icons-only'), 'حالت full باید کلاس sb-icons-only را بردارد');
   assertEqual(store['laegh_sb_mode'], 'full', 'localStorage حالت منو باید full شود');
 });
