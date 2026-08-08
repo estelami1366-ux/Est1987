@@ -3872,6 +3872,36 @@ test('شبیه‌سازی واقعی: setDepth3D باید کلاس depth-3d و l
   assertEqual(store['laegh_depth3d'], 'off', 'localStorage باید off شود');
 });
 
+
+console.log('');
+console.log('📋 گروه ۳۹: آیکون کلاسیک منو + رفع بریدن متن سایدبار');
+
+test('سایدبار باید پهن‌تر از ۲۲۰px باشد و متن آیتم‌ها قابل شکستن باشد', () => {
+  assertContainsString(html, '--sidebar:268px', 'عرض سایدبار باید 268px باشد');
+  assertContainsString(html, 'overflow-wrap:anywhere', 'متن منو باید بتواند بشکند تا در تمام‌صفحه نبرد');
+  assertContainsString(html, '100dvh', 'ارتفاع سایدبار باید 100dvh هم داشته باشد (رفع باگ تمام‌صفحه)');
+  assertContainsString(html, 'enhanceSidebarNav', 'تابع enhanceSidebarNav باید وجود داشته باشد');
+  assertContainsString(html, 'nav-ico', 'کلاس آیکون کلاسیک nav-ico باید تعریف شده باشد');
+});
+
+test('هر صفحه منو باید رنگ آیکون اختصاصی داشته باشد', () => {
+  const pages = ['dashboard','tasks','invoice','saved','products','inventory','defective','warehouse','phonebook','parts','daqi','sales','accounts','warranty','settings','help'];
+  pages.forEach(p => {
+    assertContainsString(html, 'data-page="'+p+'"] .nav-ico', 'آیکون رنگی برای '+p+' تعریف نشده');
+  });
+});
+
+test('enhanceSidebarNav باید svg را در nav-ico بپیچد و متن را به nav-txt منتقل کند', () => {
+  const fnSrc = extractFunctionSource(html, 'enhanceSidebarNav');
+  assertTrue(fnSrc !== null, 'تابع enhanceSidebarNav پیدا نشد');
+  assertContainsString(fnSrc, "className = 'nav-ico'", 'باید عنصر nav-ico بسازد');
+  assertContainsString(fnSrc, "className = 'nav-txt'", 'باید عنصر nav-txt بسازد');
+  assertContainsString(fnSrc, 'ico.appendChild(svg)', 'باید svg را داخل nav-ico بگذارد');
+  assertContainsString(fnSrc, "querySelectorAll('.nav-it')", 'باید روی همه آیتم‌های منو حلقه بزند');
+  assertContainsString(fnSrc, "querySelectorAll('.sb-section')", 'باید برای عناوین گروه هم شکل بگذارد');
+  assertContainsString(fnSrc, 'sec-ico', 'باید آیکون بخش (sec-ico) بسازد');
+});
+
 // نتیجه نهایی
 // ===================================================================
 Promise.all(pendingAsync).then(() => {
