@@ -3823,6 +3823,55 @@ test('نسخه ۱۱.۵.۱۷ باید Major.ماه.روز شمسی واقعی ب�
   assertContainsString(buildSrc, "version: '11.5.17'", 'فیلد version بک‌آپ باید 11.5.17 باشد');
 });
 
+console.log('');
+console.log('📋 گروه ۳۸: عمق سه‌بعدی رابط (depth-3d)');
+
+test('CSS و کنترل عمق سه‌بعدی باید موجود باشد', () => {
+  assertContainsString(html, 'body.depth-3d', 'کلاس CSS عمق سه‌بعدی پیدا نشد');
+  assertContainsString(html, 'id="depth3d-select"', 'سلکتور عمق سه‌بعدی در تنظیمات پیدا نشد');
+  assertContainsString(html, 'function setDepth3D(', 'تابع setDepth3D پیدا نشد');
+  assertContainsString(html, 'function applyDepth3D(', 'تابع applyDepth3D پیدا نشد');
+  assertContainsString(html, 'عمق سه‌بعدی', 'برچسب UI عمق سه‌بعدی پیدا نشد');
+});
+
+test('عمق سه‌بعدی باید در بک‌آپ و applyAppearanceSettings باشد و پیش‌فرض روشن باشد', () => {
+  const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
+  assertContainsString(buildSrc, "depth3d: localStorage.getItem('laegh_depth3d')", 'depth3d باید در بک‌آپ ذخیره شود');
+  assertContainsString(html, "localStorage.setItem('laegh_depth3d', ap.depth3d)", 'بازگردانی باید depth3d را بنویسد');
+  const appSrc = extractFunctionSource(html, 'applyAppearanceSettings');
+  assertContainsString(appSrc, 'applyDepth3D()', 'applyAppearanceSettings باید applyDepth3D را صدا بزند');
+  const dSrc = extractFunctionSource(html, 'applyDepth3D');
+  assertContainsString(dSrc, "v !== 'off'", 'پیش‌فرض عمق سه‌بعدی باید روشن باشد (هر چیزی غیر از off)');
+});
+
+test('شبیه‌سازی واقعی: setDepth3D باید کلاس depth-3d و localStorage را تنظیم کند', () => {
+  const setSrc = extractFunctionSource(html, 'setDepth3D');
+  const applySrc = extractFunctionSource(html, 'applyDepth3D');
+  assertTrue(setSrc && applySrc, 'توابع depth استخراج نشدند');
+  const classes = new Set();
+  const store = {};
+  const fakeDocument = {
+    body: {
+      classList: {
+        toggle(c, on){ if(on) classes.add(c); else classes.delete(c); },
+        contains(c){ return classes.has(c); }
+      }
+    }
+  };
+  const fakeLS = {
+    getItem: k => (Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null),
+    setItem: (k,v) => { store[k]=String(v); }
+  };
+  const runner = new Function('document','localStorage','ntf', setSrc + '\n' + applySrc + '\nsetDepth3D("on"); applyDepth3D();');
+  runner(fakeDocument, fakeLS, function(){});
+  assertTrue(classes.has('depth-3d'), 'با on باید کلاس depth-3d باشد');
+  assertEqual(store['laegh_depth3d'], 'on', 'localStorage باید on شود');
+  const runnerOff = new Function('document','localStorage','ntf', setSrc + '\nsetDepth3D("off");');
+  runnerOff(fakeDocument, fakeLS, function(){});
+  assertTrue(!classes.has('depth-3d'), 'با off باید کلاس depth-3d حذف شود');
+  assertEqual(store['laegh_depth3d'], 'off', 'localStorage باید off شود');
+});
+
 // نتیجه نهایی
 // ===================================================================
 Promise.all(pendingAsync).then(() => {
