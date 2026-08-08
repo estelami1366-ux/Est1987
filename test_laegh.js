@@ -3813,14 +3813,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۵.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۶.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '15.5.17', 'نسخه meta باید 15.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای داک پایین)');
+  assertEqual(metaVer, '16.5.17', 'نسخه meta باید 16.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای پویایی داک)');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/17', 'app-date باید 1405/05/17 باشد');
-  assertContainsString(html, 'نسخه ۱۵.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۵.۵.۱۷ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۶.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۶.۵.۱۷ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '15.5.17'", 'فیلد version بک‌آپ باید 15.5.17 باشد');
+  assertContainsString(buildSrc, "version: '16.5.17'", 'فیلد version بک‌آپ باید 16.5.17 باشد');
 });
 
 console.log('');
@@ -4042,6 +4042,18 @@ test('تم داک پایین باید CSS، زیرمنوی بالا، و گزی�
   assertContainsString(tog, 'sb-dock', 'toggleSbGroup باید حالت داک را پشتیبانی کند');
   assertContainsString(tog, 'dock-open', 'toggleSbGroup باید کلاس dock-open را جابه‌جا کند');
   assertContainsString(html, 'margin-right:0!important', 'در داک حاشیه راست main باید صفر باشد (وسط خالی از منو)');
+});
+
+test('داک باید هاور بالارونده و زیرمنوی کشویی بدون :scope داشته باشد', () => {
+  assertTrue(!/:scope/.test(html), 'سلکتور :scope نباید باشد — در بعضی مرورگرها ارور می‌دهد');
+  assertContainsString(html, 'function _dockDirectChild(', 'باید فرزند مستقیم بدون :scope پیدا شود');
+  assertContainsString(html, 'translateY(-12px) scale(1.12)', 'هاور باید آیکون را بالا ببرد');
+  assertContainsString(html, 'translateY(16px) scale(.94)', 'زیرمنوی بسته باید پایین‌تر و کوچک‌تر باشد');
+  assertContainsString(html, 'dock-open > .dock-flyout', 'باز شدن زیرمنو با dock-open');
+  assertContainsString(html, 'transition-delay:.04s', 'آیتم‌های زیرمنو باید با تأخیر کشویی بیایند');
+  const ens = extractFunctionSource(html, 'ensureDockFlyouts');
+  assertContainsString(ens, '_dockDirectChildren', 'ensureDockFlyouts باید از helper بدون :scope استفاده کند');
+  assertContainsString(ens, 'try{', 'ensureDockFlyouts باید خطا را بگیرد تا کل برنامه نخوابد');
 });
 
 test('شبیه‌سازی واقعی: addDashShortcut باید شورتکات را در localStorage ذخیره کند و تکراری نسازد', () => {
