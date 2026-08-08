@@ -3813,14 +3813,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۸.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۹.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '18.5.17', 'نسخه meta باید 18.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای رفع خرابی داک)');
+  assertEqual(metaVer, '19.5.17', 'نسخه meta باید 19.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای رنگ فونت)');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/17', 'app-date باید 1405/05/17 باشد');
-  assertContainsString(html, 'نسخه ۱۸.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۸.۵.۱۷ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۹.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۹.۵.۱۷ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '18.5.17'", 'فیلد version بک‌آپ باید 18.5.17 باشد');
+  assertContainsString(buildSrc, "version: '19.5.17'", 'فیلد version بک‌آپ باید 19.5.17 باشد');
 });
 
 console.log('');
@@ -4098,6 +4098,74 @@ test('شورتکات داشبورد باید رنگ آیکون منو را حف�
   assertContainsString(html, '.dash-sc[data-page="tasks"] .nav-ico', 'CSS رنگ شورتکات وظایف پیدا نشد');
   assertContainsString(html, 'setDragImage', 'تصویر درگ رنگی باید با setDragImage تنظیم شود');
   assertContainsString(html, 'پیش‌فرض تا سفید نشود', 'پس‌زمینه پیش‌فرض شورتکات باید تعریف شده باشد');
+});
+
+console.log('');
+console.log('📋 گروه: رنگ فونت / متن قابل تنظیم');
+
+test('UI و توابع رنگ فونت باید موجود باشد', () => {
+  assertContainsString(html, 'رنگ فونت / متن', 'برچسب UI رنگ فونت پیدا نشد');
+  assertContainsString(html, 'id="text-color-inp"', 'ورودی رنگ سفارشی پیدا نشد');
+  assertContainsString(html, "setTextColor('#b91c1c')", 'سواچ قرمز پیدا نشد');
+  assertContainsString(html, 'function setTextColor(', 'تابع setTextColor پیدا نشد');
+  assertContainsString(html, 'function applyTextColor(', 'تابع applyTextColor پیدا نشد');
+  assertContainsString(html, "localStorage.setItem('laegh_text_color'", 'ذخیره رنگ فونت پیدا نشد');
+});
+
+test('رنگ فونت باید در بک‌آپ، بازگردانی، حفاظت و ظاهر ذخیره شود', () => {
+  const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
+  assertContainsString(buildSrc, "textColor: localStorage.getItem('laegh_text_color')", 'textColor باید در بک‌آپ باشد');
+  assertContainsString(html, "localStorage.setItem('laegh_text_color', ap.textColor)", 'بازگردانی باید textColor را بنویسد');
+  assertContainsString(html, "'laegh_text_color'", 'کلید رنگ فونت باید در کد باشد');
+  const appSrc = extractFunctionSource(html, 'applyAppearanceSettings');
+  assertContainsString(appSrc, 'applyTextColor()', 'applyAppearanceSettings باید applyTextColor را صدا بزند');
+  const skinSrc = extractFunctionSource(html, 'setSkin');
+  assertContainsString(skinSrc, 'applyTextColor()', 'بعد از تعویض اسکین باید رنگ فونت دوباره اعمال شود');
+});
+
+test('شبیه‌سازی: setTextColor باید --text را قرمز کند و پیش‌فرض را پاک کند', () => {
+  const setSrc = extractFunctionSource(html, 'setTextColor');
+  const applySrc = extractFunctionSource(html, 'applyTextColor');
+  const mutedSrc = extractFunctionSource(html, '_textColorMuted');
+  assertTrue(!!(setSrc && applySrc && mutedSrc), 'توابع رنگ فونت استخراج نشدند');
+  const store = {};
+  const bodyProps = {};
+  const rootProps = {};
+  const fakeDocument = {
+    body: {
+      style: {
+        setProperty(n, v){ bodyProps[n]=v; },
+        removeProperty(n){ delete bodyProps[n]; }
+      },
+      classList: { contains(){ return false; } }
+    },
+    documentElement: {
+      style: {
+        setProperty(n, v){ rootProps[n]=v; },
+        removeProperty(n){ delete rootProps[n]; }
+      }
+    },
+    getElementById(){ return { value: '#152833' }; }
+  };
+  const fakeLocalStorage = {
+    getItem(k){ return store[k]===undefined?null:store[k]; },
+    setItem(k,v){ store[k]=String(v); },
+    removeItem(k){ delete store[k]; }
+  };
+  const ntf = ()=>{};
+  // eslint-disable-next-line no-new-func
+  const fn = new Function('document','localStorage','ntf','SKIN_PRESETS',
+    mutedSrc + '\n' + applySrc + '\n' + setSrc + '\n' +
+    'return {setTextColor, applyTextColor};'
+  );
+  const api = fn(fakeDocument, fakeLocalStorage, ntf, {parsian:{text:'#152833',text2:'#5B7180'}});
+  api.setTextColor('#b91c1c');
+  assertEqual(store['laegh_text_color'], '#b91c1c', 'رنگ قرمز باید در localStorage ذخیره شود');
+  assertEqual(bodyProps['--text'], '#b91c1c', 'باید --text روی body قرمز شود');
+  assertEqual(rootProps['--text'], '#b91c1c', 'باید --text روی root هم ست شود');
+  api.setTextColor('default');
+  assertTrue(store['laegh_text_color']===undefined, 'پیش‌فرض باید کلید رنگ را پاک کند');
+  assertTrue(bodyProps['--text']===undefined, 'پیش‌فرض باید --text سفارشی body را بردارد');
 });
 
 // نتیجه نهایی
