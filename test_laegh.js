@@ -3813,14 +3813,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۹.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۲۰.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '19.5.17', 'نسخه meta باید 19.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای رنگ فونت)');
+  assertEqual(metaVer, '20.5.17', 'نسخه meta باید 20.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای فونت‌ها/رنگ داشبورد)');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/17', 'app-date باید 1405/05/17 باشد');
-  assertContainsString(html, 'نسخه ۱۹.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۹.۵.۱۷ را نشان دهد');
+  assertContainsString(html, 'نسخه ۲۰.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۲۰.۵.۱۷ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '19.5.17'", 'فیلد version بک‌آپ باید 19.5.17 باشد');
+  assertContainsString(buildSrc, "version: '20.5.17'", 'فیلد version بک‌آپ باید 20.5.17 باشد');
 });
 
 console.log('');
@@ -4166,6 +4166,92 @@ test('شبیه‌سازی: setTextColor باید --text را قرمز کند و 
   api.setTextColor('default');
   assertTrue(store['laegh_text_color']===undefined, 'پیش‌فرض باید کلید رنگ را پاک کند');
   assertTrue(bodyProps['--text']===undefined, 'پیش‌فرض باید --text سفارشی body را بردارد');
+});
+
+console.log('');
+console.log('📋 گروه: فونت‌های بیشتر + رنگ داشبورد + ماندگاری');
+
+test('فونت‌های جدید باید در CSS و سلکتور ظاهر باشند', () => {
+  assertContainsString(html, 'Noto Sans Arabic', 'فونت Noto در UI نیست');
+  assertContainsString(html, 'option value="Cairo"', 'فونت Cairo نیست');
+  assertContainsString(html, 'option value="Tajawal"', 'فونت Tajawal نیست');
+  assertContainsString(html, 'option value="Naskh"', 'فونت Naskh نیست');
+  assertContainsString(html, 'body.f-noto', 'کلاس CSS فونت Noto نیست');
+  assertContainsString(html, 'body.f-cairo', 'کلاس CSS فونت Cairo نیست');
+  const setSrc = extractFunctionSource(html, 'setAppFont');
+  assertContainsString(setSrc, "Noto:'f-noto'", 'setAppFont باید Noto را مپ کند');
+  assertContainsString(setSrc, "Cairo:'f-cairo'", 'setAppFont باید Cairo را مپ کند');
+});
+
+test('داشبورد باید رنگ متمایز پیش‌فرض و کنترل setDashTint داشته باشد', () => {
+  assertContainsString(html, '--dash-tint', 'متغیر --dash-tint پیدا نشد');
+  assertContainsString(html, 'function setDashTint(', 'تابع setDashTint پیدا نشد');
+  assertContainsString(html, 'function applyDashTint(', 'تابع applyDashTint پیدا نشد');
+  assertContainsString(html, "setDashTint('#fef3c7')", 'سواچ رنگ داشبورد پیدا نشد');
+  const appSrc = extractFunctionSource(html, 'applyAppearanceSettings');
+  assertContainsString(appSrc, 'applyDashTint()', 'ظاهر باید رنگ داشبورد را اعمال کند');
+  const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
+  assertContainsString(buildSrc, "dashTint: localStorage.getItem('laegh_dash_tint')", 'dashTint باید در بک‌آپ باشد');
+});
+
+test('شبیه‌سازی: setDashTint و setAppFont باید در localStorage بمانند', () => {
+  const tintSet = extractFunctionSource(html, 'setDashTint');
+  const tintApply = extractFunctionSource(html, 'applyDashTint');
+  const fontSet = extractFunctionSource(html, 'setAppFont');
+  assertTrue(!!(tintSet && tintApply && fontSet), 'توابع استخراج نشدند');
+  const store = {};
+  const rootProps = {};
+  const classes = new Set();
+  const fakeDocument = {
+    body: {
+      classList: {
+        remove(...xs){ xs.forEach(x=>classes.delete(x)); },
+        add(x){ classes.add(x); },
+        contains(x){ return classes.has(x); },
+        toggle(x, on){ if(on) classes.add(x); else classes.delete(x); }
+      }
+    },
+    documentElement: {
+      style: { setProperty(n,v){ rootProps[n]=v; }, removeProperty(n){ delete rootProps[n]; } }
+    },
+    getElementById(){ return { value: '#dceef7' }; }
+  };
+  const fakeLS = {
+    getItem(k){ return store[k]===undefined?null:store[k]; },
+    setItem(k,v){ store[k]=String(v); },
+    removeItem(k){ delete store[k]; }
+  };
+  const ntf = ()=>{};
+  const safeSet = extractFunctionSource(html, '_safeSetItem') || 'function _safeSetItem(k,v){localStorage.setItem(k,v);return true;}';
+  // eslint-disable-next-line no-new-func
+  const fn = new Function('document','localStorage','ntf',
+    'var DASH_TINT_DEFAULT="linear-gradient(165deg,#dceef7 0%,#e8f4f1 45%,#f3efe6 100%)";\n'+
+    'var DASH_TINT_DEFAULT_DARK="linear-gradient(165deg,#1a2833 0%,#1e2f3a 50%,#243028 100%)";\n'+
+    safeSet + '\n' + tintApply + '\n' + tintSet + '\n' + fontSet + '\n' +
+    'return {setDashTint, applyDashTint, setAppFont};'
+  );
+  const api = fn(fakeDocument, fakeLS, ntf);
+  api.setDashTint('#fef3c7');
+  assertEqual(store['laegh_dash_tint'], '#fef3c7', 'رنگ داشبورد باید ذخیره شود');
+  assertTrue(String(rootProps['--dash-tint']||'').indexOf('#fef3c7')!==-1, '--dash-tint باید ست شود');
+  api.setAppFont('Cairo');
+  assertEqual(store['laegh_app_font'], 'Cairo', 'فونت Cairo باید ذخیره شود');
+  assertTrue(classes.has('f-cairo'), 'کلاس f-cairo باید روی body باشد');
+  // شبیه‌سازی بازشدن مجدد: فقط apply
+  classes.clear();
+  const fontVal = store['laegh_app_font'];
+  api.setAppFont(fontVal);
+  assertTrue(classes.has('f-cairo'), 'بعد از بازشدن مجدد فونت باید بماند');
+  api.applyDashTint();
+  assertTrue(String(rootProps['--dash-tint']||'').indexOf('#fef3c7')!==-1, 'بعد از بازشدن مجدد رنگ داشبورد باید بماند');
+});
+
+test('ماندگاری: فشرده‌سازی عکس و ذخیره صفحه آخر باید موجود باشد', () => {
+  assertContainsString(html, 'function _compressImageDataUrl(', 'فشرده‌سازی عکس پس‌زمینه پیدا نشد');
+  assertContainsString(html, 'function _safeSetItem(', 'ذخیره امن localStorage پیدا نشد');
+  assertContainsString(html, "localStorage.setItem('laegh_last_page'", 'ذخیره صفحه آخر پیدا نشد');
+  assertContainsString(html, 'restoreLastPageAndAppearance', 'بازیابی ظاهر/صفحه هنگام بالا آمدن پیدا نشد');
+  assertContainsString(html, "'laegh_dash_tint'", 'کلید رنگ داشبورد در حفاظت/کد پیدا نشد');
 });
 
 // نتیجه نهایی
