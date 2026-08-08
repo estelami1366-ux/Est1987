@@ -3813,14 +3813,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۵.۵.۱۷ باید Major.ماه.روز شمسی واقعی باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '14.5.17', 'نسخه meta باید 14.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای رنگ شورتکات)');
+  assertEqual(metaVer, '15.5.17', 'نسخه meta باید 15.5.17 باشد (۱۷ مرداد ۱۴۰۵ + Major برای داک پایین)');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/17', 'app-date باید 1405/05/17 باشد');
-  assertContainsString(html, 'نسخه ۱۴.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۴.۵.۱۷ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۵.۵.۱۷ — Laegh EPS', 'سایدبار باید نسخه فارسی ۱۵.۵.۱۷ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '14.5.17'", 'فیلد version بک‌آپ باید 14.5.17 باشد');
+  assertContainsString(buildSrc, "version: '15.5.17'", 'فیلد version بک‌آپ باید 15.5.17 باشد');
 });
 
 console.log('');
@@ -4005,18 +4005,43 @@ test('شبیه‌سازی واقعی: setSbMode و setNavShape باید کلاس
   };
   const refreshNavTooltips = function(){};
   const renderSbModeCards = function(){};
-  const runner = new Function('document','localStorage','ntf','refreshNavTooltips','renderSbModeCards',
+  const ensureDockFlyouts = function(){};
+  const runner = new Function('document','localStorage','ntf','refreshNavTooltips','renderSbModeCards','ensureDockFlyouts',
     setMode + '\n' + setShape + '\nsetSbMode("icons"); setNavShape("circle");');
-  runner(fakeDocument, fakeLS, function(){}, refreshNavTooltips, renderSbModeCards);
+  runner(fakeDocument, fakeLS, function(){}, refreshNavTooltips, renderSbModeCards, ensureDockFlyouts);
   assertTrue(classes.has('sb-icons-only'), 'حالت icons باید کلاس sb-icons-only بگذارد');
+  assertTrue(!classes.has('sb-dock'), 'حالت icons نباید sb-dock داشته باشد');
   assertEqual(store['laegh_sb_mode'], 'icons', 'localStorage حالت منو باید icons شود');
   assertTrue(classes.has('nav-shape-circle'), 'شکل circle باید کلاس nav-shape-circle بگذارد');
   assertEqual(store['laegh_nav_shape'], 'circle', 'localStorage شکل باید circle شود');
-  const runnerFull = new Function('document','localStorage','ntf','refreshNavTooltips','renderSbModeCards',
+  const runnerDock = new Function('document','localStorage','ntf','refreshNavTooltips','renderSbModeCards','ensureDockFlyouts',
+    setMode + '\nsetSbMode("dock");');
+  let dockBuilt = false;
+  runnerDock(fakeDocument, fakeLS, function(){}, refreshNavTooltips, renderSbModeCards, function(){ dockBuilt = true; });
+  assertTrue(classes.has('sb-dock'), 'حالت dock باید کلاس sb-dock بگذارد');
+  assertTrue(!classes.has('sb-icons-only'), 'حالت dock نباید sb-icons-only داشته باشد');
+  assertEqual(store['laegh_sb_mode'], 'dock', 'localStorage حالت منو باید dock شود');
+  assertTrue(dockBuilt, 'ensureDockFlyouts باید برای dock صدا زده شود');
+  const runnerFull = new Function('document','localStorage','ntf','refreshNavTooltips','renderSbModeCards','ensureDockFlyouts',
     setMode + '\nsetSbMode("full");');
-  runnerFull(fakeDocument, fakeLS, function(){}, refreshNavTooltips, renderSbModeCards);
+  runnerFull(fakeDocument, fakeLS, function(){}, refreshNavTooltips, renderSbModeCards, ensureDockFlyouts);
   assertTrue(!classes.has('sb-icons-only'), 'حالت full باید کلاس sb-icons-only را بردارد');
+  assertTrue(!classes.has('sb-dock'), 'حالت full باید کلاس sb-dock را بردارد');
   assertEqual(store['laegh_sb_mode'], 'full', 'localStorage حالت منو باید full شود');
+});
+
+test('تم داک پایین باید CSS، زیرمنوی بالا، و گزینه UI داشته باشد', () => {
+  assertContainsString(html, 'body.sb-dock', 'کلاس CSS sb-dock پیدا نشد');
+  assertContainsString(html, 'dock-flyout', 'کلاس زیرمنوی داک پیدا نشد');
+  assertContainsString(html, 'function ensureDockFlyouts(', 'تابع ensureDockFlyouts پیدا نشد');
+  assertContainsString(html, 'value="dock"', 'گزینه داک در select پیدا نشد');
+  assertContainsString(html, 'داک پایین', 'برچسب UI داک پایین پیدا نشد');
+  assertContainsString(html, 'bottom:16px', 'داک باید پایین صفحه باشد');
+  assertContainsString(html, 'body.sb-dock .main', 'در داک باید main تمام‌عرض شود');
+  const tog = extractFunctionSource(html, 'toggleSbGroup');
+  assertContainsString(tog, 'sb-dock', 'toggleSbGroup باید حالت داک را پشتیبانی کند');
+  assertContainsString(tog, 'dock-open', 'toggleSbGroup باید کلاس dock-open را جابه‌جا کند');
+  assertContainsString(html, 'margin-right:0!important', 'در داک حاشیه راست main باید صفر باشد (وسط خالی از منو)');
 });
 
 test('شبیه‌سازی واقعی: addDashShortcut باید شورتکات را در localStorage ذخیره کند و تکراری نسازد', () => {
