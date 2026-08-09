@@ -1,0 +1,25 @@
+{
+  "magic": "SIRMAN_UPDATE",
+  "format": 1,
+  "id": "welcome-update-center-ε",
+  "version": "1405.5.18ε",
+  "versionFa": "۱۴۰۵.۵.۱۸ε",
+  "minBaseVersion": "1405.5.18ε",
+  "date": "1405/05/18",
+  "title": "خوش‌آمد به مرکز آپدیت",
+  "changelog": [
+    "مرکز آپدیت در تنظیمات فعال شد",
+    "از این به بعد به‌جای کل فایل HTML، فایل‌های کوچک .sirman-update.json دریافت می‌کنید",
+    "آپدیت‌ها بعد از بستن مرورگر هم می‌مانند"
+  ],
+  "patches": [
+    {
+      "op": "notify",
+      "message": "سیستم آپدیت سیرمان آماده است ✅"
+    },
+    {
+      "op": "injectCss",
+      "css": "/* welcome update marker */ #upd-current-ver{outline:1px dashed #2e7d32;outline-offset:4px;}"
+    }
+  ]
+}

@@ -1,0 +1,500 @@
+  if(partName && partName.indexOf('انتخاب')!==-1) partName='';
+  const total=(document.getElementById('sale-total-lbl')||{}).textContent||'';
+  const text='سلام'+(name?(' '+name):'')+' عزیز،\n'+
+    'فروش'+(partName?(' «'+partName+'»'):' قطعه')+' در تاریخ '+fdate()+' ثبت شد'+(total?('، مبلغ: '+total):'')+'.\n'+
+    'با تشکر — لایق الکترونیک پارسیان';
+  openMsgModal(phone, text);
+}
+function _openExternal(url){ const a=document.createElement('a'); a.href=url; a.target='_blank'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove(); }
+function msgSendSMS(){
+  const ph=faToEnDigits(document.getElementById('msg-phone').value).replace(/[^\d]/g,'');
+  const tx=document.getElementById('msg-text').value||'';
+  if(!ph){ ntf('شماره موبایل خالی است','err'); return; }
+  // اگر پنل پیامک اینترنتی فعال است، خودکار از آن استفاده کن؛ وگرنه برنامه‌ی پیام‌کِ دستگاه را باز کن
+  if(sendSmsViaPanel(ph, tx)){ ntf('پیامک از طریق پنل ارسال شد ✅ (نتیجه را در پنل خودتان ببینید)'); return; }
+  _openExternal('sms:'+ph+'?body='+encodeURIComponent(tx));
+}
+// ─── پنل پیامک اینترنتی (سطح ۲) ─────────────────────────────────────────────────
+const SMS_KEY='laegh_sms';
+function getSmsCfg(){ try{ return JSON.parse(localStorage.getItem(SMS_KEY)||'{}'); }catch(e){ return {}; } }
+function saveSmsCfg(){
+  const cfg={ enabled: document.getElementById('sms-enabled').checked, url:(document.getElementById('sms-url').value||'').trim() };
+  if(cfg.enabled && (!cfg.url || cfg.url.indexOf('{to}')===-1)){ ntf('برای فعال‌سازی، آدرس پنل باید شامل {to} باشد','err'); return; }
+  localStorage.setItem(SMS_KEY, JSON.stringify(cfg));
+  ntf('تنظیمات پیامک ذخیره شد ✅');
+}
+function loadSmsCfgUI(){
+  const cfg=getSmsCfg();
+  const e=document.getElementById('sms-enabled'), u=document.getElementById('sms-url');
+  if(e) e.checked=!!cfg.enabled;
+  if(u) u.value=cfg.url||'';
+}
+// ساخت URL نهایی با جایگذاری {to} و {text} (تابع خالص، قابل‌تست)
+function buildSmsUrl(url, to, text){
+  if(!url) return '';
+  return url.replace(/\{to\}/g, encodeURIComponent(faToEnDigits(to).replace(/[^\d]/g,'')))
+            .replace(/\{text\}/g, encodeURIComponent(text||''));
+}
+// آتش‌وفراموش: درخواست GET به پنل زده می‌شود (no-cors). خود پیامک ارسال می‌شود؛ پاسخ به‌خاطر CORS قابل خواندن نیست.
+function _fireSmsUrl(url, to, text){
+  if(!url || url.indexOf('{to}')===-1) return false;
+  const u=buildSmsUrl(url, to, text);
+  try{ fetch(u,{mode:'no-cors'}).catch(()=>{}); return true; }
+  catch(e){ try{ new Image().src=u; return true; }catch(e2){ return false; } }
+}
+function sendSmsViaPanel(phone, text){
+  const cfg=getSmsCfg();
+  if(!cfg.enabled || !cfg.url) return false;
+  return _fireSmsUrl(cfg.url, phone, text);
+}
+function sendSmsTest(){
+  const to=document.getElementById('sms-test-to').value||'';
+  const url=(document.getElementById('sms-url').value||'').trim();
+  if(!to){ ntf('شماره‌ی تست را وارد کنید','err'); return; }
+  if(!url || url.indexOf('{to}')===-1){ ntf('آدرس پنل باید شامل {to} باشد','err'); return; }
+  if(_fireSmsUrl(url, to, 'پیام تست از نرم‌افزار لایق الکترونیک پارسیان')) ntf('درخواست ارسال پیامک تست فرستاده شد — نتیجه را در پنل ببینید');
+  else ntf('ارسال ناموفق بود؛ آدرس پنل را بررسی کنید','err');
+}
+function msgSendWhatsApp(){
+  const ph=normIranPhone(document.getElementById('msg-phone').value);
+  const tx=document.getElementById('msg-text').value||'';
+  if(ph.length<5){ ntf('شماره موبایل نامعتبر است','err'); return; }
+  _openExternal('https://wa.me/'+ph+'?text='+encodeURIComponent(tx));
+}
+function msgCopyText(){
+  const tx=document.getElementById('msg-text').value||'';
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(tx).then(()=>ntf('متن کپی شد ✅ — حالا در روبیکا/ایتا/تلگرام Paste کنید')).catch(()=>_copyFallback(tx));
+  } else _copyFallback(tx);
+}
+function _copyFallback(tx){
+  const ta=document.getElementById('msg-text'); ta.focus(); ta.select();
+  try{ document.execCommand('copy'); ntf('متن کپی شد ✅'); }catch(e){ ntf('کپی نشد؛ متن را دستی انتخاب کنید','err'); }
+}
+// از فرم گارانتی: ساخت پیام آماده‌ی «ارجاع» با تاریخ و ساعت از مرکز زمان
+function notifyWarrantyReferral(){
+  const name=(document.getElementById('wn').value||'').trim();
+  const phone=document.getElementById('wph').value||'';
+  const model=(document.getElementById('wmod').value||'').trim();
+  const refSel=document.getElementById('wref');
+  const refLabel=refSel ? refSel.options[refSel.selectedIndex].text : 'کارشناس خدمات';
+  const when=fdt(); // تاریخ و ساعت فعلی به‌وقت تهران
+  const text='سلام'+(name?(' '+name):'')+' عزیز،\n'+
+    'پرونده گارانتی شما'+(model?(' («'+model+'»)'):'')+' در تاریخ '+when+' به «'+refLabel+'» ارجاع داده شد و در حال پیگیری است.\n'+
+    'با تشکر — خدمات پس از فروش لایق الکترونیک پارسیان';
+  openMsgModal(phone, text);
+}
+
+// ─── AUTOCOMPLETE ──────────────────────────────────────────────────────────────
+function acSv(f,v){if(!v)return;if(!acH[f])acH[f]=[];if(!acH[f].includes(v)){acH[f].unshift(v);if(acH[f].length>40)acH[f].pop();sv();}}
+function acIn(inp,f){
+  document.querySelectorAll('.acl').forEach(e=>e.remove());
+  const v=inp.value, list=(acH[f]||[]).filter(x=>x.includes(v));
+  if(!list.length) return;
+  const wrap=inp.closest('.acw'), div=document.createElement('div'); div.className='acl';
+  list.forEach(item=>{const d=document.createElement('div');d.textContent=item;d.onmousedown=()=>{inp.value=item;document.querySelectorAll('.acl').forEach(e=>e.remove());calcT();};div.appendChild(d);});
+  wrap.appendChild(div);
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.acw')) document.querySelectorAll('.acl').forEach(e=>e.remove());});
+
+// ─── PHONEBOOK LINK ────────────────────────────────────────────────────────────
+function linkPB(val){
+  const found = phonebook.find(c=>(c.fn+' '+c.ln).includes(val)||c.shop.includes(val));
+  const lnk = document.getElementById('pb-link');
+  if(found&&val){lnk.style.display='';lnk.dataset.name=val;}
+  else lnk.style.display='none';
+}
+function goToPB(e){
+  e.preventDefault();
+  const val = document.getElementById('inv-seller').value;
+  document.querySelectorAll('.nav-it').forEach((n,i)=>n.classList.toggle('active',i===3));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-phonebook').classList.add('active');
+  document.getElementById('pb-q').value=val; renderPB();
+}
+
+// ─── INVOICE ───────────────────────────────────────────────────────────────────
+function getNum(){const n='LEP-'+String(invCtr).padStart(4,'0'); document.getElementById('inv-num').textContent=n; return n;}
+getNum();
+
+function addDev(){
+  devCnt++;
+  const n=devCnt, c=document.getElementById('devs');
+  const div=document.createElement('div'); div.className='dev-card'; div.id='dv-'+n;
+  div.innerHTML=`
+  <div class="dev-header">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="dev-num">${n}</div>
+      <span class="dev-name" id="dn-${n}">دستگاه ${n}</span>
+      <button class="btn btn-sm" onclick="openPsel(${n})" style="font-size:11px;background:var(--blue-l);color:var(--blue2);border-color:var(--blue)">🔍 انتخاب از کالاها</button>
+      <button class="btn btn-sm" onclick="openSvcDD(${n},this)" style="font-size:11px;background:var(--green-l);color:var(--green);border-color:var(--green)">🔧 خدمات</button>
+    </div>
+    <button class="btn btn-sm" onclick="copyDev(${n})" style="background:#fff3e0;color:#e65100;border-color:#e65100">📋 کپی</button>
+    <button class="btn btn-sm" onclick="copyDev(${n})" style="background:#fff3e0;color:#e65100;border-color:#e65100">📋 کپی</button>
+    <button class="btn btn-sm btn-r" onclick="rmDev(${n})">✕ حذف</button>
+  </div>
+  <div class="g3" style="margin-bottom:8px">
+    <div class="f"><label>کد کالا</label><input id="d${n}_code" placeholder="کد کالا" oninput="codeToName(${n})"></div>
+    <div class="f"><label>نام / مدل</label>
+      <div class="acw"><input id="d${n}_model" placeholder="نام و مدل" oninput="acIn(this,'model');updDN(${n})" onblur="acSv('model',this.value)"></div></div>
+    <div class="f"><label>تاریخ دریافت</label>
+      <div class="acw"><input id="d${n}_date" readonly placeholder="تاریخ" onclick="openDatePicker(this)"></div></div>
+  </div>
+  <div class="g4" style="margin-bottom:8px">
+    <div class="f"><label>وضعیت کارتن</label>
+      <select id="d${n}_carton"><option>سالم</option><option>متوسط</option><option>آسیب‌دیده</option><option>بدون کارتن</option></select></div>
+    <div class="f"><label>وضعیت بدنه</label>
+      <select id="d${n}_body"><option>سالم</option><option>خش دارد</option><option>آسیب‌دیده</option><option>شکستگی</option></select></div>
+    <div class="f"><label>لوازم جانبی</label>
+      <select id="d${n}_acc"><option>کامل</option><option>ناقص</option></select></div>
+    <div class="f"><label>گارانتی</label>
+      <select id="d${n}_warr"><option value="بله">✓ بله</option><option value="خیر">✗ خیر</option></select></div>
+  </div>
+  <div class="g4" style="margin-bottom:8px">
+    <div class="f"><label>رنگ</label>
+      <div class="acw"><input id="d${n}_color" placeholder="رنگ" oninput="acIn(this,'color')" onblur="acSv('color',this.value)"></div></div>
+    <div class="f"><label>خش / آسیب</label>
+      <div class="acw"><input id="d${n}_dmg" placeholder="توضیح" oninput="acIn(this,'dmg')" onblur="acSv('dmg',this.value)"></div></div>
+    <div class="f"><label>کمبود لوازم</label>
+      <div class="acw"><input id="d${n}_miss" placeholder="قطعه کمبود" oninput="acIn(this,'miss')" onblur="acSv('miss',this.value)"></div></div>
+    <div class="f"><label>عملکرد</label>
+      <select id="d${n}_perf"><option>سالم</option><option>معیوب</option><option>تعمیر شد</option><option>تعویض شد</option></select></div>
+  </div>
+  <div class="g2" style="margin-bottom:8px">
+    <div class="f"><label>شرح خدمات</label>
+      <div class="acw"><input id="d${n}_svc" placeholder="خدمات ارائه‌شده" oninput="acIn(this,'svc')" onblur="acSv('svc',this.value)"></div></div>
+    <div class="f"><label>توضیحات محصول</label>
+      <input id="d${n}_pd" placeholder="سریال، ویژگی خاص..."></div>
+  </div>
+  <div class="cost-row">
+    <div class="f"><label>برآورد اولیه (ریال)</label>
+      <input type="number" id="d${n}_est" placeholder="0" min="0" oninput="calcT()" onchange="calcT()">
+      <div class="cost-lbl lbl-est" id="d${n}_el">برآورد: —</div></div>
+    <div class="f"><label>تخفیف (%)</label>
+      <input type="number" id="d${n}_disc" placeholder="0" min="0" max="100" oninput="calcT()" onchange="calcT()">
+      <div class="cost-lbl lbl-disc" id="d${n}_dl">تخفیف: —</div></div>
+    <div class="f"><label>هزینه نهایی (ریال)</label>
+      <input type="number" id="d${n}_fin" placeholder="0" min="0" oninput="calcT()" onchange="calcT()">
+      <div class="cost-lbl lbl-fin" id="d${n}_fl">نهایی: —</div></div>
+  </div>`;
+  c.appendChild(div);
+}
+
+function updDN(n){const v=document.getElementById('d'+n+'_model').value; document.getElementById('dn-'+n).textContent=v||'دستگاه '+n;}
+function rmDev(n){const e=document.getElementById('dv-'+n);if(e){e.remove();calcT();}}
+
+function codeToName(n){
+  const code=document.getElementById('d'+n+'_code').value.trim();
+  const prod=products.find(p=>p.code===code);
+  if(prod){
+    document.getElementById('d'+n+'_model').value=prod.name;
+    updDN(n);
+    if(prod.price) document.getElementById('d'+n+'_est').value=prod.price;
+    calcT(); ntf('کالا پیدا شد: '+prod.name,'ok');
+  }
+}
+
+function calcT(){
+  let tE=0,tD=0,tF=0;
+  for(let i=1;i<=devCnt;i++){
+    const ee=document.getElementById('d'+i+'_est');
+    if(!ee) continue;
+    const est=parseFloat(ee.value)||0, disc=parseFloat(document.getElementById('d'+i+'_disc').value)||0;
+    const da=Math.round(est*disc/100), finRaw=parseFloat(document.getElementById('d'+i+'_fin').value)||0;
+    const fin=finRaw||(est-da);
+    tE+=est; tD+=da; tF+=fin;
+    document.getElementById('d'+i+'_el').textContent='برآورد: '+fmt(est)+' ریال';
+    document.getElementById('d'+i+'_dl').textContent='تخفیف: '+fmt(da)+' ریال';
+    document.getElementById('d'+i+'_fl').textContent='نهایی: '+fmt(fin)+' ریال';
+  }
+  document.getElementById('t-est').textContent=fmt(tE)+' ریال';
+  document.getElementById('t-disc').textContent=fmt(tD)+' ریال';
+  document.getElementById('t-fin').textContent=fmt(tF)+' ریال';
+  return{tE,tD,tF};
+}
+
+function gf(n,k){const e=document.getElementById('d'+n+'_'+k);return e?e.value:'';}
+function getData(){
+  const items=[];
+  for(let i=1;i<=devCnt;i++){
+    if(!document.getElementById('dv-'+i)) continue;
+    const est=parseFloat(document.getElementById('d'+i+'_est').value)||0;
+    const disc=parseFloat(document.getElementById('d'+i+'_disc').value)||0;
+    const da=Math.round(est*disc/100);
+    const finRaw=parseFloat(document.getElementById('d'+i+'_fin').value)||0;
+    const fin=finRaw||(est-da);
+    items.push({num:items.length+1,code:gf(i,'code'),model:gf(i,'model'),date:gf(i,'date'),
+      carton:gf(i,'carton'),body:gf(i,'body'),acc:gf(i,'acc'),warranty:gf(i,'warr'),
+      color:gf(i,'color'),dmg:gf(i,'dmg'),miss:gf(i,'miss'),perf:gf(i,'perf'),
+      svc:gf(i,'svc'),pd:gf(i,'pd'),est,disc,da,fin});
+  }
+  const tF=items.reduce((s,r)=>s+r.fin,0), tE=items.reduce((s,r)=>s+r.est,0), tD=items.reduce((s,r)=>s+r.da,0);
+  return{num:document.getElementById('inv-num').textContent, seller:document.getElementById('inv-seller').value,
+    date:document.getElementById('inv-date').value, phone:document.getElementById('inv-phone').value,
+    notes:document.getElementById('inv-notes').value, status:invStatus, items, tE, tD, tF};
+}
+
+function closeInv(){
+  invStatus='closed';
+  document.getElementById('inv-st').className='badge badge-closed';
+  document.getElementById('inv-st').textContent='✓ تکمیل';
+  document.getElementById('btn-close').style.display='none';
+  ntf('فاکتور تکمیل شد');
+}
+
+function saveInv(){
+  const d=getData();
+  if(!d.seller){ntf('نام فروشنده را وارد کنید','err');return;}
+  if(!d.items.length){ntf('حداقل یک دستگاه اضافه کنید','err');return;}
+  d.savedAt=fdt(); invoices.push(d); invCtr++; sv();
+  auditUser('ذخیره فاکتور', d.num+' — '+d.seller);
+  ntf('فاکتور '+d.num+' ذخیره شد'); getNum(); invStatus='open';
+  document.getElementById('inv-st').className='badge badge-open';
+  document.getElementById('inv-st').textContent='⏳ باز';
+  document.getElementById('btn-close').style.display='';
+}
+function clearInv(){
+  ['inv-seller','inv-date','inv-phone','inv-notes'].forEach(id=>document.getElementById(id).value='');
+  // تاریخ فاکتور جدید به‌صورت پیش‌فرض از مرکز زمان (تهران) پر می‌شود
+  const _id=document.getElementById('inv-date'); if(_id){ _id.value=fdate(); if(_id.dataset) _id.dataset.ts=Date.now(); }
+  document.getElementById('devs').innerHTML=''; devCnt=0; invStatus='open'; calcT();
+  document.getElementById('inv-st').className='badge badge-open';
+  document.getElementById('inv-st').textContent='⏳ باز';
+  document.getElementById('btn-close').style.display='';
+  document.getElementById('pb-link').style.display='none';
+}
+
+// ─── PRINT / EXPORT ────────────────────────────────────────────────────────────
+function buildPH(list){
+  return list.map((d,pi)=>{
+    const pg=pi<list.length-1?'page-break-after:always':'';
+    let rows=d.items.map((i,ri)=>`<tr style="background:${ri%2===0?'#fff':'#f0f0f0'}"><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}${i.dmg?'/'+i.dmg:''}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td style="color:${i.warranty==='بله'?'green':'red'}">${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${(i.est||0).toLocaleString()}</td><td>${i.disc||0}%</td><td>${(i.fin||0).toLocaleString()}</td></tr>`).join('');
+    return `<div style="${pg}">
+    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #333;margin-bottom:8px;padding-bottom:6px">
+      <div><div style="font-size:13px;font-weight:700">فاکتور خدمات پس از فروش — Laegh Electronic Parsian</div>
+      <div style="font-size:9px;color:#555;margin-top:2px">شماره:<b>${d.num}</b> | فروشنده:<b>${d.seller}</b> | تلفن:${d.phone||'—'} | تاریخ:${d.date||'—'} | وضعیت:${d.status==='closed'?'تکمیل':'باز'}</div></div>
+      <img src="${logoSrc}" style="height:34px;max-width:90px;object-fit:contain">
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:8px">
+    <thead><tr style="background:#e0e0e0"><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی(ریال)</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+    <div style="text-align:left;margin-top:5px;font-size:10px;font-weight:700">برآورد: ${(d.tE||0).toLocaleString()} | تخفیف: ${(d.tD||0).toLocaleString()} | <span style="font-size:12px">نهایی: ${(d.tF||0).toLocaleString()} ریال</span></div>
+    ${d.notes?`<div style="margin-top:4px;border:.5px solid #ccc;padding:4px 8px;font-size:9px">توضیحات: ${d.notes}</div>`:''}
+    <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;text-align:center;font-size:9px;border-top:1px solid #ccc;padding-top:6px"><div>مهر فروشنده</div><div>امضاء کارشناس خدمات</div><div>امضاء انباردار</div></div>
+    </div>`;
+  }).join('');
+}
+
+function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
+const bgMap={none:'#ffffff',blue:'linear-gradient(135deg,#e8f0fe,#f0f4ff)',green:'linear-gradient(135deg,#e8f5e9,#f1f8e9)',warm:'linear-gradient(135deg,#fff3e0,#fce4ec)',purple:'linear-gradient(135deg,#f3e5f5,#ede7f6)',lines:'repeating-linear-gradient(45deg,#f5f5f5,#f5f5f5 5px,#fff 5px,#fff 10px)'};
+const bg=bgMap[pi.bg||'none']||'#fff';
+const w=window.open('','_blank'); w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+<meta name="app-version" content="10.4.6">
+<style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;background:${bg};}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`); w.document.close(); w.focus(); w.print(); w.close();}
+function expPDF(){printInv();}
+
+function expExcel(){
+  const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
+  const wb=XLSX.utils.book_new();
+  const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی(ریال)']];
+  d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));
+  rows.push([]); rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);
+  rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور'); XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx'); ntf('Excel دانلود شد');
+}
+function expWord(){
+  const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
+  const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
+  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
+<meta name="app-version" content="10.4.6">
+<meta name="app-date" content="1405/04/06"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — Laegh Electronic Parsian | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
+  const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
+}
+
+// ─── PRODUCT SELECTOR ──────────────────────────────────────────────────────────
+function openPsel(n){curPselDev=n; document.getElementById('psel-q').value=''; renderPselList(); document.getElementById('psel-modal').classList.add('open');}
+function renderPselList(){
+  const q=document.getElementById('psel-q').value.toLowerCase();
+  const filtered=products.filter(p=>!q||p.code.toLowerCase().includes(q)||p.name.toLowerCase().includes(q)||(p.brand||'').toLowerCase().includes(q));
+  const c=document.getElementById('psel-list');
+  if(!filtered.length){c.innerHTML='<div style="text-align:center;color:#aaa;padding:20px">کالایی یافت نشد</div>';return;}
+  c.innerHTML=filtered.map(p=>`
+  <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px solid #f0f0f0;cursor:pointer;transition:.15s" onmouseover="this.style.background='#f8fbff'" onmouseout="this.style.background=''" onclick="selProd('${p.code}')">
+    ${p.img?`<img src="${p.img}" style="width:40px;height:40px;object-fit:contain;border-radius:4px;border:1px solid #eee">`:`<div style="width:40px;height:40px;background:#f0f0f0;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px">📦</div>`}
+    <div><div style="font-size:11px;color:#999">${p.code}</div><div style="font-size:13px;font-weight:600;color:var(--blue2)">${p.name}</div><div style="font-size:11px;color:#999">${p.brand||''} ${p.supplier?'/ '+p.supplier:''}</div></div>
+    <div style="margin-right:auto;font-size:12px;font-weight:600;color:var(--green)">${p.price?p.price.toLocaleString()+' ریال':''}</div>
+  </div>`).join('');
+}
+function selProd(code){
+  const p=products.find(x=>x.code===code); if(!p) return;
+  const n=curPselDev;
+  document.getElementById('d'+n+'_code').value=p.code;
+  document.getElementById('d'+n+'_model').value=p.name;
+  if(p.price) document.getElementById('d'+n+'_est').value=p.price;
+  updDN(n); calcT(); closeMod('psel-modal'); ntf('کالا انتخاب شد: '+p.name);
+}
+
+// ─── SAVED ─────────────────────────────────────────────────────────────────────
+function renderSaved(){
+  const q=(document.getElementById('s-q').value||'').toLowerCase();
+  const st=document.getElementById('s-st').value;
+  let f=invoices.filter((inv,i)=>{
+    const m=!q||(inv.seller||'').includes(q)||(inv.phone||'').includes(q)||(inv.num||'').toLowerCase().includes(q);
+    const sm=!st||(st==='open'&&inv.status!=='closed')||(st==='closed'&&inv.status==='closed');
+    return m&&sm;
+  });
+  f=_listSort(f, _sortVal('s-sort')||'_idx:desc', invoices);
+  window._savedView=f;
+  const c=document.getElementById('saved-tbl');
+  if(!f.length){c.innerHTML='<div style="text-align:center;color:#aaa;padding:30px">فاکتوری یافت نشد</div>';return;}
+  c.innerHTML=`<table class="stbl"><thead><tr><th><input type="checkbox" id="chk-all" onchange="togAll(this)"></th><th>شماره</th><th>فروشنده</th><th>تلفن</th><th>تاریخ ذخیره</th><th>تعداد</th><th>نهایی</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody>
+  ${f.map(inv=>{const ri=invoices.indexOf(inv);return`<tr><td><input type="checkbox" class="rchk" data-i="${ri}"></td><td><b>${inv.num}</b></td><td>${inv.seller}</td><td>${inv.phone||'—'}</td><td style="font-size:11px">${inv.savedAt}</td><td>${inv.items.length}</td><td style="color:var(--green);font-weight:700">${(inv.tF||0).toLocaleString()} ریال</td><td><span class="badge ${inv.status==='closed'?'badge-closed':'badge-open'}">${inv.status==='closed'?'✓ تکمیل':'⏳ باز'}</span></td><td style="display:flex;gap:4px;flex-wrap:wrap">
+    <button class="btn btn-sm btn-p" onclick="loadInv(${ri})">✏ ویرایش</button>
+    <button class="btn btn-sm" onclick="viewInv(${ri})">👁 مشاهده</button>
+    <button class="btn btn-sm btn-o" onclick="expExcelSv(${ri})">📊</button>
+    <button class="btn btn-sm btn-o" onclick="expWordSv(${ri})">📄</button>
+    <button class="btn btn-sm" onclick="shareInv(${ri})">📤</button>
+    <button class="btn btn-sm btn-r" onclick="delInv(${ri})">✕</button>
+  </td></tr>`;}).join('')}</tbody></table>`;
+  updateSC();
+}
+function togAll(chk){document.querySelectorAll('.rchk').forEach(c=>c.checked=chk.checked);updateSC();}
+function updateSC(){const n=document.querySelectorAll('.rchk:checked').length;document.getElementById('sel-cnt').textContent=n?n+' انتخاب‌شده':'';}
+document.addEventListener('change',e=>{if(e.target.classList.contains('rchk'))updateSC();});
+function selAll(){document.querySelectorAll('.rchk').forEach(c=>c.checked=true);const a=document.getElementById('chk-all');if(a)a.checked=true;updateSC();}
+function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked')).map(c=>parseInt(c.dataset.i));}
+function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
+function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
+function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);const w=window.open('','_blank');w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+<meta name="app-version" content="10.4.6">
+<meta name="app-date" content="1405/04/06"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);w.document.close();w.focus();w.print();w.close();}
+function expSelExcel(){
+  const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
+  const wb=XLSX.utils.book_new();
+  idx.forEach(i=>{const d=invoices[i];const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(it=>rows.push([it.num,it.code||'',it.model,it.date,it.color,it.carton,it.body,it.acc,it.miss||'',it.perf,it.warranty,it.svc,it.pd||'',it.est,it.disc,it.fin]));XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),d.num);});
+  XLSX.writeFile(wb,'Laegh_selected.xlsx');ntf('Excel دانلود شد');
+}
+function viewInv(idx){
+  const d=invoices[idx];
+  let rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.acc}</td><td>${i.perf}</td><td style="color:${i.warranty==='بله'?'green':'red'}">${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${(i.est||0).toLocaleString()}</td><td>${i.disc||0}%</td><td>${(i.fin||0).toLocaleString()}</td></tr>`).join('');
+  document.getElementById('det-body').innerHTML=`<div style="margin-bottom:10px;font-size:12px;display:flex;gap:12px;flex-wrap:wrap"><span>شماره: <b>${d.num}</b></span><span>فروشنده: <b>${d.seller}</b></span><span>تلفن: ${d.phone||'—'}</span><span class="badge ${d.status==='closed'?'badge-closed':'badge-open'}">${d.status==='closed'?'✓ تکمیل':'⏳ باز'}</span></div><div style="overflow-x:auto"><table class="stbl" style="font-size:11px"><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>لوازم</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table></div><div style="margin-top:8px;font-weight:700;font-size:13px;text-align:left">نهایی: ${(d.tF||0).toLocaleString()} ریال</div>${d.notes?`<div style="margin-top:6px;background:#f9f9f9;padding:8px;border-radius:6px;font-size:12px">توضیحات: ${d.notes}</div>`:''}`;
+  document.getElementById('det-acts').innerHTML=`<button class="btn btn-p" onclick="loadInv(${idx});closeMod('det-modal')">✏ ویرایش</button><button class="btn btn-o" onclick="expExcelSv(${idx})">📊 Excel</button><button class="btn btn-o" onclick="expWordSv(${idx})">📄 Word</button><button class="btn" onclick="printSvSingle(${idx})">🖨 چاپ</button><button class="btn" onclick="shareInv(${idx})">📤 اشتراک</button>`;
+  document.getElementById('det-modal').classList.add('open');
+}
+function printSvSingle(idx){const d=invoices[idx];const w=window.open('','_blank');w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+<meta name="app-version" content="10.4.6">
+<meta name="app-date" content="1405/04/06"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);w.document.close();w.focus();w.print();w.close();}
+function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
+function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
+<meta name="app-version" content="10.4.6">
+<meta name="app-date" content="1405/04/06"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
+function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — Laegh Electronic Parsian\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
+function loadInv(idx){
+  const d=invoices[idx];
+  document.getElementById('inv-num').textContent=d.num;
+  document.getElementById('inv-seller').value=d.seller;
+  document.getElementById('inv-date').value=d.date;
+  document.getElementById('inv-phone').value=d.phone||'';
+  document.getElementById('inv-notes').value=d.notes||'';
+  invStatus=d.status||'open';
+  document.getElementById('inv-st').className='badge '+(invStatus==='closed'?'badge-closed':'badge-open');
+  document.getElementById('inv-st').textContent=invStatus==='closed'?'✓ تکمیل':'⏳ باز';
+  document.getElementById('btn-close').style.display=invStatus==='closed'?'none':'';
+  document.getElementById('devs').innerHTML=''; devCnt=0;
+  d.items.forEach(item=>{
+    addDev(); const n=devCnt;
+    ['code','model','date','carton','body','acc','warr','color','dmg','miss','perf','svc','pd','est','disc','fin'].forEach(k=>{
+      const e=document.getElementById('d'+n+'_'+k);
+      if(e) e.value=item[k==='fin'?'fin':k]||'';
+    });
+    updDN(n);
+  });
+  calcT(); linkPB(d.seller);
+  document.querySelectorAll('.nav-it').forEach((el,i)=>el.classList.toggle('active',i===0));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-invoice').classList.add('active');
+  ntf('فاکتور '+d.num+' بارگذاری شد');
+}
+
+// ─── PRODUCTS ──────────────────────────────────────────────────────────────────
+function openProdModal(idx=-1){
+  document.getElementById('pm-idx').value=idx;
+  const pv=document.getElementById('pm-img-preview');
+  if(idx===-1){
+    document.getElementById('pm-title').textContent='کالای جدید';
+    ['pm-code','pm-name','pm-cat','pm-brand','pm-supplier','pm-desc','pm-img-data'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('pm-price').value='';
+    pv.innerHTML='<span style="font-size:11px;color:#aaa">کلیک برای انتخاب عکس</span>';
+  } else {
+    const p=products[idx];
+    document.getElementById('pm-title').textContent='ویرایش کالا';
+    document.getElementById('pm-code').value=p.code||'';
+    document.getElementById('pm-name').value=p.name||'';
+    document.getElementById('pm-cat').value=p.cat||'';
+    document.getElementById('pm-brand').value=p.brand||'';
+    document.getElementById('pm-supplier').value=p.supplier||'';
+    document.getElementById('pm-desc').value=p.desc||'';
+    document.getElementById('pm-price').value=p.price||'';
+    document.getElementById('pm-img-data').value=p.img||'';
+    pv.innerHTML=p.img?`<img src="${p.img}" style="max-width:100%;max-height:76px;object-fit:contain">`:'<span style="font-size:11px;color:#aaa">کلیک برای انتخاب عکس</span>';
+  }
+  document.getElementById('prod-modal').classList.add('open');
+}
+function setProdImg(inp){
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=e=>{
+    document.getElementById('pm-img-data').value=e.target.result;
+    document.getElementById('pm-img-preview').innerHTML=`<img src="${e.target.result}" style="max-width:100%;max-height:76px;object-fit:contain">`;
+  }; r.readAsDataURL(f);
+}
+function saveProd(){
+  const idx=parseInt(document.getElementById('pm-idx').value);
+  const code=document.getElementById('pm-code').value.trim();
+  const name=document.getElementById('pm-name').value.trim();
+  if(!code||!name){ntf('کد و نام کالا الزامی است','err');return;}
+  if(idx===-1 && products.find(p=>p.code===code)){ntf('این کد قبلاً ثبت شده','err');return;}
+  const p={code,name,cat:document.getElementById('pm-cat').value,brand:document.getElementById('pm-brand').value,supplier:document.getElementById('pm-supplier').value,colors:document.getElementById('pm-colors')?document.getElementById('pm-colors').value:'',desc:document.getElementById('pm-desc').value,price:parseFloat(document.getElementById('pm-price').value)||0,img:document.getElementById('pm-img-data').value};
+  if(idx===-1){products.push(p); if(!inventory[code]) inventory[code]={qty:0,min:0,note:''};}
+  else products[idx]=p;
+  sv(); closeMod('prod-modal'); renderProds(); renderInv(); ntf(idx===-1?'کالا ثبت شد':'کالا ویرایش شد');
+  // update categories
+  updateCats();
+}
+function delProd(idx){if(!confirm('حذف این کالا؟'))return;const code=products[idx].code;products.splice(idx,1);delete inventory[code];sv();renderProds();renderInv();ntf('کالا حذف شد');}
+function updateCats(){
+  const cats=[...new Set(products.map(p=>p.cat).filter(Boolean))];
+  const sel=document.getElementById('p-cat');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">همه دسته‌ها</option>'+cats.map(c=>`<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('');
+}
+function renderProds(){
+  updateCats();
+  const q=(document.getElementById('p-q').value||'').toLowerCase();
+  const cat=document.getElementById('p-cat').value;
+  let filtered=products.filter(p=>(!q||(p.code+p.name+(p.brand||'')+(p.cat||'')).toLowerCase().includes(q))&&(!cat||p.cat===cat));
+  filtered=_listSort(filtered, _sortVal('p-sort')||'name:asc', products);
+  window._prodsView=filtered;
+  const c=document.getElementById('prods-grid');
+  if(!filtered.length){c.innerHTML='<div style="color:#aaa;padding:20px;grid-column:1/-1;text-align:center">کالایی یافت نشد</div>';return;}
+  c.innerHTML=filtered.map((p,fi)=>{const ri=products.indexOf(p);const inv=inventory[p.code]||{qty:0};return`
+  <div class="prod-card" onclick="openProdModal(${ri})">
+    ${p.img?`<img src="${p.img}" class="prod-img">`:`<div class="prod-img" style="display:flex;align-items:center;justify-content:center;font-size:24px">📦</div>`}
+    <div style="margin-top:6px">
+      <div class="prod-code">${p.code}</div>
+      <div class="prod-name">${p.name}</div>
+      <div class="prod-brand">${p.brand||''}${p.supplier?' / '+p.supplier:''}</div>
+      ${p.price?`<div style="font-size:12px;color:var(--green);font-weight:600;margin-top:3px">${p.price.toLocaleString()} ریال</div>`:''}
+      <div style="font-size:11px;margin-top:4px;color:${inv.qty<=inv.min?'var(--red)':'var(--text2)'}">موجودی: ${inv.qty}</div>
+    </div>
+    <button class="btn btn-sm btn-r" onclick="event.stopPropagation();delProd(${ri})" style="margin-top:6px;width:100%">✕ حذف</button>
+  </div>`;}).join('');
+}
+
+// ─── INVENTORY ─────────────────────────────────────────────────────────────────
+function renderInv(){
+  const q=(document.getElementById('inv-q').value||'').toLowerCase();
+  const filtered=products.filter(p=>!q||(p.code+p.name+(p.brand||'')).toLowerCase().includes(q));
+  const body=document.getElementById('inv-body');
+  body.innerHTML=filtered.map(p=>{const inv=inventory[p.code]||{qty:0,min:0};const low=inv.qty<=inv.min;return`<tr><td><b>${p.code}</b></td><td>${p.name}</td><td>${p.brand||'—'}</td><td style="font-weight:700;color:${low?'var(--red)':'var(--green)'}">${inv.qty}</td><td>${inv.min}</td><td>${low?'<span class="badge" style="background:var(--red-l);color:var(--red)">⚠ کم</span>':'<span class="badge" style="background:var(--green-l);color:var(--green)">✓ موجود</span>'}</td><td><button class="btn btn-sm btn-p" onclick="openInvModal('${p.code}')">ویرایش موجودی</button></td></tr>`;}).join('');
+  // stats
+  const total=products.length, low=products.filter(p=>{const inv=inventory[p.code]||{qty:0,min:0};return inv.qty<=inv.min;}).length;
