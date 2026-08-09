@@ -7685,6 +7685,10 @@ async function resetAll(){
   if(typeof userAuditLog!=='undefined') userAuditLog=[];
   if(typeof accounts!=='undefined') accounts=[];
   if(typeof bgAuditLog!=='undefined') bgAuditLog=[];
+  if(typeof daqi!=='undefined') daqi=[];
+  if(typeof daqiWarehouse!=='undefined') daqiWarehouse=[];
+  if(typeof daqiVouchers!=='undefined') daqiVouchers=[];
+  if(typeof postalHistory!=='undefined') postalHistory=[];
 
   sv();
   if(typeof svParts==='function') svParts();
@@ -7695,6 +7699,10 @@ async function resetAll(){
   if(typeof svTasks==='function') svTasks();
   if(typeof svAccounts==='function') svAccounts();
   if(typeof svDefective==='function') svDefective();
+  if(typeof svDaqi==='function') svDaqi();
+  if(typeof svDaqiWarehouse==='function') svDaqiWarehouse();
+  if(typeof svDaqiVouchers==='function') svDaqiVouchers();
+  if(typeof svPostalHistory==='function') svPostalHistory();
   localStorage.setItem('laegh_audit_user','[]');
   localStorage.setItem('laegh_audit_bg','[]');
 
@@ -7705,6 +7713,9 @@ async function resetAll(){
   if(typeof renderWarList==='function') renderWarList();
   if(typeof renderTasks==='function') renderTasks();
   if(typeof renderSidebarBadges==='function') renderSidebarBadges();
+  if(typeof renderDaqi==='function') renderDaqi();
+  if(typeof renderDaqiWarehouse==='function') renderDaqiWarehouse();
+  if(typeof renderPostalHistory==='function') renderPostalHistory();
   renderDataStats();
 
   if (typeof addDbgEntry === 'function') addDbgEntry('ok','ریست کامل','','ریست با موفقیت انجام شد — بک‌اپ قبل از ریست دانلود شده بود','');

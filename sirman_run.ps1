@@ -5,14 +5,22 @@ $ErrorActionPreference = 'Continue'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $Root
 
+# === ALWAYS keep this version equal to the latest Sirman HTML release ===
+$SirmanVersion = '1405.5.18α'
 $Port = 8765
 $NotifyPort = 8766
 $DefaultFile = 'Sirman_Final.html'
+$VersionedFile = "Sirman_Final_$SirmanVersion.html"
 if (-not (Test-Path -LiteralPath (Join-Path $Root $DefaultFile))) {
-  Write-Host "[ERROR] $DefaultFile not found in $Root"
-  Start-Sleep -Seconds 5
-  exit 1
+  if (Test-Path -LiteralPath (Join-Path $Root $VersionedFile)) {
+    $DefaultFile = $VersionedFile
+  } else {
+    Write-Host "[ERROR] $DefaultFile / $VersionedFile not found in $Root"
+    Start-Sleep -Seconds 5
+    exit 1
+  }
 }
+Write-Host "[Sirman] version $SirmanVersion — serving $DefaultFile"
 
 function Show-SirmanToast([string]$Title, [string]$Body) {
   if ([string]::IsNullOrWhiteSpace($Title)) { $Title = 'Sirman' }

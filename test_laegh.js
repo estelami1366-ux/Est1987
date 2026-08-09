@@ -3826,6 +3826,22 @@ test('نسخه ۱۴۰۵.۵.۱۸α باید Year.Month.Day شمسی با حرف �
   assertContainsString(buildSrc, "version: '1405.5.18α'", 'فیلد version بک‌آپ باید 1405.5.18α باشد');
 });
 
+test('قانون ۹: لانچر BAT/PS1 باید با نسخه meta همگام باشد', () => {
+  const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
+  assertTrue(!!metaVer, 'نسخه meta پیدا نشد');
+  const fs = require('fs');
+  const path = require('path');
+  const root = path.dirname(filePath);
+  const bat = fs.readFileSync(path.join(root, 'Sirman_Start.bat'), 'utf8');
+  const openBat = fs.readFileSync(path.join(root, 'OPEN_SIRMAN.bat'), 'utf8');
+  const ps1 = fs.readFileSync(path.join(root, 'sirman_run.ps1'), 'utf8');
+  assertContainsString(bat, 'SIRMAN_VERSION='+metaVer, 'Sirman_Start.bat باید SIRMAN_VERSION='+metaVer+' داشته باشد');
+  assertContainsString(openBat, 'SIRMAN_VERSION='+metaVer, 'OPEN_SIRMAN.bat باید SIRMAN_VERSION='+metaVer+' داشته باشد');
+  assertContainsString(ps1, "$SirmanVersion = '"+metaVer+"'", 'sirman_run.ps1 باید $SirmanVersion = \''+metaVer+'\' داشته باشد');
+});
+
+
+
 console.log('');
 console.log('📋 گروه ۳۸: عمق سه‌بعدی رابط (depth-3d)');
 
