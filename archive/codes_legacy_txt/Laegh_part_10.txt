@@ -1,0 +1,500 @@
+  const st=document.getElementById('def-st-f').value;
+  const filtered=defectiveStock.filter(d=>{
+    const blob=(d.id+d.model+d.productCode+d.serial+d.customerName+d.customerPhone+d.warrantyId+d.invoiceNum+d.note+(DEF_SRC_LBL[d.source]||'')).toLowerCase();
+    return (!q||blob.includes(q)) && (!sf||d.source===sf) && (!st||d.status===st);
+  });
+  const inStock=defectiveStock.filter(d=>d.status==='in_stock').reduce((s,d)=>s+(d.qty||1),0);
+  document.getElementById('def-stats-bar').innerHTML='<div class="inv-stat"><div class="stat-card"><div class="stat-val">'+inStock+'</div><div class="stat-lbl">موجودی در انبار معیوب</div></div><div class="stat-card"><div class="stat-val" style="color:var(--green)">'+defectiveStock.filter(d=>d.status==='returned').length+'</div><div class="stat-lbl">عودت‌شده</div></div><div class="stat-card"><div class="stat-val">'+defectiveStock.length+'</div><div class="stat-lbl">کل ردیف‌ها</div></div></div>';
+  document.getElementById('def-body').innerHTML=filtered.map(d=>{
+    const ri=defectiveStock.indexOf(d);
+    return '<tr><td><b>'+d.id+'</b></td><td>'+d.model+(d.serial?'<br><span style="font-size:10px;color:#888">'+d.serial+'</span>':'')+'</td><td>'+(DEF_SRC_LBL[d.source]||'—')+'</td><td>'+(DEF_LVL_LBL[d.defectLevel]||'—')+'</td><td>'+(d.customerName||'—')+'</td><td>'+(d.customerPhone||'—')+'</td><td>'+(d.warrantyId||'—')+(d.invoiceNum?' / '+d.invoiceNum:'')+'</td><td style="font-size:11px">'+(d.enteredAt||'—')+'</td><td>'+(d.status==='returned'?'<span class="badge badge-closed">عودت</span>':'<span class="badge badge-open">در انبار</span>')+'</td><td style="display:flex;gap:3px;flex-wrap:wrap"><button class="btn btn-sm btn-p" onclick="openDefectiveModal('+ri+')">✏</button>'+(d.status!=='returned'?'<button class="btn btn-sm btn-g" onclick="returnDefectiveItem('+ri+')" style="font-size:10px">↩ عودت</button>':'')+'<button class="btn btn-sm btn-r" onclick="delDefectiveItem('+ri+')">✕</button></td></tr>';
+  }).join('') || '<tr><td colspan="10" style="text-align:center;color:#aaa;padding:20px">موردی ثبت نشده</td></tr>';
+}
+function printDefectiveList(){
+  const rows=defectiveStock.filter(d=>d.status==='in_stock').map(d=>[d.id,d.model,d.serial||'',DEF_SRC_LBL[d.source]||'',DEF_LVL_LBL[d.defectLevel]||'',d.qty||1,d.customerName||'',d.customerPhone||'',d.warrantyId||'',d.enteredAt||'']);
+  _printTable('لیست انبار محصولات معیوب', ['شناسه','مدل','سریال','منبع','میزان عیب','تعداد','مشتری','تلفن','گارانتی','تاریخ ورود'], rows);
+}
+function printInvList(){
+  const q=(document.getElementById('inv-q').value||'').toLowerCase();
+  const filtered=products.filter(p=>!q||(p.code+p.name+(p.brand||'')).toLowerCase().includes(q));
+  const rows=filtered.map(p=>{const inv=inventory[p.code]||{qty:0,min:0};return [p.code,p.name,p.brand||'',inv.qty,inv.min,inv.qty<=inv.min?'کم':'موجود'];});
+  _printTable('لیست موجودی انبار کالا', ['کد','نام','برند','موجودی','حداقل','وضعیت'], rows);
+}
+
+// ─── صفحه تقویم ────────────────────────────────────────────────────────────────
+function renderCalPage(){
+  const jyEl=document.getElementById('cal-jy'), jmEl=document.getElementById('cal-jm');
+  if(!jyEl) return;
+  if(jyEl.options.length){ calPageState.jy=+jyEl.value; calPageState.jm=+jmEl.value; }
+  if(!calPageState.jy){
+    const t=jalaliToday(); calPageState.jy=t[0]; calPageState.jm=t[1]; calPageState.selDay=t[2]; calPageState.cal='j';
+  }
+  if(jyEl && !jyEl.options.length){
+    for(let y=1390;y<=1420;y++){ const o=document.createElement('option'); o.value=y; o.textContent=faNum(String(y)); jyEl.appendChild(o); }
+    for(let m=1;m<=12;m++){ const o=document.createElement('option'); o.value=m; o.textContent=(calPageState.cal==='j'?J_MONTHS[m-1]:String(m)); jmEl.appendChild(o); }
+  }
+  jyEl.value=calPageState.jy; jmEl.value=calPageState.jm;
+  Array.from(jmEl.options).forEach((o,i)=>{ o.textContent=calPageState.cal==='j'?J_MONTHS[i]:String(i+1); });
+  document.getElementById('cal-mode-btn').textContent=calPageState.cal==='j'?'میلادی':'شمسی';
+  document.getElementById('dt-tz-label').textContent=TZ;
+  const p=tehranParts();
+  document.getElementById('dt-live-big').textContent=ftime();
+  document.getElementById('dt-live-sub').textContent=fdate()+' — '+TZ;
+  const isJ=calPageState.cal==='j';
+  const jy=+calPageState.jy, jm=+calPageState.jm;
+  document.getElementById('cal-page-title').textContent=isJ?(J_MONTHS[jm-1]+' '+faNum(String(jy))):(jm+'/'+jy);
+  const daysIn=isJ?jalaliDaysInMonth(jy,jm):new Date(jy,jm,0).getDate();
+  let firstDow;
+  if(isJ){ const [gy,gm,gd]=jalali_to_gregorian(jy,jm,1); firstDow=(new Date(gy,gm-1,gd).getDay()+1)%7; }
+  else firstDow=new Date(jy,jm-1,1).getDay();
+  const todayJ=jalaliToday();
+  let cells='';
+  for(let i=0;i<firstDow;i++) cells+='<div class="day empty"></div>';
+  for(let d=1;d<=daysIn;d++){
+    const isToday=isJ&&(todayJ[0]===jy&&todayJ[1]===jm&&todayJ[2]===d);
+    const isSel=calPageState.selDay===d;
+    cells+=`<div class="day${isToday?' today':''}${isSel?' sel':''}" onclick="calPickDay(${d})">${d}</div>`;
+  }
+  document.getElementById('cal-page-grid').innerHTML=J_DOW.map(d=>'<div class="dow">'+d+'</div>').join('')+cells;
+  document.getElementById('cal-sel-label').textContent=calPageState.selDay?(isJ?jalaliStr(jy,jm,calPageState.selDay):jy+'/'+jm+'/'+calPageState.selDay):'—';
+}
+function calPageNav(dir){ calPageState.jm+=dir; if(calPageState.jm<1){calPageState.jm=12;calPageState.jy--;} if(calPageState.jm>12){calPageState.jm=1;calPageState.jy++;} renderCalPage(); }
+function calToggleMode(){ calPageState.cal=calPageState.cal==='j'?'g':'j'; const jmEl=document.getElementById('cal-jm'); jmEl.innerHTML=''; for(let m=1;m<=12;m++){ const o=document.createElement('option'); o.value=m; o.textContent=calPageState.cal==='j'?J_MONTHS[m-1]:String(m); jmEl.appendChild(o); } renderCalPage(); }
+function calPickDay(d){ calPageState.selDay=d; renderCalPage(); }
+
+// ─── راهنمای درختی ─────────────────────────────────────────────────────────────
+function toggleHelpTreeNode(el){ el.closest('.help-tree-node').classList.toggle('collapsed'); }
+function initHelpTree(){
+  try{
+    const page=document.getElementById('page-help');
+    if(!page || (page.dataset && page.dataset.treeInit)) return;
+    const headers=Array.from(page.querySelectorAll('.help-cat-header'));
+    if(!headers.length) return;
+    const tree=document.createElement('div'); tree.className='help-tree';
+    headers.forEach((h)=>{
+      const node=document.createElement('div'); node.className='help-tree-node collapsed';
+      const label=document.createElement('div'); label.className='help-tree-label';
+      label.innerHTML='<span>'+h.textContent+'</span><span class="help-tree-chev">▾</span>';
+      label.onclick=()=>toggleHelpTreeNode(label);
+      const children=document.createElement('div'); children.className='help-tree-children';
+      let el=h.nextElementSibling;
+      while(el && !el.classList.contains('help-cat-header')){
+        if(el.classList.contains('help-card')) children.appendChild(el);
+        el=el.nextElementSibling;
+      }
+      node.appendChild(label); node.appendChild(children); tree.appendChild(node);
+      h.remove();
+    });
+    const searchWrap=page.querySelector('div[style*="padding:16px"]');
+    if(searchWrap) searchWrap.after(tree);
+    page.dataset.treeInit='1';
+  }catch(e){}
+}
+
+// ─── Tooltip روی آیکون‌ها ───────────────────────────────────────────────────────
+const NAV_TIPS={tasks:'وظایف و یادآوری با اولویت و موعد',invoice:'صدور فاکتور خدمات جدید',saved:'فاکتورهای ذخیره‌شده',products:'مدیریت کاتالوگ کالاها',inventory:'موجودی انبار کالای سالم',defective:'انبار محصولات معیوب و برگشتی',phonebook:'دفترچه مخاطبین',postal:'چاپ برچسب پستی',parts:'انبار قطعات یدکی',services:'لیست خدمات و تعرفه',sales:'فروش قطعات به مشتری',warranty:'پرونده گارانتی مشتریان',dataio:'بک‌اپ و بازگردانی داده',datetime:'ساعت، تقویم و مرکز زمان',audit:'ثبت عملیات کاربر و پس‌زمینه',settings:'تنظیمات نرم‌افزار',help:'راهنمای استفاده'};
+function initTooltips(){
+  document.querySelectorAll('.nav-it[data-page]').forEach(el=>{
+    const k=el.dataset.page; if(NAV_TIPS[k]) el.setAttribute('data-tip', NAV_TIPS[k]);
+  });
+  document.querySelectorAll('.topbar .btn[onclick]').forEach(btn=>{
+    if(!btn.getAttribute('data-tip') && btn.textContent.trim()) btn.setAttribute('data-tip', btn.textContent.trim().replace(/^[^\u0600-\u06FFa-zA-Z]+/,''));
+  });
+}
+
+// پرونده گارانتی
+const SOCIAL_LBL={whatsapp:'واتساپ',telegram:'تلگرام',eitaa:'ایتا',instagram:'اینستاگرام',rubika:'روبیکا',bale:'بله',sms:'پیامک'};
+const WINIT_LBL={activate:'فعال‌سازی گارانتی',phone_fix:'مشاوره/رفع تلفنی',refer_agency:'ارجاع نمایندگی',refer_company:'ارجاع شرکت'};
+function warDevices(w){
+  if(w.devices && w.devices.length) return w.devices;
+  if(w.model) return [{model:w.model,color:w.color||'',buydate:w.buydate||'',serial:w.serial||'',warrStatus:w.warrStatus||'card',warrExp:w.warrExp||'',condition:w.condition||'سالم'}];
+  return [];
+}
+function winitToRef(init){ return init==='refer_company'?'company':(init==='refer_agency'?'agency':'internal'); }
+function toggleCompanyReport(val) {
+  const sec = document.getElementById('company-report-section');
+  if (!sec) return;
+  sec.style.display = val === 'company' ? 'block' : 'none';
+}
+function onWInitChange(){
+  const init=document.getElementById('winit').value;
+  const ext=document.getElementById('war-ext-sections');
+  const hint=document.getElementById('winit-hint');
+  const early=init==='activate'||init==='phone_fix';
+  if(ext) ext.classList.toggle('war-section-disabled', early);
+  if(hint){
+    hint.style.display=early?'block':'none';
+    hint.textContent=early?'✓ با این انتخاب، مشکل در همان ابتدا حل شده — بخش‌های ارجاع و پیگیری غیرفعال‌اند.':'';
+  }
+  const ref=document.getElementById('wref');
+  if(ref && init){ ref.value=winitToRef(init); toggleCompanyReport(ref.value); }
+}
+function addWSocial(){
+  const type=document.getElementById('wsoc-type').value;
+  const val=(document.getElementById('wsoc-val').value||'').trim();
+  if(!val){ ntf('شماره یا آیدی را وارد کنید','err'); return; }
+  if(wSocials.some(s=>s.network===type && s.value===val)){ ntf('این مورد قبلاً اضافه شده','err'); return; }
+  wSocials.push({network:type,value:val}); document.getElementById('wsoc-val').value=''; renderWSocials();
+}
+function renderWSocials(){
+  const el=document.getElementById('wsoc-list');
+  if(!el) return;
+  el.innerHTML=wSocials.map((s,i)=>'<div class="wsoc-row"><span><b>'+(SOCIAL_LBL[s.network]||s.network)+':</b> '+s.value+'</span><button class="btn btn-sm btn-r" type="button" onclick="wSocials.splice('+i+',1);renderWSocials()">✕</button></div>').join('')||'<div style="font-size:11px;color:#aaa">شبکه‌ای ثبت نشده</div>';
+}
+function addWDev(){
+  wDevCnt++;
+  const n=wDevCnt, c=document.getElementById('w-devs');
+  const div=document.createElement('div'); div.className='dev-card'; div.id='wdv-'+n;
+  div.innerHTML=`<div class="dev-header"><div style="display:flex;align-items:center;gap:8px"><div class="dev-num">${n}</div><span class="dev-name">دستگاه ${n}</span></div><button class="btn btn-sm btn-r" type="button" onclick="rmWDev(${n})">✕</button></div>
+  <div class="g4" style="margin-bottom:8px">
+    <div class="f"><label>مدل *</label><input id="wd${n}_model" placeholder="مدل"></div>
+    <div class="f"><label>رنگ</label><input id="wd${n}_color" placeholder="رنگ"></div>
+    <div class="f"><label>تاریخ خرید</label><input id="wd${n}_buy" readonly onclick="openDatePicker(this)" placeholder="تاریخ"></div>
+    <div class="f"><label>سریال</label><input id="wd${n}_serial" placeholder="سریال"></div>
+  </div>
+  <div class="g3">
+    <div class="f"><label>وضعیت گارانتی</label><select id="wd${n}_wws"><option value="card">کارت گارانتی</option><option value="inv">فاکتور معتبر</option><option value="no">بدون گارانتی</option></select></div>
+    <div class="f"><label>تاریخ انقضا</label><input id="wd${n}_wexp" readonly onclick="openDatePicker(this)" placeholder="انقضا"></div>
+    <div class="f"><label>وضعیت ظاهری</label><select id="wd${n}_cond"><option>سالم</option><option>خش جزئی</option><option>آسیب‌دیده</option><option>شکستگی</option></select></div>
+  </div>`;
+  c.appendChild(div);
+}
+function rmWDev(n){ const e=document.getElementById('wdv-'+n); if(e) e.remove(); }
+function getWDevsFromForm(){
+  const devs=[];
+  document.querySelectorAll('#w-devs .dev-card').forEach(card=>{
+    const n=card.id.replace('wdv-','');
+    const model=(document.getElementById('wd'+n+'_model')||{}).value||'';
+    if(!model.trim()) return;
+    devs.push({
+      model:model.trim(), color:(document.getElementById('wd'+n+'_color')||{}).value||'',
+      buydate:(document.getElementById('wd'+n+'_buy')||{}).value||'', serial:(document.getElementById('wd'+n+'_serial')||{}).value||'',
+      warrStatus:(document.getElementById('wd'+n+'_wws')||{}).value||'card',
+      warrExp:(document.getElementById('wd'+n+'_wexp')||{}).value||'',
+      condition:(document.getElementById('wd'+n+'_cond')||{}).value||'سالم'
+    });
+  });
+  return devs;
+}
+function loadWDevsToForm(devices){
+  document.getElementById('w-devs').innerHTML=''; wDevCnt=0;
+  (devices||[]).forEach(d=>{ addWDev(); const n=wDevCnt;
+    document.getElementById('wd'+n+'_model').value=d.model||'';
+    document.getElementById('wd'+n+'_color').value=d.color||'';
+    document.getElementById('wd'+n+'_buy').value=d.buydate||'';
+    document.getElementById('wd'+n+'_serial').value=d.serial||'';
+    document.getElementById('wd'+n+'_wws').value=d.warrStatus||'card';
+    document.getElementById('wd'+n+'_wexp').value=d.warrExp||'';
+    document.getElementById('wd'+n+'_cond').value=d.condition||'سالم';
+  });
+  if(!devices||!devices.length) addWDev();
+}
+
+function showWarForm(idx){
+  wEditIdx=idx==undefined?-1:idx;wDocs=[];wSocials=[];
+  document.getElementById('war-form').style.display='block';
+  document.getElementById('war-list').style.display='none';
+  document.getElementById('wdocs-prev').innerHTML='';
+  const crFieldIds=['cr-repair-desc','cr-repair-date','cr-repair-dur','cr-tech-name','cr-tech-code',
+    'cr-qc-name','cr-qc-note','cr-ship-name','cr-ship-tracking','cr-ship-date','cr-mgr-name','cr-mgr-note'];
+  const crSelectIds=[['cr-repair-result','fixed'],['cr-tech-confirm','yes'],['cr-qc-result','pass'],['cr-mgr-approve','approved']];
+  if(wEditIdx===-1){
+    ['wn','wph','wdt','waddr','wrefn','wrefd','wrefnote','wprob','wexp2'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+    document.getElementById('wdt').value=fdate();
+    document.getElementById('winit').value='';
+    document.getElementById('wref').value='agency';
+    crFieldIds.forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+    crSelectIds.forEach(([id,def])=>{const e=document.getElementById(id);if(e)e.value=def;});
+    loadWDevsToForm([]); renderWSocials(); onWInitChange(); toggleCompanyReport('agency');
+  }else{
+    const w=warranties[idx];
+    [['wn','name'],['wph','phone'],['wdt','date'],['waddr','addr'],['wrefn','refName'],['wrefd','refDate'],['wrefnote','refNote'],['wprob','problem'],['wexp2','expert']].forEach(([id,key])=>{const e=document.getElementById(id);if(e)e.value=w[key]||'';});
+    document.getElementById('winit').value=w.initialService||'';
+    document.getElementById('wref').value=w.refTo||winitToRef(w.initialService)||'agency';
+    wSocials=(w.socialContacts||[]).slice();
+    if(!wSocials.length && (w.ita||w.soc)){ if(w.ita) wSocials.push({network:'telegram',value:w.ita}); if(w.soc) wSocials.push({network:'whatsapp',value:w.soc}); }
+    loadWDevsToForm(warDevices(w)); renderWSocials();
+    const cr=w.companyReport||{};
+    const crMap={'cr-repair-desc':'repairDesc','cr-repair-date':'repairDate','cr-repair-dur':'repairDur','cr-tech-name':'techName','cr-tech-code':'techCode','cr-qc-name':'qcName','cr-qc-note':'qcNote','cr-ship-name':'shipName','cr-ship-tracking':'shipTracking','cr-ship-date':'shipDate','cr-mgr-name':'mgrName','cr-mgr-note':'mgrNote'};
+    Object.keys(crMap).forEach(id=>{const e=document.getElementById(id);if(e)e.value=cr[crMap[id]]||'';});
+    const crSelMap={'cr-repair-result':['repairResult','fixed'],'cr-tech-confirm':['techConfirm','yes'],'cr-qc-result':['qcResult','pass'],'cr-mgr-approve':['mgrApprove','approved']};
+    Object.keys(crSelMap).forEach(id=>{const e=document.getElementById(id);if(e)e.value=cr[crSelMap[id][0]]||crSelMap[id][1];});
+    wDocs=w.docs||[];renderWDocs(); onWInitChange(); toggleCompanyReport(document.getElementById('wref').value);
+  }
+}
+function showWarList(){
+  document.getElementById('war-form').style.display='none';
+  document.getElementById('war-list').style.display='block';
+  wDocs=[];renderWar();
+}
+function addWDocs(inp){
+  Array.from(inp.files).forEach(file=>{const r=new FileReader();r.onload=e=>{wDocs.push({name:file.name,data:e.target.result});renderWDocs();};r.readAsDataURL(file);});
+  inp.value='';
+}
+function renderWDocs(){
+  document.getElementById('wdocs-prev').innerHTML=wDocs.map((d,i)=>'<div style="position:relative;display:inline-block"><img src="'+d.data+'" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #ddd"><button onclick="wDocs.splice('+i+',1);renderWDocs()" style="position:absolute;top:-6px;left:-6px;background:var(--red);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer">✕</button></div>').join('');
+}
+function addSaleDocs(inp){
+  Array.from(inp.files).forEach(file=>{const r=new FileReader();r.onload=e=>{saleDocs.push({name:file.name,data:e.target.result});renderSaleDocs();};r.readAsDataURL(file);});
+  inp.value='';
+}
+function renderSaleDocs(){
+  document.getElementById('sale-docs-prev').innerHTML=saleDocs.map((d,i)=>'<div style="position:relative;display:inline-block"><img src="'+d.data+'" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #ddd"><button onclick="saleDocs.splice('+i+',1);renderSaleDocs()" style="position:absolute;top:-6px;left:-6px;background:var(--red);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer">✕</button></div>').join('');
+}
+function getWarData(){
+  const init=document.getElementById('winit').value;
+  const refTo=document.getElementById('wref').value;
+  const devices=getWDevsFromForm();
+  let companyReport=null;
+  if(refTo==='company'){
+    const gv=id=>{const e=document.getElementById(id);return e?e.value:'';};
+    companyReport={
+      repairDesc:gv('cr-repair-desc'),repairDate:gv('cr-repair-date'),repairDur:gv('cr-repair-dur'),repairResult:gv('cr-repair-result'),
+      techName:gv('cr-tech-name'),techCode:gv('cr-tech-code'),techConfirm:gv('cr-tech-confirm'),
+      qcName:gv('cr-qc-name'),qcResult:gv('cr-qc-result'),qcNote:gv('cr-qc-note'),
+      shipName:gv('cr-ship-name'),shipTracking:gv('cr-ship-tracking'),shipDate:gv('cr-ship-date'),
+      mgrName:gv('cr-mgr-name'),mgrApprove:gv('cr-mgr-approve'),mgrNote:gv('cr-mgr-note'),
+      updatedAt:fdt()
+    };
+  }
+  const first=devices[0]||{};
+  return{
+    id:wEditIdx===-1?'W-'+String(warranties.length+1).padStart(4,'0'):warranties[wEditIdx].id,
+    name:document.getElementById('wn').value,phone:document.getElementById('wph').value,
+    date:document.getElementById('wdt').value,addr:document.getElementById('waddr').value,
+    socialContacts:wSocials.slice(), devices:devices,
+    initialService:init, model:first.model||'', color:first.color||'', buydate:first.buydate||'', serial:first.serial||'',
+    warrStatus:first.warrStatus||'card', warrExp:first.warrExp||'', condition:first.condition||'سالم',
+    problem:document.getElementById('wprob').value, expert:document.getElementById('wexp2').value, refTo:refTo,
+    refName:document.getElementById('wrefn').value,refDate:document.getElementById('wrefd').value,
+    refNote:document.getElementById('wrefnote').value,docs:wDocs,companyReport:companyReport,
+    status:'open', savedAt:fdt(), createdAt: wEditIdx===-1?fdt():(warranties[wEditIdx].createdAt||fdt())
+  };
+}
+function saveWar(){
+  const d=getWarData();
+  if(!d.name||!d.phone||!d.devices.length||!d.problem){ntf('نام، تلفن، حداقل یک دستگاه و شرح مشکل الزامی است','err');return;}
+  if(!d.initialService){ ntf('وضعیت اولیه خدمات را انتخاب کنید','err'); return; }
+  const wasNew=wEditIdx===-1;
+  if(wEditIdx===-1) warranties.push(d);
+  else{d.status=warranties[wEditIdx].status||'open'; d.createdAt=warranties[wEditIdx].createdAt||d.createdAt; warranties[wEditIdx]=d;}
+  if(d.initialService==='refer_company') d.devices.forEach(dev=>addDefectiveFromWarranty(d,dev));
+  svWars();
+  auditUser(wasNew?'ثبت پرونده گارانتی':'ویرایش پرونده گارانتی', d.id+' — '+d.name);
+  ntf(wasNew?'پرونده '+d.id+' ثبت شد':'پرونده ویرایش شد');showWarList();
+}
+function closeWar(idx){
+  const w=warranties[idx];
+  const inDef=defectiveStock.filter(x=>x.warrantyId===w.id && x.status==='in_stock');
+  if(inDef.length && !confirm('این پرونده '+inDef.length+' کالا در انبار معیوب دارد. با بستن پرونده، همه به‌عنوان «عودت به مشتری» از انبار کم می‌شوند. ادامه؟')) return;
+  inDef.forEach(d=>{ d.status='returned'; d.returnedAt=fdt(); d.qty=0; });
+  if(inDef.length) svDefective();
+  warranties[idx].status='closed'; warranties[idx].closedAt=fdt();
+  svWars(); renderWar();
+  auditUser('بستن پرونده گارانتی', w.id);
+  ntf('پرونده بسته شد');
+}
+function delWar(idx){if(!confirm('حذف این پرونده؟'))return;const w=warranties[idx];warranties.splice(idx,1);svWars();renderWar();auditUser('حذف پرونده گارانتی', w.id);ntf('حذف شد');}
+function renderWar(){
+  const q=(document.getElementById('wq').value||'').toLowerCase();
+  const sf=document.getElementById('wsf').value;
+  let f=warranties.filter(w=>{
+    const devs=warDevices(w);
+    const models=devs.map(d=>d.model).join(' ');
+    const m=!q||(w.name||'').includes(q)||(w.phone||'').includes(q)||models.includes(q)||(w.id||'').includes(q);
+    const sm=!sf||(sf==='open'&&w.status!=='closed')||(sf==='closed'&&w.status==='closed');
+    return m&&sm;
+  });
+  f=_listSort(f, _sortVal('w-sort')||'_idx:desc', warranties);
+  window._warView=f;
+  const c=document.getElementById('war-tbl');
+  if(!f.length){c.innerHTML='<div style="text-align:center;color:#aaa;padding:24px">پرونده‌ای یافت نشد</div>';return;}
+  const wlbl={'card':'✓ کارت','inv':'✓ فاکتور','no':'✗ بدون گارانتی'};
+  const wcol={'card':'var(--green)','inv':'var(--green)','no':'var(--red)'};
+  const rlbl={'agency':'نمایندگی','company':'شرکت','internal':'داخلی','pending':'انتظار'};
+  c.innerHTML='<table class="stbl"><thead><tr><th>شماره</th><th>نام</th><th>تلفن</th><th>دستگاه‌ها</th><th>خدمات اولیه</th><th>ارجاع</th><th>تاریخ</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody>'
+    +f.map(w=>{const ri=warranties.indexOf(w); const devs=warDevices(w);
+      const devTxt=devs.length?(devs.length>1?devs.length+' دستگاه — '+devs[0].model:devs[0].model):'—';
+      const ws=devs[0]?devs[0].warrStatus:'';
+      return'<tr><td><b style="color:var(--blue2)">'+w.id+'</b></td><td>'+w.name+'</td><td>'+w.phone+'</td><td>'+devTxt+' <span style="font-size:10px;color:'+(wcol[ws]||'#888')+'">'+(wlbl[ws]||'')+'</span></td><td style="font-size:11px">'+(WINIT_LBL[w.initialService]||'—')+'</td><td style="font-size:11px">'+(rlbl[w.refTo]||'—')+'</td><td style="font-size:11px">'+(w.date||'—')+'</td><td><span class="badge '+(w.status==='closed'?'badge-closed':'badge-open')+'">'+(w.status==='closed'?'✓ بسته':'⏳ باز')+'</span></td><td style="display:flex;gap:3px;flex-wrap:wrap"><button class="btn btn-sm btn-p" onclick="showWarForm('+ri+')">✏</button><button class="btn btn-sm" onclick="printWarA5FromList('+ri+')">🖨</button>'+(w.status!=='closed'?'<button class="btn btn-sm btn-g" onclick="closeWar('+ri+')" style="font-size:10px">✓</button>':'')+'<button class="btn btn-sm btn-r" onclick="delWar('+ri+')">✕</button></td></tr>';}).join('')
+    +'</tbody></table>';
+}
+
+// چاپ A5
+function showPrintDlg(type, idx){
+  document.getElementById('paper-print-type').value = type||'war';
+  document.getElementById('paper-print-idx').value = idx==undefined ? -1 : idx;
+  document.getElementById('paper-modal').classList.add('open');
+}
+
+function doPrint(paperSize){
+  const type = document.getElementById('paper-print-type').value;
+  const idx = parseInt(document.getElementById('paper-print-idx').value);
+  closeMod('paper-modal');
+
+  let content = '';
+  if(type === 'war'){
+    // پرینت از فرم
+    const d = getWarData();
+    d.docs = wDocs;
+    if(!d.name || !d.phone || !d.model || !d.problem){
+      ntf('اطلاعات ناقص است — نام، تلفن، مدل و شرح مشکل الزامی است','err');
+      return;
+    }
+    content = buildWarA5(d, paperSize);
+  } else if(type === 'war-list'){
+    // پرینت از لیست
+    const d = warranties[idx];
+    if(!d){ ntf('پرونده یافت نشد','err'); return; }
+    content = buildWarA5(d, paperSize);
+  }
+
+  const ps=getPrintSettings();const pw=ps.warranty||{};
+  const bgMap={none:'#ffffff',blue:'linear-gradient(135deg,#e8f0fe,#f0f4ff)',green:'linear-gradient(135deg,#e8f5e9,#f1f8e9)',warm:'linear-gradient(135deg,#fff3e0,#fce4ec)',purple:'linear-gradient(135deg,#f3e5f5,#ede7f6)'};
+  const wbg=bgMap[pw.bg||'none']||'#fff';
+  const effPaper = pw.paper || paperSize;
+  const w = window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+<meta name="app-version" content="10.4.6">
+    <style>
+      @page{size:${effPaper};margin:8mm;}
+      body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
+      *{box-sizing:border-box;}
+      ${pw.border?'body{border:2px solid #333;border-radius:8px;}':''}
+    </style>
+    </head><body>${content}</body></html>`);
+  w.document.close();
+  w.focus();
+  setTimeout(()=>{w.print();},300);
+}
+
+function buildWarA5(w, paperSize){
+  paperSize = paperSize || 'A5';
+  // سایز محتوا بر اساس کاغذ
+  const isA4 = paperSize.includes('A4');
+  const isA6 = paperSize.includes('A6');
+  const fontSize = isA4 ? '11px' : isA6 ? '9px' : '10px';
+  const padding = isA4 ? '8mm' : '5mm';
+
+  const wlbl={'card':'✓ کارت گارانتی فعال','inv':'✓ فاکتور معتبر','exp':'✗ منقضی شده','no':'✗ بدون گارانتی'};
+  const wcol={'card':'green','inv':'green','exp':'orange','no':'red'};
+  const rlbl={'agency':'نمایندگی مجاز','company':'شرکت مرکزی','internal':'واحد داخلی','pending':'در انتظار'};
+  const docs = w.docs && w.docs.length
+    ? '<div style="margin-top:6px"><b>اسناد پیوست ('+w.docs.length+' فایل):</b><div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px">'
+      + w.docs.map(d=>'<img src="'+d.data+'" style="width:50px;height:50px;object-fit:cover;border-radius:3px;border:1px solid #ccc">').join('')
+      + '</div></div>'
+    : '';
+
+  return `<div style="font-family:Tahoma,sans-serif;direction:rtl;font-size:${fontSize};padding:${padding};min-height:90%">
+    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #333;padding-bottom:6px;margin-bottom:10px">
+      <div>
+        <div style="font-size:14px;font-weight:700">فرم پذیرش گارانتی — Laegh Electronic Parsian</div>
+        <div style="font-size:9px;color:#555;margin-top:2px">شماره پرونده: <b>${w.id||'—'}</b> | تاریخ: ${w.date||'—'}</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#f9f9f9;padding:6px;border-radius:4px;margin-bottom:8px">
+      <div><b>مشتری:</b> ${w.name||'—'}</div>
+      <div><b>تلفن:</b> ${w.phone||'—'}</div>
+      <div style="grid-column:1/-1"><b>آدرس:</b> ${w.addr||'—'}</div>
+      ${w.ita?`<div><b>ایتا/تلگرام:</b> ${w.ita}</div>`:''}
+      ${w.soc?`<div><b>واتساپ/اینستا:</b> ${w.soc}</div>`:''}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;border:1px solid #ddd;padding:6px;border-radius:4px;margin-bottom:8px">
+      <div><b>مدل دستگاه:</b> ${w.model||'—'}</div>
+      <div><b>رنگ:</b> ${w.color||'—'}</div>
+      <div><b>تاریخ خرید:</b> ${w.buydate||'—'}</div>
+      <div><b>شماره سریال:</b> ${w.serial||'—'}</div>
+      <div><b>وضعیت ظاهری:</b> ${w.condition||'—'}</div>
+      <div><b>گارانتی:</b> <span style="color:${wcol[w.warrStatus]||'black'};font-weight:700">${wlbl[w.warrStatus]||'—'}</span></div>
+      ${w.warrExp?`<div style="grid-column:1/-1"><b>تاریخ انقضا:</b> ${w.warrExp}</div>`:''}
+    </div>
+
+    <div style="border-right:3px solid #333;padding-right:6px;margin-bottom:8px">
+      <b>شرح مشکل (اعلام مشتری):</b>
+      <div style="margin-top:3px;line-height:1.8">${w.problem||'—'}</div>
+    </div>
+
+    ${w.expert?`<div style="border-right:3px solid #aaa;padding-right:6px;margin-bottom:8px"><b>نظر کارشناس:</b><div style="color:#555;margin-top:3px">${w.expert}</div></div>`:''}
+
+    <div style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:4px;padding:6px;margin-bottom:8px">
+      <b>ارجاع به:</b> ${rlbl[w.refTo]||'—'}${w.refName?' — '+w.refName:''}${w.refDate?' | تاریخ: '+w.refDate:''}
+      ${w.refNote?`<div style="font-size:9px;color:#555;margin-top:2px">${w.refNote}</div>`:''}
+    </div>
+
+    ${docs}
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:14px;border-top:1px solid #ccc;padding-top:8px;text-align:center;font-size:9px">
+      <div>امضای مشتری</div>
+      <div>مهر و امضای واحد خدمات</div>
+      <div>تاریخ تحویل</div>
+    </div>
+  </div>`;
+}
+
+function printWarA5(){
+  showPrintDlg('war', -1);
+}
+function printWarA5FromList(idx){
+  showPrintDlg('war-list', idx);
+}
+
+
+// ══ فروش قطعات ═══════════════════════════════════════════════
+let sales = JSON.parse(localStorage.getItem('laegh_sales')||'[]');
+function svSales(){ localStorage.setItem('laegh_sales', JSON.stringify(sales)); markDirty(); }
+
+function openSaleForm(idx){
+  window._saleEditIdx = idx==undefined ? -1 : idx;
+  saleDocs = [];
+  document.getElementById('sale-docs-prev').innerHTML = '';
+  // پر کردن لیست قطعات
+  const sel = document.getElementById('sale-part-sel');
+  sel.innerHTML = '<option value="">-- انتخاب قطعه --</option>' +
+    parts.map(p => '<option value="'+p.code+'" data-price="'+( p.price||0)+'" data-name="'+p.name+'">'+p.code+' — '+p.name+' (موجودی: '+p.qty+')</option>').join('');
+
+  if(window._saleEditIdx === -1){
+    // فرم جدید
+    sel.value = '';
+    document.getElementById('sale-qty').value = 1;
+    document.getElementById('sale-price').value = 0;
+    document.getElementById('sale-disc').value = 0;
+    document.getElementById('sale-date').value = fdate();
+    document.getElementById('sale-note').value = '';
+    document.getElementById('sale-name').value = '';
+    document.getElementById('sale-phone').value = '';
+    document.getElementById('sale-msg').value = '';
+    document.getElementById('sale-addr').value = '';
+    document.getElementById('sale-zip').value = '';
+    document.getElementById('sale-ship').value = 'post';
+    calcSaleTotal();
+  } else {
+    const s = sales[window._saleEditIdx];
+    sel.value = s.partCode||'';
+    document.getElementById('sale-qty').value = s.qty||1;
+    document.getElementById('sale-price').value = s.price||0;
+    document.getElementById('sale-disc').value = s.disc||0;
+    document.getElementById('sale-date').value = s.date||'';
+    document.getElementById('sale-note').value = s.note||'';
+    document.getElementById('sale-name').value = s.name||'';
+    document.getElementById('sale-phone').value = s.phone||'';
+    document.getElementById('sale-msg').value = s.msg||'';
+    document.getElementById('sale-addr').value = s.addr||'';
+    document.getElementById('sale-zip').value = s.zip||'';
+    document.getElementById('sale-ship').value = s.ship||'post';
+    saleDocs = s.docs ? JSON.parse(JSON.stringify(s.docs)) : [];
+    renderSaleDocs();
+    calcSaleTotal();
+  }
+  document.getElementById('sale-form-wrap').style.display = 'block';
+  document.getElementById('sale-list-wrap').style.display = 'none';
+}
+
+function closeSaleForm(){
+  document.getElementById('sale-form-wrap').style.display = 'none';
+  document.getElementById('sale-list-wrap').style.display = 'block';
+  saleDocs = [];
+  renderSales();
+}
+
