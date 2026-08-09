@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18γ">
+<meta name="app-version" content="1405.5.18δ">
 <meta name="app-date" content="1405/05/18">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -946,7 +946,7 @@ body.has-bg-image::after{
 }
 body.has-bg-image.theme-dark::after{background:rgba(10,12,15,var(--bg-overlay,0.55));}
 
-/* ══════ اسکین قوی / Skin Pack (v1405.5.18γ) ══════ */
+/* ══════ اسکین قوی / Skin Pack (v1405.5.18δ) ══════ */
 .skin-card{width:148px;border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--card);transition:.18s;text-align:right;}
 .skin-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,40,55,.10);}
 .skin-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 25%,transparent);}
@@ -1561,7 +1561,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۱۸γ — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۱۸δ — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-sm" onclick="promptExitBackup()" style="width:100%;margin-top:6px">🚪 خروج / بستن برنامه</button>
 </div>
 
@@ -3258,21 +3258,21 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 
       <div style="background:var(--bg2);border-radius:8px;padding:14px;margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span style="font-size:12px;font-weight:700">محل ذخیره (پوشه دائمی — فقط Chrome/Edge)</span>
+          <span style="font-size:12px;font-weight:700">محل ذخیره (Chrome/Edge)</span>
           <span id="as-status" style="font-size:11px;color:var(--text2)">⏸ غیرفعال</span>
         </div>
-        <div id="as-folder-name" style="font-size:13px;margin-bottom:10px">📁 پوشه‌ای انتخاب نشده</div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-p btn-sm" onclick="chooseAutoSaveFolder()">📂 انتخاب پوشه ذخیره</button>
+        <div id="as-folder-name" style="font-size:13px;margin-bottom:10px">📁 محل ذخیره‌ای انتخاب نشده</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-p btn-sm" onclick="chooseAutoSaveFile()">📄 انتخاب فایل ذخیره (پیشنهادی)</button>
+          <button class="btn btn-sm btn-o" onclick="chooseAutoSaveFolder()">📂 انتخاب پوشه</button>
           <button class="btn btn-sm btn-o" onclick="disableAutoSaveFolder()">⏸ غیرفعال‌سازی</button>
         </div>
         <div id="as-last-time" style="font-size:11px;color:var(--text2);margin-top:10px"></div>
       </div>
 
       <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:12px;margin-bottom:14px;font-size:11px;color:#856404;line-height:1.8">
-        ⚠️ اگر دکمه «انتخاب پوشه ذخیره» را زدید و هیچ پنجره‌ای باز نشد، یا بعد از انتخاب فایلی در پوشه نمی‌بینید:
-        به تب <b>«عیب‌یابی»</b> بروید — جزئیات دقیق خطا (نوع خطا، نام مرورگر) همان‌جا ثبت می‌شود.
-        در آن صورت، از دکمه پایین (که همیشه کار می‌کند) استفاده کنید.
+        ⚠️ اگر «انتخاب پوشه» خطای Name is not allowed داد، از دکمه <b>«📄 انتخاب فایل ذخیره»</b> استفاده کنید — پایدارتر است.
+        اگر هیچ پنجره‌ای باز نشد: صفحه را با <b>Sirman_Start.bat</b> باز کنید (نه دوبارکلیک روی HTML)، یا از دانلود دستی پایین استفاده کنید.
       </div>
 
       <div style="background:var(--bg2);border-radius:8px;padding:14px;margin-bottom:14px;border:1px solid var(--green)">
@@ -3298,9 +3298,10 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
         💡 <b>نکات مهم:</b><br>
         • انتخاب پوشه فقط در مرورگرهای Chrome / Edge جدید ممکن است<br>
         • اگر فایل HTML را با دوبار کلیک (یعنی آدرس آن با <code>file://</code> شروع می‌شود) باز کرده‌اید، ممکن است این قابلیت محدودیت داشته باشد — در این حالت از دکمه «دانلود دستی بک‌اپ» بالا استفاده کنید<br>
-        • فایل با نام <code>sirman_autosave.txt</code> (محتوای JSON) دائماً بروزرسانی می‌شود<br>
-        • علاوه بر آن، یک نسخه روزانه با تاریخ هم نگه داشته می‌شود<br>
-        • اگر پوشه انتخاب نشود، داده فقط در حافظه مرورگر می‌ماند (ناامن). حتماً پوشه ذخیره را انتخاب کنید تا فایل و مدارک در همان پوشه ذخیره شوند
+        • روش پیشنهادی: «انتخاب فایل ذخیره» → فایل <code>sirman_autosave.txt</code> را یک‌بار بسازید/انتخاب کنید<br>
+        • در حالت پوشه، فایل‌هایی مثل <code>backup.txt</code> / <code>data.txt</code> نوشته می‌شوند (نام‌های ساده برای سازگاری با کروم)<br>
+        • اگر نوشتن در فایل/پوشه شکست بخورد، یک دانلود جایگزین خودکار انجام می‌شود<br>
+        • اگر محل ذخیره انتخاب نشود، داده بیشتر در حافظه مرورگر می‌ماند — حتماً فایل ذخیره یا دانلود دستی را فعال کنید
       </div>
     </div>
   </div>
@@ -4086,7 +4087,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۱۸γ
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۱۸δ
 </div>
 </div>
 
@@ -4439,7 +4440,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
     شما تغییراتی دارید که هنوز در فایل بک‌آپ ذخیره نشده‌اند.
     <br>قبل از بستن برنامه، یک فایل بک‌آپ بگیرید تا داده‌ها از دست نروند.
     <div style="margin-top:10px;padding:8px 10px;background:#fff3cd;border:1px solid #ffe08a;border-radius:7px;font-size:11px;color:#8a6d3b">
-      ⚠️ توجه: تا وقتی «پوشه ذخیره خودکار» را انتخاب نکرده‌اید، داده‌ها عمدتاً در حافظه مرورگر هستند. با انتخاب پوشه، فایل sirman_autosave.txt و مدارک در همان پوشه نوشته می‌شوند و وابستگی به کش کمتر می‌شود.
+      ⚠️ توجه: تا وقتی «پوشه ذخیره خودکار» را انتخاب نکرده‌اید، داده‌ها عمدتاً در حافظه مرورگر هستند. با «انتخاب فایل ذخیره» یا پوشه، بکاپ روی دیسک نوشته می‌شود و وابستگی به کش کمتر می‌شود. اگر پوشه خطا داد، از انتخاب فایل استفاده کنید.
     </div>
   </div>
   <div class="btn-bar" style="flex-direction:column;gap:8px">
@@ -4685,7 +4686,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 
 <script>
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.18γ';
+var APP_VERSION = '1405.5.18δ';
 var APP_DATE = '1405/05/18';
 // قفل ضدثبت‌تکراری — جلوگیری از چند رکورد با چند کلیک سریع
 window._saveLocks = window._saveLocks || {};
@@ -4700,10 +4701,10 @@ function safePersist(reason){
       try{ mirrorBackupToIDB(_buildFullBackupData()); }catch(_e2){}
     }
     // اگر پوشه ذخیره انتخاب نشده، یک‌بار در هر نشست هشدار بده
-    if(!window._warnedNoFolder && typeof autoSaveDirHandle!=='undefined' && !autoSaveDirHandle){
+    if(!window._warnedNoFolder && typeof autoSaveDirHandle!=='undefined' && !autoSaveDirHandle && !autoSaveFileHandle){
       window._warnedNoFolder = true;
       try{
-        ntf('برای امنیت داده، از تنظیمات → پوشه ذخیره خودکار را انتخاب کنید','err');
+        ntf('برای امنیت داده، از تنظیمات → انتخاب فایل ذخیره را بزنید','err');
       }catch(_e3){}
     }
   }catch(e){}
@@ -4800,6 +4801,7 @@ function sv(){
 
 // ===== AUTO-SAVE SYSTEM =====
 var autoSaveDirHandle = null;     // پوشه انتخاب‌شده توسط کاربر (File System Access API)
+var autoSaveFileHandle = null;    // فایل مستقیم (showSaveFilePicker) — بدون getFileHandle/نام
 var autoSaveTimer = null;
 var autoSaveIntervalMin = 3;      // هر چند دقیقه
 var isDirty = false;
@@ -4818,7 +4820,7 @@ function _safeStr(s){ return (s==null)?'':String(s); }
 
 function _buildFullBackupData(){
   var data = {
-    version: '1405.5.18γ',
+    version: '1405.5.18δ',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -5075,20 +5077,76 @@ function fsDateStamp(){
     return iso;
   } catch (_e2) { return 'backup'; }
 }
-// نوشتن امن در پوشه: چند نام کاندید (.txt اول — کروم بعضی پسوندها را برای getFileHandle مسدود می‌کند)
+
+async function ensureFsPermission(handle, mode){
+  if (!handle) return false;
+  mode = mode || 'readwrite';
+  try {
+    if (typeof handle.queryPermission === 'function') {
+      var q = await handle.queryPermission({ mode: mode });
+      if (q === 'granted') return true;
+    }
+    if (typeof handle.requestPermission === 'function') {
+      var r = await handle.requestPermission({ mode: mode });
+      return r === 'granted';
+    }
+    return true;
+  } catch (_e) {
+    return true; // بعضی مرورگرها این API را ندارند — ادامه بده
+  }
+}
+
+function downloadAutoSaveFallback(text){
+  try {
+    var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'sirman_autosave.txt';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){
+      try { URL.revokeObjectURL(a.href); a.remove(); } catch (_e) {}
+    }, 2000);
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
+async function writeTextToAutoSaveFileHandle(text){
+  if (!autoSaveFileHandle) throw new Error('فایل ذخیره انتخاب نشده');
+  var ok = await ensureFsPermission(autoSaveFileHandle, 'readwrite');
+  if (!ok) throw new Error('دسترسی نوشتن به فایل ذخیره داده نشد — دوباره فایل را انتخاب کنید');
+  var writable = await autoSaveFileHandle.createWritable();
+  await writable.write(text);
+  await writable.close();
+  var nm = '';
+  try { nm = autoSaveFileHandle.name || 'sirman_autosave.txt'; } catch (_e) { nm = 'sirman_autosave.txt'; }
+  return { ok: true, name: nm, mode: 'file' };
+}
+
+// نوشتن امن در پوشه: فقط نام‌های خیلی ساده .txt (کروم خیلی از پسوندها را با Name is not allowed مسدود می‌کند)
 async function writeTextToAutoSaveFolder(text){
   if (!autoSaveDirHandle) throw new Error('پوشه ذخیره انتخاب نشده');
-  var stamp = fsDateStamp();
+  var okPerm = await ensureFsPermission(autoSaveDirHandle, 'readwrite');
+  if (!okPerm) throw new Error('دسترسی نوشتن به پوشه داده نشد — دوباره پوشه را انتخاب کنید');
+
+  var preferred = '';
+  try { preferred = localStorage.getItem('laegh_autosave_ok_name') || ''; } catch (_e) {}
+  // فقط .txt خیلی ساده — بدون تاریخ فارسی و بدون پسوندهای مسدودشده کروم
   var candidates = [
-    'sirman_autosave.txt',
-    'SirmanAutoSave.txt',
-    'sirman_autosave_' + stamp + '.txt',
-    'sirman_autosave.json',
-    'Laegh_AutoSave.json'
-  ].map(safeFsFileName);
-  // یکتا نگه دار
+    'backup.txt',
+    'data.txt',
+    'sirman.txt',
+    'save.txt',
+    'a.txt',
+    'sirman_autosave.txt'
+  ];
+  if (preferred && String(preferred).trim()) candidates.unshift(String(preferred).trim());
+  candidates = candidates.map(safeFsFileName).filter(function(n){ return !!n && n !== 'sirman_file'; });
   var seen = {};
-  candidates = candidates.filter(function(n){ if(seen[n]) return false; seen[n]=1; return !!n; });
+  candidates = candidates.filter(function(n){ if (seen[n]) return false; seen[n]=1; return true; });
+
   var lastErr = null;
   var tried = [];
   for (var i = 0; i < candidates.length; i++) {
@@ -5099,11 +5157,27 @@ async function writeTextToAutoSaveFolder(text){
       var writable = await fileHandle.createWritable();
       await writable.write(text);
       await writable.close();
-      return { ok: true, name: name, tried: tried };
+      try { localStorage.setItem('laegh_autosave_ok_name', name); } catch (_e2) {}
+      return { ok: true, name: name, tried: tried, mode: 'dir' };
     } catch (e) {
       lastErr = e;
     }
   }
+
+  // تلاش دوم: زیرپوشه ASCII + فایل ساده (بعضی پوشه‌های خاص/همگام‌سازی روی ریشه حساس‌اند)
+  try {
+    tried.push('sirman_data/backup.txt');
+    var sub = await autoSaveDirHandle.getDirectoryHandle('sirman_data', { create: true });
+    var fh = await sub.getFileHandle('backup.txt', { create: true });
+    var w2 = await fh.createWritable();
+    await w2.write(text);
+    await w2.close();
+    try { localStorage.setItem('laegh_autosave_ok_name', 'backup.txt'); } catch (_e3) {}
+    return { ok: true, name: 'sirman_data/backup.txt', tried: tried, mode: 'subdir' };
+  } catch (e2) {
+    lastErr = e2;
+  }
+
   var msg = (lastErr && (lastErr.message || String(lastErr))) || 'نوشتن در پوشه ناموفق';
   var err = new Error(msg + ' | نام‌های امتحان‌شده: ' + tried.join(', ') + ' | نسخه: ' + (typeof APP_VERSION !== 'undefined' ? APP_VERSION : '?'));
   err.tried = tried;
@@ -5111,10 +5185,82 @@ async function writeTextToAutoSaveFolder(text){
   throw err;
 }
 
+async function writeAutoSaveTarget(text){
+  // اولویت ۱: هندل فایل مستقیم (بدون getFileHandle و بدون محدودیت نام)
+  if (autoSaveFileHandle) {
+    try {
+      return await writeTextToAutoSaveFileHandle(text);
+    } catch (fileErr) {
+      if (!autoSaveDirHandle) throw fileErr;
+      if (typeof addDbgEntry === 'function') addDbgEntry('warn','ذخیره فایل مستقیم', fileErr.message||String(fileErr), 'سقوط به پوشه', '');
+    }
+  }
+  if (autoSaveDirHandle) {
+    return await writeTextToAutoSaveFolder(text);
+  }
+  throw new Error('محل ذخیره انتخاب نشده');
+}
+
+function updateAutoSaveTargetUI(){
+  var el = document.getElementById('as-folder-name');
+  if (!el) return;
+  if (autoSaveFileHandle) {
+    var fn = '';
+    try { fn = autoSaveFileHandle.name || 'sirman_autosave.txt'; } catch (_e) { fn = 'فایل انتخاب‌شده'; }
+    el.textContent = '📄 فایل: ' + fn;
+  } else if (autoSaveDirHandle) {
+    el.textContent = '📁 ' + (autoSaveDirHandle.name || 'پوشه انتخاب‌شده');
+  } else {
+    el.textContent = '📁 محل ذخیره‌ای انتخاب نشده';
+  }
+}
+
+// انتخاب فایل ذخیره (روش پیشنهادی — کروم دیگر روی نام getFileHandle گیر نمی‌کند)
+async function chooseAutoSaveFile(){
+  if (!window.showSaveFilePicker) {
+    // مرورگر فایل‌پیکر ندارد → پوشه
+    if (typeof chooseAutoSaveFolder === 'function') return chooseAutoSaveFolder();
+    alert('⚠️ مرورگر از انتخاب فایل پشتیبانی نمی‌کند.\nاز Chrome یا Edge جدید استفاده کنید، یا از «دانلود بک‌اپ» استفاده کنید.');
+    return;
+  }
+  if (!window.isSecureContext) {
+    if (typeof addDbgEntry === 'function') addDbgEntry('warn','ذخیره خودکار — فایل','isSecureContext=false','مرورگر این صفحه را Secure Context تشخیص نمی‌دهد','از لانچر Sirman_Start.bat استفاده کنید تا روی http://localhost باز شود');
+  }
+  try {
+    autoSaveFileHandle = await window.showSaveFilePicker({
+      suggestedName: 'sirman_autosave.txt',
+      types: [{ description: 'Sirman backup text', accept: { 'text/plain': ['.txt'] } }]
+    });
+    localStorage.setItem('laegh_autosave_enabled','1');
+    localStorage.setItem('laegh_autosave_mode','file');
+    updateAutoSaveTargetUI();
+    var st = document.getElementById('as-status');
+    if (st) { st.textContent = '✅ فعال — هر ' + autoSaveIntervalMin + ' دقیقه'; st.style.color = 'var(--green)'; }
+    ntf('فایل ذخیره خودکار انتخاب شد ✅');
+    startAutoSave();
+    try {
+      await doAutoSave(true);
+      ntf('بکاپ در فایل نوشته شد ✅');
+    } catch (saveErr) {
+      var m = (saveErr && saveErr.message) ? saveErr.message : String(saveErr);
+      ntf('فایل انتخاب شد ولی نوشتن خطا داد — دانلود جایگزین انجام شد','err');
+      alert('فایل انتخاب شد، اما نوشتن خطا داد.\n\nنسخه: '+(typeof APP_VERSION!=='undefined'?APP_VERSION:'?')+'\n'+m+'\n\nیک نسخه دانلود هم گرفته شد. اگر باز خطا دیدید، از دکمه «دانلود بک‌اپ» استفاده کنید یا صفحه را با Sirman_Start.bat باز کنید.');
+    }
+  } catch (e) {
+    if (e && e.name === 'AbortError') {
+      ntf('انتخاب فایل لغو شد');
+      return;
+    }
+    var detail = 'نوع خطا: ' + (e && e.name) + ' — پیام: ' + (e && e.message) + ' — Protocol: ' + location.protocol;
+    if (typeof addDbgEntry === 'function') addDbgEntry('warn','ذخیره خودکار — انتخاب فایل ناموفق', detail, 'فایل انتخاب نشد', 'از دکمه دانلود بک‌اپ استفاده کنید یا پوشه را امتحان کنید');
+    ntf('⚠️ انتخاب فایل ناموفق (' + ((e && e.name) || 'Error') + ')','err');
+  }
+}
+
 // انتخاب پوشه ذخیره (یک بار، با تأیید کاربر)
 async function chooseAutoSaveFolder(){
   if (!window.showDirectoryPicker) {
-    alert('⚠️ مرورگر شما از انتخاب پوشه پشتیبانی نمی‌کند.\n\nاز Chrome یا Edge جدید استفاده کنید.\nدر این حالت، ذخیره خودکار به‌صورت دانلود فایل انجام می‌شود.');
+    alert('⚠️ مرورگر شما از انتخاب پوشه پشتیبانی نمی‌کند.\n\nاز Chrome یا Edge جدید استفاده کنید.\nدر این حالت، از «انتخاب فایل ذخیره» یا «دانلود بک‌اپ» استفاده کنید.');
     return;
   }
   if (!window.isSecureContext) {
@@ -5123,7 +5269,8 @@ async function chooseAutoSaveFolder(){
   try {
     autoSaveDirHandle = await window.showDirectoryPicker({ mode:'readwrite' });
     localStorage.setItem('laegh_autosave_enabled','1');
-    document.getElementById('as-folder-name').textContent = '📁 ' + (autoSaveDirHandle.name||'پوشه انتخاب‌شده');
+    localStorage.setItem('laegh_autosave_mode','dir');
+    updateAutoSaveTargetUI();
     document.getElementById('as-status').textContent = '✅ فعال — هر ' + autoSaveIntervalMin + ' دقیقه';
     document.getElementById('as-status').style.color = 'var(--green)';
     ntf('پوشه ذخیره خودکار انتخاب شد ✅');
@@ -5132,19 +5279,22 @@ async function chooseAutoSaveFolder(){
       await doAutoSave(true); // ذخیره فوری برای تست
       ntf('فایل بکاپ در پوشه نوشته شد ✅');
     } catch (saveErr) {
-      // doAutoSave معمولاً خودش catch می‌کند؛ اگر پرتاب کرد:
       var m = (saveErr && saveErr.message) ? saveErr.message : String(saveErr);
-      ntf('پوشه انتخاب شد ولی نوشتن فایل خطا داد','err');
-      alert('پوشه انتخاب شد، اما نوشتن فایل بکاپ خطا داد.\n\nنسخه: '+(typeof APP_VERSION!=='undefined'?APP_VERSION:'?')+'\n'+m+'\n\nاگر پیام Name is not allowed دیدید، نسخه جدید از پسوند .txt استفاده می‌کند. صفحه را Refresh کامل کنید (Ctrl+F5) و دوباره پوشه را انتخاب کنید.');
+      ntf('پوشه انتخاب شد ولی نوشتن فایل خطا داد — دانلود جایگزین انجام شد','err');
+      alert('پوشه انتخاب شد، اما نوشتن فایل بکاپ خطا داد.\n\nنسخه: '+(typeof APP_VERSION!=='undefined'?APP_VERSION:'?')+'\n'+m+'\n\nیک نسخه دانلود هم گرفته شد.\nپیشنهاد: دکمه «📄 انتخاب فایل ذخیره» را بزنید (روش پایدارتر) یا صفحه را با Sirman_Start.bat باز کنید.');
     }
   } catch(e) {
     // ثبت دقیق خطا — حتی AbortError — تا بتوان علت واقعی را بعداً از تب عیب‌یابی دید
+    if (e && e.name === 'AbortError') {
+      ntf('انتخاب پوشه لغو شد');
+      return;
+    }
     var detail = 'نوع خطا: ' + e.name + ' — پیام: ' + e.message + ' — Protocol: ' + location.protocol + ' — isSecureContext: ' + window.isSecureContext;
     if (typeof addDbgEntry === 'function') addDbgEntry('warn','ذخیره خودکار — انتخاب پوشه ناموفق', detail,
       'پوشه انتخاب نشد یا پنجره انتخاب پوشه باز نشد ('+e.name+')',
       e.name === 'AbortError'
         ? 'این پیام معمولاً یعنی پنجره انتخاب پوشه اصلاً باز نشده (نه اینکه لغو کرده باشید). اگر فایل را با دوبار کلیک (file://) باز کرده‌اید، این قابلیت مرورگر ممکن است محدود باشد. به‌جای آن، روی «💾 ذخیره فوری همین الان» کلیک کنید تا حداقل یک نسخه دانلود شود، یا منتظر آپدیت بعدی برای رفع این مشکل بمانید.'
-        : 'دوباره تلاش کنید. اگر تکرار شد، از دکمه «ذخیره فوری» به‌عنوان جایگزین استفاده کنید.');
+        : 'دوباره تلاش کنید. اگر تکرار شد، از دکمه «انتخاب فایل ذخیره» یا «دانلود بک‌اپ» استفاده کنید.');
     // به کاربر هم همین الان و مستقیم خبر بده — نه فقط در لاگ مخفی
     ntf('⚠️ پوشه انتخاب نشد (' + e.name + ') — برای جزئیات به تب عیب‌یابی مراجعه کنید', 'err');
     document.getElementById('as-status').textContent = '❌ ناموفق: ' + e.name;
@@ -5161,23 +5311,32 @@ async function doAutoSave(force){
     // mirror در IndexedDB (کپی امن اضافی — قانون ۳-۲-۱)
     if(typeof mirrorBackupToIDB==='function'){ try{ await mirrorBackupToIDB(json); }catch(idbErr){} }
 
-    if (autoSaveDirHandle) {
-      // روش ۱: ذخیره مستقیم در پوشه — با چند نام کاندید (.txt اول)
-      var wrote = await writeTextToAutoSaveFolder(json);
-      if (typeof addDbgEntry === 'function') addDbgEntry('ok','ذخیره پوشه', wrote.name, 'فایل در پوشه ذخیره شد', '');
-      // نسخه ساعتی جدا (اختیاری)
-      var hourKey = new Date().toISOString().slice(0,13);
-      if (localStorage.getItem('laegh_last_hourly_save') !== hourKey) {
-        try {
-          var hourlyName = safeFsFileName('sirman_hourly_' + fsDateStamp() + '.txt');
-          var hf = await autoSaveDirHandle.getFileHandle(hourlyName, { create:true });
-          var hw = await hf.createWritable();
-          await hw.write(json);
-          await hw.close();
-          localStorage.setItem('laegh_last_hourly_save', hourKey);
-        } catch (dateErr) {
-          if (typeof addDbgEntry === 'function') addDbgEntry('warn','ذخیره ساعتی', dateErr.message||String(dateErr),'نسخه اصلی ذخیره شد','');
+    if (autoSaveFileHandle || autoSaveDirHandle) {
+      try {
+        var wrote = await writeAutoSaveTarget(json);
+        if (typeof addDbgEntry === 'function') addDbgEntry('ok','ذخیره محل', wrote.name + ' ('+(wrote.mode||'?')+')', 'فایل ذخیره شد', '');
+        // نسخه ساعتی جدا فقط در حالت پوشه (اختیاری)
+        if (autoSaveDirHandle && !autoSaveFileHandle) {
+          var hourKey = new Date().toISOString().slice(0,13);
+          if (localStorage.getItem('laegh_last_hourly_save') !== hourKey) {
+            try {
+              var hourlyName = safeFsFileName('h' + fsDateStamp().replace(/-/g,'') + '.txt');
+              var hf = await autoSaveDirHandle.getFileHandle(hourlyName, { create:true });
+              var hw = await hf.createWritable();
+              await hw.write(json);
+              await hw.close();
+              localStorage.setItem('laegh_last_hourly_save', hourKey);
+            } catch (dateErr) {
+              if (typeof addDbgEntry === 'function') addDbgEntry('warn','ذخیره ساعتی', dateErr.message||String(dateErr),'نسخه اصلی ذخیره شد','');
+            }
+          }
         }
+      } catch (writeErr) {
+        // هرگز داده را بی‌صدا از دست نده — دانلود جایگزین
+        var dl = downloadAutoSaveFallback(json);
+        if (typeof addDbgEntry === 'function') addDbgEntry('warn','ذخیره محل ناموفق', (writeErr && writeErr.message)||String(writeErr), dl?'دانلود جایگزین انجام شد':'دانلود جایگزین شکست','از انتخاب فایل ذخیره یا دانلود دستی استفاده کنید');
+        updateAutoSaveUI(false, (writeErr && writeErr.message) || String(writeErr));
+        throw writeErr;
       }
     } else {
       // روش ۲ (fallback): فقط در localStorage یک کپی امن نگه می‌داریم
@@ -5189,8 +5348,8 @@ async function doAutoSave(force){
     updateAutoSaveUI(true);
   } catch(e) {
     updateAutoSaveUI(false, e.message);
-    if (typeof addDbgEntry === 'function') addDbgEntry('warn','ذخیره خودکار',e.message,'ذخیره خودکار ناموفق بود','دوباره پوشه را انتخاب کنید — ممکن است دسترسی لغو شده باشد');
-    throw e; // تا chooseAutoSaveFolder هم متوجه خطا شود و راهنما نشان دهد
+    if (typeof addDbgEntry === 'function') addDbgEntry('warn','ذخیره خودکار',e.message,'ذخیره خودکار ناموفق بود','دوباره فایل/پوشه را انتخاب کنید — ممکن است دسترسی لغو شده باشد');
+    throw e; // تا chooseAutoSave* هم متوجه خطا شود و راهنما نشان دهد
   }
 }
 
@@ -5212,21 +5371,24 @@ function startAutoSave(){
   autoSaveTimer = setInterval(doAutoSave, autoSaveIntervalMin * 60 * 1000);
 }
 
+function disableAutoSaveFolder(){
+  autoSaveDirHandle = null;
+  autoSaveFileHandle = null;
+  localStorage.removeItem('laegh_autosave_enabled');
+  localStorage.removeItem('laegh_autosave_mode');
+  localStorage.removeItem('laegh_autosave_ok_name');
+  if (autoSaveTimer) clearInterval(autoSaveTimer);
+  updateAutoSaveTargetUI();
+  document.getElementById('as-status').textContent = '⏸ غیرفعال';
+  document.getElementById('as-status').style.color = 'var(--text2)';
+  ntf('ذخیره خودکار در فایل/پوشه غیرفعال شد');
+}
+
 function setAutoSaveInterval(min){
   autoSaveIntervalMin = parseInt(min) || 3;
   localStorage.setItem('laegh_autosave_interval', autoSaveIntervalMin);
   startAutoSave();
   ntf('فاصله ذخیره خودکار: هر '+autoSaveIntervalMin+' دقیقه');
-}
-
-function disableAutoSaveFolder(){
-  autoSaveDirHandle = null;
-  localStorage.removeItem('laegh_autosave_enabled');
-  if (autoSaveTimer) clearInterval(autoSaveTimer);
-  document.getElementById('as-folder-name').textContent = '📁 پوشه‌ای انتخاب نشده';
-  document.getElementById('as-status').textContent = '⏸ غیرفعال';
-  document.getElementById('as-status').style.color = 'var(--text2)';
-  ntf('ذخیره خودکار در پوشه غیرفعال شد');
 }
 
 // هشدار قبل از بسته شدن صفحه اگر تغییر ذخیره‌نشده باشد
@@ -6489,7 +6651,7 @@ function buildPH(list){
 
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18γ">
+<meta name="app-version" content="1405.5.18δ">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -6506,7 +6668,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18γ">
+<meta name="app-version" content="1405.5.18δ">
 <meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -6566,7 +6728,7 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18γ">
+<meta name="app-version" content="1405.5.18δ">
 <meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -6586,11 +6748,11 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18γ">
+<meta name="app-version" content="1405.5.18δ">
 <meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18γ">
+<meta name="app-version" content="1405.5.18δ">
 <meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -7031,7 +7193,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18γ">
+<meta name="app-version" content="1405.5.18δ">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -8253,7 +8415,7 @@ function enableTaskNotifications(){
 }
 function registerLaeghSW(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('sw.js?v=1405.5.18γ').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=1405.5.18δ').then(reg=>{
     _swReg=reg;
     // Check for SW updates
     reg.addEventListener('updatefound', ()=>{
@@ -9399,7 +9561,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18γ">'+
+    '<meta name="app-version" content="1405.5.18δ">'+
     '<meta name="app-date" content="1405/05/18">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -9550,7 +9712,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.18γ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.18δ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -10149,7 +10311,7 @@ const BTN_TIPS={
   openPBModal:'افزودن مخاطب جدید به دفترچه تلفن',savePBContact:'ذخیره اطلاعات مخاطب',expPBExcel:'خروجی اکسل دفترچه تلفن',tplPB:'دانلود نمونه اکسل دفترچه تلفن',printPhonebookList:'چاپ لیست مخاطبین',
   showWarForm:'ایجاد پرونده گارانتی جدید',saveWar:'ثبت پرونده گارانتی',showWarList:'مشاهده لیست پرونده‌های گارانتی',expWar:'خروجی اکسل پرونده‌های گارانتی',printWarrantyList:'چاپ لیست گارانتی‌ها',notifyWarrantyReferral:'ارسال پیام ارجاع گارانتی به مشتری',
   openAccountForm:'تعریف حساب مالی جدید (شماره حساب + نام)',saveAccount:'ذخیره حساب جدید یا تغییرات',openWithdrawModal:'برداشت مبلغ از این حساب با ذکر موضوع',expAccountsExcel:'خروجی اکسل از حساب‌ها و تراکنش‌ها',tplAccounts:'دانلود فایل نمونه اکسل برای حساب‌ها',printAccountsList:'چاپ خلاصه حساب‌های مالی',
-  resetAll:'حذف همه داده‌ها و بازگشت به حالت اولیه',doAutoSave:'ذخیره فوری اطلاعات در پوشه انتخاب‌شده',chooseAutoSaveFolder:'انتخاب پوشه برای ذخیره خودکار فایل پشتیبان',
+  resetAll:'حذف همه داده‌ها و بازگشت به حالت اولیه',doAutoSave:'ذخیره فوری اطلاعات در فایل/پوشه انتخاب‌شده',chooseAutoSaveFile:'انتخاب فایل برای ذخیره خودکار پشتیبان',chooseAutoSaveFolder:'انتخاب پوشه برای ذخیره خودکار فایل پشتیبان',
   calPageNav:'حرکت به ماه قبل/بعد در تقویم',clearAuditLog:'حذف تاریخچه عملیات کاربر',exportAuditExcel:'خروجی اکسل از لاگ عملیات',printDefectiveList:'چاپ لیست محصولات معیوب',openDefectiveModal:'ثبت محصول معیوب جدید در انبار',
   runCodeAnalysis:'بررسی خطوط کد و تحلیل اسکریپت',runFullDiag:'اجرای عیب‌یابی کامل همه بخش‌ها',clearDbgLog:'حذف همه ورودی‌های لاگ عیب‌یابی',exportDbgLog:'کپی کردن لاگ عیب‌یابی در کلیپ‌بورد',
   tplWarranty:'دانلود نمونه اکسل گارانتی',importProducts:'وارد کردن کالاها از فایل اکسل',
@@ -10685,7 +10847,7 @@ function doPrint(paperSize){
   const effPaper = pw.paper || paperSize;
   const w = window.open('','_blank');
   w.document.open(); w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18γ">
+<meta name="app-version" content="1405.5.18δ">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -10796,7 +10958,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18γ">'+
+    '<meta name="app-version" content="1405.5.18δ">'+
     '<meta name="app-date" content="1405/05/18">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -10872,7 +11034,7 @@ function printCompanyReport(idx){
   var qcResultLbl = {'pass':'✅ تأیید کیفیت','fail':'❌ رد شد — نیاز به اصلاح','pending':'در حال بررسی'};
   var mgrApproveLbl = {'approved':'✅ تأیید نهایی','pending':'در انتظار بررسی','rejected':'❌ رد شد'};
 
-  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.18γ';
+  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.18δ';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
     '<title>گزارش داخلی شرکت — '+wHdr.id+'</title>'+
     '<style>'+
@@ -11503,7 +11665,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18γ">'+
+    '<meta name="app-version" content="1405.5.18δ">'+
     '<meta name="app-date" content="1405/05/18">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -11723,7 +11885,7 @@ function expSalesExcel(){
 // ══════ حسابداری ══════
 // ═══════════════════════════════════════════════════════════════════════════
 // ماژول داغی (پیگیری رسید امضا‌شده‌ی نمایندگی‌های خدمات)
-// نسخه ۱۴۰۵.۵.۱۸γ — فاز داغی
+// نسخه ۱۴۰۵.۵.۱۸δ — فاز داغی
 //
 // «داغی» یعنی وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستیم، آن‌ها باید رسید امضا‌شده
 // (داغی) را به ما برگردانند. این ماژول پیگیری می‌کند که چه کسانی داغی معوقه دارند.
@@ -13027,7 +13189,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18γ">'+
+    '<meta name="app-version" content="1405.5.18δ">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
@@ -14834,12 +14996,12 @@ function loadAutoSaveUI(){
   var savedInterval = localStorage.getItem('laegh_autosave_interval')||'3';
   var sel = document.getElementById('as-interval');
   if (sel) sel.value = savedInterval;
-  if (autoSaveDirHandle) {
-    document.getElementById('as-folder-name').textContent = '📁 ' + (autoSaveDirHandle.name||'پوشه فعال');
+  if (autoSaveFileHandle || autoSaveDirHandle) {
+    if (typeof updateAutoSaveTargetUI === 'function') updateAutoSaveTargetUI();
     document.getElementById('as-status').textContent = '✅ فعال — هر ' + autoSaveIntervalMin + ' دقیقه';
     document.getElementById('as-status').style.color = 'var(--green)';
   } else if (localStorage.getItem('laegh_autosave_enabled')) {
-    document.getElementById('as-status').textContent = '⚠️ نیاز به انتخاب مجدد پوشه (پس از بستن مرورگر، دسترسی لغو می‌شود)';
+    document.getElementById('as-status').textContent = '⚠️ نیاز به انتخاب مجدد فایل/پوشه (پس از بستن مرورگر، دسترسی لغو می‌شود)';
     document.getElementById('as-status').style.color = 'var(--yellow)';
   }
   if (lastAutoSaveTime) updateAutoSaveUI(true);

@@ -1100,14 +1100,21 @@ test('شبیه‌سازی واقعی: doAutoSave(true) باید حتی با isDi
     parts: [], services: [], warranties: [], sales: [], tasks: [], accounts: [],
     defectiveStock: [], warehouseDocs: [], stockMoves: [], userAuditLog: [], bgAuditLog: [], userRoles: [], loginPw: '',
     senderInfo: {}, logoSrc: '', acH: {},
-    APP_VERSION: '1405.5.18γ',
+    APP_VERSION: '1405.5.18δ',
+    autoSaveFileHandle: null,
+    ensureFsPermission: async () => true,
+    writeAutoSaveTarget: null, // set below after extract
     fdate: () => '‎۱۴۰۵/۰۵/۱۸‎',
     clearDirty: () => {},
     localStorage: { getItem: () => null, setItem: () => {}, length: 0, key: () => null },
     updateAutoSaveUI: () => {}, addDbgEntry: () => {}
   };
+  const ensureSrc = extractFunctionSource(html, 'ensureFsPermission');
+  const writeFileSrc = extractFunctionSource(html, 'writeTextToAutoSaveFileHandle');
+  const writeTargetSrc = extractFunctionSource(html, 'writeAutoSaveTarget');
+  const dlSrc = extractFunctionSource(html, 'downloadAutoSaveFallback');
   // helperها + _buildFullBackupData + buildBackupObject + doAutoSave را در context قرار بده
-  const allSrc = (safeArrSrc||'') + '\n' + (safeObjSrc||'') + '\n' + (safeStrSrc||'') + '\n' + (safeFsSrc||'') + '\n' + (stampSrc||'') + '\n' + (writeSrc||'') + '\n' + fullBuildSrc + '\n' + buildSrc + '\n' + fnSrc;
+  const allSrc = (safeArrSrc||'') + '\n' + (safeObjSrc||'') + '\n' + (safeStrSrc||'') + '\n' + (safeFsSrc||'') + '\n' + (stampSrc||'') + '\n' + (ensureSrc||'') + '\n' + (writeFileSrc||'') + '\n' + (writeSrc||'') + '\n' + (writeTargetSrc||'') + '\n' + (dlSrc||'') + '\n' + fullBuildSrc + '\n' + buildSrc + '\n' + fnSrc;
   const runner = new Function('ctx',
     'return (async function(){ with(ctx){ ' + allSrc + '\nreturn await doAutoSave(true); } })();');
   await runner(sandbox);
@@ -1115,7 +1122,7 @@ test('شبیه‌سازی واقعی: doAutoSave(true) باید حتی با isDi
   assertTrue(writtenContent !== null, 'با force=true، doAutoSave باید واقعاً محتوای فایل را در پوشه انتخاب‌شده بنویسد — این دقیقاً همان باگی بود که باعث می‌شد بعد از انتخاب پوشه هیچ فایلی پدید نیاید');
   const parsed = JSON.parse(writtenContent);
   assertEqual(parsed.invoices.length, 1, 'محتوای نوشته‌شده باید همان داده واقعی (مثلاً فاکتورها) را داشته باشد، نه خالی');
-  assertTrue(requestedNames.some(n => n === 'sirman_autosave.txt'), 'اولویت باید sirman_autosave.txt باشد: '+requestedNames.join(','));
+  assertTrue(requestedNames.some(n => n === 'backup.txt'), 'اولویت نام پوشه باید backup.txt باشد: '+requestedNames.join(','));
   assertTrue(requestedNames.every(n => /^[A-Za-z0-9._-]+$/.test(n)), 'هیچ نام فایل غیرمجازی به getFileHandle داده نشود: '+requestedNames.join(','));
 });
 
@@ -3825,14 +3832,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۱۸γ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۱۸δ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.18γ', 'نسخه meta باید 1405.5.18γ باشد');
+  assertEqual(metaVer, '1405.5.18δ', 'نسخه meta باید 1405.5.18δ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/18', 'app-date باید 1405/05/18 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸γ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸γ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸δ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸δ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.18γ'", 'فیلد version بک‌آپ باید 1405.5.18γ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.18δ'", 'فیلد version بک‌آپ باید 1405.5.18δ باشد');
 });
 
 
@@ -3843,7 +3850,7 @@ test('رفع Name is not allowed: safeFsFileName و writeTextToAutoSaveFolder ب
   const stampSrc = extractFunctionSource(html, 'fsDateStamp');
   const doSrc = extractFunctionSource(html, 'doAutoSave');
   assertContainsString(html, 'function writeTextToAutoSaveFolder(', 'writeTextToAutoSaveFolder پیدا نشد');
-  assertContainsString(doSrc, 'writeTextToAutoSaveFolder', 'doAutoSave باید writeTextToAutoSaveFolder را صدا بزند');
+  assertContainsString(doSrc, 'writeAutoSaveTarget', 'doAutoSave باید writeAutoSaveTarget را صدا بزند');
   assertTrue(doSrc.indexOf("fdate().replace")===-1, 'doAutoSave نباید دیگر از fdate() برای نام فایل استفاده کند');
   const runner = new Function(safeSrc + `;
     var a = safeFsFileName('‎۱۴۰۵/۰۵/۱۸‎');
@@ -3856,6 +3863,19 @@ test('رفع Name is not allowed: safeFsFileName و writeTextToAutoSaveFolder ب
   assertEqual(b, 'Laegh_AutoSave_1405-05-18.json', 'نام تاریخ‌دار باید ASCII امن باشد: '+b);
   assertEqual(c, 'sirman_autosave.txt', 'نام txt باید دست‌نخورده بماند');
   assertTrue(/^[A-Za-z0-9._-]+$/.test(a) && /^[A-Za-z0-9._-]+$/.test(b), 'فقط کاراکترهای مجاز نام فایل');
+});
+
+test('δ: انتخاب فایل ذخیره (showSaveFilePicker) و نام‌های ساده backup.txt و دانلود جایگزین', () => {
+  assertContainsString(html, 'function chooseAutoSaveFile(', 'chooseAutoSaveFile باید وجود داشته باشد');
+  assertContainsString(html, 'showSaveFilePicker', 'باید از showSaveFilePicker استفاده شود');
+  assertContainsString(html, 'function downloadAutoSaveFallback(', 'دانلود جایگزین لازم است');
+  assertContainsString(html, 'function writeAutoSaveTarget(', 'writeAutoSaveTarget لازم است');
+  const folderSrc = extractFunctionSource(html, 'writeTextToAutoSaveFolder');
+  assertContainsString(folderSrc, "'backup.txt'", 'نام ساده backup.txt باید در کاندیدها باشد');
+  assertTrue(!/['"][^'"]*\.json['"]/.test(folderSrc), 'دیگر نباید نام .json به getFileHandle داده شود');
+  assertContainsString(html, 'chooseAutoSaveFile()', 'دکمه UI باید chooseAutoSaveFile را صدا بزند');
+  const doSrc = extractFunctionSource(html, 'doAutoSave');
+  assertContainsString(doSrc, 'downloadAutoSaveFallback', 'در شکست نوشتن باید دانلود جایگزین صدا زده شود');
 });
 
 test('قانون ۹: لانچر BAT/PS1 باید با نسخه meta همگام باشد', () => {
