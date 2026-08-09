@@ -1,11 +1,11 @@
 @echo off
 setlocal EnableExtensions
 cd /d "%~dp0"
-title Sirman 1405.5.18θ
+title Sirman 1405.5.18ι
 color 0A
 
 rem === ALWAYS keep this version equal to the latest Sirman HTML release ===
-set "SIRMAN_VERSION=1405.5.18θ"
+set "SIRMAN_VERSION=1405.5.18ι"
 set "SIRMAN_HTML=Sirman_Final.html"
 set "SIRMAN_HTML_VER=Sirman_Final_%SIRMAN_VERSION%.html"
 
@@ -14,6 +14,13 @@ echo ===============================================
 echo   Sirman Launcher  —  %SIRMAN_VERSION%
 echo ===============================================
 echo.
+
+echo [0/3] Checking pending full update ...
+if exist "%~dp0apply_sirman_update.ps1" (
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0apply_sirman_update.ps1"
+) else (
+  echo [WARN] apply_sirman_update.ps1 missing - skip auto update.
+)
 
 if exist "%~dp0%SIRMAN_HTML%" (
   set "APP_FILE=%SIRMAN_HTML%"
@@ -42,6 +49,8 @@ echo [3/3] Done.
 echo.
 echo Browser should show Sirman %SIRMAN_VERSION% now.
 echo If a minimized PowerShell window is running, leave it open for notifications.
+echo.
+echo Mass update: put Sirman_Pending_Update.json next to this BAT, then run Start.
 echo.
 echo You can close THIS window.
 echo.

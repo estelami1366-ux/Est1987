@@ -1100,7 +1100,7 @@ test('شبیه‌سازی واقعی: doAutoSave(true) باید حتی با isDi
     parts: [], services: [], warranties: [], sales: [], tasks: [], accounts: [],
     defectiveStock: [], warehouseDocs: [], stockMoves: [], userAuditLog: [], bgAuditLog: [], userRoles: [], loginPw: '',
     senderInfo: {}, logoSrc: '', acH: {},
-    APP_VERSION: '1405.5.18θ',
+    APP_VERSION: '1405.5.18ι',
     autoSaveFileHandle: null,
     ensureFsPermission: async () => true,
     writeAutoSaveTarget: null, // set below after extract
@@ -3832,14 +3832,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۱۸θ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۱۸ι باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.18θ', 'نسخه meta باید 1405.5.18θ باشد');
+  assertEqual(metaVer, '1405.5.18ι', 'نسخه meta باید 1405.5.18ι باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/18', 'app-date باید 1405/05/18 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸θ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸θ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸ι', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸ι را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.18θ'", 'فیلد version بک‌آپ باید 1405.5.18θ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.18ι'", 'فیلد version بک‌آپ باید 1405.5.18ι باشد');
 });
 
 
@@ -3904,12 +3904,12 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
   };
   // validate + compare
   const vRunner = new Function(cmpSrc + '\n' + valSrc + `\n
-    var APP_BASE_VERSION = '1405.5.18θ';
+    var APP_BASE_VERSION = '1405.5.18ι';
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
-      good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.18θ', minBaseVersion:'1405.5.18θ'}),
+      good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.18ι', minBaseVersion:'1405.5.18ι'}),
       tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.19α'}),
-      cmp: compareSirmanVersions('1405.5.18θ','1405.5.18ε')
+      cmp: compareSirmanVersions('1405.5.18ι','1405.5.18ε')
     };
   `);
   const vr = vRunner();
@@ -3920,7 +3920,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
 
   // setRuntimeAppVersion + meta save
   const metaRunner = new Function('localStorage', getMetaSrc + '\n' + saveMetaSrc + `\n
-    saveAppliedUpdatesMeta([{id:'t1', version:'1405.5.18θ'}]);
+    saveAppliedUpdatesMeta([{id:'t1', version:'1405.5.18ι'}]);
     return getAppliedUpdatesMeta();
   `);
   const meta = metaRunner(sandboxLocal);
@@ -3939,12 +3939,12 @@ test('ζ: لانچر توکار و دانگرید باید در HTML و فایل
   const runner = new Function(
     'var SIRMAN_LAUNCHER_TEMPLATES = {"Sirman_Start.bat":"ver=__SIRMAN_VERSION__"};\n'
     + 'function ensureLauncherTemplates(){ return SIRMAN_LAUNCHER_TEMPLATES; }\n'
-    + 'var APP_VERSION = "1405.5.18θ";\n'
+    + 'var APP_VERSION = "1405.5.18ι";\n'
     + 'function getLauncherVersionTag(){ return APP_VERSION; }\n'
     + buildSrc + '\n'
     + 'return buildEmbeddedLauncher("Sirman_Start.bat");'
   );
-  assertEqual(runner(), 'ver=1405.5.18θ', 'لانچر باید نسخه جاری را جایگزین کند');
+  assertEqual(runner(), 'ver=1405.5.18ι', 'لانچر باید نسخه جاری را جایگزین کند');
 
   // decode one real template from HTML and ensure placeholder exists
   const m = html.match(/SIRMAN_LAUNCHER_TEMPLATES_B64 = (\{[\s\S]*?\});/);
@@ -3982,11 +3982,11 @@ test('η/θ: خروج با بک‌آپ، نشانگر ذخیره خودکار، 
   assertContainsString(uiSrc, 'flashAutosaveDot', 'updateAutoSaveUI باید نشانگر را روشن کند');
   const fs = require('fs');
   const path = require('path');
-  const updPath = path.join(path.dirname(filePath), 'updates', 'Sirman_Update_1405.5.18θ.json');
+  const updPath = path.join(path.dirname(filePath), 'updates', 'Sirman_Update_1405.5.18ι.json');
   assertTrue(fs.existsSync(updPath), 'فایل آپدیت θ باید موجود باشد');
   const pkg = JSON.parse(fs.readFileSync(updPath, 'utf8'));
   assertEqual(pkg.magic, 'SIRMAN_UPDATE');
-  assertEqual(pkg.version, '1405.5.18θ');
+  assertEqual(pkg.version, '1405.5.18ι');
   assertTrue(Array.isArray(pkg.changelog) && pkg.changelog.some(function(c){ return String(c).indexOf('گارانتی')>=0; }), 'آپدیت θ باید changelog گارانتی داشته باشد');
   // ویژگی‌های η در خود HTML پایه θ هستند
   assertTrue(!!extractFunctionSource(html, 'exitWithBackup') && html.indexOf('flashAutosaveDot')>=0, 'رفع‌های η باید در HTML θ موجود باشند');
@@ -4833,6 +4833,55 @@ test('قانون ۷: راهنمای مسیر نمایندگی/شرکت CRM با�
   assertContainsString(html, 'مسیر نمایندگی و شرکت (CRM خدمات)', 'گره راهنمای CRM گارانتی پیدا نشد');
   assertContainsString(html, 'فاکتور نمایندگی', 'راهنما باید فاکتور نمایندگی را توضیح دهد');
   assertContainsString(html, 'رضایت مشتری', 'راهنما باید رضایت مشتری را توضیح دهد');
+});
+
+
+// -------------------------------------------------------------------
+// گروه ι: آپدیت کامل برای چند سیستم (بدون جابه‌جایی دستی)
+// -------------------------------------------------------------------
+console.log('📋 گروه ι: آپدیت کامل چندسیستمی');
+
+test('توابع storeFullAppHtml / applyFullAppHtmlNow / slimUpdatePackage باید موجود باشند', () => {
+  ['storeFullAppHtml','applyFullAppHtmlNow','slimUpdatePackageForStorage','openFullAppIDB'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  assertContainsString(html, 'laegh-fullapp-db', 'IndexedDB فول‌اپ باید باشد');
+  assertContainsString(html, 'Sirman_Pending_Update.json', 'راهنمای نصب چندسیستمی باید باشد');
+});
+
+test('slimUpdatePackageForStorage باید content سنگین replaceAppFile را حذف کند', () => {
+  const src = extractFunctionSource(html, 'slimUpdatePackageForStorage');
+  assertTrue(!!src, 'slim extract نشد');
+  const fn = new Function(src + '; return slimUpdatePackageForStorage;')();
+  const slim = fn({
+    magic:'SIRMAN_UPDATE', id:'x', version:'1',
+    patches:[{op:'replaceAppFile', fileName:'Sirman_Final.html', content:'<!DOCTYPE html>'+'A'.repeat(5000)}]
+  });
+  assertTrue(slim.patches[0].contentStored === true, 'باید contentStored باشد');
+  assertTrue(slim.patches[0].content === undefined, 'content نباید در ذخیره سبک بماند');
+  assertTrue(slim.patches[0].contentBytes > 1000, 'contentBytes باید ثبت شود');
+});
+
+test('applyUpdatePackage باید قبل از اعمال کامل، fullHtml را از پچ بردارد', () => {
+  const src = extractFunctionSource(html, 'applyUpdatePackage');
+  assertContainsString(src, 'storeFullAppHtml', 'باید HTML کامل را ذخیره کند');
+  assertContainsString(src, 'applyFullAppHtmlNow', 'باید فوری اعمال کند');
+  assertContainsString(src, 'replaceAppFile', 'باید replaceAppFile را بشناسد');
+});
+
+test('لانچر باید apply_sirman_update.ps1 را صدا بزند', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const root = path.dirname(filePath);
+  assertTrue(fs.existsSync(path.join(root, 'apply_sirman_update.ps1')), 'apply_sirman_update.ps1 باید موجود باشد');
+  const bat = fs.readFileSync(path.join(root, 'Sirman_Start.bat'), 'utf8');
+  assertContainsString(bat, 'apply_sirman_update.ps1', 'Start.bat باید اسکریپت آپدیت خودکار را صدا بزند');
+  const upd = path.join(root, 'updates', 'Sirman_Update_1405.5.18ι.json');
+  assertTrue(fs.existsSync(upd), 'فایل آپدیت ι باید موجود باشد');
+  const pkg = JSON.parse(fs.readFileSync(upd, 'utf8'));
+  assertEqual(pkg.magic, 'SIRMAN_UPDATE');
+  assertEqual(pkg.version, '1405.5.18ι');
+  assertTrue((pkg.patches||[]).some(p => p.op==='replaceAppFile' && p.content && p.content.indexOf('<!DOCTYPE html')>=0), 'آپدیت ι باید HTML کامل داشته باشد');
 });
 
 // نتیجه نهایی

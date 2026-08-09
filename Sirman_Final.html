@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18θ">
+<meta name="app-version" content="1405.5.18ι">
 <meta name="app-date" content="1405/05/18">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -946,7 +946,7 @@ body.has-bg-image::after{
 }
 body.has-bg-image.theme-dark::after{background:rgba(10,12,15,var(--bg-overlay,0.55));}
 
-/* ══════ اسکین قوی / Skin Pack (v1405.5.18θ) ══════ */
+/* ══════ اسکین قوی / Skin Pack (v1405.5.18ι) ══════ */
 .skin-card{width:148px;border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--card);transition:.18s;text-align:right;}
 .skin-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,40,55,.10);}
 .skin-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 25%,transparent);}
@@ -1578,7 +1578,7 @@ body.sb-dock #autosave-dot{ bottom:72px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۱۸θ — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۱۸ι — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-sm" onclick="promptExitBackup()" style="width:100%;margin-top:6px">🚪 خروج / بستن برنامه</button>
 </div>
 
@@ -3479,8 +3479,8 @@ body.sb-dock #autosave-dot{ bottom:72px; }
     <div class="card" style="max-width:640px">
       <div class="card-title">⬆️ مرکز آپدیت سیرمان</div>
       <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.8">
-        به‌جای دریافت کل نرم‌افزار، فایل کوچک آپدیت (<code>.sirman-update.json</code>) را اینجا بارگذاری کنید.
-        نسخه، تغییرات و قابلیت‌های جدید روی همین برنامه اعمال می‌شوند و بعد از بستن/بازکردن مرورگر هم می‌مانند.
+        یک فایل آپدیت (<code>.sirman-update.json</code>) را اینجا بارگذاری کنید — برای آپدیت کوچک یا <b>آپدیت کامل</b>.
+        آپدیت کامل همان‌جا اعمال می‌شود و نیازی به جابه‌جایی دستی HTML نیست.
       </p>
       <div style="background:var(--bg2);border-radius:8px;padding:14px;margin-bottom:14px;border:1px solid var(--border)">
         <div style="font-size:12px;font-weight:700;margin-bottom:6px">وضعیت فعلی</div>
@@ -3495,8 +3495,8 @@ body.sb-dock #autosave-dot{ bottom:72px; }
         <input type="file" id="upd-file-input" accept=".json,.sirman-update.json,application/json" style="display:none" onchange="handleUpdateFileInput(event)">
       </div>
       <div style="background:#e8f5e9;border:1px solid #81c784;border-radius:8px;padding:12px;margin-bottom:14px;font-size:11px;color:#1b5e20;line-height:1.8">
-        ✅ فایل آپدیت را از همان جایی که نسخه جدید برایتان فرستاده می‌شود بگیرید و فقط همین دکمه را بزنید.
-        اگر آپدیت از نوع «جایگزینی کامل» باشد، یک HTML جدید دانلود می‌شود و باید همان را باز کنید.
+        ✅ <b>یک فایل برای همه سیستم‌ها:</b> همان فایل آپدیت را روی ۲۰۰ کامپیوتر بارگذاری کنید؛ نسخه کامل خودکار اعمال می‌شود.<br>
+        ✅ <b>بدون باز کردن برنامه:</b> فایل را با نام <code>Sirman_Pending_Update.json</code> کنار <code>Sirman_Start.bat</code> بگذارید و Start را بزنید تا خودکار روی فایل HTML نوشته شود.
       </div>
       <div id="upd-launchers-box" style="margin:14px 0;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px">
         <div style="font-size:12px;font-weight:700;margin-bottom:8px">🪟 لانچر ویندوز (داخل همین برنامه)</div>
@@ -3506,6 +3506,7 @@ body.sb-dock #autosave-dot{ bottom:72px; }
           <button class="btn btn-sm btn-o" type="button" onclick="downloadEmbeddedLauncher('OPEN_SIRMAN.bat')">OPEN_SIRMAN.bat</button>
           <button class="btn btn-sm btn-o" type="button" onclick="downloadEmbeddedLauncher('sirman_run.ps1')">sirman_run.ps1</button>
           <button class="btn btn-sm btn-o" type="button" onclick="downloadEmbeddedLauncher('اجرای سیرمان.bat')">اجرای سیرمان.bat</button>
+          <button class="btn btn-sm btn-o" type="button" onclick="downloadEmbeddedLauncher('apply_sirman_update.ps1')">apply_sirman_update.ps1</button>
           <button class="btn btn-g btn-sm" type="button" onclick="downloadAllEmbeddedLaunchers()">⬇ دانلود همه</button>
         </div>
       </div>
@@ -3827,6 +3828,8 @@ body.sb-dock #autosave-dot{ bottom:72px; }
     <li><b>مسیر:</b> تنظیمات → تب <b>⬆️ آپدیت</b> → دکمه <b>📂 بارگذاری فایل آپدیت</b>.</li>
     <li><b>فرمت فایل:</b> فایل‌هایی با پسوند <code>.json</code> یا <code>.sirman-update.json</code> که از پشتیبانی/توسعه‌دهنده می‌رسند.</li>
     <li><b>بعد از بارگذاری:</b> نسخه در پایین سایدبار عوض می‌شود، تغییرات اعمال می‌شوند، و در «تاریخچه آپدیت‌ها» ثبت می‌ماند.</li>
+    <li><b>آپدیت کامل بدون جابه‌جایی:</b> اگر فایل آپدیت شامل کل برنامه باشد، با یک بار بارگذاری همان لحظه صفحه به نسخه جدید عوض می‌شود و در حافظه مرورگر می‌ماند.</li>
+    <li><b>نصب روی چند کامپیوتر:</b> همان یک فایل را به همه بدهید؛ یا آن را با نام <code>Sirman_Pending_Update.json</code> کنار لانچر بگذارید تا با اجرای Start خودکار اعمال شود.</li>
     <li><b>ماندگاری:</b> آپدیت‌ها در حافظه مرورگر ذخیره می‌شوند و بعد از بستن برنامه هم می‌مانند (تا وقتی پاک نکنید یا ریست کامل نزنید).</li>
     <li><b>آپدیت کامل:</b> بعضی آپدیت‌های بزرگ یک HTML جدید دانلود می‌کنند — آن فایل را جایگزین فایل قبلی کنید و با لانچر باز کنید.</li>
     <li><b>بک‌آپ:</b> لیست آپدیت‌های اعمال‌شده همراه بک‌آپ کامل ذخیره می‌شود.</li>
@@ -4330,7 +4333,7 @@ body.sb-dock #autosave-dot{ bottom:72px; }
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۱۸θ
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۱۸ι
 </div>
 </div>
 
@@ -4928,10 +4931,61 @@ body.sb-dock #autosave-dot{ bottom:72px; }
 </div></div>
 
 <script>
+/* Sirman full-app bootstrap (ι+): اگر آپدیت کامل در IndexedDB باشد، همان را جایگزین سند می‌کند */
+(function(){
+  try{
+    if(window.__SIRMAN_FULLAPP_BOOTING) return;
+    if(sessionStorage.getItem('sirman_fullapp_applied')==='1'){
+      sessionStorage.removeItem('sirman_fullapp_applied');
+      return;
+    }
+  }catch(_e){}
+  function cmpVer(a,b){
+    function parts(v){
+      v=String(v||'');
+      var m=v.match(/^(\d+)\.(\d+)\.(\d+)([a-zA-Zα-ωΑ-Ω]*)$/);
+      if(!m) return [0,0,0,''];
+      return [parseInt(m[1],10)||0, parseInt(m[2],10)||0, parseInt(m[3],10)||0, m[4]||''];
+    }
+    var A=parts(a), B=parts(b);
+    for(var i=0;i<3;i++){ if(A[i]!==B[i]) return A[i]>B[i]?1:-1; }
+    if(A[3]===B[3]) return 0;
+    return A[3]>B[3]?1:-1;
+  }
+  var baseMeta = document.querySelector('meta[name="app-version"]');
+  var baseVer = baseMeta ? baseMeta.getAttribute('content') : '';
+  if(!('indexedDB' in window)) return;
+  window.__SIRMAN_FULLAPP_BOOTING = true;
+  var req = indexedDB.open('laegh-fullapp-db', 1);
+  req.onupgradeneeded = function(e){
+    var db=e.target.result;
+    if(!db.objectStoreNames.contains('app')) db.createObjectStore('app', {keyPath:'id'});
+  };
+  req.onerror = function(){ window.__SIRMAN_FULLAPP_BOOTING=false; };
+  req.onsuccess = function(e){
+    var db=e.target.result;
+    try{
+      var tx=db.transaction('app','readonly');
+      var g=tx.objectStore('app').get('current');
+      g.onsuccess=function(){
+        var row=g.result;
+        window.__SIRMAN_FULLAPP_BOOTING=false;
+        if(!row || !row.html) return;
+        if(baseVer && cmpVer(row.version, baseVer) <= 0) return;
+        try{ sessionStorage.setItem('sirman_fullapp_applied','1'); }catch(_s){}
+        document.open();
+        document.write(row.html);
+        document.close();
+      };
+      g.onerror=function(){ window.__SIRMAN_FULLAPP_BOOTING=false; };
+    }catch(_e2){ window.__SIRMAN_FULLAPP_BOOTING=false; }
+  };
+})();
+
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.18θ';
-var APP_BASE_VERSION = '1405.5.18θ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۱۸θ';
+var APP_VERSION = '1405.5.18ι';
+var APP_BASE_VERSION = '1405.5.18ι'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۱۸ι';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -4986,14 +5040,48 @@ function openUpdatesIDB(){
     req.onerror = function(){ resolve(null); };
   });
 }
+function slimUpdatePackageForStorage(pkg){
+  if(!pkg || typeof pkg!=='object') return pkg;
+  var copy = {};
+  Object.keys(pkg).forEach(function(k){
+    if(k==='fullHtml' || k==='html'){
+      copy[k+'Bytes'] = String(pkg[k]||'').length;
+      copy[k+'Stored'] = true;
+      return;
+    }
+    if(k==='patches' && Array.isArray(pkg.patches)){
+      copy.patches = pkg.patches.map(function(p){
+        if(!p) return p;
+        var op = p.op || p.type || '';
+        if(op==='replaceAppFile' || op==='fullHtml'){
+          return {
+            op: op,
+            fileName: p.fileName || p.filename || '',
+            contentStored: true,
+            contentBytes: String(p.content||p.html||'').length
+          };
+        }
+        // runJs خیلی بزرگ را هم خلاصه نکن مگر بیش از ۲۰۰ک
+        if(op==='runJs' && String(p.code||'').length > 200000){
+          return {op:op, codeStored:true, codeBytes:String(p.code||'').length, code:''};
+        }
+        return p;
+      });
+      return;
+    }
+    copy[k] = pkg[k];
+  });
+  return copy;
+}
 async function storeUpdatePackage(pkg){
-  // همیشه یک کپی در localStorage هم بماند تا بک‌آپ/بازیابی بدون IDB ممکن باشد
-  try{ localStorage.setItem('laegh_upd_pkg_'+pkg.id, JSON.stringify(pkg)); }catch(_e){}
+  // نسخه سبک برای localStorage/IDB پکیج‌ها — HTML کامل جدا در laegh-fullapp-db می‌ماند
+  var slim = slimUpdatePackageForStorage(pkg);
+  try{ localStorage.setItem('laegh_upd_pkg_'+pkg.id, JSON.stringify(slim)); }catch(_e){}
   var db = await openUpdatesIDB();
   if(!db) return;
   return new Promise(function(resolve){
     var tx = db.transaction('packages','readwrite');
-    tx.objectStore('packages').put(pkg);
+    tx.objectStore('packages').put(slim);
     tx.oncomplete = function(){ resolve(); };
     tx.onerror = function(){ resolve(); };
   });
@@ -5069,6 +5157,74 @@ function runUpdateJs(code, id){
   fn(id);
 }
 
+
+function openFullAppIDB(){
+  return new Promise(function(resolve){
+    if(!('indexedDB' in window)){ resolve(null); return; }
+    var req = indexedDB.open('laegh-fullapp-db', 1);
+    req.onupgradeneeded = function(e){
+      var db = e.target.result;
+      if(!db.objectStoreNames.contains('app')) db.createObjectStore('app', {keyPath:'id'});
+    };
+    req.onsuccess = function(e){ resolve(e.target.result); };
+    req.onerror = function(){ resolve(null); };
+  });
+}
+async function storeFullAppHtml(html, version, meta){
+  meta = meta || {};
+  if(!html) return false;
+  var row = {
+    id: 'current',
+    version: version || (meta.version||''),
+    versionFa: meta.versionFa || '',
+    title: meta.title || '',
+    updatedAt: (typeof fdt==='function'?fdt():new Date().toISOString()),
+    html: String(html)
+  };
+  try{ localStorage.setItem('laegh_fullapp_ver', row.version); }catch(_e){}
+  var db = await openFullAppIDB();
+  if(!db) return false;
+  return new Promise(function(resolve){
+    var tx = db.transaction('app','readwrite');
+    tx.objectStore('app').put(row);
+    tx.oncomplete = function(){ resolve(true); };
+    tx.onerror = function(){ resolve(false); };
+  });
+}
+async function loadFullAppHtml(){
+  var db = await openFullAppIDB();
+  if(!db) return null;
+  return new Promise(function(resolve){
+    var tx = db.transaction('app','readonly');
+    var req = tx.objectStore('app').get('current');
+    req.onsuccess = function(){ resolve(req.result||null); };
+    req.onerror = function(){ resolve(null); };
+  });
+}
+async function clearFullAppHtml(){
+  try{ localStorage.removeItem('laegh_fullapp_ver'); }catch(_e){}
+  var db = await openFullAppIDB();
+  if(!db) return;
+  return new Promise(function(resolve){
+    var tx = db.transaction('app','readwrite');
+    tx.objectStore('app').delete('current');
+    tx.oncomplete = function(){ resolve(); };
+    tx.onerror = function(){ resolve(); };
+  });
+}
+function applyFullAppHtmlNow(html, version){
+  if(!html) return false;
+  try{ sessionStorage.setItem('sirman_fullapp_applied','1'); }catch(_e){}
+  try{
+    if(typeof ntf==='function') ntf('در حال اعمال نسخه کامل '+(version||'')+' ...');
+  }catch(_e2){}
+  document.open();
+  document.write(html);
+  document.close();
+  return true;
+}
+
+
 function applyUpdatePatches(pkg, opts){
   opts = opts || {};
   var patches = Array.isArray(pkg.patches) ? pkg.patches : [];
@@ -5096,24 +5252,11 @@ function applyUpdatePatches(pkg, opts){
     } else if(op === 'notify'){
       if(!opts.silent && typeof ntf==='function') ntf(p.message || pkg.title || 'آپدیت اعمال شد');
     } else if(op === 'replaceAppFile' || op === 'fullHtml'){
-      // فایل کامل HTML — دانلود برای جایگزینی دستی
+      // آپدیت بزرگ: ذخیره در IndexedDB + اعمال فوری روی همین پنجره (بدون جابه‌جایی دستی)
       var content = p.content || p.html || pkg.fullHtml || '';
       var fname = p.fileName || p.filename || ('Sirman_Final_'+(pkg.version||'update')+'.html');
       if(content){
-        try{
-          var blob = new Blob([content], {type:'text/html;charset=utf-8'});
-          var a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = fname;
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(function(){ try{ URL.revokeObjectURL(a.href); a.remove(); }catch(_e){} }, 2000);
-          if(!opts.silent){
-            alert('این آپدیت یک فایل کامل HTML دانلود کرد:\n'+fname+'\n\nلطفاً همان فایل را جایگزین فایل قبلی کنید و با Sirman_Start.bat باز کنید.');
-          }
-        }catch(dlErr){
-          if(!opts.silent) alert('دانلود فایل کامل ناموفق: '+(dlErr.message||dlErr));
-        }
+        opts._fullHtmlPending = { content: content, fileName: fname, version: pkg.version, versionFa: pkg.versionFa, title: pkg.title };
       }
     }
   }
@@ -5146,6 +5289,18 @@ async function applyUpdatePackage(pkg, opts){
   if(exists && !opts.reapply){
     if(!opts.silent && !confirm('این آپدیت قبلاً نصب شده («'+pkg.id+'»). دوباره اعمال شود؟')) return {ok:false, reason:'duplicate'};
   }
+  // استخراج HTML کامل قبل از ذخیره سبک
+  var fullHtml = pkg.fullHtml || pkg.html || '';
+  var fullName = 'Sirman_Final.html';
+  (Array.isArray(pkg.patches)?pkg.patches:[]).forEach(function(p){
+    if(!p) return;
+    var op = p.op || p.type || '';
+    if((op==='replaceAppFile' || op==='fullHtml') && (p.content || p.html)){
+      fullHtml = p.content || p.html;
+      fullName = p.fileName || p.filename || fullName;
+    }
+  });
+
   await storeUpdatePackage(pkg);
   applyUpdatePatches(pkg, opts);
   var entry = {
@@ -5154,12 +5309,25 @@ async function applyUpdatePackage(pkg, opts){
     versionFa: pkg.versionFa || toPersianVersionDigits(pkg.version),
     title: pkg.title || pkg.id,
     changelog: pkg.changelog || [],
-    appliedAt: new Date().toISOString()
+    appliedAt: new Date().toISOString(),
+    fullReplace: !!fullHtml
   };
   meta = meta.filter(function(m){ return m.id !== pkg.id; });
   meta.push(entry);
   saveAppliedUpdatesMeta(meta);
   if(typeof markDirty==='function') try{ markDirty(); }catch(_e){}
+
+  // آپدیت بزرگ: ذخیره + اعمال فوری روی همین پنجره (برای ۲۰۰ سیستم: یک فایل آپدیت کافی است)
+  if(fullHtml && !opts.reapply){
+    try{ await storeFullAppHtml(fullHtml, pkg.version, pkg); }catch(_fe){}
+    if(!opts.silent){
+      try{
+        alert('آپدیت کامل «'+(pkg.version||'')+'» آماده اعمال است.\n\nصفحه همین الان به نسخه جدید عوض می‌شود.\nبرای کامپیوترهای دیگر: همین فایل آپدیت را بدهید یا Sirman_Pending_Update.json را کنار Sirman_Start.bat بگذارید.');
+      }catch(_a){}
+    }
+    applyFullAppHtmlNow(fullHtml, pkg.version);
+    return {ok:true, entry:entry, fullReplace:true, fileName:fullName};
+  }
   return {ok:true, entry:entry};
 }
 
@@ -5248,6 +5416,8 @@ function clearAllUpdatesConfirm(){
   var meta = getAppliedUpdatesMeta();
   Promise.all(meta.map(function(m){ return deleteStoredUpdatePackage(m.id); })).then(function(){
     saveAppliedUpdatesMeta([]);
+    try{ if(typeof clearFullAppHtml==='function') return clearFullAppHtml(); }catch(_c){}
+  }).then(function(){
     setRuntimeAppVersion(APP_BASE_VERSION, toPersianVersionDigits(APP_BASE_VERSION));
     ntf('آپدیت‌ها حذف شدند');
     setTimeout(function(){ location.reload(); }, 600);
@@ -5256,10 +5426,11 @@ function clearAllUpdatesConfirm(){
 
 // ===== Embedded launchers + Downgrade (built-in) =====
 var SIRMAN_LAUNCHER_TEMPLATES_B64 = {
-  "Sirman_Start.bat": "QGVjaG8gb2ZmCnNldGxvY2FsIEVuYWJsZUV4dGVuc2lvbnMKY2QgL2QgIiV+ZHAwIgp0aXRsZSBTaXJtYW4gX19TSVJNQU5fVkVSU0lPTl9fCmNvbG9yIDBBCgpyZW0gPT09IEFMV0FZUyBrZWVwIHRoaXMgdmVyc2lvbiBlcXVhbCB0byB0aGUgbGF0ZXN0IFNpcm1hbiBIVE1MIHJlbGVhc2UgPT09CnNldCAiU0lSTUFOX1ZFUlNJT049X19TSVJNQU5fVkVSU0lPTl9fIgpzZXQgIlNJUk1BTl9IVE1MPVNpcm1hbl9GaW5hbC5odG1sIgpzZXQgIlNJUk1BTl9IVE1MX1ZFUj1TaXJtYW5fRmluYWxfJVNJUk1BTl9WRVJTSU9OJS5odG1sIgoKZWNoby4KZWNobyA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQplY2hvICAgU2lybWFuIExhdW5jaGVyICDigJQgICVTSVJNQU5fVkVSU0lPTiUKZWNobyA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQplY2hvLgoKaWYgZXhpc3QgIiV+ZHAwJVNJUk1BTl9IVE1MJSIgKAogIHNldCAiQVBQX0ZJTEU9JVNJUk1BTl9IVE1MJSIKKSBlbHNlIGlmIGV4aXN0ICIlfmRwMCVTSVJNQU5fSFRNTF9WRVIlIiAoCiAgc2V0ICJBUFBfRklMRT0lU0lSTUFOX0hUTUxfVkVSJSIKKSBlbHNlICgKICBlY2hvIFtFUlJPUl0gQXBwIEhUTUwgbm90IGZvdW5kIG5leHQgdG8gdGhpcyBCQVQuCiAgZWNobyBFeHBlY3RlZDogJVNJUk1BTl9IVE1MJSAgb3IgICVTSVJNQU5fSFRNTF9WRVIlCiAgZWNobyBGb2xkZXI6ICV+ZHAwCiAgZWNoby4KICBwYXVzZQogIGV4aXQgL2IgMQopCgplY2hvIFsxLzNdIE9wZW5pbmcgJUFQUF9GSUxFJSAgKHZlcnNpb24gJVNJUk1BTl9WRVJTSU9OJSkgLi4uCnN0YXJ0ICIiICIlfmRwMCVBUFBfRklMRSUiCgplY2hvIFsyLzNdIFN0YXJ0aW5nIGxvY2FsIHNlcnZlciArIG5vdGlmeSAob3B0aW9uYWwpLi4uCmlmIGV4aXN0ICIlfmRwMHNpcm1hbl9ydW4ucHMxIiAoCiAgc3RhcnQgIlNpcm1hbi1TZXJ2ZXItJVNJUk1BTl9WRVJTSU9OJSIgL21pbiBwb3dlcnNoZWxsLmV4ZSAtTm9Qcm9maWxlIC1FeGVjdXRpb25Qb2xpY3kgQnlwYXNzIC1GaWxlICIlfmRwMHNpcm1hbl9ydW4ucHMxIgopIGVsc2UgKAogIGVjaG8gW1dBUk5dIHNpcm1hbl9ydW4ucHMxIG1pc3NpbmcgLSBhcHAgc3RpbGwgb3BlbmVkIGFzIGZpbGUuCikKCmVjaG8gWzMvM10gRG9uZS4KZWNoby4KZWNobyBCcm93c2VyIHNob3VsZCBzaG93IFNpcm1hbiAlU0lSTUFOX1ZFUlNJT04lIG5vdy4KZWNobyBJZiBhIG1pbmltaXplZCBQb3dlclNoZWxsIHdpbmRvdyBpcyBydW5uaW5nLCBsZWF2ZSBpdCBvcGVuIGZvciBub3RpZmljYXRpb25zLgplY2hvLgplY2hvIFlvdSBjYW4gY2xvc2UgVEhJUyB3aW5kb3cuCmVjaG8uCnBhdXNlCmVuZGxvY2FsCg==",
-  "OPEN_SIRMAN.bat": "QGVjaG8gb2ZmCmNkIC9kICIlfmRwMCIKcmVtIEtlZXAgaW4gc3luYyB3aXRoIFNpcm1hbl9TdGFydC5iYXQgLyBsYXRlc3QgSFRNTCB2ZXJzaW9uCnNldCAiU0lSTUFOX1ZFUlNJT049X19TSVJNQU5fVkVSU0lPTl9fIgppZiBleGlzdCAiJX5kcDBTaXJtYW5fRmluYWwuaHRtbCIgKAogIHN0YXJ0ICIiICIlfmRwMFNpcm1hbl9GaW5hbC5odG1sIgopIGVsc2UgaWYgZXhpc3QgIiV+ZHAwU2lybWFuX0ZpbmFsXyVTSVJNQU5fVkVSU0lPTiUuaHRtbCIgKAogIHN0YXJ0ICIiICIlfmRwMFNpcm1hbl9GaW5hbF8lU0lSTUFOX1ZFUlNJT04lLmh0bWwiCikgZWxzZSAoCiAgZWNobyBTaXJtYW4gSFRNTCBub3QgZm91bmQg4oCUIGV4cGVjdGVkIFNpcm1hbl9GaW5hbC5odG1sIF4odiVTSVJNQU5fVkVSU0lPTiVeKQogIHBhdXNlCikK",
+  "Sirman_Start.bat": "QGVjaG8gb2ZmCnNldGxvY2FsIEVuYWJsZUV4dGVuc2lvbnMKY2QgL2QgIiV+ZHAwIgp0aXRsZSBTaXJtYW4gX19TSVJNQU5fVkVSU0lPTl9fCmNvbG9yIDBBCgpyZW0gPT09IEFMV0FZUyBrZWVwIHRoaXMgdmVyc2lvbiBlcXVhbCB0byB0aGUgbGF0ZXN0IFNpcm1hbiBIVE1MIHJlbGVhc2UgPT09CnNldCAiU0lSTUFOX1ZFUlNJT049X19TSVJNQU5fVkVSU0lPTl9fIgpzZXQgIlNJUk1BTl9IVE1MPVNpcm1hbl9GaW5hbC5odG1sIgpzZXQgIlNJUk1BTl9IVE1MX1ZFUj1TaXJtYW5fRmluYWxfJVNJUk1BTl9WRVJTSU9OJS5odG1sIgoKZWNoby4KZWNobyA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQplY2hvICAgU2lybWFuIExhdW5jaGVyICDigJQgICVTSVJNQU5fVkVSU0lPTiUKZWNobyA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQplY2hvLgoKZWNobyBbMC8zXSBDaGVja2luZyBwZW5kaW5nIGZ1bGwgdXBkYXRlIC4uLgppZiBleGlzdCAiJX5kcDBhcHBseV9zaXJtYW5fdXBkYXRlLnBzMSIgKAogIHBvd2Vyc2hlbGwuZXhlIC1Ob1Byb2ZpbGUgLUV4ZWN1dGlvblBvbGljeSBCeXBhc3MgLUZpbGUgIiV+ZHAwYXBwbHlfc2lybWFuX3VwZGF0ZS5wczEiCikgZWxzZSAoCiAgZWNobyBbV0FSTl0gYXBwbHlfc2lybWFuX3VwZGF0ZS5wczEgbWlzc2luZyAtIHNraXAgYXV0byB1cGRhdGUuCikKCmlmIGV4aXN0ICIlfmRwMCVTSVJNQU5fSFRNTCUiICgKICBzZXQgIkFQUF9GSUxFPSVTSVJNQU5fSFRNTCUiCikgZWxzZSBpZiBleGlzdCAiJX5kcDAlU0lSTUFOX0hUTUxfVkVSJSIgKAogIHNldCAiQVBQX0ZJTEU9JVNJUk1BTl9IVE1MX1ZFUiUiCikgZWxzZSAoCiAgZWNobyBbRVJST1JdIEFwcCBIVE1MIG5vdCBmb3VuZCBuZXh0IHRvIHRoaXMgQkFULgogIGVjaG8gRXhwZWN0ZWQ6ICVTSVJNQU5fSFRNTCUgIG9yICAlU0lSTUFOX0hUTUxfVkVSJQogIGVjaG8gRm9sZGVyOiAlfmRwMAogIGVjaG8uCiAgcGF1c2UKICBleGl0IC9iIDEKKQoKZWNobyBbMS8zXSBPcGVuaW5nICVBUFBfRklMRSUgICh2ZXJzaW9uICVTSVJNQU5fVkVSU0lPTiUpIC4uLgpzdGFydCAiIiAiJX5kcDAlQVBQX0ZJTEUlIgoKZWNobyBbMi8zXSBTdGFydGluZyBsb2NhbCBzZXJ2ZXIgKyBub3RpZnkgKG9wdGlvbmFsKS4uLgppZiBleGlzdCAiJX5kcDBzaXJtYW5fcnVuLnBzMSIgKAogIHN0YXJ0ICJTaXJtYW4tU2VydmVyLSVTSVJNQU5fVkVSU0lPTiUiIC9taW4gcG93ZXJzaGVsbC5leGUgLU5vUHJvZmlsZSAtRXhlY3V0aW9uUG9saWN5IEJ5cGFzcyAtRmlsZSAiJX5kcDBzaXJtYW5fcnVuLnBzMSIKKSBlbHNlICgKICBlY2hvIFtXQVJOXSBzaXJtYW5fcnVuLnBzMSBtaXNzaW5nIC0gYXBwIHN0aWxsIG9wZW5lZCBhcyBmaWxlLgopCgplY2hvIFszLzNdIERvbmUuCmVjaG8uCmVjaG8gQnJvd3NlciBzaG91bGQgc2hvdyBTaXJtYW4gJVNJUk1BTl9WRVJTSU9OJSBub3cuCmVjaG8gSWYgYSBtaW5pbWl6ZWQgUG93ZXJTaGVsbCB3aW5kb3cgaXMgcnVubmluZywgbGVhdmUgaXQgb3BlbiBmb3Igbm90aWZpY2F0aW9ucy4KZWNoby4KZWNobyBNYXNzIHVwZGF0ZTogcHV0IFNpcm1hbl9QZW5kaW5nX1VwZGF0ZS5qc29uIG5leHQgdG8gdGhpcyBCQVQsIHRoZW4gcnVuIFN0YXJ0LgplY2hvLgplY2hvIFlvdSBjYW4gY2xvc2UgVEhJUyB3aW5kb3cuCmVjaG8uCnBhdXNlCmVuZGxvY2FsCg==",
+  "OPEN_SIRMAN.bat": "QGVjaG8gb2ZmCmNkIC9kICIlfmRwMCIKcmVtIEtlZXAgaW4gc3luYyB3aXRoIFNpcm1hbl9TdGFydC5iYXQgLyBsYXRlc3QgSFRNTCB2ZXJzaW9uCnNldCAiU0lSTUFOX1ZFUlNJT049X19TSVJNQU5fVkVSU0lPTl9fIgppZiBleGlzdCAiJX5kcDBhcHBseV9zaXJtYW5fdXBkYXRlLnBzMSIgKAogIHBvd2Vyc2hlbGwuZXhlIC1Ob1Byb2ZpbGUgLUV4ZWN1dGlvblBvbGljeSBCeXBhc3MgLUZpbGUgIiV+ZHAwYXBwbHlfc2lybWFuX3VwZGF0ZS5wczEiCikKaWYgZXhpc3QgIiV+ZHAwU2lybWFuX0ZpbmFsLmh0bWwiICgKICBzdGFydCAiIiAiJX5kcDBTaXJtYW5fRmluYWwuaHRtbCIKKSBlbHNlIGlmIGV4aXN0ICIlfmRwMFNpcm1hbl9GaW5hbF8lU0lSTUFOX1ZFUlNJT04lLmh0bWwiICgKICBzdGFydCAiIiAiJX5kcDBTaXJtYW5fRmluYWxfJVNJUk1BTl9WRVJTSU9OJS5odG1sIgopIGVsc2UgKAogIGVjaG8gU2lybWFuIEhUTUwgbm90IGZvdW5kIOKAlCBleHBlY3RlZCBTaXJtYW5fRmluYWwuaHRtbCBeKHYlU0lSTUFOX1ZFUlNJT04lXikKICBwYXVzZQopCg==",
   "sirman_run.ps1": "IyBzaXJtYW5fcnVuLnBzMSDigJQgcmVsaWFibGUgbG9jYWwgc2VydmVyIChUY3BMaXN0ZW5lciwgbm8gYWRtaW4pICsgV2luZG93cyB0b2FzdHMKIyBDYWxsZWQgYnkgU2lybWFuX1N0YXJ0LmJhdAoKJEVycm9yQWN0aW9uUHJlZmVyZW5jZSA9ICdDb250aW51ZScKJFJvb3QgPSBTcGxpdC1QYXRoIC1QYXJlbnQgJE15SW52b2NhdGlvbi5NeUNvbW1hbmQuUGF0aApTZXQtTG9jYXRpb24gJFJvb3QKCiMgPT09IEFMV0FZUyBrZWVwIHRoaXMgdmVyc2lvbiBlcXVhbCB0byB0aGUgbGF0ZXN0IFNpcm1hbiBIVE1MIHJlbGVhc2UgPT09CiRTaXJtYW5WZXJzaW9uID0gJ19fU0lSTUFOX1ZFUlNJT05fXycKJFBvcnQgPSA4NzY1CiROb3RpZnlQb3J0ID0gODc2NgokRGVmYXVsdEZpbGUgPSAnU2lybWFuX0ZpbmFsLmh0bWwnCiRWZXJzaW9uZWRGaWxlID0gIlNpcm1hbl9GaW5hbF8kU2lybWFuVmVyc2lvbi5odG1sIgppZiAoLW5vdCAoVGVzdC1QYXRoIC1MaXRlcmFsUGF0aCAoSm9pbi1QYXRoICRSb290ICREZWZhdWx0RmlsZSkpKSB7CiAgaWYgKFRlc3QtUGF0aCAtTGl0ZXJhbFBhdGggKEpvaW4tUGF0aCAkUm9vdCAkVmVyc2lvbmVkRmlsZSkpIHsKICAgICREZWZhdWx0RmlsZSA9ICRWZXJzaW9uZWRGaWxlCiAgfSBlbHNlIHsKICAgIFdyaXRlLUhvc3QgIltFUlJPUl0gJERlZmF1bHRGaWxlIC8gJFZlcnNpb25lZEZpbGUgbm90IGZvdW5kIGluICRSb290IgogICAgU3RhcnQtU2xlZXAgLVNlY29uZHMgNQogICAgZXhpdCAxCiAgfQp9CldyaXRlLUhvc3QgIltTaXJtYW5dIHZlcnNpb24gJFNpcm1hblZlcnNpb24g4oCUIHNlcnZpbmcgJERlZmF1bHRGaWxlIgoKZnVuY3Rpb24gU2hvdy1TaXJtYW5Ub2FzdChbc3RyaW5nXSRUaXRsZSwgW3N0cmluZ10kQm9keSkgewogIGlmIChbc3RyaW5nXTo6SXNOdWxsT3JXaGl0ZVNwYWNlKCRUaXRsZSkpIHsgJFRpdGxlID0gJ1Npcm1hbicgfQogIGlmICgkbnVsbCAtZXEgJEJvZHkpIHsgJEJvZHkgPSAnJyB9CiAgdHJ5IHsKICAgICRudWxsID0gW1dpbmRvd3MuVUkuTm90aWZpY2F0aW9ucy5Ub2FzdE5vdGlmaWNhdGlvbk1hbmFnZXIsIFdpbmRvd3MuVUkuTm90aWZpY2F0aW9ucywgQ29udGVudFR5cGUgPSBXaW5kb3dzUnVudGltZV0KICAgICRudWxsID0gW1dpbmRvd3MuRGF0YS5YbWwuRG9tLlhtbERvY3VtZW50LCBXaW5kb3dzLkRhdGEuWG1sLkRvbS5YbWxEb2N1bWVudCwgQ29udGVudFR5cGUgPSBXaW5kb3dzUnVudGltZV0KICAgICRzYWZlVGl0bGUgPSBbU3lzdGVtLlNlY3VyaXR5LlNlY3VyaXR5RWxlbWVudF06OkVzY2FwZSgkVGl0bGUpCiAgICAkc2FmZUJvZHkgID0gW1N5c3RlbS5TZWN1cml0eS5TZWN1cml0eUVsZW1lbnRdOjpFc2NhcGUoJEJvZHkpCiAgICAkeG1sID0gIjx0b2FzdD48dmlzdWFsPjxiaW5kaW5nIHRlbXBsYXRlPWAiVG9hc3RHZW5lcmljYCI+PHRleHQ+JHNhZmVUaXRsZTwvdGV4dD48dGV4dD4kc2FmZUJvZHk8L3RleHQ+PC9iaW5kaW5nPjwvdmlzdWFsPjwvdG9hc3Q+IgogICAgJGRvYyA9IE5ldy1PYmplY3QgV2luZG93cy5EYXRhLlhtbC5Eb20uWG1sRG9jdW1lbnQKICAgICRkb2MuTG9hZFhtbCgkeG1sKQogICAgJHRvYXN0ID0gW1dpbmRvd3MuVUkuTm90aWZpY2F0aW9ucy5Ub2FzdE5vdGlmaWNhdGlvbl06Om5ldygkZG9jKQogICAgW1dpbmRvd3MuVUkuTm90aWZpY2F0aW9ucy5Ub2FzdE5vdGlmaWNhdGlvbk1hbmFnZXJdOjpDcmVhdGVUb2FzdE5vdGlmaWVyKCdTaXJtYW4uQWZ0ZXJTYWxlcycpLlNob3coJHRvYXN0KQogICAgcmV0dXJuCiAgfSBjYXRjaCB7fQogIHRyeSB7CiAgICBBZGQtVHlwZSAtQXNzZW1ibHlOYW1lIFN5c3RlbS5XaW5kb3dzLkZvcm1zIHwgT3V0LU51bGwKICAgIEFkZC1UeXBlIC1Bc3NlbWJseU5hbWUgU3lzdGVtLkRyYXdpbmcgfCBPdXQtTnVsbAogICAgJG5pID0gTmV3LU9iamVjdCBTeXN0ZW0uV2luZG93cy5Gb3Jtcy5Ob3RpZnlJY29uCiAgICAkbmkuSWNvbiA9IFtTeXN0ZW0uRHJhd2luZy5TeXN0ZW1JY29uc106OkluZm9ybWF0aW9uCiAgICAkbmkuVmlzaWJsZSA9ICR0cnVlCiAgICAkbmkuQmFsbG9vblRpcFRpdGxlID0gJFRpdGxlCiAgICAkbmkuQmFsbG9vblRpcFRleHQgPSAkKGlmICgkQm9keSkgeyAkQm9keSB9IGVsc2UgeyAnU2lybWFuJyB9KQogICAgJG5pLlNob3dCYWxsb29uVGlwKDUwMDApCiAgICBTdGFydC1TbGVlcCAtTWlsbGlzZWNvbmRzIDcwMAogICAgJG5pLkRpc3Bvc2UoKQogIH0gY2F0Y2ggewogICAgV3JpdGUtSG9zdCAiW05vdGlmeV0gJFRpdGxlIC0gJEJvZHkiCiAgfQp9CgpmdW5jdGlvbiBHZXQtQ29udGVudFR5cGUoW3N0cmluZ10kZXh0KSB7CiAgc3dpdGNoICgkZXh0LlRvTG93ZXJJbnZhcmlhbnQoKSkgewogICAgJy5odG1sJyB7ICd0ZXh0L2h0bWw7IGNoYXJzZXQ9dXRmLTgnIH0KICAgICcuaHRtJyAgeyAndGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04JyB9CiAgICAnLmpzJyAgIHsgJ2FwcGxpY2F0aW9uL2phdmFzY3JpcHQ7IGNoYXJzZXQ9dXRmLTgnIH0KICAgICcuY3NzJyAgeyAndGV4dC9jc3M7IGNoYXJzZXQ9dXRmLTgnIH0KICAgICcuanNvbicgeyAnYXBwbGljYXRpb24vanNvbjsgY2hhcnNldD11dGYtOCcgfQogICAgJy5wbmcnICB7ICdpbWFnZS9wbmcnIH0KICAgICcuanBnJyAgeyAnaW1hZ2UvanBlZycgfQogICAgJy5qcGVnJyB7ICdpbWFnZS9qcGVnJyB9CiAgICAnLmdpZicgIHsgJ2ltYWdlL2dpZicgfQogICAgJy5zdmcnICB7ICdpbWFnZS9zdmcreG1sJyB9CiAgICAnLmljbycgIHsgJ2ltYWdlL3gtaWNvbicgfQogICAgZGVmYXVsdCB7ICdhcHBsaWNhdGlvbi9vY3RldC1zdHJlYW0nIH0KICB9Cn0KCmZ1bmN0aW9uIEhhbmRsZS1IdHRwUmVxdWVzdChbU3lzdGVtLk5ldC5Tb2NrZXRzLlRjcENsaWVudF0kY2xpZW50LCBbc3RyaW5nXSRtb2RlKSB7CiAgdHJ5IHsKICAgICRzdHJlYW0gPSAkY2xpZW50LkdldFN0cmVhbSgpCiAgICAkc3RyZWFtLlJlYWRUaW1lb3V0ID0gNTAwMAogICAgJGJ1ZiA9IE5ldy1PYmplY3QgYnl0ZVtdIDgxOTIKICAgICRuID0gJHN0cmVhbS5SZWFkKCRidWYsIDAsICRidWYuTGVuZ3RoKQogICAgaWYgKCRuIC1sZSAwKSB7ICRjbGllbnQuQ2xvc2UoKTsgcmV0dXJuIH0KICAgICRyZXFUZXh0ID0gW1RleHQuRW5jb2RpbmddOjpVVEY4LkdldFN0cmluZygkYnVmLCAwLCAkbikKICAgICRmaXJzdCA9ICgkcmVxVGV4dCAtc3BsaXQgImByYG4iKVswXQogICAgaWYgKCRmaXJzdCAtbm90bWF0Y2ggJ14oR0VUfFBPU1R8T1BUSU9OUylccysoXFMrKScpIHsgJGNsaWVudC5DbG9zZSgpOyByZXR1cm4gfQogICAgJG1ldGhvZCA9ICRNYXRjaGVzWzFdCiAgICAkcGF0aCA9ICRNYXRjaGVzWzJdCiAgICAkcGF0aE9ubHkgPSAoJHBhdGggLXNwbGl0ICdcPycpWzBdCgogICAgaWYgKCRtb2RlIC1lcSAnbm90aWZ5JykgewogICAgICAkY29ycyA9ICJBY2Nlc3MtQ29udHJvbC1BbGxvdy1PcmlnaW46ICpgcmBuQWNjZXNzLUNvbnRyb2wtQWxsb3ctTWV0aG9kczogUE9TVCwgT1BUSU9OUywgR0VUYHJgbkFjY2Vzcy1Db250cm9sLUFsbG93LUhlYWRlcnM6IENvbnRlbnQtVHlwZWByYG4iCiAgICAgIGlmICgkbWV0aG9kIC1lcSAnT1BUSU9OUycpIHsKICAgICAgICAkcmVzcCA9ICJIVFRQLzEuMSAyMDQgTm8gQ29udGVudGByYG4kY29yc2ByYG4iCiAgICAgICAgJGJ5dGVzID0gW1RleHQuRW5jb2RpbmddOjpBU0NJSS5HZXRCeXRlcygkcmVzcCkKICAgICAgICAkc3RyZWFtLldyaXRlKCRieXRlcywgMCwgJGJ5dGVzLkxlbmd0aCkKICAgICAgICAkY2xpZW50LkNsb3NlKCk7IHJldHVybgogICAgICB9CiAgICAgIGlmICgkcGF0aE9ubHkgLWVxICcvaGVhbHRoJykgewogICAgICAgICRib2R5ID0gJ3sib2siOnRydWUsInNlcnZpY2UiOiJzaXJtYW4tbm90aWZ5In0nCiAgICAgICAgJGJiID0gW1RleHQuRW5jb2RpbmddOjpVVEY4LkdldEJ5dGVzKCRib2R5KQogICAgICAgICRyZXNwID0gIkhUVFAvMS4xIDIwMCBPS2ByYG4kY29yc2BDb250ZW50LVR5cGU6IGFwcGxpY2F0aW9uL2pzb247IGNoYXJzZXQ9dXRmLThgcmBuQ29udGVudC1MZW5ndGg6ICQoJGJiLkxlbmd0aClgcmBuQ29ubmVjdGlvbjogY2xvc2VgcmBuYHJgbiIKICAgICAgICAkaGIgPSBbVGV4dC5FbmNvZGluZ106OkFTQ0lJLkdldEJ5dGVzKCRyZXNwKQogICAgICAgICRzdHJlYW0uV3JpdGUoJGhiLCAwLCAkaGIuTGVuZ3RoKQogICAgICAgICRzdHJlYW0uV3JpdGUoJGJiLCAwLCAkYmIuTGVuZ3RoKQogICAgICAgICRjbGllbnQuQ2xvc2UoKTsgcmV0dXJuCiAgICAgIH0KICAgICAgaWYgKCRtZXRob2QgLWVxICdQT1NUJyAtYW5kICRwYXRoT25seSAtZXEgJy9ub3RpZnknKSB7CiAgICAgICAgJHJhdyA9ICcnCiAgICAgICAgaWYgKCRyZXFUZXh0IC1tYXRjaCAiYHJgbmByYG4oW1xzXFNdKikkIikgeyAkcmF3ID0gJE1hdGNoZXNbMV0gfQogICAgICAgICR0aXRsZSA9ICdTaXJtYW4nOyAkYm9keVR4dCA9ICcnCiAgICAgICAgdHJ5IHsKICAgICAgICAgICRvYmogPSAkcmF3IHwgQ29udmVydEZyb20tSnNvbgogICAgICAgICAgaWYgKCRvYmoudGl0bGUpIHsgJHRpdGxlID0gW3N0cmluZ10kb2JqLnRpdGxlIH0KICAgICAgICAgIGlmICgkb2JqLmJvZHkpIHsgJGJvZHlUeHQgPSBbc3RyaW5nXSRvYmouYm9keSB9CiAgICAgICAgfSBjYXRjaCB7ICRib2R5VHh0ID0gJHJhdyB9CiAgICAgICAgU2hvdy1TaXJtYW5Ub2FzdCAkdGl0bGUgJGJvZHlUeHQKICAgICAgICAkYm9keSA9ICd7Im9rIjp0cnVlfScKICAgICAgICAkYmIgPSBbVGV4dC5FbmNvZGluZ106OlVURjguR2V0Qnl0ZXMoJGJvZHkpCiAgICAgICAgJHJlc3AgPSAiSFRUUC8xLjEgMjAwIE9LYHJgbiRjb3JzYENvbnRlbnQtVHlwZTogYXBwbGljYXRpb24vanNvbjsgY2hhcnNldD11dGYtOGByYG5Db250ZW50LUxlbmd0aDogJCgkYmIuTGVuZ3RoKWByYG5Db25uZWN0aW9uOiBjbG9zZWByYG5gcmBuIgogICAgICAgICRoYiA9IFtUZXh0LkVuY29kaW5nXTo6QVNDSUkuR2V0Qnl0ZXMoJHJlc3ApCiAgICAgICAgJHN0cmVhbS5Xcml0ZSgkaGIsIDAsICRoYi5MZW5ndGgpCiAgICAgICAgJHN0cmVhbS5Xcml0ZSgkYmIsIDAsICRiYi5MZW5ndGgpCiAgICAgICAgJGNsaWVudC5DbG9zZSgpOyByZXR1cm4KICAgICAgfQogICAgICAkbXNnID0gW1RleHQuRW5jb2RpbmddOjpBU0NJSS5HZXRCeXRlcygiSFRUUC8xLjEgNDA0IE5vdCBGb3VuZGByYG4kY29yc2BDb250ZW50LUxlbmd0aDogMGByYG5Db25uZWN0aW9uOiBjbG9zZWByYG5gcmBuIikKICAgICAgJHN0cmVhbS5Xcml0ZSgkbXNnLCAwLCAkbXNnLkxlbmd0aCkKICAgICAgJGNsaWVudC5DbG9zZSgpOyByZXR1cm4KICAgIH0KCiAgICAjIGZpbGUgc2VydmVyIG1vZGUKICAgICRyZWwgPSBbVXJpXTo6VW5lc2NhcGVEYXRhU3RyaW5nKCRwYXRoT25seS5UcmltU3RhcnQoJy8nKSkKICAgIGlmIChbc3RyaW5nXTo6SXNOdWxsT3JXaGl0ZVNwYWNlKCRyZWwpKSB7ICRyZWwgPSAkRGVmYXVsdEZpbGUgfQogICAgJGZ1bGwgPSBbSU8uUGF0aF06OkdldEZ1bGxQYXRoKChKb2luLVBhdGggJFJvb3QgJHJlbCkpCiAgICBpZiAoLW5vdCAkZnVsbC5TdGFydHNXaXRoKCRSb290LCBbU3RyaW5nQ29tcGFyaXNvbl06Ok9yZGluYWxJZ25vcmVDYXNlKSAtb3IgLW5vdCAoVGVzdC1QYXRoIC1MaXRlcmFsUGF0aCAkZnVsbCAtUGF0aFR5cGUgTGVhZikpIHsKICAgICAgJG1zZyA9IFtUZXh0LkVuY29kaW5nXTo6VVRGOC5HZXRCeXRlcygiTm90IGZvdW5kIikKICAgICAgJHJlc3AgPSAiSFRUUC8xLjEgNDA0IE5vdCBGb3VuZGByYG5Db250ZW50LVR5cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9dXRmLThgcmBuQ29udGVudC1MZW5ndGg6ICQoJG1zZy5MZW5ndGgpYHJgbkNvbm5lY3Rpb246IGNsb3NlYHJgbmByYG4iCiAgICAgICRoYiA9IFtUZXh0LkVuY29kaW5nXTo6QVNDSUkuR2V0Qnl0ZXMoJHJlc3ApCiAgICAgICRzdHJlYW0uV3JpdGUoJGhiLCAwLCAkaGIuTGVuZ3RoKQogICAgICAkc3RyZWFtLldyaXRlKCRtc2csIDAsICRtc2cuTGVuZ3RoKQogICAgICAkY2xpZW50LkNsb3NlKCk7IHJldHVybgogICAgfQogICAgJGZpbGVCeXRlcyA9IFtJTy5GaWxlXTo6UmVhZEFsbEJ5dGVzKCRmdWxsKQogICAgJGN0eXBlID0gR2V0LUNvbnRlbnRUeXBlIChbSU8uUGF0aF06OkdldEV4dGVuc2lvbigkZnVsbCkpCiAgICAkcmVzcCA9ICJIVFRQLzEuMSAyMDAgT0tgcmBuQ29udGVudC1UeXBlOiAkY3R5cGVgcmBuQ29udGVudC1MZW5ndGg6ICQoJGZpbGVCeXRlcy5MZW5ndGgpYHJgbkNhY2hlLUNvbnRyb2w6IG5vLWNhY2hlYHJgbkNvbm5lY3Rpb246IGNsb3NlYHJgbmByYG4iCiAgICAkaGIgPSBbVGV4dC5FbmNvZGluZ106OkFTQ0lJLkdldEJ5dGVzKCRyZXNwKQogICAgJHN0cmVhbS5Xcml0ZSgkaGIsIDAsICRoYi5MZW5ndGgpCiAgICAkc3RyZWFtLldyaXRlKCRmaWxlQnl0ZXMsIDAsICRmaWxlQnl0ZXMuTGVuZ3RoKQogICAgJGNsaWVudC5DbG9zZSgpCiAgfSBjYXRjaCB7CiAgICB0cnkgeyAkY2xpZW50LkNsb3NlKCkgfSBjYXRjaCB7fQogIH0KfQoKIyBTdGFydCBub3RpZnkgbGlzdGVuZXIKJG5vdGlmeUxpc3RlbmVyID0gJG51bGwKdHJ5IHsKICAkbm90aWZ5TGlzdGVuZXIgPSBbTmV0LlNvY2tldHMuVGNwTGlzdGVuZXJdOjpuZXcoW05ldC5JUEFkZHJlc3NdOjpMb29wYmFjaywgJE5vdGlmeVBvcnQpCiAgJG5vdGlmeUxpc3RlbmVyLlN0YXJ0KCkKICBXcml0ZS1Ib3N0ICJbT0tdIE5vdGlmeSBicmlkZ2Ugb24gaHR0cDovLzEyNy4wLjAuMTokTm90aWZ5UG9ydC9ub3RpZnkiCn0gY2F0Y2ggewogIFdyaXRlLUhvc3QgIltXQVJOXSBOb3RpZnkgcG9ydCAkTm90aWZ5UG9ydCBidXN5IC0gY29udGludWluZyB3aXRob3V0IGJyaWRnZSIKICAkbm90aWZ5TGlzdGVuZXIgPSAkbnVsbAp9CgojIFN0YXJ0IGZpbGUgc2VydmVyCiRmaWxlTGlzdGVuZXIgPSAkbnVsbAp0cnkgewogICRmaWxlTGlzdGVuZXIgPSBbTmV0LlNvY2tldHMuVGNwTGlzdGVuZXJdOjpuZXcoW05ldC5JUEFkZHJlc3NdOjpMb29wYmFjaywgJFBvcnQpCiAgJGZpbGVMaXN0ZW5lci5TdGFydCgpCiAgV3JpdGUtSG9zdCAiW09LXSBGaWxlIHNlcnZlciBvbiBodHRwOi8vMTI3LjAuMC4xOiRQb3J0LyREZWZhdWx0RmlsZSIKfSBjYXRjaCB7CiAgV3JpdGUtSG9zdCAiW1dBUk5dIFBvcnQgJFBvcnQgYnVzeSAtIGZpbGU6Ly8gb3BlbiBmcm9tIEJBVCBpcyBlbm91Z2giCiAgJGZpbGVMaXN0ZW5lciA9ICRudWxsCn0KCiMgQWxzbyBvcGVuIGh0dHAgVVJMIGlmIHNlcnZlciBzdGFydGVkCmlmICgkZmlsZUxpc3RlbmVyKSB7CiAgdHJ5IHsgU3RhcnQtUHJvY2VzcyAiaHR0cDovLzEyNy4wLjAuMTokUG9ydC8kRGVmYXVsdEZpbGUiIHwgT3V0LU51bGwgfSBjYXRjaCB7fQp9CgpXcml0ZS1Ib3N0ICJLZWVwIHRoaXMgd2luZG93IG9wZW4gZm9yIHNlcnZlci9ub3RpZmljYXRpb25zLiIKV3JpdGUtSG9zdCAiQ2xvc2UgaXQgdG8gc3RvcC4iCgp3aGlsZSAoJHRydWUpIHsKICB0cnkgewogICAgaWYgKCRmaWxlTGlzdGVuZXIgLWFuZCAkZmlsZUxpc3RlbmVyLlBlbmRpbmcoKSkgewogICAgICAkYyA9ICRmaWxlTGlzdGVuZXIuQWNjZXB0VGNwQ2xpZW50KCkKICAgICAgSGFuZGxlLUh0dHBSZXF1ZXN0ICRjICdmaWxlJwogICAgfQogICAgaWYgKCRub3RpZnlMaXN0ZW5lciAtYW5kICRub3RpZnlMaXN0ZW5lci5QZW5kaW5nKCkpIHsKICAgICAgJGMyID0gJG5vdGlmeUxpc3RlbmVyLkFjY2VwdFRjcENsaWVudCgpCiAgICAgIEhhbmRsZS1IdHRwUmVxdWVzdCAkYzIgJ25vdGlmeScKICAgIH0KICAgIFN0YXJ0LVNsZWVwIC1NaWxsaXNlY29uZHMgMzAKICB9IGNhdGNoIHsKICAgIFN0YXJ0LVNsZWVwIC1NaWxsaXNlY29uZHMgMTAwCiAgfQp9Cg==",
-  "\u0627\u062c\u0631\u0627\u06cc \u0633\u06cc\u0631\u0645\u0627\u0646.bat": "QGVjaG8gb2ZmCmNkIC9kICIlfmRwMCIKY2FsbCAiJX5kcDBTaXJtYW5fU3RhcnQuYmF0Igo="
+  "اجرای سیرمان.bat": "QGVjaG8gb2ZmCmNkIC9kICIlfmRwMCIKY2FsbCAiJX5kcDBTaXJtYW5fU3RhcnQuYmF0Igo=",
+  "apply_sirman_update.ps1": "IyBBcHBsaWVzIFNpcm1hbl9QZW5kaW5nX1VwZGF0ZS5qc29uIChvciBuZXdlc3QgdXBkYXRlc1xTaXJtYW5fVXBkYXRlXyouanNvbiB3aXRoIGZ1bGwgSFRNTCkKIyBuZXh0IHRvIHRoaXMgc2NyaXB0IG9udG8gU2lybWFuX0ZpbmFsLmh0bWwg4oCUIGZvciBtYXNzIGRlcGxveSBvbiBtYW55IFBDcy4KJEVycm9yQWN0aW9uUHJlZmVyZW5jZSA9ICdTdG9wJwokUm9vdCA9IFNwbGl0LVBhdGggLVBhcmVudCAkTXlJbnZvY2F0aW9uLk15Q29tbWFuZC5QYXRoClNldC1Mb2NhdGlvbiAkUm9vdAoKZnVuY3Rpb24gR2V0LVBlbmRpbmdVcGRhdGVQYXRoIHsKICAkcGVuZGluZyA9IEpvaW4tUGF0aCAkUm9vdCAnU2lybWFuX1BlbmRpbmdfVXBkYXRlLmpzb24nCiAgaWYgKFRlc3QtUGF0aCAkcGVuZGluZykgeyByZXR1cm4gJHBlbmRpbmcgfQogICR1cGREaXIgPSBKb2luLVBhdGggJFJvb3QgJ3VwZGF0ZXMnCiAgaWYgKC1ub3QgKFRlc3QtUGF0aCAkdXBkRGlyKSkgeyByZXR1cm4gJG51bGwgfQogICRmaWxlcyA9IEdldC1DaGlsZEl0ZW0gLVBhdGggJHVwZERpciAtRmlsdGVyICdTaXJtYW5fVXBkYXRlXyouanNvbicgLUZpbGUgfCBTb3J0LU9iamVjdCBMYXN0V3JpdGVUaW1lIC1EZXNjZW5kaW5nCiAgZm9yZWFjaCAoJGYgaW4gJGZpbGVzKSB7CiAgICB0cnkgewogICAgICAkcmF3ID0gR2V0LUNvbnRlbnQgLUxpdGVyYWxQYXRoICRmLkZ1bGxOYW1lIC1SYXcgLUVuY29kaW5nIFVURjgKICAgICAgaWYgKCRyYXcgLW1hdGNoICdyZXBsYWNlQXBwRmlsZScgLW9yICRyYXcgLW1hdGNoICciZnVsbEh0bWwiJykgeyByZXR1cm4gJGYuRnVsbE5hbWUgfQogICAgfSBjYXRjaCB7fQogIH0KICByZXR1cm4gJG51bGwKfQoKZnVuY3Rpb24gRXh0cmFjdC1GdWxsSHRtbChbc3RyaW5nXSRqc29uUGF0aCkgewogICRyYXcgPSBHZXQtQ29udGVudCAtTGl0ZXJhbFBhdGggJGpzb25QYXRoIC1SYXcgLUVuY29kaW5nIFVURjgKICAkcGtnID0gJHJhdyB8IENvbnZlcnRGcm9tLUpzb24KICBpZiAoLW5vdCAkcGtnKSB7IHRocm93ICJJbnZhbGlkIHVwZGF0ZSBKU09OOiAkanNvblBhdGgiIH0KICBpZiAoJHBrZy5tYWdpYyAtbmUgJ1NJUk1BTl9VUERBVEUnKSB7IHRocm93ICJOb3QgYSBTSVJNQU5fVVBEQVRFIHBhY2thZ2UiIH0KICAkaHRtbCA9ICRudWxsCiAgJGZpbGVOYW1lID0gJ1Npcm1hbl9GaW5hbC5odG1sJwogIGlmICgkcGtnLmZ1bGxIdG1sKSB7ICRodG1sID0gW3N0cmluZ10kcGtnLmZ1bGxIdG1sIH0KICBpZiAoJHBrZy5wYXRjaGVzKSB7CiAgICBmb3JlYWNoICgkcCBpbiAkcGtnLnBhdGNoZXMpIHsKICAgICAgJG9wID0gW3N0cmluZ10kcC5vcAogICAgICBpZiAoJG9wIC1lcSAncmVwbGFjZUFwcEZpbGUnIC1vciAkb3AgLWVxICdmdWxsSHRtbCcpIHsKICAgICAgICBpZiAoJHAuY29udGVudCkgeyAkaHRtbCA9IFtzdHJpbmddJHAuY29udGVudCB9CiAgICAgICAgZWxzZWlmICgkcC5odG1sKSB7ICRodG1sID0gW3N0cmluZ10kcC5odG1sIH0KICAgICAgICBpZiAoJHAuZmlsZU5hbWUpIHsgJGZpbGVOYW1lID0gW3N0cmluZ10kcC5maWxlTmFtZSB9CiAgICAgICAgZWxzZWlmICgkcC5maWxlbmFtZSkgeyAkZmlsZU5hbWUgPSBbc3RyaW5nXSRwLmZpbGVuYW1lIH0KICAgICAgfQogICAgfQogIH0KICBpZiAoLW5vdCAkaHRtbCkgeyByZXR1cm4gJG51bGwgfQogIHJldHVybiBAeyBIdG1sID0gJGh0bWw7IEZpbGVOYW1lID0gJGZpbGVOYW1lOyBWZXJzaW9uID0gW3N0cmluZ10kcGtnLnZlcnNpb247IElkID0gW3N0cmluZ10kcGtnLmlkIH0KfQoKJHVwZFBhdGggPSBHZXQtUGVuZGluZ1VwZGF0ZVBhdGgKaWYgKC1ub3QgJHVwZFBhdGgpIHsKICBXcml0ZS1Ib3N0ICdbU2lybWFuXSBObyBwZW5kaW5nIGZ1bGwgdXBkYXRlIGZvdW5kLicKICBleGl0IDAKfQoKV3JpdGUtSG9zdCAiW1Npcm1hbl0gQXBwbHlpbmcgdXBkYXRlIGZyb206ICR1cGRQYXRoIgokaW5mbyA9IEV4dHJhY3QtRnVsbEh0bWwgJHVwZFBhdGgKaWYgKC1ub3QgJGluZm8pIHsKICBXcml0ZS1Ib3N0ICdbU2lybWFuXSBVcGRhdGUgaGFzIG5vIGZ1bGwgSFRNTCBwYXlsb2FkIOKAlCBza2lwcGVkIChzbWFsbCBwYXRjaC1vbmx5IHVwZGF0ZSkuJwogIGV4aXQgMAp9CgokdGFyZ2V0ID0gSm9pbi1QYXRoICRSb290ICRpbmZvLkZpbGVOYW1lCiR1dGY4Tm9Cb20gPSBOZXctT2JqZWN0IFN5c3RlbS5UZXh0LlVURjhFbmNvZGluZyAkZmFsc2UKW1N5c3RlbS5JTy5GaWxlXTo6V3JpdGVBbGxUZXh0KCR0YXJnZXQsICRpbmZvLkh0bWwsICR1dGY4Tm9Cb20pCgojIGFsc28gd3JpdGUgdmVyc2lvbmVkIGNvcHkgd2hlbiB2ZXJzaW9uIHByZXNlbnQKaWYgKCRpbmZvLlZlcnNpb24pIHsKICAkdmVyTmFtZSA9ICJTaXJtYW5fRmluYWxfJCgkaW5mby5WZXJzaW9uKS5odG1sIgogICR2ZXJQYXRoID0gSm9pbi1QYXRoICRSb290ICR2ZXJOYW1lCiAgW1N5c3RlbS5JTy5GaWxlXTo6V3JpdGVBbGxUZXh0KCR2ZXJQYXRoLCAkaW5mby5IdG1sLCAkdXRmOE5vQm9tKQogIFdyaXRlLUhvc3QgIltTaXJtYW5dIFdyb3RlICR2ZXJOYW1lIgp9CgpXcml0ZS1Ib3N0ICJbU2lybWFuXSBXcm90ZSAkKCRpbmZvLkZpbGVOYW1lKSAodmVyc2lvbiAkKCRpbmZvLlZlcnNpb24pKSIKCiMgcmVuYW1lIHBlbmRpbmcgc28gaXQgaXMgbm90IHJlLWFwcGxpZWQgZm9yZXZlciAoa2VlcCBhIC5hcHBsaWVkIGNvcHkpCmlmIChbSU8uUGF0aF06OkdldEZpbGVOYW1lKCR1cGRQYXRoKSAtZXEgJ1Npcm1hbl9QZW5kaW5nX1VwZGF0ZS5qc29uJykgewogICRkb25lID0gSm9pbi1QYXRoICRSb290ICgnU2lybWFuX1BlbmRpbmdfVXBkYXRlLmFwcGxpZWQuJyArICgkaW5mby5WZXJzaW9uIC1yZXBsYWNlICdbXlx3XC5cLV0nLCAnXycpICsgJy5qc29uJykKICB0cnkgeyBNb3ZlLUl0ZW0gLUxpdGVyYWxQYXRoICR1cGRQYXRoIC1EZXN0aW5hdGlvbiAkZG9uZSAtRm9yY2UgfSBjYXRjaCB7fQp9CgpleGl0IDAK"
 };
 
 var SIRMAN_LAUNCHER_TEMPLATES = null;
@@ -5310,8 +5481,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.18θ'; }
-  catch(_e){ return '1405.5.18θ'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.18ι'; }
+  catch(_e){ return '1405.5.18ι'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -5590,7 +5761,7 @@ function _safeStr(s){ return (s==null)?'':String(s); }
 
 function _buildFullBackupData(){
   var data = {
-    version: '1405.5.18θ',
+    version: '1405.5.18ι',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -7491,7 +7662,7 @@ function buildPH(list){
 
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18θ">
+<meta name="app-version" content="1405.5.18ι">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -7508,7 +7679,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18θ">
+<meta name="app-version" content="1405.5.18ι">
 <meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -7568,7 +7739,7 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18θ">
+<meta name="app-version" content="1405.5.18ι">
 <meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -7588,11 +7759,11 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18θ">
+<meta name="app-version" content="1405.5.18ι">
 <meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18θ">
+<meta name="app-version" content="1405.5.18ι">
 <meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -8033,7 +8204,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18θ">
+<meta name="app-version" content="1405.5.18ι">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -9265,7 +9436,7 @@ function enableTaskNotifications(){
 }
 function registerLaeghSW(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('sw.js?v=1405.5.18θ').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=1405.5.18ι').then(reg=>{
     _swReg=reg;
     // Check for SW updates
     reg.addEventListener('updatefound', ()=>{
@@ -10411,7 +10582,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18θ">'+
+    '<meta name="app-version" content="1405.5.18ι">'+
     '<meta name="app-date" content="1405/05/18">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -10562,7 +10733,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.18θ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.18ι"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -12104,7 +12275,7 @@ function doPrint(paperSize){
   const effPaper = pw.paper || paperSize;
   const w = window.open('','_blank');
   w.document.open(); w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18θ">
+<meta name="app-version" content="1405.5.18ι">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -12202,7 +12373,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18θ"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.18ι"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -12231,7 +12402,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18θ"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.18ι"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -12268,7 +12439,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18θ">'+
+    '<meta name="app-version" content="1405.5.18ι">'+
     '<meta name="app-date" content="1405/05/18">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -12344,7 +12515,7 @@ function printCompanyReport(idx){
   var qcResultLbl = {'pass':'✅ تأیید کیفیت','fail':'❌ رد شد — نیاز به اصلاح','pending':'در حال بررسی'};
   var mgrApproveLbl = {'approved':'✅ تأیید نهایی','pending':'در انتظار بررسی','rejected':'❌ رد شد'};
 
-  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.18θ';
+  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.18ι';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
     '<title>گزارش داخلی شرکت — '+wHdr.id+'</title>'+
     '<style>'+
@@ -12975,7 +13146,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18θ">'+
+    '<meta name="app-version" content="1405.5.18ι">'+
     '<meta name="app-date" content="1405/05/18">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -13195,7 +13366,7 @@ function expSalesExcel(){
 // ══════ حسابداری ══════
 // ═══════════════════════════════════════════════════════════════════════════
 // ماژول داغی (پیگیری رسید امضا‌شده‌ی نمایندگی‌های خدمات)
-// نسخه ۱۴۰۵.۵.۱۸θ — فاز داغی
+// نسخه ۱۴۰۵.۵.۱۸ι — فاز داغی
 //
 // «داغی» یعنی وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستیم، آن‌ها باید رسید امضا‌شده
 // (داغی) را به ما برگردانند. این ماژول پیگیری می‌کند که چه کسانی داغی معوقه دارند.
@@ -14499,7 +14670,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18θ">'+
+    '<meta name="app-version" content="1405.5.18ι">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
