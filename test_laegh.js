@@ -86,8 +86,8 @@ function buildMockDocument() {
 // ===================================================================
 
 function extractFunctionSource(html, fnName) {
-  // پیدا کردن "function fnName(" و گرفتن بدنه با شمارش آکولاد
-  const startMatch = html.match(new RegExp('function\\s+' + fnName + '\\s*\\([^)]*\\)\\s*\\{'));
+  // پیدا کردن "function fnName(" (با async اختیاری) و گرفتن بدنه با شمارش آکولاد
+  const startMatch = html.match(new RegExp('(?:async\\s+)?function\\s+' + fnName + '\\s*\\([^)]*\\)\\s*\\{'));
   if (!startMatch) return null;
   let start = startMatch.index;
   let braceCount = 0;
@@ -1065,7 +1065,7 @@ test('شبیه‌سازی واقعی: doAutoSave() بدون force و با isDirt
     localStorage: { getItem: () => null, setItem: () => {}, length: 0, key: () => null },
     updateAutoSaveUI: () => {}, addDbgEntry: () => {}
   };
-  const allSrc = (safeArrSrc||'') + '\n' + (safeObjSrc||'') + '\n' + (safeStrSrc||'') + '\n' + fullBuildSrc + '\n' + buildSrc + '\nasync ' + fnSrc;
+  const allSrc = (safeArrSrc||'') + '\n' + (safeObjSrc||'') + '\n' + (safeStrSrc||'') + '\n' + fullBuildSrc + '\n' + buildSrc + '\n' + fnSrc;
   const runner = new Function('ctx',
     'return (async function(){ with(ctx){ ' + allSrc + '\nreturn await doAutoSave(); } })();');
   await runner(sandbox);
@@ -1083,8 +1083,9 @@ test('شبیه‌سازی واقعی: doAutoSave(true) باید حتی با isDi
   const safeStrSrc = extractFunctionSource(html, '_safeStr');
   const safeFsSrc = extractFunctionSource(html, 'safeFsFileName');
   const stampSrc = extractFunctionSource(html, 'fsDateStamp');
+  const writeSrc = extractFunctionSource(html, 'writeTextToAutoSaveFolder');
   assertTrue(fnSrc !== null && buildSrc !== null && fullBuildSrc !== null, 'توابع لازم پیدا نشدند');
-  assertTrue(safeFsSrc !== null, 'safeFsFileName برای نام امن فایل پوشه لازم است');
+  assertTrue(safeFsSrc !== null && writeSrc !== null, 'توابع نوشتن امن پوشه لازم است');
 
   let writtenContent = null;
   let requestedNames = [];
@@ -1099,13 +1100,14 @@ test('شبیه‌سازی واقعی: doAutoSave(true) باید حتی با isDi
     parts: [], services: [], warranties: [], sales: [], tasks: [], accounts: [],
     defectiveStock: [], warehouseDocs: [], stockMoves: [], userAuditLog: [], bgAuditLog: [], userRoles: [], loginPw: '',
     senderInfo: {}, logoSrc: '', acH: {},
+    APP_VERSION: '1405.5.18γ',
     fdate: () => '‎۱۴۰۵/۰۵/۱۸‎',
     clearDirty: () => {},
     localStorage: { getItem: () => null, setItem: () => {}, length: 0, key: () => null },
     updateAutoSaveUI: () => {}, addDbgEntry: () => {}
   };
   // helperها + _buildFullBackupData + buildBackupObject + doAutoSave را در context قرار بده
-  const allSrc = (safeArrSrc||'') + '\n' + (safeObjSrc||'') + '\n' + (safeStrSrc||'') + '\n' + (safeFsSrc||'') + '\n' + (stampSrc||'') + '\n' + fullBuildSrc + '\n' + buildSrc + '\nasync ' + fnSrc;
+  const allSrc = (safeArrSrc||'') + '\n' + (safeObjSrc||'') + '\n' + (safeStrSrc||'') + '\n' + (safeFsSrc||'') + '\n' + (stampSrc||'') + '\n' + (writeSrc||'') + '\n' + fullBuildSrc + '\n' + buildSrc + '\n' + fnSrc;
   const runner = new Function('ctx',
     'return (async function(){ with(ctx){ ' + allSrc + '\nreturn await doAutoSave(true); } })();');
   await runner(sandbox);
@@ -1113,7 +1115,7 @@ test('شبیه‌سازی واقعی: doAutoSave(true) باید حتی با isDi
   assertTrue(writtenContent !== null, 'با force=true، doAutoSave باید واقعاً محتوای فایل را در پوشه انتخاب‌شده بنویسد — این دقیقاً همان باگی بود که باعث می‌شد بعد از انتخاب پوشه هیچ فایلی پدید نیاید');
   const parsed = JSON.parse(writtenContent);
   assertEqual(parsed.invoices.length, 1, 'محتوای نوشته‌شده باید همان داده واقعی (مثلاً فاکتورها) را داشته باشد، نه خالی');
-  assertTrue(requestedNames.some(n => n === 'sirman_autosave.json'), 'باید sirman_autosave.json با نام ASCII نوشته شود، نه نام فارسی/LRM');
+  assertTrue(requestedNames.some(n => n === 'sirman_autosave.txt'), 'اولویت باید sirman_autosave.txt باشد: '+requestedNames.join(','));
   assertTrue(requestedNames.every(n => /^[A-Za-z0-9._-]+$/.test(n)), 'هیچ نام فایل غیرمجازی به getFileHandle داده نشود: '+requestedNames.join(','));
 });
 
@@ -3823,35 +3825,36 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۱۸β باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۱۸γ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.18β', 'نسخه meta باید 1405.5.18β باشد');
+  assertEqual(metaVer, '1405.5.18γ', 'نسخه meta باید 1405.5.18γ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/18', 'app-date باید 1405/05/18 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸β', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸β را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸γ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸γ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.18β'", 'فیلد version بک‌آپ باید 1405.5.18β باشد');
+  assertContainsString(buildSrc, "version: '1405.5.18γ'", 'فیلد version بک‌آپ باید 1405.5.18γ باشد');
 });
 
 
-test('رفع Name is not allowed: safeFsFileName باید ارقام فارسی و LRM را از نام فایل حذف کند', () => {
+test('رفع Name is not allowed: safeFsFileName و writeTextToAutoSaveFolder باید نام ASCII/.txt امن بسازند', () => {
   assertContainsString(html, 'function safeFsFileName(', 'safeFsFileName پیدا نشد');
   assertContainsString(html, 'function fsDateStamp(', 'fsDateStamp پیدا نشد');
   const safeSrc = extractFunctionSource(html, 'safeFsFileName');
   const stampSrc = extractFunctionSource(html, 'fsDateStamp');
   const doSrc = extractFunctionSource(html, 'doAutoSave');
-  assertContainsString(doSrc, 'safeFsFileName(', 'doAutoSave باید از safeFsFileName استفاده کند');
+  assertContainsString(html, 'function writeTextToAutoSaveFolder(', 'writeTextToAutoSaveFolder پیدا نشد');
+  assertContainsString(doSrc, 'writeTextToAutoSaveFolder', 'doAutoSave باید writeTextToAutoSaveFolder را صدا بزند');
   assertTrue(doSrc.indexOf("fdate().replace")===-1, 'doAutoSave نباید دیگر از fdate() برای نام فایل استفاده کند');
   const runner = new Function(safeSrc + `;
     var a = safeFsFileName('‎۱۴۰۵/۰۵/۱۸‎');
     var b = safeFsFileName('Laegh_AutoSave_‎۱۴۰۵-۰۵-۱۸‎.json');
-    var c = safeFsFileName('sirman_autosave.json');
+    var c = safeFsFileName('sirman_autosave.txt');
     return [a,b,c];
   `);
   const [a,b,c] = runner();
   assertEqual(a, '1405-05-18', 'باید ارقام لاتین و بدون LRM باشد: '+a);
   assertEqual(b, 'Laegh_AutoSave_1405-05-18.json', 'نام تاریخ‌دار باید ASCII امن باشد: '+b);
-  assertEqual(c, 'sirman_autosave.json', 'نام اصلی باید دست‌نخورده بماند');
+  assertEqual(c, 'sirman_autosave.txt', 'نام txt باید دست‌نخورده بماند');
   assertTrue(/^[A-Za-z0-9._-]+$/.test(a) && /^[A-Za-z0-9._-]+$/.test(b), 'فقط کاراکترهای مجاز نام فایل');
 });
 
@@ -4534,7 +4537,7 @@ test('viewer سراسری باید برای کالا، لوگو و پس‌زمی
 });
 
 console.log('');
-console.log('📋 گروه ۳۹: ضدثبت‌تکراری، انبار داغی، تاریخچه پستی، شبکه اجتماعی (۱۴۰۵.۵.۱۸β)');
+console.log('📋 گروه ۳۹: ضدثبت‌تکراری، انبار داغی، تاریخچه پستی، شبکه اجتماعی (۱۴۰۵.۵.۱۸γ)');
 
 test('قفل ضدثبت‌تکراری withSaveLock باید روی گارانتی/فاکتور/داغی/دفترچه باشد', () => {
   assertContainsString(html, 'function withSaveLock(', 'withSaveLock پیدا نشد');
