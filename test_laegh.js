@@ -1100,7 +1100,7 @@ test('شبیه‌سازی واقعی: doAutoSave(true) باید حتی با isDi
     parts: [], services: [], warranties: [], sales: [], tasks: [], accounts: [],
     defectiveStock: [], warehouseDocs: [], stockMoves: [], userAuditLog: [], bgAuditLog: [], userRoles: [], loginPw: '',
     senderInfo: {}, logoSrc: '', acH: {},
-    APP_VERSION: '1405.5.18ε',
+    APP_VERSION: '1405.5.18ζ',
     autoSaveFileHandle: null,
     ensureFsPermission: async () => true,
     writeAutoSaveTarget: null, // set below after extract
@@ -3832,14 +3832,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۱۸ε باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۱۸ζ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.18ε', 'نسخه meta باید 1405.5.18ε باشد');
+  assertEqual(metaVer, '1405.5.18ζ', 'نسخه meta باید 1405.5.18ζ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/18', 'app-date باید 1405/05/18 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸ε', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸ε را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸ζ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸ζ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.18ε'", 'فیلد version بک‌آپ باید 1405.5.18ε باشد');
+  assertContainsString(buildSrc, "version: '1405.5.18ζ'", 'فیلد version بک‌آپ باید 1405.5.18ζ باشد');
 });
 
 
@@ -3904,28 +3904,69 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
   };
   // validate + compare
   const vRunner = new Function(cmpSrc + '\n' + valSrc + `\n
-    var APP_BASE_VERSION = '1405.5.18ε';
+    var APP_BASE_VERSION = '1405.5.18ζ';
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
-      good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.18ζ', minBaseVersion:'1405.5.18ε'}),
+      good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.18η', minBaseVersion:'1405.5.18ζ'}),
       tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.19α'}),
-      cmp: compareSirmanVersions('1405.5.18ε','1405.5.18δ')
+      cmp: compareSirmanVersions('1405.5.18ζ','1405.5.18ε')
     };
   `);
   const vr = vRunner();
   assertTrue(!!vr.bad, 'magic نادرست باید خطا بدهد');
   assertEqual(vr.good, null, 'بسته معتبر باید null برگرداند');
   assertTrue(!!vr.tooNew, 'minBaseVersion بالاتر باید رد شود');
-  assertTrue(vr.cmp > 0, 'ε باید بعد از δ باشد');
+  assertTrue(vr.cmp > 0, 'ζ باید بعد از ε باشد');
 
   // setRuntimeAppVersion + meta save
   const metaRunner = new Function('localStorage', getMetaSrc + '\n' + saveMetaSrc + `\n
-    saveAppliedUpdatesMeta([{id:'t1', version:'1405.5.18ζ'}]);
+    saveAppliedUpdatesMeta([{id:'t1', version:'1405.5.18η'}]);
     return getAppliedUpdatesMeta();
   `);
   const meta = metaRunner(sandboxLocal);
   assertEqual(meta.length, 1, 'meta باید ذخیره شود');
   assertEqual(meta[0].id, 't1', 'شناسه آپدیت باید بماند');
+});
+
+test('ζ: لانچر توکار و دانگرید باید در HTML و فایل آپدیت موجود باشند', () => {
+  assertContainsString(html, 'SIRMAN_LAUNCHER_TEMPLATES_B64', 'قالب لانچر Base64 لازم است');
+  assertContainsString(html, 'function downloadEmbeddedLauncher(', 'downloadEmbeddedLauncher لازم است');
+  assertContainsString(html, 'function downgradeToTarget(', 'downgradeToTarget لازم است');
+  assertContainsString(html, 'function listDowngradeTargets(', 'listDowngradeTargets لازم است');
+  assertContainsString(html, 'id="upd-launchers-box"', 'باکس دانلود لانچر لازم است');
+  assertContainsString(html, 'id="upd-downgrade-box"', 'باکس دانگرید لازم است');
+  const buildSrc = extractFunctionSource(html, 'buildEmbeddedLauncher');
+  const runner = new Function(
+    'var SIRMAN_LAUNCHER_TEMPLATES = {"Sirman_Start.bat":"ver=__SIRMAN_VERSION__"};\n'
+    + 'function ensureLauncherTemplates(){ return SIRMAN_LAUNCHER_TEMPLATES; }\n'
+    + 'var APP_VERSION = "1405.5.18ζ";\n'
+    + 'function getLauncherVersionTag(){ return APP_VERSION; }\n'
+    + buildSrc + '\n'
+    + 'return buildEmbeddedLauncher("Sirman_Start.bat");'
+  );
+  assertEqual(runner(), 'ver=1405.5.18ζ', 'لانچر باید نسخه جاری را جایگزین کند');
+
+  // decode one real template from HTML and ensure placeholder exists
+  const m = html.match(/SIRMAN_LAUNCHER_TEMPLATES_B64 = (\{[\s\S]*?\});/);
+  assertTrue(!!m, 'بلوک B64 پیدا نشد');
+  const map = JSON.parse(m[1]);
+  assertTrue(!!map['Sirman_Start.bat'], 'Sirman_Start.bat در B64 باشد');
+  const decoded = Buffer.from(map['Sirman_Start.bat'], 'base64').toString('utf8');
+  assertTrue(decoded.indexOf('__SIRMAN_VERSION__') >= 0, 'قالب باید جای‌نگهدار نسخه داشته باشد');
+  assertTrue(decoded.indexOf('`') >= 0 || decoded.indexOf('SIRMAN') >= 0, 'محتوای لانچر باید معتبر باشد');
+
+  const fs = require('fs');
+  const path = require('path');
+  const updPath = path.join(path.dirname(filePath), 'updates', 'Sirman_Update_1405.5.18ζ.json');
+  assertTrue(fs.existsSync(updPath), 'فایل آپدیت ζ باید موجود باشد');
+  const pkg = JSON.parse(fs.readFileSync(updPath, 'utf8'));
+  assertEqual(pkg.magic, 'SIRMAN_UPDATE', 'magic آپدیت');
+  assertEqual(pkg.version, '1405.5.18ζ', 'نسخه آپدیت');
+  assertTrue(Array.isArray(pkg.patches) && pkg.patches.some(p => p.op === 'runJs'), 'باید runJs داشته باشد');
+  const js = (pkg.patches.find(p => p.op === 'runJs') || {}).code || '';
+  assertTrue(js.indexOf('downloadEmbeddedLauncher') >= 0, 'آپدیت باید لانچر توکار را بیاورد');
+  assertTrue(js.indexOf('downgradeToTarget') >= 0, 'آپدیت باید دانگرید را بیاورد');
+  assertTrue(js.indexOf('SIRMAN_LAUNCHER_TEMPLATES_B64') >= 0, 'آپدیت باید قالب Base64 داشته باشد');
 });
 
 test('قانون ۹: لانچر BAT/PS1 باید با نسخه meta همگام باشد', () => {
