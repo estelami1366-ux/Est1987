@@ -1100,7 +1100,7 @@ test('شبیه‌سازی واقعی: doAutoSave(true) باید حتی با isDi
     parts: [], services: [], warranties: [], sales: [], tasks: [], accounts: [],
     defectiveStock: [], warehouseDocs: [], stockMoves: [], userAuditLog: [], bgAuditLog: [], userRoles: [], loginPw: '',
     senderInfo: {}, logoSrc: '', acH: {},
-    APP_VERSION: '1405.5.18ι',
+    APP_VERSION: '1405.5.18κ',
     autoSaveFileHandle: null,
     ensureFsPermission: async () => true,
     writeAutoSaveTarget: null, // set below after extract
@@ -3832,14 +3832,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۱۸ι باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۱۸κ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.18ι', 'نسخه meta باید 1405.5.18ι باشد');
+  assertEqual(metaVer, '1405.5.18κ', 'نسخه meta باید 1405.5.18κ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/18', 'app-date باید 1405/05/18 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸ι', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸ι را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸κ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸κ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.18ι'", 'فیلد version بک‌آپ باید 1405.5.18ι باشد');
+  assertContainsString(buildSrc, "version: '1405.5.18κ'", 'فیلد version بک‌آپ باید 1405.5.18κ باشد');
 });
 
 
@@ -3904,12 +3904,12 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
   };
   // validate + compare
   const vRunner = new Function(cmpSrc + '\n' + valSrc + `\n
-    var APP_BASE_VERSION = '1405.5.18ι';
+    var APP_BASE_VERSION = '1405.5.18κ';
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
-      good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.18ι', minBaseVersion:'1405.5.18ι'}),
+      good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.18κ', minBaseVersion:'1405.5.18κ'}),
       tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.19α'}),
-      cmp: compareSirmanVersions('1405.5.18ι','1405.5.18ε')
+      cmp: compareSirmanVersions('1405.5.18κ','1405.5.18ε')
     };
   `);
   const vr = vRunner();
@@ -3920,7 +3920,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
 
   // setRuntimeAppVersion + meta save
   const metaRunner = new Function('localStorage', getMetaSrc + '\n' + saveMetaSrc + `\n
-    saveAppliedUpdatesMeta([{id:'t1', version:'1405.5.18ι'}]);
+    saveAppliedUpdatesMeta([{id:'t1', version:'1405.5.18κ'}]);
     return getAppliedUpdatesMeta();
   `);
   const meta = metaRunner(sandboxLocal);
@@ -3939,12 +3939,12 @@ test('ζ: لانچر توکار و دانگرید باید در HTML و فایل
   const runner = new Function(
     'var SIRMAN_LAUNCHER_TEMPLATES = {"Sirman_Start.bat":"ver=__SIRMAN_VERSION__"};\n'
     + 'function ensureLauncherTemplates(){ return SIRMAN_LAUNCHER_TEMPLATES; }\n'
-    + 'var APP_VERSION = "1405.5.18ι";\n'
+    + 'var APP_VERSION = "1405.5.18κ";\n'
     + 'function getLauncherVersionTag(){ return APP_VERSION; }\n'
     + buildSrc + '\n'
     + 'return buildEmbeddedLauncher("Sirman_Start.bat");'
   );
-  assertEqual(runner(), 'ver=1405.5.18ι', 'لانچر باید نسخه جاری را جایگزین کند');
+  assertEqual(runner(), 'ver=1405.5.18κ', 'لانچر باید نسخه جاری را جایگزین کند');
 
   // decode one real template from HTML and ensure placeholder exists
   const m = html.match(/SIRMAN_LAUNCHER_TEMPLATES_B64 = (\{[\s\S]*?\});/);
@@ -3982,11 +3982,11 @@ test('η/θ: خروج با بک‌آپ، نشانگر ذخیره خودکار، 
   assertContainsString(uiSrc, 'flashAutosaveDot', 'updateAutoSaveUI باید نشانگر را روشن کند');
   const fs = require('fs');
   const path = require('path');
-  const updPath = path.join(path.dirname(filePath), 'updates', 'Sirman_Update_1405.5.18ι.json');
+  const updPath = path.join(path.dirname(filePath), 'updates', 'Sirman_Update_1405.5.18κ.json');
   assertTrue(fs.existsSync(updPath), 'فایل آپدیت θ باید موجود باشد');
   const pkg = JSON.parse(fs.readFileSync(updPath, 'utf8'));
   assertEqual(pkg.magic, 'SIRMAN_UPDATE');
-  assertEqual(pkg.version, '1405.5.18ι');
+  assertEqual(pkg.version, '1405.5.18κ');
   assertTrue(Array.isArray(pkg.changelog) && pkg.changelog.some(function(c){ return String(c).indexOf('گارانتی')>=0; }), 'آپدیت θ باید changelog گارانتی داشته باشد');
   // ویژگی‌های η در خود HTML پایه θ هستند
   assertTrue(!!extractFunctionSource(html, 'exitWithBackup') && html.indexOf('flashAutosaveDot')>=0, 'رفع‌های η باید در HTML θ موجود باشند');
@@ -4876,12 +4876,35 @@ test('لانچر باید apply_sirman_update.ps1 را صدا بزند', () => {
   assertTrue(fs.existsSync(path.join(root, 'apply_sirman_update.ps1')), 'apply_sirman_update.ps1 باید موجود باشد');
   const bat = fs.readFileSync(path.join(root, 'Sirman_Start.bat'), 'utf8');
   assertContainsString(bat, 'apply_sirman_update.ps1', 'Start.bat باید اسکریپت آپدیت خودکار را صدا بزند');
-  const upd = path.join(root, 'updates', 'Sirman_Update_1405.5.18ι.json');
+  const upd = path.join(root, 'updates', 'Sirman_Update_1405.5.18κ.json');
   assertTrue(fs.existsSync(upd), 'فایل آپدیت ι باید موجود باشد');
   const pkg = JSON.parse(fs.readFileSync(upd, 'utf8'));
   assertEqual(pkg.magic, 'SIRMAN_UPDATE');
-  assertEqual(pkg.version, '1405.5.18ι');
+  assertEqual(pkg.version, '1405.5.18κ');
   assertTrue((pkg.patches||[]).some(p => p.op==='replaceAppFile' && p.content && p.content.indexOf('<!DOCTYPE html')>=0), 'آپدیت ι باید HTML کامل داشته باشد');
+});
+
+
+console.log('📋 گروه κ: منوی گارانتی+فاکتور و اسکین ویندوز');
+
+test('فاکتور و فاکتورهای ذخیره‌شده باید زیر گروه گارانتی (warr) باشند نه گروه جدا', () => {
+  assertTrue(html.indexOf('data-grp="inv"') === -1, 'گروه جداگانه inv نباید بماند');
+  const warr = html.match(/data-grp="warr"[\s\S]*?<\/div>\s*<\/div>\s*<div class="sb-group"/);
+  assertTrue(!!warr, 'بلوک گروه warr پیدا نشد');
+  assertContainsString(warr[0], 'data-page="warranty"', 'پرونده گارانتی در warr');
+  assertContainsString(warr[0], 'data-page="invoice"', 'فاکتور باید داخل warr باشد');
+  assertContainsString(warr[0], 'data-page="saved"', 'فاکتورهای ذخیره‌شده باید داخل warr باشد');
+  assertContainsString(html, 'گارانتی و خدمات فروشگاه', 'عنوان گروه باید خدمات فروشگاه را نشان دهد');
+});
+
+test('اسکین ویندوز باید در SKIN_PRESETS و CSS باشد', () => {
+  assertContainsString(html, "windows:", 'کلید windows در SKIN_PRESETS');
+  assertContainsString(html, "label:'ویندوز'", 'برچسب ویندوز');
+  assertContainsString(html, 'body.skin-windows', 'CSS اسکین ویندوز');
+  assertContainsString(html, "preferMenu:'dock'", 'ویندوز باید داک را ترجیح دهد');
+  const src = extractFunctionSource(html, 'setSkin');
+  assertContainsString(src, "preferMenu", 'setSkin باید preferMenu را اعمال کند');
+  assertContainsString(html, 'اسکین ویندوز', 'راهنمای اسکین ویندوز');
 });
 
 // نتیجه نهایی
