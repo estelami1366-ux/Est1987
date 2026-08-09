@@ -1081,12 +1081,16 @@ test('شبیه‌سازی واقعی: doAutoSave(true) باید حتی با isDi
   const safeArrSrc = extractFunctionSource(html, '_safeArr');
   const safeObjSrc = extractFunctionSource(html, '_safeObj');
   const safeStrSrc = extractFunctionSource(html, '_safeStr');
+  const safeFsSrc = extractFunctionSource(html, 'safeFsFileName');
+  const stampSrc = extractFunctionSource(html, 'fsDateStamp');
   assertTrue(fnSrc !== null && buildSrc !== null && fullBuildSrc !== null, 'توابع لازم پیدا نشدند');
+  assertTrue(safeFsSrc !== null, 'safeFsFileName برای نام امن فایل پوشه لازم است');
 
   let writtenContent = null;
+  let requestedNames = [];
   const fakeWritable = { write: async (data) => { writtenContent = data; }, close: async () => {} };
   const fakeFileHandle = { createWritable: async () => fakeWritable };
-  const fakeDirHandle = { getFileHandle: async () => fakeFileHandle };
+  const fakeDirHandle = { getFileHandle: async (name) => { requestedNames.push(name); return fakeFileHandle; } };
 
   // sandbox باید تمام متغیرهایی که _buildFullBackupData استفاده می‌کند را داشته باشد
   const sandbox = {
@@ -1095,12 +1099,13 @@ test('شبیه‌سازی واقعی: doAutoSave(true) باید حتی با isDi
     parts: [], services: [], warranties: [], sales: [], tasks: [], accounts: [],
     defectiveStock: [], warehouseDocs: [], stockMoves: [], userAuditLog: [], bgAuditLog: [], userRoles: [], loginPw: '',
     senderInfo: {}, logoSrc: '', acH: {},
-    fdate: () => '1405-04-21',
+    fdate: () => '‎۱۴۰۵/۰۵/۱۸‎',
+    clearDirty: () => {},
     localStorage: { getItem: () => null, setItem: () => {}, length: 0, key: () => null },
     updateAutoSaveUI: () => {}, addDbgEntry: () => {}
   };
   // helperها + _buildFullBackupData + buildBackupObject + doAutoSave را در context قرار بده
-  const allSrc = (safeArrSrc||'') + '\n' + (safeObjSrc||'') + '\n' + (safeStrSrc||'') + '\n' + fullBuildSrc + '\n' + buildSrc + '\nasync ' + fnSrc;
+  const allSrc = (safeArrSrc||'') + '\n' + (safeObjSrc||'') + '\n' + (safeStrSrc||'') + '\n' + (safeFsSrc||'') + '\n' + (stampSrc||'') + '\n' + fullBuildSrc + '\n' + buildSrc + '\nasync ' + fnSrc;
   const runner = new Function('ctx',
     'return (async function(){ with(ctx){ ' + allSrc + '\nreturn await doAutoSave(true); } })();');
   await runner(sandbox);
@@ -1108,6 +1113,8 @@ test('شبیه‌سازی واقعی: doAutoSave(true) باید حتی با isDi
   assertTrue(writtenContent !== null, 'با force=true، doAutoSave باید واقعاً محتوای فایل را در پوشه انتخاب‌شده بنویسد — این دقیقاً همان باگی بود که باعث می‌شد بعد از انتخاب پوشه هیچ فایلی پدید نیاید');
   const parsed = JSON.parse(writtenContent);
   assertEqual(parsed.invoices.length, 1, 'محتوای نوشته‌شده باید همان داده واقعی (مثلاً فاکتورها) را داشته باشد، نه خالی');
+  assertTrue(requestedNames.some(n => n === 'sirman_autosave.json'), 'باید sirman_autosave.json با نام ASCII نوشته شود، نه نام فارسی/LRM');
+  assertTrue(requestedNames.every(n => /^[A-Za-z0-9._-]+$/.test(n)), 'هیچ نام فایل غیرمجازی به getFileHandle داده نشود: '+requestedNames.join(','));
 });
 
 test('دکمه «ذخیره فوری همین الان» باید doAutoSave را با force=true صدا بزند، وگرنه پیام موفقیت دروغ نشان می‌دهد', () => {
@@ -3816,14 +3823,36 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۱۸α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۱۸β باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.18α', 'نسخه meta باید 1405.5.18α باشد');
+  assertEqual(metaVer, '1405.5.18β', 'نسخه meta باید 1405.5.18β باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/18', 'app-date باید 1405/05/18 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸α', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸α را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸β', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸β را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.18α'", 'فیلد version بک‌آپ باید 1405.5.18α باشد');
+  assertContainsString(buildSrc, "version: '1405.5.18β'", 'فیلد version بک‌آپ باید 1405.5.18β باشد');
+});
+
+
+test('رفع Name is not allowed: safeFsFileName باید ارقام فارسی و LRM را از نام فایل حذف کند', () => {
+  assertContainsString(html, 'function safeFsFileName(', 'safeFsFileName پیدا نشد');
+  assertContainsString(html, 'function fsDateStamp(', 'fsDateStamp پیدا نشد');
+  const safeSrc = extractFunctionSource(html, 'safeFsFileName');
+  const stampSrc = extractFunctionSource(html, 'fsDateStamp');
+  const doSrc = extractFunctionSource(html, 'doAutoSave');
+  assertContainsString(doSrc, 'safeFsFileName(', 'doAutoSave باید از safeFsFileName استفاده کند');
+  assertTrue(doSrc.indexOf("fdate().replace")===-1, 'doAutoSave نباید دیگر از fdate() برای نام فایل استفاده کند');
+  const runner = new Function(safeSrc + `;
+    var a = safeFsFileName('‎۱۴۰۵/۰۵/۱۸‎');
+    var b = safeFsFileName('Laegh_AutoSave_‎۱۴۰۵-۰۵-۱۸‎.json');
+    var c = safeFsFileName('sirman_autosave.json');
+    return [a,b,c];
+  `);
+  const [a,b,c] = runner();
+  assertEqual(a, '1405-05-18', 'باید ارقام لاتین و بدون LRM باشد: '+a);
+  assertEqual(b, 'Laegh_AutoSave_1405-05-18.json', 'نام تاریخ‌دار باید ASCII امن باشد: '+b);
+  assertEqual(c, 'sirman_autosave.json', 'نام اصلی باید دست‌نخورده بماند');
+  assertTrue(/^[A-Za-z0-9._-]+$/.test(a) && /^[A-Za-z0-9._-]+$/.test(b), 'فقط کاراکترهای مجاز نام فایل');
 });
 
 test('قانون ۹: لانچر BAT/PS1 باید با نسخه meta همگام باشد', () => {
@@ -4505,7 +4534,7 @@ test('viewer سراسری باید برای کالا، لوگو و پس‌زمی
 });
 
 console.log('');
-console.log('📋 گروه ۳۹: ضدثبت‌تکراری، انبار داغی، تاریخچه پستی، شبکه اجتماعی (۱۴۰۵.۵.۱۸α)');
+console.log('📋 گروه ۳۹: ضدثبت‌تکراری، انبار داغی، تاریخچه پستی، شبکه اجتماعی (۱۴۰۵.۵.۱۸β)');
 
 test('قفل ضدثبت‌تکراری withSaveLock باید روی گارانتی/فاکتور/داغی/دفترچه باشد', () => {
   assertContainsString(html, 'function withSaveLock(', 'withSaveLock پیدا نشد');
