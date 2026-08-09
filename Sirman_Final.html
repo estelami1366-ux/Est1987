@@ -2,8 +2,8 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17δ">
-<meta name="app-date" content="1405/05/17">
+<meta name="app-version" content="1405.5.18α">
+<meta name="app-date" content="1405/05/18">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
 <title>سیرمان — سیستم خدمات پس از فروش</title>
@@ -946,7 +946,7 @@ body.has-bg-image::after{
 }
 body.has-bg-image.theme-dark::after{background:rgba(10,12,15,var(--bg-overlay,0.55));}
 
-/* ══════ اسکین قوی / Skin Pack (v1405.5.17δ) ══════ */
+/* ══════ اسکین قوی / Skin Pack (v1405.5.18α) ══════ */
 .skin-card{width:148px;border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--card);transition:.18s;text-align:right;}
 .skin-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,40,55,.10);}
 .skin-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 25%,transparent);}
@@ -1561,7 +1561,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۱۷δ — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۱۸α — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-sm" onclick="promptExitBackup()" style="width:100%;margin-top:6px">🚪 خروج / بستن برنامه</button>
 </div>
 
@@ -1956,6 +1956,17 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 </div>
 
 <div id="postal-preview" style="margin-top:16px"></div>
+
+<div class="card no-print" style="margin-top:14px">
+  <div class="card-title">📜 تاریخچه برچسب‌های پستی</div>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.7">هر چاپ برچسب، با تاریخ اینجا ثبت می‌شود (مثلاً آقای جعفری — ۳ مرداد). اگر بسته اشتباه رفت، از اینجا چک کنید.</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+    <input class="s-in" id="postal-hist-q" placeholder="جستجو: نام، تلفن، آدرس، تاریخ..." oninput="renderPostalHistory()" style="max-width:280px">
+    <button class="btn btn-sm" type="button" onclick="renderPostalHistory()">بروزرسانی</button>
+    <button class="btn btn-sm btn-r" type="button" onclick="clearPostalHistory()">پاک کردن تاریخچه</button>
+  </div>
+  <div id="postal-hist-list" style="max-height:320px;overflow:auto"></div>
+</div>
 </div></div>
 
 
@@ -2050,7 +2061,28 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
   <div id="daqi-list"></div>
 </div>
 <div style="font-size:11px;color:var(--text2);margin-top:10px;padding:8px;background:var(--blue-l);border-radius:6px">
-  💡 <b>داغی چیست؟</b> وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستید، آن‌ها باید رسید امضا‌شده (داغی) را برگردانند. در این صفحه پیگیری می‌کنید که چه کسانی داغی معوقه دارند. می‌توانید از دفترچه تلفن نمایندگی را انتخاب کنید تا تجمیع شود.
+  
+<div class="card" style="margin-top:16px">
+  <div class="card-title">🏭 انبار داغی (بر اساس شرکت سازنده)</div>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.7">قطعات داغی دریافتی از شرکت‌هایی مثل سرایش را اینجا با نام شرکت نگه دارید. هنگام ثبت داغی برای نمایندگی، از همین موجودی کسر و حواله خروجی صادر می‌شود.</p>
+  <div class="g4" style="margin-bottom:8px">
+    <div class="f"><label>شرکت سازنده</label><input id="daqi-wh-in-man" placeholder="سرایش"></div>
+    <div class="f"><label>کد</label><input id="daqi-wh-in-code" placeholder="کد قطعه"></div>
+    <div class="f"><label>نام</label><input id="daqi-wh-in-name" placeholder="موتور پنکه"></div>
+    <div class="f"><label>تعداد</label><input id="daqi-wh-in-qty" type="number" min="1" value="1"></div>
+  </div>
+  <div class="f" style="margin-bottom:8px"><label>یادداشت</label><input id="daqi-wh-in-note" placeholder="اختیاری"></div>
+  <button class="btn btn-sm btn-p" type="button" onclick="submitDaqiWarehouseIn()">➕ ورود به انبار داغی</button>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 8px">
+    <select id="daqi-wh-man-f" onchange="this.dataset.filled='';renderDaqiWarehouse()" style="padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px"></select>
+    <input class="s-in" id="daqi-wh-q" placeholder="جستجو در انبار داغی..." oninput="renderDaqiWarehouse()" style="max-width:220px">
+    <button class="btn btn-sm" type="button" onclick="renderDaqiWarehouse();renderDaqiVouchers()">بروزرسانی</button>
+  </div>
+  <div id="daqi-wh-list"></div>
+  <div class="card-title" style="margin-top:14px">📤 حواله‌های خروجی داغی</div>
+  <div id="daqi-voucher-list"></div>
+</div>
+💡 <b>داغی چیست؟</b> وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستید، آن‌ها باید رسید امضا‌شده (داغی) را برگردانند. در این صفحه پیگیری می‌کنید که چه کسانی داغی معوقه دارند. می‌توانید از دفترچه تلفن نمایندگی را انتخاب کنید تا تجمیع شود.
 </div>
 </div>
 </div>
@@ -2346,13 +2378,13 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
   <div id="wsoc-list"></div>
 </div>
 <div class="card">
-  <div class="card-title">📦 دستگاه‌ها
+  <div class="card-title">① معرفی دستگاه‌ها (مدل، رنگ، گارانتی)
     <button class="btn btn-sm btn-p" type="button" onclick="addWDev()" data-tip="افزودن دستگاه دیگر به همین پرونده">+ دستگاه</button>
   </div>
   <div id="w-devs"></div>
 </div>
 <div class="card">
-  <div class="card-title">⚙️ وضعیت اولیه خدمات</div>
+  <div class="card-title">② اولین تماس / عکس‌العمل ما</div>
   <div class="f"><label>اقدام اولیه *</label>
     <select id="winit" onchange="onWInitChange()">
       <option value="">— انتخاب کنید —</option>
@@ -2374,13 +2406,13 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 </div>
 <div class="card">
   <div class="card-title">📎 اسناد مشتری</div>
-  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">عکس فاکتور، کارت گارانتی یا هر سند دیگه‌ای</p>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">می‌توانید چند مدرک هم‌زمان انتخاب کنید (مثلاً فاکتور + کارت گارانتی)</p>
   <button class="btn btn-sm btn-p" onclick="document.getElementById('wdoc-inp').click()">📷 انتخاب عکس/سند</button>
   <input type="file" id="wdoc-inp" accept="image/*" multiple style="display:none" onchange="addWDocs(this)">
   <div id="wdocs-prev" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
 </div>
 <div class="card">
-  <div class="card-title">📋 ارجاع</div>
+  <div class="card-title">③ ارجاع (نمایندگی / شرکت / داخلی)</div>
   <div class="g3">
     <div class="f"><label>ارجاع به</label>
       <select id="wref" onchange="toggleCompanyReport(this.value)">
@@ -2399,6 +2431,26 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
     <button class="btn btn-sm btn-p" type="button" onclick="notifyWarrantyReferral()">📩 اطلاع به مشتری (پیامک / واتساپ / کپی)</button>
     <span style="font-size:11px;color:var(--text2);margin-right:8px">یک پیام آماده با تاریخ و ساعت ارجاع برای مشتری ساخته می‌شود.</span>
   </div>
+</div>
+
+
+<div class="card">
+  <div class="card-title">📦 تحویل به مشتری (ارجاع نهایی)</div>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">تاریخ و وضعیت تحویل دستگاه تعمیرشده به مشتری</p>
+  <div class="g3">
+    <div class="f"><label>تاریخ تحویل به مشتری</label><input id="w-deliver-date" readonly onclick="openDatePicker(this)" placeholder="تاریخ"></div>
+    <div class="f"><label>نحوه تحویل</label>
+      <select id="w-deliver-via">
+        <option value="">—</option>
+        <option value="in_person">حضوری</option>
+        <option value="agency">از طریق نمایندگی</option>
+        <option value="post">پست / پیک</option>
+        <option value="other">سایر</option>
+      </select>
+    </div>
+    <div class="f"><label>گیرنده</label><input id="w-deliver-by" placeholder="نام تحویل‌گیرنده"></div>
+  </div>
+  <div class="f" style="margin-top:8px"><label>یادداشت تحویل</label><input id="w-deliver-note" placeholder="اختیاری"></div>
 </div>
 
 <!-- گزارش داخلی شرکت — فقط وقتی ارجاع به شرکت مرکزی است نمایان می‌شود -->
@@ -3248,7 +3300,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
         • اگر فایل HTML را با دوبار کلیک (یعنی آدرس آن با <code>file://</code> شروع می‌شود) باز کرده‌اید، ممکن است این قابلیت محدودیت داشته باشد — در این حالت از دکمه «دانلود دستی بک‌اپ» بالا استفاده کنید<br>
         • فایل با نام <code>Laegh_AutoSave.json</code> دائماً بروزرسانی می‌شود<br>
         • علاوه بر آن، یک نسخه روزانه با تاریخ هم نگه داشته می‌شود<br>
-        • اگر پوشه انتخاب نشود، نسخه پشتیبان در حافظه مرورگر نگه داشته می‌شود (کمتر امن)
+        • اگر پوشه انتخاب نشود، داده فقط در حافظه مرورگر می‌ماند (ناامن). حتماً پوشه ذخیره را انتخاب کنید تا فایل و مدارک در همان پوشه ذخیره شوند
       </div>
     </div>
   </div>
@@ -3631,6 +3683,8 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
     <li><b>🖨 چاپ طلب داغی:</b> با دکمه‌ی «🖨 چاپ طلب داغی»، یک گزارش فقط از داغی‌های معوقه (به تفکیک نمایندگی) چاپ می‌شود.</li>
     <li><b>🔍 جستجو و فیلتر:</b> می‌توانید بر اساس نام نمایندگی، وضعیت (معوقه/دریافت/لغو)، یا متن جستجو کنید.</li>
     <li><b>🔗 پیوند با فاکتور:</b> وقتی در فاکتور دکمه‌ی «📋 داغی» را می‌زنید، داغی با شماره همان فاکتور پیوند می‌خورد.</li>
+    <li><b>🏭 انبار داغی:</b> قطعات دریافتی از شرکت‌هایی مثل سرایش را با نام شرکت سازنده در «انبار داغی» نگه دارید. هنگام ثبت داغی برای نمایندگی، از همین موجودی کسر می‌شود و <b>حواله خروجی</b> ساخته می‌شود تا بعداً مابه‌ازا بگیرید.</li>
+    <li><b>⚠️ کسر موجودی:</b> در فرم داغی، منبع کسر را انتخاب کنید (انبار داغی / انبار کالا-قطعات / بدون کسر). بدون شرکت سازنده، کسر از انبار داغی ممکن نیست.</li>
   </ul>
 </div>
 
@@ -3657,6 +3711,16 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 </div>
 
 <div class="help-cat-header">🛡 پرونده گارانتی</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>ساختار پرونده و مدارک گارانتی</span><span class="help-chev">▾</span></div>
+  <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>① معرفی دستگاه:</b> مدل، رنگ، سریال، تاریخ فاکتور خرید، مدت ضمانت (ماه) و انقضای خودکار. کار نمایندگی و هزینه در بخش جداست.</li>
+    <li><b>📎 چند مدرک:</b> می‌توانید هم‌زمان چند عکس (فاکتور + کارت گارانتی) برای هر دستگاه و برای پرونده انتخاب کنید.</li>
+    <li><b>② اولین تماس:</b> اقدام اولیه (فعال‌سازی، مشاوره، ارجاع نمایندگی/شرکت).</li>
+    <li><b>③ ارجاع و تحویل:</b> نمایندگی/شرکت، و در انتها تاریخ تحویل دستگاه به مشتری.</li>
+    <li><b>🔒 ثبت تکراری:</b> دکمه ثبت قفل ضدتکرار دارد؛ بعد از ثبت موفق به لیست برمی‌گردید. اگر چندبار بزنید فقط یک پرونده ساخته می‌شود.</li>
+  </ul>
+</div>
 <div class="card help-card help-collapsed">
   <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>اکسل در گارانتی (ورود / خروجی / نمونه)</span><span class="help-chev">▾</span></div>
   <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
@@ -3790,7 +3854,10 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 <div class="help-cat-header">📇 دفترچه تلفن</div>
 <div class="card help-card help-collapsed">
   <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>راهنمای بخش دفترچه تلفن</span><span class="help-chev">▾</span></div>
-  <div style="font-size:13px;color:var(--text2);line-height:2">🚧 راهنمای این بخش به‌زودی تکمیل می‌شود.</div>
+  <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>📱 شبکه‌های اجتماعی:</b> از لیست (ایتا، روبیکا، بله، واتساپ، تلگرام، اینستاگرام) یکی را انتخاب کنید، آیدی را وارد کنید و «افزودن شبکه» بزنید. برای شبکهٔ ناشناس، گزینه «سایر (دستی)» را بزنید و نام شبکه را خودتان بنویسید.</li>
+    <li><b>📮 برچسب پستی:</b> از فرم مخاطب می‌توانید مستقیم برچسب چاپ کنید. تاریخچهٔ چاپ‌ها در صفحهٔ برچسب پستی با تاریخ ثبت می‌شود.</li>
+  </ul>
 </div>
 
 <div class="help-cat-header">🎨 ظاهر و اسکین</div>
@@ -4019,7 +4086,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۱۷δ
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۱۸α
 </div>
 </div>
 
@@ -4318,14 +4385,25 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
   <div class="f" style="margin-bottom:8px"><label>کدپستی</label><input id="pbm-zip" placeholder="کدپستی"></div>
   <div id="pbm-phones" style="margin-bottom:8px"></div>
   <button class="btn btn-sm" onclick="addPBPhone()" style="margin-bottom:10px">+ افزودن شماره</button>
-  <div class="g2" style="margin-bottom:8px">
-    <div class="f"><label>ایتا</label><input id="pbm-ita" placeholder="@username"></div>
-    <div class="f"><label>تلگرام</label><input id="pbm-tg" placeholder="@username"></div>
+  <div style="font-size:13px;font-weight:700;margin:8px 0 6px">📱 شبکه‌های اجتماعی</div>
+  <div class="g3" style="margin-bottom:8px">
+    <div class="f"><label>انتخاب شبکه</label>
+      <select id="pbm-soc-type" onchange="var w=document.getElementById('pbm-soc-custom-wrap'); if(w) w.style.display=(this.value==='custom'?'':'none')">
+        <option value="eitaa">ایتا</option>
+        <option value="rubika">روبیکا</option>
+        <option value="bale">بله</option>
+        <option value="whatsapp">واتساپ</option>
+        <option value="telegram">تلگرام</option>
+        <option value="instagram">اینستاگرام</option>
+        <option value="custom">＋ سایر (دستی)</option>
+      </select>
+    </div>
+    <div class="f"><label>آیدی / شماره</label><input id="pbm-soc-val" placeholder="@id یا شماره"></div>
+    <div class="f" id="pbm-soc-custom-wrap" style="display:none"><label>نام شبکه</label><input id="pbm-soc-custom" placeholder="مثلاً سروش"></div>
   </div>
-  <div class="g2" style="margin-bottom:8px">
-    <div class="f"><label>واتساپ</label><input id="pbm-wa" placeholder="شماره"></div>
-    <div class="f"><label>اینستاگرام</label><input id="pbm-ig" placeholder="@username"></div>
-  </div>
+  <button type="button" class="btn btn-sm btn-p" onclick="addPBSocial()" style="margin-bottom:8px">+ افزودن شبکه</button>
+  <div id="pbm-soc-list" style="margin-bottom:10px"></div>
+  <input type="hidden" id="pbm-ita"><input type="hidden" id="pbm-tg"><input type="hidden" id="pbm-wa"><input type="hidden" id="pbm-ig">
   <div class="f" style="margin-bottom:10px"><label>یادداشت</label><textarea id="pbm-note" rows="2"></textarea></div>
   <div class="btn-bar">
     <button class="btn btn-p" onclick="savePBContact()">💾 ذخیره</button>
@@ -4361,7 +4439,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
     شما تغییراتی دارید که هنوز در فایل بک‌آپ ذخیره نشده‌اند.
     <br>قبل از بستن برنامه، یک فایل بک‌آپ بگیرید تا داده‌ها از دست نروند.
     <div style="margin-top:10px;padding:8px 10px;background:#fff3cd;border:1px solid #ffe08a;border-radius:7px;font-size:11px;color:#8a6d3b">
-      ⚠️ توجه: داده‌ها در حافظه‌ی مرورگر (کش کروم) هستند. اگر کش پاک شود، بدون فایل بک‌آپ داده‌ها از دست می‌روند.
+      ⚠️ توجه: تا وقتی «پوشه ذخیره خودکار» را انتخاب نکرده‌اید، داده‌ها عمدتاً در حافظه مرورگر هستند. با انتخاب پوشه، فایل sirman_autosave.json و مدارک در همان پوشه نوشته می‌شوند و وابستگی به کش کمتر می‌شود.
     </div>
   </div>
   <div class="btn-bar" style="flex-direction:column;gap:8px">
@@ -4583,6 +4661,17 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
     <div class="f"><label>تاریخ ارسال</label><input id="daqi-sent-date" readonly onclick="openDatePicker(this)" placeholder="تاریخ"></div>
     <div class="f"><label>مهلت دریافت (اختیاری)</label><input id="daqi-due-date" readonly onclick="openDatePicker(this)" placeholder="تاریخ"></div>
   </div>
+  <div class="g2" style="margin-bottom:10px">
+    <div class="f"><label>شرکت سازنده (انبار داغی) *</label><input id="daqi-manufacturer" list="daqi-man-list" placeholder="مثلاً سرایش"></div>
+    <div class="f"><label>کسر از موجودی</label>
+      <select id="daqi-stock-source">
+        <option value="daqi_wh">انبار داغی (پیشنهادی)</option>
+        <option value="general">انبار کالا/قطعات</option>
+        <option value="none">بدون کسر (فقط ثبت پیگیری)</option>
+      </select>
+    </div>
+  </div>
+  <datalist id="daqi-man-list"></datalist>
   <div class="f" style="margin-bottom:10px">
     <label>اقلام ارسالی (هر خط: کد | نام | تعداد)</label>
     <textarea id="daqi-items-text" rows="4" placeholder="P-1001 | موتور خردکن | 2&#10;P-1002 | تیغ | 5"></textarea>
@@ -4596,8 +4685,50 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 
 <script>
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.17δ';
-var APP_DATE = '1405/05/17';
+var APP_VERSION = '1405.5.18α';
+var APP_DATE = '1405/05/18';
+// قفل ضدثبت‌تکراری — جلوگیری از چند رکورد با چند کلیک سریع
+window._saveLocks = window._saveLocks || {};
+
+// ذخیره امن: پوشه خودکار + آینه IndexedDB + هشدار اگر پوشه انتخاب نشده
+function safePersist(reason){
+  try{
+    if(typeof doAutoSave==='function'){
+      try{ doAutoSave(true); }catch(_e){}
+    }
+    if(typeof mirrorBackupToIDB==='function' && typeof _buildFullBackupData==='function'){
+      try{ mirrorBackupToIDB(_buildFullBackupData()); }catch(_e2){}
+    }
+    // اگر پوشه ذخیره انتخاب نشده، یک‌بار در هر نشست هشدار بده
+    if(!window._warnedNoFolder && typeof autoSaveDirHandle!=='undefined' && !autoSaveDirHandle){
+      window._warnedNoFolder = true;
+      try{
+        ntf('برای امنیت داده، از تنظیمات → پوشه ذخیره خودکار را انتخاب کنید','err');
+      }catch(_e3){}
+    }
+  }catch(e){}
+}
+
+
+function withSaveLock(key, fn){
+  if(window._saveLocks[key]){ ntf('در حال ذخیره… لطفاً صبر کنید','err'); return; }
+  window._saveLocks[key] = true;
+  try {
+    var r = fn();
+    if(r && typeof r.then === 'function'){
+      return r.then(function(v){ window._saveLocks[key]=false; return v; },
+                    function(e){ window._saveLocks[key]=false; throw e; });
+    }
+    return r;
+  } catch(e){
+    window._saveLocks[key]=false;
+    throw e;
+  } finally {
+    // برای توابع sync، قفل را بعد از یک تیک آزاد کن تا کلیک دوم در همان لحظه رد شود
+    setTimeout(function(){ window._saveLocks[key]=false; }, 800);
+  }
+}
+
 var BRAND_DEFAULTS = {
   nameFa: 'سیرمان',
   nameEn: 'Sirman',
@@ -4687,7 +4818,7 @@ function _safeStr(s){ return (s==null)?'':String(s); }
 
 function _buildFullBackupData(){
   var data = {
-    version: '1405.5.17δ',
+    version: '1405.5.18α',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -4706,7 +4837,10 @@ function _buildFullBackupData(){
     warehouseDocs: _safeArr(warehouseDocs),
     stockMoves: _safeArr(stockMoves),
     warehouses: _safeArr(typeof warehouses!=='undefined'?warehouses:[]), // فاز ۲ — انبارهای نام‌گذاری‌شده
-    daqi: _safeArr(typeof daqi!=='undefined'?daqi:[]), // داغی (پیگیری رسید نمایندگی)
+    daqi: _safeArr(typeof daqi!=='undefined'?daqi:[]), // داغی (پیگیری رسید نمایندگی),
+    daqiWarehouse: (typeof daqiWarehouse!=='undefined'?daqiWarehouse:[]),
+    daqiVouchers: (typeof daqiVouchers!=='undefined'?daqiVouchers:[]),
+    postalHistory: (typeof postalHistory!=='undefined'?postalHistory:[]),
     // ── لاگ‌ها و امنیت ──
     userAuditLog: _safeArr(userAuditLog),
     bgAuditLog: _safeArr(bgAuditLog),
@@ -4768,9 +4902,12 @@ function _buildFullBackupData(){
       accounts: _safeArr(accounts).length,
       defectiveStock: _safeArr(defectiveStock).length,
       warehouses: _safeArr(typeof warehouses!=='undefined'?warehouses:[]).length,
-      daqi: _safeArr(typeof daqi!=='undefined'?daqi:[]).length
+      daqi: _safeArr(typeof daqi!=='undefined'?daqi:[]).length,
+      daqiWarehouse: _safeArr(typeof daqiWarehouse!=='undefined'?daqiWarehouse:[]).length,
+      daqiVouchers: _safeArr(typeof daqiVouchers!=='undefined'?daqiVouchers:[]).length,
+      postalHistory: _safeArr(typeof postalHistory!=='undefined'?postalHistory:[]).length
     },
-    sections: ['invoices','products','inventory','phonebook','parts','services','warranties','sales','tasks','accounts','defectiveStock','userAuditLog','bgAuditLog','userRoles','loginPw','printSettings','company','senderInfo','logoSrc','acH','appearance','sms','tz','aiKeys','warehouses','daqi']
+    sections: ['invoices','products','inventory','phonebook','parts','services','warranties','sales','tasks','accounts','defectiveStock','userAuditLog','bgAuditLog','userRoles','loginPw','printSettings','company','senderInfo','logoSrc','acH','appearance','sms','tz','aiKeys','warehouses','daqi','daqiWarehouse','daqiVouchers','postalHistory']
   };
   return data;
 }
@@ -5616,12 +5753,16 @@ function _printTable(title, headers, rows){
   var body=rows.map(function(r){ return '<tr>'+r.map(function(c){return '<td>'+(c==null?'':String(c))+'</td>';}).join('')+'</tr>'; }).join('');
   var brandEn='Sirman';
   try{ if(typeof getBrand==='function'){ brandEn=getBrand().nameEn||brandEn; } }catch(_e){}
-  var w=window.open('','_blank');
-  w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>'+title+'</title>'
+  var htmlContent='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>'+title+'</title>'
     +'<style>body{font-family:Tahoma;direction:rtl;padding:10px}h3{margin:0 0 6px}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:.5px solid #888;padding:4px 6px;text-align:right}th{background:#eee}tr:nth-child(even) td{background:#fafafa}@page{size:A4 landscape;margin:8mm}.meta{font-size:10px;color:#666;margin-bottom:8px}.print-sig-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:16px;padding-top:10px;border-top:1px solid #ccc;text-align:center;font-size:10px}.print-sig-box{min-height:52px;border-top:1px dashed #888;padding-top:6px;margin-top:28px}</style></head><body>'
     +'<h3>'+title+' — '+brandEn+'</h3><div class="meta">تعداد: '+rows.length+' — تاریخ چاپ: '+fdt()+'</div>'
-    +'<table><thead><tr>'+th+'</tr></thead><tbody>'+body+'</tbody></table>'+sig+'</body></html>');
-  w.document.close(); w.focus(); w.print();
+    +'<table><thead><tr>'+th+'</tr></thead><tbody>'+body+'</tbody></table>'+sig+'</body></html>';
+  if(typeof openFreshPrintWindow==='function') openFreshPrintWindow(htmlContent);
+  else {
+    var w=window.open('','_blank');
+    if(!w){ ntf('مرورگر پنجره چاپ را مسدود کرد','err'); return; }
+    w.document.open(); w.document.write(htmlContent); w.document.close(); w.focus(); w.print();
+  }
 }
 function printSavedList(){
   var sel=(typeof getSelIdx==='function')?getSelIdx():[];
@@ -6107,54 +6248,53 @@ function getData(){
 }
 
 function closeInv(){
-  // کسر از انبار کالا — برای هر دستگاهی که code دارد، inventory[code].qty را یکی کم کن
-  var d = getData();
-  if(!d.seller){ntf('نام فروشنده را وارد کنید','err');return;}
-  if(!d.items.length){ntf('حداقل یک دستگاه اضافه کنید','err');return;}
-  var stockChanged = false;
-  var swapCount = 0; // شمارش دستگاه‌های تعویض‌شده (فاز ۱ — ورژن ۱۰.۵.۱۸)
-  d.items.forEach(function(it){
-    // 🔑 فاز ۱: اگر دستگاه «تعویض شد» است، دستگاه خراب را به انبار معیوب منتقل کن
-    if(it.swapped && typeof addDefectiveFromInvoice==='function'){
-      addDefectiveFromInvoice(d, it);
-      swapCount++;
+  return withSaveLock('closeInv', function(){
+    var d = getData();
+    if(!d.seller){ntf('نام فروشنده را وارد کنید','err');return;}
+    if(!d.items.length){ntf('حداقل یک دستگاه اضافه کنید','err');return;}
+    // اگر همین فاکتور قبلاً تکمیل شده، دوباره کسر انبار نکن
+    if(d.status==='closed' || invStatus==='closed'){
+      ntf('این فاکتور قبلاً تکمیل شده','err'); return;
     }
-    if(it.code && typeof inventory!=='undefined' && inventory[it.code]){
-      inventory[it.code].qty = Math.max(0, (inventory[it.code].qty||0) - 1);
-      stockChanged = true;
-      // ثبت حرکت انبار — برای دستگاه تعویض‌شده عنوان متفاوت
-      if(typeof _applyStockMovement==='function'){
-        var outNote = it.swapped ? ('تعویض در فاکتور '+d.num) : d.num;
-        _applyStockMovement('out', it.code, it.model||'', 1, 'invoice', outNote);
+    var stockChanged = false;
+    var swapCount = 0;
+    d.items.forEach(function(it){
+      if(it.swapped && typeof addDefectiveFromInvoice==='function'){
+        addDefectiveFromInvoice(d, it);
+        swapCount++;
       }
+      if(it.code && typeof inventory!=='undefined' && inventory[it.code]){
+        inventory[it.code].qty = Math.max(0, (inventory[it.code].qty||0) - 1);
+        stockChanged = true;
+        if(typeof _applyStockMovement==='function'){
+          var outNote = it.swapped ? ('تعویض در فاکتور '+d.num) : d.num;
+          _applyStockMovement('out', it.code, it.model||'', 1, 'invoice', outNote);
+        }
+      }
+    });
+    invStatus='closed';
+    d.status='closed';
+    d.savedAt=fdt();
+    if(editingInvIdx>=0 && invoices[editingInvIdx]){
+      invoices[editingInvIdx]=d;
+      auditUser('تکمیل/ویرایش فاکتور', d.num+' — '+d.seller);
+    } else {
+      invoices.push(d); invCtr++;
+      editingInvIdx = invoices.length - 1;
+      auditUser('تکمیل فاکتور', d.num+' — '+d.seller);
     }
+    sv();
+    if(typeof safePersist==='function') safePersist('invoice');
+    document.getElementById('inv-st').className='badge badge-closed';
+    document.getElementById('inv-st').textContent='✓ تکمیل';
+    document.getElementById('btn-close').style.display='none';
+    ntf('فاکتور تکمیل شد' + (stockChanged?' — موجودی انبار به‌روز شد':'') + (swapCount>0?(' — '+swapCount+' تعویض به انبار معیوب'):''));
+    var total = d.tF || 0;
+    if(total > 0 && typeof accounts!=='undefined' && accounts.length > 0){
+      promptDepositPick(total, 'فاکتور '+d.num+' — '+(d.seller||''), d.num, 'invoice');
+    }
+    if(typeof emit==='function') emit('invoice:closed', {id:d.num});
   });
-  // ⚠️ رفع باگ حیاتی: قبلاً وضعیت فقط در متغیر موقت invStatus ست می‌شد و در آرایه invoices ذخیره نمی‌شد،
-  // در نتیجه فاکتور در صفحه‌ی «ذخیره‌شده‌ها» هرگز به‌عنوان «تکمیل» نمایش داده نمی‌شد.
-  invStatus='closed';
-  d.status='closed';
-  d.savedAt=fdt();
-  if(editingInvIdx>=0 && invoices[editingInvIdx]){
-    // حالت ویرایش: همان فاکتور را به‌روزرسانی کن (نه افزودن فاکتور جدید)
-    invoices[editingInvIdx]=d;
-    auditUser('تکمیل/ویرایش فاکتور', d.num+' — '+d.seller);
-  } else {
-    invoices.push(d); invCtr++;
-    auditUser('تکمیل فاکتور', d.num+' — '+d.seller);
-  }
-  sv();  // 🔑 حتماً باید sv() صدا زده شود تا تغییرات در localStorage ذخیره شود
-  document.getElementById('inv-st').className='badge badge-closed';
-  document.getElementById('inv-st').textContent='✓ تکمیل';
-  document.getElementById('btn-close').style.display='none';
-  ntf('فاکتور تکمیل شد' + (stockChanged?' — موجودی انبار به‌روز شد':'') + (swapCount>0?(' — '+swapCount+' تعویض به انبار معیوب'):''));
-  // واریز اختیاری به حساب — اگر مبلغ > 0 و حسابی موجود باشد
-  var total = d.tF || 0;
-  if(total > 0 && typeof accounts!=='undefined' && accounts.length > 0){
-    promptDepositPick(total, 'فاکتور '+d.num+' — '+(d.seller||''), d.num, 'invoice');
-  }
-  if(typeof emit==='function') emit('invoice:closed', {id:d.num});
-  // پایان حالت ویرایش
-  editingInvIdx=-1;
 }
 
 // مودال انتخاب حساب برای واریز (مشترک برای فاکتور و گارانتی)
@@ -6180,6 +6320,7 @@ function promptDepositPick(amount, subject, refId, refType){
 }
 
 function saveInv(){
+  return withSaveLock('saveInv', function(){
   const d=getData();
   if(!d.seller){ntf('نام فروشنده را وارد کنید','err');return;}
   if(!d.items.length){ntf('حداقل یک دستگاه اضافه کنید','err');return;}
@@ -6196,9 +6337,11 @@ function saveInv(){
     ntf('فاکتور '+d.num+' ذخیره شد');
   }
   sv();
+  if(typeof safePersist==='function') safePersist('invoice');
   if(typeof emit==='function') emit('invoice:saved', {id:d.num, seller:d.seller});
   // پاک کردن فرم برای فاکتور جدید
   clearInv();
+  });
 }
 function clearInv(){
   ['inv-seller','inv-date','inv-phone','inv-notes'].forEach(id=>document.getElementById(id).value='');
@@ -6215,6 +6358,19 @@ function clearInv(){
 }
 
 // ─── PRINT / EXPORT ────────────────────────────────────────────────────────────
+function openFreshPrintWindow(htmlContent){
+  try{
+    var w = window.open('', '_blank');
+    if(!w){ ntf('مرورگر پنجره چاپ را مسدود کرد — اجازه Popup بدهید','err'); return null; }
+    w.document.open();
+    w.document.write(htmlContent);
+    w.document.close();
+    w.focus();
+    setTimeout(function(){ try{ w.print(); }catch(_e){} }, 350);
+    return w;
+  }catch(e){ ntf('خطا در باز کردن پنجره چاپ','err'); return null; }
+}
+
 function buildPH(list){
   return list.map((d,pi)=>{
     const pg=pi<list.length-1?'page-break-after:always':'';
@@ -6240,9 +6396,9 @@ function buildPH(list){
 }
 
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
-const w=window.open('','_blank'); w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17δ">
-<style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`); w.document.close(); w.focus(); w.print(); w.close();}
+openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+<meta name="app-version" content="1405.5.18α">
+<style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
 function expExcel(){
@@ -6258,8 +6414,8 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17δ">
-<meta name="app-date" content="1405/05/17"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
+<meta name="app-version" content="1405.5.18α">
+<meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
 
@@ -6317,9 +6473,9 @@ function selAll(){document.querySelectorAll('.rchk').forEach(c=>c.checked=true);
 function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked')).map(c=>parseInt(c.dataset.i));}
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
-function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);const w=window.open('','_blank');w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17δ">
-<meta name="app-date" content="1405/05/17"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);w.document.close();w.focus();w.print();w.close();}
+function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+<meta name="app-version" content="1405.5.18α">
+<meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
   const wb=XLSX.utils.book_new();
@@ -6337,13 +6493,13 @@ function viewInv(idx){
   document.getElementById('det-acts').innerHTML=`<button class="btn btn-p" onclick="loadInv(${idx});closeMod('det-modal')">✏ ویرایش</button><button class="btn btn-o" onclick="expExcelSv(${idx})">📊 Excel</button><button class="btn btn-o" onclick="expWordSv(${idx})">📄 Word</button><button class="btn" onclick="printSvSingle(${idx})">🖨 چاپ</button><button class="btn" onclick="shareInv(${idx})">📤 اشتراک</button>`;
   document.getElementById('det-modal').classList.add('open');
 }
-function printSvSingle(idx){const d=invoices[idx];const w=window.open('','_blank');w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17δ">
-<meta name="app-date" content="1405/05/17"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);w.document.close();w.focus();w.print();w.close();}
+function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+<meta name="app-version" content="1405.5.18α">
+<meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17δ">
-<meta name="app-date" content="1405/05/17"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
+<meta name="app-version" content="1405.5.18α">
+<meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
   const d=invoices[idx];
@@ -6523,13 +6679,51 @@ function saveInvItem(){
 }
 
 // ─── PHONEBOOK ─────────────────────────────────────────────────────────────────
+
+var PB_SOCIAL_LBL={eitaa:'ایتا',rubika:'روبیکا',bale:'بله',whatsapp:'واتساپ',telegram:'تلگرام',instagram:'اینستاگرام',custom:'سایر'};
+var pbSocials=[];
+function addPBSocial(){
+  var type=(document.getElementById('pbm-soc-type')||{}).value||'telegram';
+  var val=((document.getElementById('pbm-soc-val')||{}).value||'').trim();
+  var custom=((document.getElementById('pbm-soc-custom')||{}).value||'').trim();
+  if(!val){ ntf('آیدی یا شماره را وارد کنید','err'); return; }
+  if(type==='custom' && !custom){ ntf('نام شبکه را بنویسید','err'); return; }
+  var label=(type==='custom')?custom:(PB_SOCIAL_LBL[type]||type);
+  if(pbSocials.some(function(s){return s.network===type && s.value===val && (s.label||'')===label;})){ ntf('قبلاً اضافه شده','err'); return; }
+  pbSocials.push({network:type,value:val,label:label});
+  document.getElementById('pbm-soc-val').value='';
+  renderPBSocials();
+}
+function renderPBSocials(){
+  var el=document.getElementById('pbm-soc-list'); if(!el) return;
+  el.innerHTML=pbSocials.map(function(s,i){
+    return '<div class="wsoc-row"><span><b>'+(s.label||PB_SOCIAL_LBL[s.network]||s.network)+':</b> '+s.value+'</span><button type="button" class="btn btn-sm btn-r" onclick="pbSocials.splice('+i+',1);renderPBSocials()">✕</button></div>';
+  }).join('')||'<div style="font-size:11px;color:#aaa">شبکه‌ای ثبت نشده</div>';
+  var map={eitaa:'pbm-ita',telegram:'pbm-tg',whatsapp:'pbm-wa',instagram:'pbm-ig'};
+  Object.keys(map).forEach(function(k){ var e=document.getElementById(map[k]); if(e) e.value=''; });
+  pbSocials.forEach(function(s){ var id=map[s.network]; if(id){ var e=document.getElementById(id); if(e&&!e.value) e.value=s.value; } });
+}
+function socialsFromContact(c){
+  if(c.socials && c.socials.length) return c.socials.slice();
+  var arr=[];
+  if(c.ita) arr.push({network:'eitaa',value:c.ita,label:'ایتا'});
+  if(c.tg) arr.push({network:'telegram',value:c.tg,label:'تلگرام'});
+  if(c.wa) arr.push({network:'whatsapp',value:c.wa,label:'واتساپ'});
+  if(c.ig) arr.push({network:'instagram',value:c.ig,label:'اینستاگرام'});
+  if(c.rubika) arr.push({network:'rubika',value:c.rubika,label:'روبیکا'});
+  if(c.bale) arr.push({network:'bale',value:c.bale,label:'بله'});
+  return arr;
+}
+
+
 function openPBModal(idx=-1){
   pbPCnt=0; document.getElementById('pbm-phones').innerHTML='';
   document.getElementById('pbm-idx').value=idx;
   if(idx===-1){
     document.getElementById('pbm-title').textContent='مخاطب جدید';
-    ['pbm-fn','pbm-ln','pbm-shop','pbm-addr','pbm-zip','pbm-ita','pbm-tg','pbm-wa','pbm-ig','pbm-note'].forEach(id=>document.getElementById(id).value='');
+    ['pbm-fn','pbm-ln','pbm-shop','pbm-addr','pbm-zip','pbm-ita','pbm-tg','pbm-wa','pbm-ig','pbm-note'].forEach(function(id){var e=document.getElementById(id); if(e) e.value='';});
     document.getElementById('pbm-cat').value='other';
+    pbSocials=[]; if(typeof renderPBSocials==='function') renderPBSocials();
     addPBPhone();
   } else {
     const c=phonebook[idx];
@@ -6539,12 +6733,10 @@ function openPBModal(idx=-1){
     document.getElementById('pbm-shop').value=c.shop||'';
     document.getElementById('pbm-addr').value=c.addr||'';
     document.getElementById('pbm-zip').value=c.zip||'';
-    document.getElementById('pbm-ita').value=c.ita||'';
-    document.getElementById('pbm-tg').value=c.tg||'';
-    document.getElementById('pbm-wa').value=c.wa||'';
-    document.getElementById('pbm-ig').value=c.ig||'';
     document.getElementById('pbm-note').value=c.note||'';
     document.getElementById('pbm-cat').value=c.cat||'other';
+    pbSocials = (typeof socialsFromContact==='function') ? socialsFromContact(c) : [];
+    if(typeof renderPBSocials==='function') renderPBSocials();
     (c.phones||['']).forEach(p=>addPBPhone(p));
   }
   document.getElementById('pb-modal').classList.add('open');
@@ -6556,12 +6748,15 @@ function addPBPhone(val=''){
   document.getElementById('pbm-phones').appendChild(div);
 }
 function savePBContact(){
+  return withSaveLock('pb', function(){
   const idx=parseInt(document.getElementById('pbm-idx').value);
   const phones=Array.from(document.querySelectorAll('[id^=pbph-]')).map(i=>i.value.trim()).filter(Boolean);
-  const c={fn:document.getElementById('pbm-fn').value,ln:document.getElementById('pbm-ln').value,shop:document.getElementById('pbm-shop').value,addr:document.getElementById('pbm-addr').value,zip:document.getElementById('pbm-zip').value,phones,ita:document.getElementById('pbm-ita').value,tg:document.getElementById('pbm-tg').value,wa:document.getElementById('pbm-wa').value,ig:document.getElementById('pbm-ig').value,note:document.getElementById('pbm-note').value,cat:document.getElementById('pbm-cat').value};
+  if(typeof renderPBSocials==='function') renderPBSocials();
+  const c={fn:document.getElementById('pbm-fn').value,ln:document.getElementById('pbm-ln').value,shop:document.getElementById('pbm-shop').value,addr:document.getElementById('pbm-addr').value,zip:document.getElementById('pbm-zip').value,phones,ita:document.getElementById('pbm-ita').value,tg:document.getElementById('pbm-tg').value,wa:document.getElementById('pbm-wa').value,ig:document.getElementById('pbm-ig').value,socials:(typeof pbSocials!=='undefined'?pbSocials.slice():[]),note:document.getElementById('pbm-note').value,cat:document.getElementById('pbm-cat').value};
   if(idx===-1)phonebook.push(c);else phonebook[idx]=c;
   sv();closeMod('pb-modal');renderPB();ntf('مخاطب ذخیره شد'); auditUser(idx===-1?'ثبت مخاطب':'ویرایش مخاطب', (c.fn||'')+' '+(c.ln||''));
   if(typeof emit==='function') emit('phonebook:saved', {name:(c.fn||'')+' '+(c.ln||'')});
+  });
 }
 function delPBContact(idx){if(!confirm('حذف؟'))return;phonebook.splice(idx,1);sv();renderPB();ntf('حذف شد');}
 // حذف گروهی دفترچه تلفن
@@ -6671,7 +6866,7 @@ function fillRcv(idx){
   document.getElementById('rcv-pbq').value='';
   updatePostalPreview(); ntf('اطلاعات گیرنده بارگذاری شد');
 }
-function updatePostalPreview(){
+function updatePostalPreview(){ try{ if(document.getElementById("postal-hist-list")) renderPostalHistory(); }catch(_e){}
   const snd={name:document.getElementById('snd-name').value||senderInfo.name||'',addr:document.getElementById('snd-addr').value||senderInfo.addr||'',zip:document.getElementById('snd-zip').value||senderInfo.zip||'',tel:document.getElementById('snd-tel').value||senderInfo.tel||'',person:document.getElementById('snd-person').value||senderInfo.person||''};
   const rcv={name:document.getElementById('rcv-name').value,addr:document.getElementById('rcv-addr').value,zip:document.getElementById('rcv-zip').value,tel:document.getElementById('rcv-tel').value,note:document.getElementById('rcv-note').value};
   const logo=`<div class="postal-logo-box"><img src="${logoSrc}" alt="Laegh"><div style="font-size:8px;color:#555;margin-top:2px">${getBrand().nameEn}</div></div>`;
@@ -6693,14 +6888,59 @@ function updatePostalPreview(){
 ['snd-name','snd-addr','snd-zip','snd-tel','snd-person','rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>{document.getElementById(id).addEventListener('input',updatePostalPreview);});
 updatePostalPreview();
 
+
+const POSTAL_HIST_KEY = 'laegh_postal_history';
+let postalHistory = [];
+try { postalHistory = JSON.parse(localStorage.getItem(POSTAL_HIST_KEY)||'[]')||[]; } catch(e){ postalHistory=[]; }
+function svPostalHistory(){ try{ localStorage.setItem(POSTAL_HIST_KEY, JSON.stringify(postalHistory)); if(typeof markDirty==='function') markDirty(); }catch(e){} }
+function recordPostalHistory(){
+  var g=function(id){ var e=document.getElementById(id); return e?e.value||'':''; };
+  var rcvName=g('rcv-name'), rcvAddr=g('rcv-addr');
+  if(!rcvName && !rcvAddr) return;
+  postalHistory.unshift({
+    id:'PH-'+Date.now(),
+    at:(typeof fdt==='function'?fdt():''),
+    date:(typeof fdate==='function'?fdate():''),
+    receiverName:rcvName, receiverPhone:g('rcv-tel'), receiverAddr:rcvAddr, receiverZip:g('rcv-zip'),
+    senderName:g('snd-name')
+  });
+  if(postalHistory.length>500) postalHistory=postalHistory.slice(0,500);
+  svPostalHistory();
+}
+function renderPostalHistory(){
+  var el=document.getElementById('postal-hist-list'); if(!el) return;
+  var q=((document.getElementById('postal-hist-q')||{}).value||'').trim().toLowerCase();
+  var rows=postalHistory.filter(function(h){
+    if(!q) return true;
+    return ((h.receiverName||'')+' '+(h.receiverPhone||'')+' '+(h.receiverAddr||'')+' '+(h.date||'')).toLowerCase().indexOf(q)!==-1;
+  });
+  if(!rows.length){ el.innerHTML='<div style="color:#aaa;padding:12px;text-align:center">تاریخچه‌ای ثبت نشده</div>'; return; }
+  el.innerHTML='<table class="stbl" style="font-size:12px"><thead><tr><th>تاریخ</th><th>گیرنده</th><th>تلفن</th><th>آدرس</th><th>فرستنده</th><th></th></tr></thead><tbody>'+
+    rows.slice(0,200).map(function(h){
+      var realIdx=postalHistory.indexOf(h);
+      return '<tr><td>'+(h.date||h.at||'')+'</td><td><b>'+(h.receiverName||'—')+'</b></td><td>'+(h.receiverPhone||'—')+'</td><td style="max-width:260px">'+(h.receiverAddr||'—')+'</td><td>'+(h.senderName||'—')+'</td><td><button class="btn btn-sm" type="button" onclick="reusePostalHistory('+realIdx+')">بازخوانی</button></td></tr>';
+    }).join('')+'</tbody></table>';
+}
+function reusePostalHistory(idx){
+  var h=postalHistory[idx]; if(!h) return;
+  var set=function(id,v){ var e=document.getElementById(id); if(e) e.value=v||''; };
+  set('rcv-name',h.receiverName); set('rcv-tel',h.receiverPhone); set('rcv-addr',h.receiverAddr); set('rcv-zip',h.receiverZip);
+  if(typeof updatePostalPreview==='function') updatePostalPreview();
+  ntf('آدرس از تاریخچه بارگذاری شد');
+}
+function clearPostalHistory(){
+  if(!confirm('پاک کردن کل تاریخچه برچسب پستی؟')) return;
+  postalHistory=[]; svPostalHistory(); renderPostalHistory(); ntf('تاریخچه پاک شد');
+}
+
+
 function printPostal(){
   const ps=getPrintSettings();const pp=ps.postal||{};
-  const w=window.open('','_blank');
   const cont=document.getElementById('postal-preview').innerHTML;
-  w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17δ">
+  if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
+  openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+<meta name="app-version" content="1405.5.18α">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
-  w.document.close(); w.focus(); w.print(); w.close();
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
 
@@ -6712,7 +6952,7 @@ function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].fo
 // «بک‌آپ قدیمی با {name,phone} → فقط name/phone پر می‌شود، فیلدهای جدید (address) خالی می‌مانند»
 var SCHEMAS = {
   products: { code:'', name:'', cat:'', brand:'', supplier:'', colors:'', desc:'', price:0, img:'' },
-  phonebook: { fn:'', ln:'', shop:'', addr:'', zip:'', phones:[], ita:'', tg:'', wa:'', ig:'', note:'', cat:'other' },
+  phonebook: { fn:'', ln:'', shop:'', addr:'', zip:'', phones:[], ita:'', tg:'', wa:'', ig:'', socials:[], note:'', cat:'other' },
   parts: { code:'', name:'', cat:'', prodCode:'', qty:0, min:0, price:0, location:'', id:'' },
   services: { code:'', name:'', cat:'', price:0, warr:'no', desc:'', id:'' },
   tasks: { id:'', kind:'do', title:'', desc:'', priority:'normal', deadlineTS:null, hasTime:false, link:null, status:'open', notify:false, notifiedAt:null, createdAt:'', doneAt:null },
@@ -6721,7 +6961,10 @@ var SCHEMAS = {
   warranties: { id:'', name:'', phone:'', date:'', addr:'', socialContacts:[], devices:[], initialService:'', model:'', color:'', buydate:'', serial:'', warrStatus:'no', warrExp:'', condition:'سالم', problem:'', expert:'', refTo:'pending', refName:'', refDate:'', refNote:'', docs:[], companyReport:null, accRef:'', status:'open', savedAt:'', createdAt:'' },
   sales: { id:'', items:[], total:0, date:'', note:'', name:'', phone:'', msg:'', addr:'', zip:'', ship:'post', shipLabel:'سایر', accRef:'', accountSel:'', docs:[], status:'final', savedAt:'' },
   warehouses: { id:'', name:'', type:'other', isDefault:false, color:'#2563eb', note:'', createdAt:'' },
-  daqi: { id:'', refType:'manual', refId:'', agencyName:'', agencyPhonebookIdx:null, agencyPhone:'', items:[], sentDate:'', dueDate:'', receivedDate:'', receivedBy:'', note:'', status:'pending', createdAt:'', updatedAt:'' }
+  daqi: { id:'', refType:'manual', refId:'', agencyName:'', agencyPhonebookIdx:null, agencyPhone:'', manufacturer:'', items:[], sentDate:'', dueDate:'', receivedDate:'', receivedBy:'', note:'', status:'pending', createdAt:'', updatedAt:'' },
+  daqiWarehouse: { id:'', manufacturer:'', code:'', name:'', qty:0, note:'', updatedAt:'' },
+  daqiVouchers: { id:'', at:'', date:'', manufacturer:'', agencyName:'', items:[], note:'', type:'out' },
+  postalHistory: { id:'', at:'', date:'', receiverName:'', receiverPhone:'', receiverAddr:'', receiverZip:'', senderName:'' }
 };
 
 // Field-level migration: یک رکورد را روی schema project کن
@@ -6989,6 +7232,15 @@ function migrateBackup(d) {
   if (!d.defectiveStock) { d.defectiveStock = []; log.push('⚠️ انبار معیوب: خالی (نسخه قدیمی)'); }
   else log.push('⚠️ انبار معیوب: '+d.defectiveStock.length+' مورد');
 
+  if (!d.daqi) { d.daqi = []; log.push('📋 داغی: خالی (نسخه قدیمی)'); }
+  else log.push('📋 داغی: '+d.daqi.length+' مورد');
+  if (!d.daqiWarehouse) { d.daqiWarehouse = []; log.push('🏭 انبار داغی: خالی (نسخه قدیمی)'); }
+  else log.push('🏭 انبار داغی: '+d.daqiWarehouse.length+' قلم');
+  if (!d.daqiVouchers) { d.daqiVouchers = []; }
+  else log.push('📤 حواله داغی: '+d.daqiVouchers.length+' مورد');
+  if (!d.postalHistory) { d.postalHistory = []; }
+  else log.push('📮 تاریخچه پستی: '+d.postalHistory.length+' مورد');
+
   if (!d.userAuditLog) d.userAuditLog = [];
   if (!d.bgAuditLog) d.bgAuditLog = [];
 
@@ -7131,6 +7383,18 @@ async function importData(inp) {
         daqi = d.daqi;
         if(typeof svDaqi==='function') svDaqi();
       }
+      if(Array.isArray(d.daqiWarehouse) && typeof daqiWarehouse!=='undefined'){
+        daqiWarehouse = d.daqiWarehouse;
+        if(typeof svDaqiWarehouse==='function') svDaqiWarehouse();
+      }
+      if(Array.isArray(d.daqiVouchers) && typeof daqiVouchers!=='undefined'){
+        daqiVouchers = d.daqiVouchers;
+        if(typeof svDaqiVouchers==='function') svDaqiVouchers();
+      }
+      if(Array.isArray(d.postalHistory) && typeof postalHistory!=='undefined'){
+        postalHistory = d.postalHistory;
+        if(typeof svPostalHistory==='function') svPostalHistory();
+      }
       if (Array.isArray(d.userAuditLog) && typeof userAuditLog!=='undefined') userAuditLog = d.userAuditLog;
       if (Array.isArray(d.bgAuditLog) && typeof bgAuditLog!=='undefined') bgAuditLog = d.bgAuditLog;
       if (d.invCtr && d.invCtr > 0) invCtr = d.invCtr;
@@ -7200,6 +7464,10 @@ async function importData(inp) {
       try { renderDefective(); } catch(e){}
       try { renderSidebarBadges(); } catch(e){}
       try { if(typeof renderAccounts==='function') renderAccounts(); } catch(e){}  // 🔑 رندر مجدد صفحه حساب‌ها
+      try { if(typeof renderDaqiWarehouse==='function') renderDaqiWarehouse(); } catch(e){}
+      try { if(typeof renderDaqiVouchers==='function') renderDaqiVouchers(); } catch(e){}
+      try { if(typeof renderPostalHistory==='function') renderPostalHistory(); } catch(e){}
+      try { if(typeof renderDaqi==='function') renderDaqi(); } catch(e){}
     }
 
     if (mode === 'replace') {
@@ -7290,6 +7558,24 @@ async function importData(inp) {
         if(Array.isArray(d.daqi)){
           d.daqi.forEach(function(x){ if(x && x.id && !(typeof daqi!=='undefined' && daqi.find(function(q){return q.id===x.id;}))){ if(typeof daqi!=='undefined') daqi.push(x); } });
           if(typeof svDaqi==='function') svDaqi();
+        }
+        if(Array.isArray(d.daqiWarehouse)){
+          d.daqiWarehouse.forEach(function(x){
+            if(!x) return;
+            if(typeof daqiWarehouse==='undefined') return;
+            var found = daqiWarehouse.find(function(w){ return w.manufacturer===x.manufacturer && w.code===x.code && w.name===x.name; });
+            if(found){ found.qty = Math.max(found.qty||0, x.qty||0); }
+            else daqiWarehouse.push(x);
+          });
+          if(typeof svDaqiWarehouse==='function') svDaqiWarehouse();
+        }
+        if(Array.isArray(d.daqiVouchers)){
+          d.daqiVouchers.forEach(function(x){ if(x && x.id && !(typeof daqiVouchers!=='undefined' && daqiVouchers.find(function(v){return v.id===x.id;}))){ if(typeof daqiVouchers!=='undefined') daqiVouchers.push(x); } });
+          if(typeof svDaqiVouchers==='function') svDaqiVouchers();
+        }
+        if(Array.isArray(d.postalHistory)){
+          d.postalHistory.forEach(function(x){ if(x && x.id && !(typeof postalHistory!=='undefined' && postalHistory.find(function(h){return h.id===x.id;}))){ if(typeof postalHistory!=='undefined') postalHistory.push(x); } });
+          if(typeof svPostalHistory==='function') svPostalHistory();
         }
         // تاریخچه حسابداری (acH)
         if (d.acH && typeof d.acH==='object') { acH = d.acH; localStorage.setItem('la', JSON.stringify(d.acH)); }
@@ -7864,7 +8150,7 @@ function enableTaskNotifications(){
 }
 function registerLaeghSW(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('sw.js?v=1405.5.17δ').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=1405.5.18α').then(reg=>{
     _swReg=reg;
     // Check for SW updates
     reg.addEventListener('updatefound', ()=>{
@@ -9010,8 +9296,8 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.17δ">'+
-    '<meta name="app-date" content="1405/05/17">'+
+    '<meta name="app-version" content="1405.5.18α">'+
+    '<meta name="app-date" content="1405/05/18">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
     '@page{size:A5;margin:8mm}'+
@@ -9058,7 +9344,7 @@ function printWarehouseDoc(id){
     '<div style="margin-top:14px;text-align:center;font-size:9px;color:#aaa">'+getBrand().nameEn+' — '+title+' — تولید‌شده در '+(d.createdAt||'')+'</div>'+
     '</body></html>';
   var w = window.open('','_blank');
-  w.document.write(html); w.document.close(); w.focus(); setTimeout(function(){w.print();},300);
+  w.document.open(); w.document.write(html); w.document.close(); w.focus(); setTimeout(function(){w.print();},300);
 }
 
 // چاپ لیست حواله‌ها
@@ -9161,7 +9447,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.17δ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.18α"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -9827,6 +10113,30 @@ function renderWSocials(){
   if(!el) return;
   el.innerHTML=wSocials.map((s,i)=>'<div class="wsoc-row"><span><b>'+(SOCIAL_LBL[s.network]||s.network)+':</b> '+s.value+'</span><button class="btn btn-sm btn-r" type="button" onclick="wSocials.splice('+i+',1);renderWSocials()">✕</button></div>').join('')||'<div style="font-size:11px;color:#aaa">شبکه‌ای ثبت نشده</div>';
 }
+
+function addJalaliMonths(jdate, months){
+  // jdate: YYYY/MM/DD
+  months = parseInt(months)||0;
+  if(!jdate || !months) return jdate||'';
+  var p = String(jdate).split(/[\/\-]/).map(function(x){return parseInt(x,10);});
+  if(p.length<3 || !p[0]) return jdate;
+  var y=p[0], m=p[1], d=p[2];
+  m += months;
+  while(m>12){ m-=12; y++; }
+  while(m<1){ m+=12; y--; }
+  var maxD = (m<=6)?31:(m<=11?30:29);
+  if(d>maxD) d=maxD;
+  function pad(n){ return (n<10?'0':'')+n; }
+  return y+'/'+pad(m)+'/'+pad(d);
+}
+function calcWarrExpFromBuy(n){
+  var buy = (document.getElementById('wd'+n+'_buy')||{}).value||'';
+  var months = (document.getElementById('wd'+n+'_wmonths')||{}).value||'';
+  var expEl = document.getElementById('wd'+n+'_wexp');
+  if(!expEl) return;
+  if(buy && months){ expEl.value = addJalaliMonths(buy, months); }
+}
+
 function addWDev(){
   wDevCnt++;
   const n=wDevCnt, c=document.getElementById('w-devs');
@@ -9835,17 +10145,23 @@ function addWDev(){
   <div class="g4" style="margin-bottom:8px">
     <div class="f"><label>مدل *</label><input id="wd${n}_model" placeholder="مدل"></div>
     <div class="f"><label>رنگ</label><input id="wd${n}_color" placeholder="رنگ"></div>
-    <div class="f"><label>تاریخ خرید</label><input id="wd${n}_buy" readonly onclick="openDatePicker(this)" placeholder="تاریخ"></div>
+    <div class="f"><label>تاریخ خرید / فاکتور</label><input id="wd${n}_buy" readonly onclick="openDatePicker(this)" onchange="calcWarrExpFromBuy(${n})" placeholder="تاریخ"></div>
     <div class="f"><label>سریال</label><input id="wd${n}_serial" placeholder="سریال"></div>
   </div>
   <div class="g3">
-    <div class="f"><label>وضعیت گارانتی</label><select id="wd${n}_wws"><option value="card">کارت گارانتی</option><option value="inv">فاکتور معتبر</option><option value="no">بدون گارانتی</option></select></div>
-    <div class="f"><label>تاریخ انقضا</label><input id="wd${n}_wexp" readonly onclick="openDatePicker(this)" placeholder="انقضا"></div>
-    <div class="f"><label>وضعیت ظاهری</label><select id="wd${n}_cond"><option>سالم</option><option>خش جزئی</option><option>آسیب‌دیده</option><option>شکستگی</option></select></div>
+    <div class="f"><label>مدرک گارانتی</label><select id="wd${n}_wws"><option value="card">کارت گارانتی</option><option value="inv">فاکتور خرید</option><option value="both">کارت + فاکتور</option><option value="no">بدون گارانتی</option></select></div>
+    <div class="f"><label>مدت ضمانت (ماه)</label><input type="number" id="wd${n}_wmonths" min="0" max="120" placeholder="مثلاً ۲۴" onchange="calcWarrExpFromBuy(${n})" oninput="calcWarrExpFromBuy(${n})"></div>
+    <div class="f"><label>تاریخ انقضا</label><input id="wd${n}_wexp" readonly onclick="openDatePicker(this)" placeholder="خودکار از تاریخ خرید"></div>
   </div>
   <div class="g2" style="margin-top:6px">
-    <div class="f"><label>شرح خدمات انجام‌شده</label><input id="wd${n}_svc" placeholder="تعمیر، تعویض قطعه..."></div>
-    <div class="f"><label>هزینه تعمیر (ریال)</label><input type="number" id="wd${n}_est" placeholder="0" min="0"></div>
+    <div class="f"><label>وضعیت ظاهری</label><select id="wd${n}_cond"><option>سالم</option><option>خش جزئی</option><option>آسیب‌دیده</option><option>شکستگی</option></select></div>
+  </div>
+  <div style="margin-top:8px;padding:8px;background:var(--bg2);border-radius:8px;border:1px dashed var(--border)">
+    <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px">🔧 کار نمایندگی / هزینه (بخش جدا — بعد از معرفی دستگاه)</div>
+    <div class="g2">
+      <div class="f"><label>شرح خدمات انجام‌شده</label><input id="wd${n}_svc" placeholder="تعمیر، تعویض قطعه..."></div>
+      <div class="f"><label>هزینه نمایندگی (ریال)</label><input type="number" id="wd${n}_est" placeholder="0" min="0"></div>
+    </div>
   </div>
   <div class="wdev-docs-row" id="wd${n}_docs-row">
     <span style="font-size:11px;color:var(--text2);width:100%;margin-bottom:4px">📎 اسناد این دستگاه (کارت گارانتی، فاکتور، عکس دستگاه، ...):</span>
@@ -9889,6 +10205,7 @@ function getWDevsFromForm(){
       model:model.trim(), color:(document.getElementById('wd'+n+'_color')||{}).value||'',
       buydate:(document.getElementById('wd'+n+'_buy')||{}).value||'', serial:(document.getElementById('wd'+n+'_serial')||{}).value||'',
       warrStatus:(document.getElementById('wd'+n+'_wws')||{}).value||'card',
+      warrMonths:parseInt((document.getElementById('wd'+n+'_wmonths')||{}).value)||0,
       warrExp:(document.getElementById('wd'+n+'_wexp')||{}).value||'',
       condition:(document.getElementById('wd'+n+'_cond')||{}).value||'سالم',
       svc:(document.getElementById('wd'+n+'_svc')||{}).value||'',
@@ -9906,6 +10223,7 @@ function loadWDevsToForm(devices){
     document.getElementById('wd'+n+'_buy').value=d.buydate||'';
     document.getElementById('wd'+n+'_serial').value=d.serial||'';
     document.getElementById('wd'+n+'_wws').value=d.warrStatus||'card';
+    var wm=document.getElementById('wd'+n+'_wmonths'); if(wm) wm.value=d.warrMonths||'';
     document.getElementById('wd'+n+'_wexp').value=d.warrExp||'';
     document.getElementById('wd'+n+'_cond').value=d.condition||'سالم';
     var svcEl=document.getElementById('wd'+n+'_svc'); if(svcEl) svcEl.value=d.svc||'';
@@ -9928,7 +10246,7 @@ function showWarForm(idx){
     'cr-qc-name','cr-qc-note','cr-ship-name','cr-ship-tracking','cr-ship-date','cr-mgr-name','cr-mgr-note'];
   const crSelectIds=[['cr-repair-result','fixed'],['cr-tech-confirm','yes'],['cr-qc-result','pass'],['cr-mgr-approve','approved']];
   if(wEditIdx===-1){
-    ['wn','wph','wdt','waddr','wacc','wrefn','wrefd','wrefnote','wprob','wexp2'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+    ['wn','wph','wdt','waddr','wacc','wrefn','wrefd','wrefnote','wprob','wexp2','w-deliver-date','w-deliver-via','w-deliver-by','w-deliver-note'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
     document.getElementById('wdt').value=fdate();
     document.getElementById('winit').value='';
     document.getElementById('wref').value='agency';
@@ -9949,6 +10267,9 @@ function showWarForm(idx){
     const crSelMap={'cr-repair-result':['repairResult','fixed'],'cr-tech-confirm':['techConfirm','yes'],'cr-qc-result':['qcResult','pass'],'cr-mgr-approve':['mgrApprove','approved']};
     Object.keys(crSelMap).forEach(id=>{const e=document.getElementById(id);if(e)e.value=cr[crSelMap[id][0]]||crSelMap[id][1];});
     wDocs=w.docs||[];renderWDocs(); onWInitChange(); toggleCompanyReport(document.getElementById('wref').value);
+    var setv=function(id,v){ var e=document.getElementById(id); if(e) e.value=v||''; };
+    setv('w-deliver-date', w.deliverDate); setv('w-deliver-via', w.deliverVia);
+    setv('w-deliver-by', w.deliverBy); setv('w-deliver-note', w.deliverNote);
   }
 }
 function showWarList(){
@@ -10137,22 +10458,39 @@ function getWarData(){
     problem:document.getElementById('wprob').value, expert:document.getElementById('wexp2').value, refTo:refTo,
     refName:document.getElementById('wrefn').value,refDate:document.getElementById('wrefd').value,
     refNote:document.getElementById('wrefnote').value,docs:wDocs,companyReport:companyReport,
-    accRef:(document.getElementById('wacc')||{}).value||'', // شماره حساب گیرنده برای فاکتور خدمات
+    accRef:(document.getElementById('wacc')||{}).value||'',
+    deliverDate:(document.getElementById('w-deliver-date')||{}).value||'',
+    deliverVia:(document.getElementById('w-deliver-via')||{}).value||'',
+    deliverBy:(document.getElementById('w-deliver-by')||{}).value||'',
+    deliverNote:(document.getElementById('w-deliver-note')||{}).value||'',
     status:'open', savedAt:fdt(), createdAt: wEditIdx===-1?fdt():(warranties[wEditIdx].createdAt||fdt())
   };
 }
 function saveWar(){
-  const d=getWarData();
-  if(!d.name||!d.phone||!d.devices.length||!d.problem){ntf('نام، تلفن، حداقل یک دستگاه و شرح مشکل الزامی است','err');return;}
-  if(!d.initialService){ ntf('وضعیت اولیه خدمات را انتخاب کنید','err'); return; }
-  const wasNew=wEditIdx===-1;
-  if(wEditIdx===-1) warranties.push(d);
-  else{d.status=warranties[wEditIdx].status||'open'; d.createdAt=warranties[wEditIdx].createdAt||d.createdAt; warranties[wEditIdx]=d;}
-  if(d.initialService==='refer_company') d.devices.forEach(dev=>addDefectiveFromWarranty(d,dev));
-  svWars();
-  auditUser(wasNew?'ثبت پرونده گارانتی':'ویرایش پرونده گارانتی', d.id+' — '+d.name);
-  ntf(wasNew?'پرونده '+d.id+' ثبت شد':'پرونده ویرایش شد');showWarList();
-  if(typeof emit==='function') emit('warranty:saved', {id:d.id, name:d.name});
+  return withSaveLock('war', function(){
+    const d=getWarData();
+    if(!d.name||!d.phone||!d.devices.length||!d.problem){ntf('نام، تلفن، حداقل یک دستگاه و شرح مشکل الزامی است','err');return;}
+    if(!d.initialService){ ntf('وضعیت اولیه خدمات را انتخاب کنید','err'); return; }
+    const wasNew=wEditIdx===-1;
+    if(wEditIdx===-1){
+      warranties.push(d);
+      // بعد از ثبت جدید، ایندکس ویرایش را روی رکورد تازه بگذار تا کلیک دوباره duplicate نسازد
+      wEditIdx = warranties.length - 1;
+    } else {
+      d.status=warranties[wEditIdx].status||'open';
+      d.createdAt=warranties[wEditIdx].createdAt||d.createdAt;
+      // فیلدهای گردش‌کار و تحویل
+      if(warranties[wEditIdx].agencyWork) d.agencyWork = d.agencyWork || warranties[wEditIdx].agencyWork;
+      warranties[wEditIdx]=d;
+    }
+    if(d.initialService==='refer_company') d.devices.forEach(dev=>addDefectiveFromWarranty(d,dev));
+    svWars();
+    if(typeof safePersist==='function') safePersist('warranty');
+    auditUser(wasNew?'ثبت پرونده گارانتی':'ویرایش پرونده گارانتی', d.id+' — '+d.name);
+    ntf(wasNew?'پرونده '+d.id+' ثبت شد':'پرونده ویرایش شد');
+    showWarList();
+    if(typeof emit==='function') emit('warranty:saved', {id:d.id, name:d.name});
+  });
 }
 function closeWar(idx){
   const w=warranties[idx];
@@ -10243,8 +10581,8 @@ function doPrint(paperSize){
   const wbg=bgMap[pw.bg||'none']||'#fff';
   const effPaper = pw.paper || paperSize;
   const w = window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.17δ">
+  w.document.open(); w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+<meta name="app-version" content="1405.5.18α">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -10355,8 +10693,8 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.17δ">'+
-    '<meta name="app-date" content="1405/05/17">'+
+    '<meta name="app-version" content="1405.5.18α">'+
+    '<meta name="app-date" content="1405/05/18">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
     '@page{size:A5;margin:8mm}'+
@@ -10391,7 +10729,7 @@ function printWarDoc(mode){
     '<div style="margin-top:12px;text-align:center;font-size:9px;color:#aaa">'+getBrand().nameEn+' — '+(isProforma?'پیش‌فاکتور خدمات':'فاکتور خدمات')+'</div>'+
     '</body></html>';
   const w = window.open('','_blank');
-  w.document.write(html);
+  w.document.open(); w.document.write(html);
   w.document.close();
   w.focus();
   setTimeout(function(){ w.print(); }, 300);
@@ -10431,7 +10769,7 @@ function printCompanyReport(idx){
   var qcResultLbl = {'pass':'✅ تأیید کیفیت','fail':'❌ رد شد — نیاز به اصلاح','pending':'در حال بررسی'};
   var mgrApproveLbl = {'approved':'✅ تأیید نهایی','pending':'در انتظار بررسی','rejected':'❌ رد شد'};
 
-  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.17δ';
+  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.18α';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
     '<title>گزارش داخلی شرکت — '+wHdr.id+'</title>'+
     '<style>'+
@@ -11062,8 +11400,8 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.17δ">'+
-    '<meta name="app-date" content="1405/05/17">'+
+    '<meta name="app-version" content="1405.5.18α">'+
+    '<meta name="app-date" content="1405/05/18">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
     '@page{size:A4;margin:10mm}'+
@@ -11112,7 +11450,7 @@ function printSaleDoc(saleId){
     '<div style="margin-top:14px;text-align:center;font-size:9px;color:#aaa">'+getBrand().nameEn+' — '+(isProforma?'پیش‌فاکتور':'فاکتور نهایی')+' — تولیدشده در '+(s.savedAt||fdt())+'</div>'+
     '</body></html>';
   var w = window.open('','_blank');
-  w.document.write(html);
+  w.document.open(); w.document.write(html);
   w.document.close();
   w.focus();
   setTimeout(function(){ w.print(); }, 300);
@@ -11282,7 +11620,7 @@ function expSalesExcel(){
 // ══════ حسابداری ══════
 // ═══════════════════════════════════════════════════════════════════════════
 // ماژول داغی (پیگیری رسید امضا‌شده‌ی نمایندگی‌های خدمات)
-// نسخه ۱۴۰۵.۵.۱۷δ — فاز داغی
+// نسخه ۱۴۰۵.۵.۱۸α — فاز داغی
 //
 // «داغی» یعنی وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستیم، آن‌ها باید رسید امضا‌شده
 // (داغی) را به ما برگردانند. این ماژول پیگیری می‌کند که چه کسانی داغی معوقه دارند.
@@ -11296,6 +11634,147 @@ function expSalesExcel(){
 //   'received'  = داغی دریافت شد
 //   'cancelled' = لغو شد (مثلاً مرجوع شد)
 // ═══════════════════════════════════════════════════════════════════════════
+
+
+// ─── انبار داغی (دسته‌بندی بر اساس شرکت سازنده) ─────────────────
+const DAQI_WH_KEY = 'laegh_daqi_warehouse';
+const DAQI_VOUCHER_KEY = 'laegh_daqi_vouchers';
+let daqiWarehouse = [];
+let daqiVouchers = [];
+try{ daqiWarehouse = JSON.parse(localStorage.getItem(DAQI_WH_KEY)||'[]')||[]; }catch(e){ daqiWarehouse=[]; }
+try{ daqiVouchers = JSON.parse(localStorage.getItem(DAQI_VOUCHER_KEY)||'[]')||[]; }catch(e){ daqiVouchers=[]; }
+function svDaqiWarehouse(){ localStorage.setItem(DAQI_WH_KEY, JSON.stringify(daqiWarehouse)); if(typeof markDirty==='function') markDirty(); }
+function svDaqiVouchers(){ localStorage.setItem(DAQI_VOUCHER_KEY, JSON.stringify(daqiVouchers)); if(typeof markDirty==='function') markDirty(); }
+
+function addDaqiWarehouseItem(opts){
+  opts = opts||{};
+  var manufacturer = (opts.manufacturer||'').trim();
+  var code = (opts.code||'').trim();
+  var name = (opts.name||'').trim();
+  var qty = parseInt(opts.qty)||0;
+  if(!manufacturer || !name || qty<=0){ return 'شرکت سازنده، نام و تعداد الزامی است'; }
+  var found = daqiWarehouse.find(function(x){ return x.manufacturer===manufacturer && x.code===code && x.name===name; });
+  if(found){ found.qty = (found.qty||0) + qty; found.updatedAt = (typeof fdt==='function'?fdt():''); }
+  else {
+    daqiWarehouse.push({
+      id:'DW-'+Date.now()+'-'+Math.floor(Math.random()*999),
+      manufacturer:manufacturer, code:code, name:name, qty:qty,
+      note:opts.note||'', updatedAt:(typeof fdt==='function'?fdt():'')
+    });
+  }
+  svDaqiWarehouse();
+  return null;
+}
+
+function deductDaqiWarehouse(manufacturer, code, name, qty){
+  qty = parseInt(qty)||0;
+  if(qty<=0) return 'تعداد نامعتبر';
+  var item = daqiWarehouse.find(function(x){
+    return x.manufacturer===manufacturer && ((code && x.code===code) || (!code && x.name===name));
+  });
+  if(!item){
+    // اگر در انبار داغی نبود، از انبار قطعات/کالا کسر کن
+    return deductFromGeneralStock(code, name, qty);
+  }
+  if((item.qty||0) < qty) return 'موجودی انبار داغی کافی نیست ('+(item.qty||0)+')';
+  item.qty -= qty;
+  item.updatedAt = (typeof fdt==='function'?fdt():'');
+  svDaqiWarehouse();
+  return null;
+}
+
+function deductFromGeneralStock(code, name, qty){
+  qty = parseInt(qty)||1;
+  // اول inventory کالا
+  if(code && typeof inventory!=='undefined' && inventory[code]){
+    if((inventory[code].qty||0) < qty) return 'موجودی کالای '+code+' کافی نیست';
+    inventory[code].qty -= qty;
+    if(typeof _applyStockMovement==='function') _applyStockMovement('out', code, name||code, qty, 'daqi', 'ارسال داغی');
+    if(typeof sv==='function') sv();
+    return null;
+  }
+  // سپس قطعات
+  if(typeof parts!=='undefined'){
+    var p = parts.find(function(x){ return (code && x.code===code) || (name && x.name===name); });
+    if(p){
+      if((p.qty||0) < qty && p.qty!=null) return 'موجودی قطعه کافی نیست';
+      if(p.qty!=null) p.qty -= qty;
+      if(typeof svParts==='function') svParts();
+      else if(typeof localStorage!=='undefined') localStorage.setItem('lp2', JSON.stringify(parts));
+      return null;
+    }
+  }
+  return 'قلم در انبار داغی/کالا/قطعات پیدا نشد — ابتدا به انبار داغی اضافه کنید';
+}
+
+function createDaqiOutVoucher(manufacturer, items, agencyName, note){
+  var v = {
+    id:'DV-'+Date.now(),
+    at:(typeof fdt==='function'?fdt():''),
+    date:(typeof fdate==='function'?fdate():''),
+    manufacturer:manufacturer||'',
+    agencyName:agencyName||'',
+    items:items||[],
+    note:note||'',
+    type:'out'
+  };
+  daqiVouchers.unshift(v);
+  svDaqiVouchers();
+  return v;
+}
+
+function renderDaqiWarehouse(){
+  var el=document.getElementById('daqi-wh-list'); if(!el) return;
+  var man=((document.getElementById('daqi-wh-man-f')||{}).value||'').trim();
+  var q=((document.getElementById('daqi-wh-q')||{}).value||'').trim().toLowerCase();
+  var rows=daqiWarehouse.filter(function(x){
+    if(man && x.manufacturer!==man) return false;
+    if(!q) return true;
+    return ((x.code||'')+' '+(x.name||'')+' '+(x.manufacturer||'')).toLowerCase().indexOf(q)!==-1;
+  });
+  // fill manufacturer filter
+  var mf=document.getElementById('daqi-wh-man-f');
+  if(mf && !mf.dataset.filled){
+    var mans=[...new Set(daqiWarehouse.map(function(x){return x.manufacturer;}).filter(Boolean))].sort();
+    mf.innerHTML='<option value="">همه شرکت‌ها</option>'+mans.map(function(m){return '<option value="'+m+'">'+m+'</option>';}).join('');
+    mf.dataset.filled='1';
+  }
+  if(!rows.length){ el.innerHTML='<div style="color:#aaa;padding:14px;text-align:center">موجودی انبار داغی خالی است</div>'; return; }
+  // group by manufacturer
+  var groups={};
+  rows.forEach(function(x){ var k=x.manufacturer||'بدون شرکت'; (groups[k]=groups[k]||[]).push(x); });
+  el.innerHTML=Object.keys(groups).map(function(g){
+    return '<div style="margin-bottom:12px"><div style="font-weight:800;color:var(--blue2);margin-bottom:6px">🏭 '+g+'</div>'+
+      '<table class="stbl" style="font-size:12px"><thead><tr><th>کد</th><th>نام</th><th>موجودی</th><th>یادداشت</th></tr></thead><tbody>'+
+      groups[g].map(function(x){ return '<tr><td>'+(x.code||'—')+'</td><td>'+x.name+'</td><td><b>'+x.qty+'</b></td><td>'+(x.note||'')+'</td></tr>'; }).join('')+
+      '</tbody></table></div>';
+  }).join('');
+}
+
+function renderDaqiVouchers(){
+  var el=document.getElementById('daqi-voucher-list'); if(!el) return;
+  if(!daqiVouchers.length){ el.innerHTML='<div style="color:#aaa;padding:12px;text-align:center">حواله‌ای ثبت نشده</div>'; return; }
+  el.innerHTML='<table class="stbl" style="font-size:12px"><thead><tr><th>تاریخ</th><th>شماره</th><th>شرکت</th><th>نمایندگی</th><th>اقلام</th><th>یادداشت</th></tr></thead><tbody>'+
+    daqiVouchers.slice(0,100).map(function(v){
+      var items=(v.items||[]).map(function(it){return (it.code?it.code+' ':'')+(it.name||'')+' ×'+(it.qty||1);}).join('؛ ');
+      return '<tr><td>'+(v.date||v.at||'')+'</td><td>'+v.id+'</td><td>'+(v.manufacturer||'—')+'</td><td>'+(v.agencyName||'—')+'</td><td>'+items+'</td><td>'+(v.note||'')+'</td></tr>';
+    }).join('')+'</tbody></table>';
+}
+
+function submitDaqiWarehouseIn(){
+  var man=(document.getElementById('daqi-wh-in-man')||{}).value||'';
+  var code=(document.getElementById('daqi-wh-in-code')||{}).value||'';
+  var name=(document.getElementById('daqi-wh-in-name')||{}).value||'';
+  var qty=parseInt((document.getElementById('daqi-wh-in-qty')||{}).value)||0;
+  var note=(document.getElementById('daqi-wh-in-note')||{}).value||'';
+  var err=addDaqiWarehouseItem({manufacturer:man, code:code, name:name, qty:qty, note:note});
+  if(err){ ntf(err,'err'); return; }
+  ntf('به انبار داغی اضافه شد');
+  ['daqi-wh-in-code','daqi-wh-in-name','daqi-wh-in-qty','daqi-wh-in-note'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+  var mf=document.getElementById('daqi-wh-man-f'); if(mf) mf.dataset.filled='';
+  renderDaqiWarehouse();
+}
+
 
 const DAQI_KEY = 'laegh_daqi';
 const DAQI_STATUS_LBL = {pending:'🔴 منتظر داغی', received:'🟢 دریافت شد', cancelled:'⚪️ لغو'};
@@ -11512,6 +11991,7 @@ function openDaqiModal(prefill){
 
 // ─── ذخیره داغی (جدید یا ویرایش) ───
 function saveDaqi(){
+  return withSaveLock('daqi', function(){
   var agencyName = document.getElementById('daqi-agency-name').value.trim();
   var agencyPhone = document.getElementById('daqi-agency-phone').value.trim();
   var agencySel = document.getElementById('daqi-agency-sel');
@@ -11540,6 +12020,22 @@ function saveDaqi(){
     });
   }
 
+
+  var manufacturer = ((document.getElementById('daqi-manufacturer')||{}).value||'').trim();
+  var stockSource = ((document.getElementById('daqi-stock-source')||{}).value||'daqi_wh');
+
+  if(window._daqiEditIdx < 0 && stockSource !== 'none' && items.length){
+    if(stockSource==='daqi_wh' && !manufacturer){ ntf('برای کسر از انبار داغی، شرکت سازنده لازم است','err'); return; }
+    var errs=[];
+    items.forEach(function(it){
+      var err = null;
+      if(stockSource==='daqi_wh') err = deductDaqiWarehouse(manufacturer, it.code, it.name, it.qty);
+      else err = deductFromGeneralStock(it.code, it.name, it.qty);
+      if(err) errs.push((it.name||it.code)+': '+err);
+    });
+    if(errs.length){ ntf(errs[0],'err'); return; }
+    createDaqiOutVoucher(manufacturer, items, agencyName, note);
+  }
   if(window._daqiEditIdx >= 0 && daqi[window._daqiEditIdx]){
     // ویرایش
     var d = daqi[window._daqiEditIdx];
@@ -11550,6 +12046,7 @@ function saveDaqi(){
     d.dueDate = dueDate;
     d.note = note;
     d.items = items;
+    if(manufacturer) d.manufacturer = manufacturer;
     d.updatedAt = fdt();
     svDaqi();
     auditUser('ویرایش داغی', d.id);
@@ -11564,12 +12061,14 @@ function saveDaqi(){
       items: items,
       sentDate: sentDate,
       dueDate: dueDate,
-      note: note
+      note: note,
+      manufacturer: manufacturer
     });
     ntf('داغی ' + id + ' ثبت شد ✅');
   }
   closeMod('daqi-modal');
   if(typeof renderDaqi === 'function') renderDaqi();
+  });
 }
 
 // ─── حذف داغی ───
@@ -12424,8 +12923,8 @@ function printFinancialReport(){
     return [t.date||'—', t.type==='deposit'?'واریز':'برداشت', Math.abs(t.amount), t.subject||'—', srcLbl[t.refType||'manual']||'دستی', t.refNo||t.refId||'—', t.accName||'—'];
   });
   var w = window.open('','_blank');
-  w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.17δ">'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
+    '<meta name="app-version" content="1405.5.18α">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+

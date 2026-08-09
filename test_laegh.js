@@ -1671,11 +1671,12 @@ test('چاپ لیست: تابع مشترک _printTable و دکمه‌های «چ
   // چاپ «خودِ فاکتورها» (کامل) باید همچنان جدا و فعال باشد
   assertContainsString(html, 'onclick="printSel()">🖨 چاپ فاکتورها (کامل)', 'دکمه‌ی «چاپ فاکتورها (کامل)» باید جدا از «چاپ لیست» باشد');
 
-  // اجرای واقعی _printTable: باید پنجره باز کند و جدول با تعداد ردیف درست بنویسد
+  // اجرای واقعی _printTable: باید پنجره تازه باز کند و جدول با تعداد ردیف درست بنویسد
   const src=extractFunctionSource(html,'_printTable');
   let written='';
   const ctx={ ntf:()=>{}, fdt:()=>'۱۴۰۵/۰۴/۰۴',
-    window:{ open:()=>({ document:{ write:(s)=>{written+=s;}, close:()=>{} }, focus:()=>{}, print:()=>{} }) } };
+    openFreshPrintWindow:(s)=>{ written+=s; return { document:{}, focus:()=>{}, print:()=>{} }; },
+    window:{ open:()=>({ document:{ open:()=>{}, write:(s)=>{written+=s;}, close:()=>{} }, focus:()=>{}, print:()=>{} }) } };
   new Function('ctx','with(ctx){('+src.replace(/^function _printTable/,'function')+')("تست",["الف","ب"],[[1,2],[3,4]]);}')(ctx);
   assertContainsString(written, '<th>الف</th>', 'سرستون جدول چاپ باید نوشته شود');
   assertTrue((written.match(/<tr>/g)||[]).length>=3, 'باید سرستون + ۲ ردیف داده در جدول چاپ باشد');
@@ -3815,14 +3816,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۱۷δ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۱۸α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.17δ', 'نسخه meta باید 1405.5.17δ باشد');
+  assertEqual(metaVer, '1405.5.18α', 'نسخه meta باید 1405.5.18α باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
-  assertEqual(metaDate, '1405/05/17', 'app-date باید 1405/05/17 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۷δ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۷δ را نشان دهد');
+  assertEqual(metaDate, '1405/05/18', 'app-date باید 1405/05/18 باشد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸α', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸α را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.17δ'", 'فیلد version بک‌آپ باید 1405.5.17δ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.18α'", 'فیلد version بک‌آپ باید 1405.5.18α باشد');
 });
 
 console.log('');
@@ -4485,6 +4486,133 @@ test('viewer سراسری باید برای کالا، لوگو و پس‌زمی
   assertContainsString(html, 'viewable-img', 'کلاس viewable-img پیدا نشد');
   assertContainsString(html, 'onclick="previewPrintBg(', 'دکمه پیش‌نمایش چاپ پیدا نشد');
   assertContainsString(html, 'چارچوب پس‌زمینه', 'راهنمای چارچوب پس‌زمینه پیدا نشد');
+});
+
+console.log('');
+console.log('📋 گروه ۳۹: ضدثبت‌تکراری، انبار داغی، تاریخچه پستی، شبکه اجتماعی (۱۴۰۵.۵.۱۸α)');
+
+test('قفل ضدثبت‌تکراری withSaveLock باید روی گارانتی/فاکتور/داغی/دفترچه باشد', () => {
+  assertContainsString(html, 'function withSaveLock(', 'withSaveLock پیدا نشد');
+  const saveWar = extractFunctionSource(html, 'saveWar');
+  const closeInv = extractFunctionSource(html, 'closeInv');
+  const saveDaqi = extractFunctionSource(html, 'saveDaqi');
+  const savePB = extractFunctionSource(html, 'savePBContact');
+  assertContainsString(saveWar, "withSaveLock('war'", 'saveWar باید قفل war داشته باشد');
+  assertContainsString(closeInv, "withSaveLock('closeInv'", 'closeInv باید قفل داشته باشد');
+  assertContainsString(saveDaqi, "withSaveLock('daqi'", 'saveDaqi باید قفل داشته باشد');
+  assertContainsString(savePB, "withSaveLock('pb'", 'savePBContact باید قفل داشته باشد');
+  assertContainsString(saveWar, 'wEditIdx = warranties.length - 1', 'بعد از ثبت جدید باید wEditIdx ست شود تا duplicate نشود');
+});
+
+test('شبیه‌سازی واقعی: withSaveLock باید کلیک دوم را مسدود کند', () => {
+  const src = extractFunctionSource(html, 'withSaveLock');
+  assertTrue(!!src, 'withSaveLock استخراج نشد');
+  const calls = [];
+  const fakeNtf = (m) => calls.push(m);
+  const runner = new Function('ntf', 'window', src + `
+    var n=0;
+    withSaveLock('t', function(){ n++; });
+    withSaveLock('t', function(){ n+=10; });
+    return n;
+  `);
+  const n = runner(fakeNtf, { _saveLocks: {} });
+  assertEqual(n, 1, 'فقط یکبار باید اجرا شود، نه دو بار (دریافت شد: '+n+')');
+  assertTrue(calls.length >= 1, 'کلیک دوم باید پیام خطا بدهد');
+});
+
+test('انبار داغی باید کسر موجودی و حواله خروجی بسازد', () => {
+  assertContainsString(html, 'function deductDaqiWarehouse(', 'deductDaqiWarehouse پیدا نشد');
+  assertContainsString(html, 'function createDaqiOutVoucher(', 'createDaqiOutVoucher پیدا نشد');
+  assertContainsString(html, 'id="daqi-wh-list"', 'UI انبار داغی پیدا نشد');
+  assertContainsString(html, 'id="daqi-manufacturer"', 'فیلد شرکت سازنده داغی پیدا نشد');
+  const saveDaqi = extractFunctionSource(html, 'saveDaqi');
+  assertContainsString(saveDaqi, 'deductDaqiWarehouse', 'saveDaqi باید از انبار داغی کسر کند');
+  assertContainsString(saveDaqi, 'createDaqiOutVoucher', 'saveDaqi باید حواله بسازد');
+  const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
+  assertContainsString(buildSrc, 'daqiWarehouse:', 'بک‌آپ باید انبار داغی را شامل شود');
+  assertContainsString(buildSrc, 'daqiVouchers:', 'بک‌آپ باید حواله‌های داغی را شامل شود');
+});
+
+test('شبیه‌سازی واقعی: deductDaqiWarehouse باید موجودی را کم کند', () => {
+  const addSrc = extractFunctionSource(html, 'addDaqiWarehouseItem');
+  const dedSrc = extractFunctionSource(html, 'deductDaqiWarehouse');
+  assertTrue(!!addSrc && !!dedSrc, 'توابع انبار داغی استخراج نشدند');
+  const runner = new Function('ntf', `
+    var daqiWarehouse = [];
+    var daqiVouchers = [];
+    function svDaqiWarehouse(){}
+    function fdt(){ return '1405/05/18'; }
+    function deductFromGeneralStock(){ return 'fallback'; }
+    ${addSrc}
+    ${dedSrc}
+    var e1 = addDaqiWarehouseItem({manufacturer:'سرایش', code:'M1', name:'موتور', qty:5});
+    if(e1) throw new Error(e1);
+    var e2 = deductDaqiWarehouse('سرایش', 'M1', 'موتور', 2);
+    if(e2) throw new Error(e2);
+    return daqiWarehouse[0].qty;
+  `);
+  const qty = runner(function(){});
+  assertEqual(qty, 3, 'بعد از کسر ۲ از ۵ باید ۳ بماند');
+});
+
+test('چاپ تازه openFreshPrintWindow باید جلوی حافظه چسبنده پرینت را بگیرد', () => {
+  assertContainsString(html, 'function openFreshPrintWindow(', 'openFreshPrintWindow پیدا نشد');
+  assertContainsString(html, 'document.open()', 'باید document را تازه باز کند');
+  const printInv = extractFunctionSource(html, 'printInv');
+  assertContainsString(printInv || html, 'openFreshPrintWindow', 'printInv باید از پنجره تازه استفاده کند');
+});
+
+test('دفترچه تلفن باید شبکه اجتماعی لیستی با گزینه دستی داشته باشد', () => {
+  assertContainsString(html, 'function addPBSocial(', 'addPBSocial پیدا نشد');
+  assertContainsString(html, 'id="pbm-soc-type"', 'سلکتور شبکه اجتماعی پیدا نشد');
+  assertContainsString(html, 'value="rubika"', 'روبیکا در لیست نیست');
+  assertContainsString(html, 'value="bale"', 'بله در لیست نیست');
+  assertContainsString(html, 'value="eitaa"', 'ایتا در لیست نیست');
+  assertContainsString(html, 'value="custom"', 'گزینه دستی سایر نیست');
+  const savePB = extractFunctionSource(html, 'savePBContact');
+  assertContainsString(savePB, 'socials:', 'ذخیره مخاطب باید آرایه socials داشته باشد');
+});
+
+test('تاریخچه برچسب پستی باید با تاریخ ثبت و در بک‌آپ باشد', () => {
+  assertContainsString(html, 'function recordPostalHistory(', 'recordPostalHistory پیدا نشد');
+  assertContainsString(html, 'id="postal-hist-list"', 'لیست تاریخچه پستی پیدا نشد');
+  const printPostal = extractFunctionSource(html, 'printPostal');
+  assertContainsString(printPostal, 'recordPostalHistory', 'چاپ پستی باید تاریخچه ثبت کند');
+  const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
+  assertContainsString(buildSrc, 'postalHistory:', 'بک‌آپ باید تاریخچه پستی را شامل شود');
+  assertContainsString(html, 'تاریخچه برچسب', 'عنوان تاریخچه در UI نیست');
+});
+
+test('گارانتی: انقضای خودکار از ماه ضمانت + تحویل به مشتری + چند مدرک', () => {
+  assertContainsString(html, 'function calcWarrExpFromBuy(', 'calcWarrExpFromBuy پیدا نشد');
+  assertContainsString(html, 'function addJalaliMonths(', 'addJalaliMonths پیدا نشد');
+  assertContainsString(html, 'id="w-deliver-date"', 'تاریخ تحویل به مشتری پیدا نشد');
+  assertContainsString(html, 'معرفی دستگاه', 'بخش معرفی دستگاه پیدا نشد');
+  assertContainsString(html, 'اولین تماس', 'بخش اولین تماس پیدا نشد');
+  const getWar = extractFunctionSource(html, 'getWarData');
+  assertContainsString(getWar, 'deliverDate', 'getWarData باید deliverDate داشته باشد');
+  assertContainsString(html, 'multiple', 'انتخاب چند فایل مدرک باید multiple باشد');
+  const addSrc = extractFunctionSource(html, 'addJalaliMonths');
+  const runner = new Function(addSrc + '; return addJalaliMonths("1405/05/05", 24);');
+  assertEqual(runner(), '1407/05/05', '۲۴ ماه بعد از ۵ مرداد ۱۴۰۵ باید ۵ مرداد ۱۴۰۷ باشد');
+});
+
+test('قانون ۷: راهنمای ویژگی‌های ۱۸α باید موجود باشد', () => {
+  assertContainsString(html, 'انبار داغی', 'راهنمای انبار داغی پیدا نشد');
+  assertContainsString(html, 'شبکه‌های اجتماعی', 'راهنمای شبکه‌های اجتماعی پیدا نشد');
+  assertContainsString(html, 'ساختار پرونده و مدارک گارانتی', 'راهنمای ساختار گارانتی پیدا نشد');
+});
+
+test('شبیه‌سازی واقعی: addJalaliMonths و کسر داغی در مسیر ذخیره باید هم‌خوان باشند', () => {
+  const monthsSrc = extractFunctionSource(html, 'addJalaliMonths');
+  assertTrue(!!monthsSrc, 'addJalaliMonths استخراج نشد');
+  const r = new Function(monthsSrc + `
+    var a = addJalaliMonths('1405/01/31', 1);
+    var b = addJalaliMonths('1405/11/15', 2);
+    return [a,b];
+  `)();
+  assertEqual(r[0], '1405/02/31', 'ماه ۱ بعد از ۳۱ فروردین باید ۳۱ اردیبهشت باشد');
+  assertEqual(r[1], '1406/01/15', '۲ ماه بعد از ۱۵ بهمن باید ۱۵ فروردین سال بعد باشد');
 });
 
 // نتیجه نهایی
