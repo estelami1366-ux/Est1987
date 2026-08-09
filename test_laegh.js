@@ -909,7 +909,7 @@ test('کد initLoginScreen باید بعد از تعریف let loginPw اجرا 
 console.log('📋 گروه ۹: گزارش داخلی شرکت در پرونده گارانتی (۴ امضاء)');
 
 test('select ارجاع (wref) باید رویداد onchange به toggleCompanyReport داشته باشد', () => {
-  assertContainsString(html, 'id="wref" onchange="toggleCompanyReport(this.value)"', 'select ارجاع باید با تغییر مقدار، تابع toggleCompanyReport را صدا بزند تا بخش گزارش داخلی نمایان/پنهان شود');
+  assertTrue(/id="wref"[^>]*onchange="toggleCompanyReport\(this\.value\)"/.test(html), 'select/input ارجاع باید با تغییر مقدار، تابع toggleCompanyReport را صدا بزند تا بخش گزارش داخلی نمایان/پنهان شود');
 });
 
 test('بخش گزارش داخلی شرکت باید به‌صورت پیش‌فرض مخفی باشد (فقط با انتخاب ارجاع به شرکت نمایان شود)', () => {
@@ -1100,7 +1100,7 @@ test('شبیه‌سازی واقعی: doAutoSave(true) باید حتی با isDi
     parts: [], services: [], warranties: [], sales: [], tasks: [], accounts: [],
     defectiveStock: [], warehouseDocs: [], stockMoves: [], userAuditLog: [], bgAuditLog: [], userRoles: [], loginPw: '',
     senderInfo: {}, logoSrc: '', acH: {},
-    APP_VERSION: '1405.5.18η',
+    APP_VERSION: '1405.5.18θ',
     autoSaveFileHandle: null,
     ensureFsPermission: async () => true,
     writeAutoSaveTarget: null, // set below after extract
@@ -2262,8 +2262,8 @@ test('فیلتر ماه فروش باید شمسی باشد (نه type=month م�
 });
 
 // تست ۷: سه فیلد تاریخ گارانتی باید به openDatePicker وصل شده باشن
-test('سه فیلد تاریخ گارانتی (wrefd, cr-repair-date, cr-ship-date) باید به تقویم فارسی وصل باشند', () => {
-  ['wrefd','cr-repair-date','cr-ship-date'].forEach(id => {
+test('سه فیلد تاریخ گارانتی (wa-refdate, cr-repair-date, cr-ship-date) باید به تقویم فارسی وصل باشند', () => {
+  ['wa-refdate','cr-repair-date','cr-ship-date'].forEach(id => {
     // باید readonly باشن و openDatePicker داشته باشن
     const re = new RegExp('id="'+id+'"[^>]*onclick="openDatePicker');
     assertTrue(re.test(html), 'فیلد '+id+' باید readonly + onclick="openDatePicker" باشد (تا از تقویم فارسی استفاده کند)');
@@ -3832,14 +3832,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۱۸η باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۱۸θ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.18η', 'نسخه meta باید 1405.5.18η باشد');
+  assertEqual(metaVer, '1405.5.18θ', 'نسخه meta باید 1405.5.18θ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/18', 'app-date باید 1405/05/18 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸η', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸η را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸θ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸θ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.18η'", 'فیلد version بک‌آپ باید 1405.5.18η باشد');
+  assertContainsString(buildSrc, "version: '1405.5.18θ'", 'فیلد version بک‌آپ باید 1405.5.18θ باشد');
 });
 
 
@@ -3904,12 +3904,12 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
   };
   // validate + compare
   const vRunner = new Function(cmpSrc + '\n' + valSrc + `\n
-    var APP_BASE_VERSION = '1405.5.18η';
+    var APP_BASE_VERSION = '1405.5.18θ';
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
-      good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.18η', minBaseVersion:'1405.5.18η'}),
+      good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.18θ', minBaseVersion:'1405.5.18θ'}),
       tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.19α'}),
-      cmp: compareSirmanVersions('1405.5.18η','1405.5.18ε')
+      cmp: compareSirmanVersions('1405.5.18θ','1405.5.18ε')
     };
   `);
   const vr = vRunner();
@@ -3920,7 +3920,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
 
   // setRuntimeAppVersion + meta save
   const metaRunner = new Function('localStorage', getMetaSrc + '\n' + saveMetaSrc + `\n
-    saveAppliedUpdatesMeta([{id:'t1', version:'1405.5.18η'}]);
+    saveAppliedUpdatesMeta([{id:'t1', version:'1405.5.18θ'}]);
     return getAppliedUpdatesMeta();
   `);
   const meta = metaRunner(sandboxLocal);
@@ -3939,12 +3939,12 @@ test('ζ: لانچر توکار و دانگرید باید در HTML و فایل
   const runner = new Function(
     'var SIRMAN_LAUNCHER_TEMPLATES = {"Sirman_Start.bat":"ver=__SIRMAN_VERSION__"};\n'
     + 'function ensureLauncherTemplates(){ return SIRMAN_LAUNCHER_TEMPLATES; }\n'
-    + 'var APP_VERSION = "1405.5.18η";\n'
+    + 'var APP_VERSION = "1405.5.18θ";\n'
     + 'function getLauncherVersionTag(){ return APP_VERSION; }\n'
     + buildSrc + '\n'
     + 'return buildEmbeddedLauncher("Sirman_Start.bat");'
   );
-  assertEqual(runner(), 'ver=1405.5.18η', 'لانچر باید نسخه جاری را جایگزین کند');
+  assertEqual(runner(), 'ver=1405.5.18θ', 'لانچر باید نسخه جاری را جایگزین کند');
 
   // decode one real template from HTML and ensure placeholder exists
   const m = html.match(/SIRMAN_LAUNCHER_TEMPLATES_B64 = (\{[\s\S]*?\});/);
@@ -3970,7 +3970,7 @@ test('ζ: لانچر توکار و دانگرید باید در HTML و فایل
 });
 
 
-test('η: خروج با بک‌آپ باید واقعاً بستن را صدا بزند و نشانگر ذخیره خودکار داشته باشد', () => {
+test('η/θ: خروج با بک‌آپ، نشانگر ذخیره خودکار، و آپدیت θ باید موجود باشند', () => {
   assertContainsString(html, 'async function exitWithBackup(', 'exitWithBackup باید async باشد');
   const exitSrc = extractFunctionSource(html, 'exitWithBackup');
   assertTrue(!!exitSrc, 'exitWithBackup پیدا نشد');
@@ -3982,13 +3982,14 @@ test('η: خروج با بک‌آپ باید واقعاً بستن را صدا �
   assertContainsString(uiSrc, 'flashAutosaveDot', 'updateAutoSaveUI باید نشانگر را روشن کند');
   const fs = require('fs');
   const path = require('path');
-  const updPath = path.join(path.dirname(filePath), 'updates', 'Sirman_Update_1405.5.18η.json');
-  assertTrue(fs.existsSync(updPath), 'فایل آپدیت η باید موجود باشد');
+  const updPath = path.join(path.dirname(filePath), 'updates', 'Sirman_Update_1405.5.18θ.json');
+  assertTrue(fs.existsSync(updPath), 'فایل آپدیت θ باید موجود باشد');
   const pkg = JSON.parse(fs.readFileSync(updPath, 'utf8'));
   assertEqual(pkg.magic, 'SIRMAN_UPDATE');
-  assertEqual(pkg.version, '1405.5.18η');
-  const js = ((pkg.patches||[]).find(p => p.op==='runJs')||{}).code || '';
-  assertTrue(js.indexOf('exitWithBackup')>=0 && js.indexOf('flashAutosaveDot')>=0, 'آپدیت باید هر دو رفع را داشته باشد');
+  assertEqual(pkg.version, '1405.5.18θ');
+  assertTrue(Array.isArray(pkg.changelog) && pkg.changelog.some(function(c){ return String(c).indexOf('گارانتی')>=0; }), 'آپدیت θ باید changelog گارانتی داشته باشد');
+  // ویژگی‌های η در خود HTML پایه θ هستند
+  assertTrue(!!extractFunctionSource(html, 'exitWithBackup') && html.indexOf('flashAutosaveDot')>=0, 'رفع‌های η باید در HTML θ موجود باشند');
 });
 
 test('قانون ۹: لانچر BAT/PS1 باید با نسخه meta همگام باشد', () => {
@@ -4769,7 +4770,7 @@ test('گارانتی: انقضای خودکار از ماه ضمانت + تحو�
   assertContainsString(html, 'function addJalaliMonths(', 'addJalaliMonths پیدا نشد');
   assertContainsString(html, 'id="w-deliver-date"', 'تاریخ تحویل به مشتری پیدا نشد');
   assertContainsString(html, 'معرفی دستگاه', 'بخش معرفی دستگاه پیدا نشد');
-  assertContainsString(html, 'اولین تماس', 'بخش اولین تماس پیدا نشد');
+  assertContainsString(html, 'اولین برخورد', 'بخش اولین برخورد پیدا نشد');
   const getWar = extractFunctionSource(html, 'getWarData');
   assertContainsString(getWar, 'deliverDate', 'getWarData باید deliverDate داشته باشد');
   assertContainsString(html, 'multiple', 'انتخاب چند فایل مدرک باید multiple باشد');
@@ -4794,6 +4795,44 @@ test('شبیه‌سازی واقعی: addJalaliMonths و کسر داغی در م
   `)();
   assertEqual(r[0], '1405/02/31', 'ماه ۱ بعد از ۳۱ فروردین باید ۳۱ اردیبهشت باشد');
   assertEqual(r[1], '1406/01/15', '۲ ماه بعد از ۱۵ بهمن باید ۱۵ فروردین سال بعد باشد');
+});
+
+
+// -------------------------------------------------------------------
+// گروه θ: پرونده جامع گارانتی (مسیر نمایندگی / شرکت / CRM)
+// -------------------------------------------------------------------
+console.log('📋 گروه θ: پرونده جامع گارانتی (نمایندگی/شرکت/CRM)');
+
+test('مسیرهای گارانتی: phone/agency/company و فیلدهای کلیدی باید در HTML باشند', () => {
+  ['war-phone-path','war-agency-path','war-company-path','wa-name','wa-code','wa-parts-list','wa-svc-list','wa-pay-acc',
+   'wc-arrive-date','wc-cond-carton','wc-expert-diag','wc-under-warr','wc-parts-list','wc-svc-list','wc-recv-acc'].forEach(id=>{
+    assertContainsString(html, 'id="'+id+'"', 'عنصر '+id+' در فرم گارانتی پیدا نشد');
+  });
+  assertContainsString(html, 'onclick="printWarAgencyInvoice()"', 'دکمه چاپ فاکتور نمایندگی وصل نیست');
+  assertContainsString(html, 'onclick="printWarCustomerBill()"', 'دکمه چاپ فاکتور مشتری وصل نیست');
+  assertContainsString(html, 'notifyWarStage(', 'تابع/دکمه‌های گزارش مرحله‌ای به مشتری باید موجود باشند');
+});
+
+test('getWarData باید agencyWork و companyWork و phoneResolution را برگرداند', () => {
+  const src = extractFunctionSource(html, 'getWarData');
+  assertTrue(!!src, 'getWarData پیدا نشد');
+  ['agencyWork','companyWork','phoneResolution','wa-name','wc-arrive-date',"refTo==='company'"].forEach(s=>{
+    assertContainsString(src, s, 'getWarData باید شامل '+s+' باشد');
+  });
+});
+
+test('saveWar باید کسر انبار/داغی و برداشت/واریز حساب را (یک‌بار) اعمال کند', () => {
+  const src = extractFunctionSource(html, 'saveWar');
+  assertTrue(!!src, 'saveWar پیدا نشد');
+  ['createDaqiOutVoucher','withdrawFromAccount','depositToAccount','_agencyStockApplied','_agencyPayApplied','_companyBillApplied','phone_fix'].forEach(s=>{
+    assertContainsString(src, s, 'saveWar باید '+s+' را داشته باشد');
+  });
+});
+
+test('قانون ۷: راهنمای مسیر نمایندگی/شرکت CRM باید موجود باشد', () => {
+  assertContainsString(html, 'مسیر نمایندگی و شرکت (CRM خدمات)', 'گره راهنمای CRM گارانتی پیدا نشد');
+  assertContainsString(html, 'فاکتور نمایندگی', 'راهنما باید فاکتور نمایندگی را توضیح دهد');
+  assertContainsString(html, 'رضایت مشتری', 'راهنما باید رضایت مشتری را توضیح دهد');
 });
 
 // نتیجه نهایی
