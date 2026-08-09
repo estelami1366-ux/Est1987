@@ -3832,14 +3832,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۱۸δ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۱۸ε باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.18δ', 'نسخه meta باید 1405.5.18δ باشد');
+  assertEqual(metaVer, '1405.5.18ε', 'نسخه meta باید 1405.5.18ε باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/18', 'app-date باید 1405/05/18 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸δ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸δ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۸ε', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۸ε را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.18δ'", 'فیلد version بک‌آپ باید 1405.5.18δ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.18ε'", 'فیلد version بک‌آپ باید 1405.5.18ε باشد');
 });
 
 
@@ -3876,6 +3876,56 @@ test('δ: انتخاب فایل ذخیره (showSaveFilePicker) و نام‌ها
   assertContainsString(html, 'chooseAutoSaveFile()', 'دکمه UI باید chooseAutoSaveFile را صدا بزند');
   const doSrc = extractFunctionSource(html, 'doAutoSave');
   assertContainsString(doSrc, 'downloadAutoSaveFallback', 'در شکست نوشتن باید دانلود جایگزین صدا زده شود');
+});
+
+test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته SIRMAN_UPDATE را اعتبارسنجی/اعمال کند', () => {
+  assertContainsString(html, "showStgTab('update'", 'تب آپدیت در تنظیمات باید باشد');
+  assertContainsString(html, 'id="stg-update"', 'پنل stg-update باید باشد');
+  assertContainsString(html, 'function applyUpdatePackage(', 'applyUpdatePackage لازم است');
+  assertContainsString(html, 'function validateUpdatePackage(', 'validateUpdatePackage لازم است');
+  assertContainsString(html, 'function reapplyStoredUpdates(', 'reapplyStoredUpdates لازم است');
+  assertContainsString(html, "magic !== 'SIRMAN_UPDATE'", 'باید magic را چک کند');
+  assertContainsString(html, 'appliedUpdates:', 'بک‌آپ باید appliedUpdates داشته باشد');
+  assertContainsString(html, 'مرکز آپدیت', 'راهنما یا UI مرکز آپدیت باید باشد');
+  const valSrc = extractFunctionSource(html, 'validateUpdatePackage');
+  const applySrc = extractFunctionSource(html, 'applyUpdatePackage');
+  const setVerSrc = extractFunctionSource(html, 'setRuntimeAppVersion');
+  const cmpSrc = extractFunctionSource(html, 'compareSirmanVersions');
+  const getMetaSrc = extractFunctionSource(html, 'getAppliedUpdatesMeta');
+  const saveMetaSrc = extractFunctionSource(html, 'saveAppliedUpdatesMeta');
+  assertTrue(!!valSrc && !!applySrc && !!setVerSrc, 'توابع آپدیت extract نشدند');
+
+  // شبیه‌سازی واقعی اعتبارسنجی و اعمال setVersion بدون DOM کامل
+  const store = {};
+  const sandboxLocal = {
+    getItem: (k) => (k in store ? store[k] : null),
+    setItem: (k, v) => { store[k] = String(v); },
+    removeItem: (k) => { delete store[k]; }
+  };
+  // validate + compare
+  const vRunner = new Function(cmpSrc + '\n' + valSrc + `\n
+    var APP_BASE_VERSION = '1405.5.18ε';
+    return {
+      bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
+      good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.18ζ', minBaseVersion:'1405.5.18ε'}),
+      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.19α'}),
+      cmp: compareSirmanVersions('1405.5.18ε','1405.5.18δ')
+    };
+  `);
+  const vr = vRunner();
+  assertTrue(!!vr.bad, 'magic نادرست باید خطا بدهد');
+  assertEqual(vr.good, null, 'بسته معتبر باید null برگرداند');
+  assertTrue(!!vr.tooNew, 'minBaseVersion بالاتر باید رد شود');
+  assertTrue(vr.cmp > 0, 'ε باید بعد از δ باشد');
+
+  // setRuntimeAppVersion + meta save
+  const metaRunner = new Function('localStorage', getMetaSrc + '\n' + saveMetaSrc + `\n
+    saveAppliedUpdatesMeta([{id:'t1', version:'1405.5.18ζ'}]);
+    return getAppliedUpdatesMeta();
+  `);
+  const meta = metaRunner(sandboxLocal);
+  assertEqual(meta.length, 1, 'meta باید ذخیره شود');
+  assertEqual(meta[0].id, 't1', 'شناسه آپدیت باید بماند');
 });
 
 test('قانون ۹: لانچر BAT/PS1 باید با نسخه meta همگام باشد', () => {
