@@ -8,6 +8,7 @@ public sealed class MainForm : Form
     private readonly WebView2 _webView = new();
     private readonly StatusStrip _status = new();
     private readonly ToolStripStatusLabel _statusLabel = new();
+    private readonly NotifyBridgeService _notify = new();
     private readonly string[] _args;
     private string? _htmlPath;
     private DesktopSettings _settings;
@@ -40,6 +41,7 @@ public sealed class MainForm : Form
         Controls.Add(menu);
 
         Load += async (_, _) => await InitWebViewAsync();
+        FormClosed += (_, _) => _notify.Dispose();
     }
 
     private MenuStrip BuildMenu()
@@ -94,17 +96,26 @@ public sealed class MainForm : Form
         }));
 
         var help = new ToolStripMenuItem("راهنما");
+        help.DropDownItems.Add(new ToolStripMenuItem("آزمایش اعلان ویندوز", null, (_, _) =>
+        {
+            _notify.ShowToast("✅ اعلان سیرمان", "پل اعلان دسکتاپ فعال است. این یک پیام آزمایشی است.");
+            SetStatus(_notify.IsRunning
+                ? "اعلان آزمایشی ارسال شد (پل :8766 روشن)"
+                : "اعلان آزمایشی ارسال شد (Toast مستقیم)");
+        }));
         help.DropDownItems.Add(new ToolStripMenuItem("درباره فاز ۲…", null, (_, _) =>
         {
             MessageBox.Show(
-                "سیرمان دسکتاپ — فاز ۲\n\n" +
+                "سیرمان دسکتاپ — فاز ۲ (+ اعلان)\n\n" +
                 "• پوسته WebView2 برای HTML سیرمان\n" +
                 "• آپدیت خودکار از Sirman_Pending_Update.json\n" +
                 "• پوشه بک‌آپ قابل انتخاب\n" +
-                "• نصب محلی + میانبر منوی Start\n\n" +
+                "• نصب محلی + میانبر منوی Start\n" +
+                "• پل اعلان مرکز اعلان ویندوز (پورت ۸۷۶۶)\n\n" +
                 "HTML:\n" + (_htmlPath ?? "—") + "\n\n" +
                 "بک‌آپ:\n" + AppPaths.ResolveBackupFolder(_settings) + "\n\n" +
-                "آخرین آپدیت:\n" + (_settings.LastAppliedUpdateVersion ?? "—"),
+                "آخرین آپدیت:\n" + (_settings.LastAppliedUpdateVersion ?? "—") + "\n\n" +
+                "پل اعلان: " + (_notify.IsRunning ? "روشن روی :" + _notify.Port : "Toast مستقیم / پورت اشغال"),
                 "درباره",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
@@ -148,6 +159,9 @@ public sealed class MainForm : Form
             var userData = Path.Combine(AppPaths.AppDataRoot, "WebView2");
             Directory.CreateDirectory(userData);
 
+            // پل اعلان محلی (همان ۸۷۶۶ که HTML به آن fetch می‌زند)
+            var bridgeOk = _notify.Start(NotifyBridgeService.DefaultPort);
+
             var env = await CoreWebView2Environment.CreateAsync(userDataFolder: userData);
             await _webView.EnsureCoreWebView2Async(env);
 
@@ -159,9 +173,16 @@ public sealed class MainForm : Form
                 var t = _webView.CoreWebView2?.DocumentTitle;
                 Text = string.IsNullOrWhiteSpace(t) ? "سیرمان" : ("سیرمان — " + t);
             };
+            _webView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
+            _webView.CoreWebView2.NavigationCompleted += async (_, e) =>
+            {
+                if (!e.IsSuccess) return;
+                try { await InjectDesktopHostBridgeAsync(); } catch { /* ignore */ }
+            };
 
             await ReloadHtmlAsync();
-            SetStatus("آماده" + (_htmlPath != null ? " — " + Path.GetFileName(_htmlPath) : ""));
+            var notifyHint = bridgeOk ? " — اعلان:8766" : " — اعلان:مستقیم";
+            SetStatus("آماده" + (_htmlPath != null ? " — " + Path.GetFileName(_htmlPath) : "") + notifyHint);
         }
         catch (Exception ex)
         {
@@ -353,6 +374,65 @@ public sealed class MainForm : Form
     }
 
     private void SetStatus(string text) => _statusLabel.Text = text;
+
+    private void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
+    {
+        try
+        {
+            var raw = e.TryGetWebMessageAsString();
+            if (string.IsNullOrWhiteSpace(raw)) return;
+
+            using var doc = System.Text.Json.JsonDocument.Parse(raw);
+            var root = doc.RootElement;
+            var type = root.TryGetProperty("type", out var t) ? t.GetString() : null;
+            if (string.Equals(type, "notify", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(type, "toast", StringComparison.OrdinalIgnoreCase))
+            {
+                var title = root.TryGetProperty("title", out var ti) ? ti.GetString() : "سیرمان";
+                var body = root.TryGetProperty("body", out var b) ? b.GetString() : "";
+                _notify.ShowToast(title, body);
+            }
+            else if (string.Equals(type, "notify-enable", StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(type, "ping", StringComparison.OrdinalIgnoreCase))
+            {
+                _notify.ShowToast("✅ اعلان دسکتاپ سیرمان", "پل میزبان فعال است.");
+            }
+        }
+        catch
+        {
+            // پیام نامعتبر را نادیده بگیر
+        }
+    }
+
+    private async Task InjectDesktopHostBridgeAsync()
+    {
+        if (_webView.CoreWebView2 == null) return;
+        const string script = """
+            (function(){
+              try{
+                window.SIRMAN_DESKTOP_HOST = true;
+                window.sirmanDesktopNotify = function(title, opts){
+                  opts = opts || {};
+                  try{
+                    if(window.chrome && window.chrome.webview && window.chrome.webview.postMessage){
+                      window.chrome.webview.postMessage(JSON.stringify({
+                        type: 'notify',
+                        title: String(title || 'سیرمان'),
+                        body: String((opts && opts.body) || ''),
+                        tag: String((opts && opts.tag) || '')
+                      }));
+                      return true;
+                    }
+                  }catch(_e){}
+                  return false;
+                };
+                try{ localStorage.setItem('laegh_desktop_host','1'); }catch(_e2){}
+                try{ localStorage.setItem('laegh_desktop_notify_on','1'); }catch(_e3){}
+              }catch(_e4){}
+            })();
+            """;
+        await _webView.CoreWebView2.ExecuteScriptAsync(script);
+    }
 
     private string? ResolveHtmlPath()
     {

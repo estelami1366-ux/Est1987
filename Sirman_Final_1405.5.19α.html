@@ -2,8 +2,8 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18κ">
-<meta name="app-date" content="1405/05/18">
+<meta name="app-version" content="1405.5.19α">
+<meta name="app-date" content="1405/05/19">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
 <title>سیرمان — سیستم خدمات پس از فروش</title>
@@ -946,7 +946,7 @@ body.has-bg-image::after{
 }
 body.has-bg-image.theme-dark::after{background:rgba(10,12,15,var(--bg-overlay,0.55));}
 
-/* ══════ اسکین قوی / Skin Pack (v1405.5.18κ) ══════ */
+/* ══════ اسکین قوی / Skin Pack (v1405.5.19α) ══════ */
 .skin-card{width:148px;border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--card);transition:.18s;text-align:right;}
 .skin-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,40,55,.10);}
 .skin-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 25%,transparent);}
@@ -1642,7 +1642,7 @@ body.sb-dock #autosave-dot{ bottom:72px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۱۸κ — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۱۹α — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-sm" onclick="promptExitBackup()" style="width:100%;margin-top:6px">🚪 خروج / بستن برنامه</button>
 </div>
 
@@ -4240,6 +4240,11 @@ body.sb-dock #autosave-dot{ bottom:72px; }
     🖥 <b>پل اعلان ویندوز:</b> فایل <b>«Sirman_Start.bat»</b> (یا «اجرای سیرمان.bat») هم‌زمان سرور محلی و اسکریپت <code>اعلان_سیرمان.ps1</code> را اجرا می‌کند.
     این پل، اعلان‌های برنامه را مستقیماً به <b>مرکز اعلان‌های ویندوز</b> می‌فرستد.
   </div>
+  <div style="background:var(--green-l);color:var(--green);padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.9;margin-top:8px">
+    💻 <b>برنامه نصبی Sirman.exe:</b> پوستهٔ دسکتاپ خودش پل اعلان را روشن می‌کند.
+    فقط دکمهٔ <b>«🔔 فعال‌سازی اعلان دسکتاپ»</b> را بزنید — نیازی به Allow مرورگر نیست.
+    اگر ارور دیدید، از منوی <b>راهنما → آزمایش اعلان ویندوز</b> هم می‌توانید تست کنید.
+  </div>
 </div>
 
 <div class="help-cat-header">🚀 شروع، نصب و اجرا</div>
@@ -4406,7 +4411,7 @@ body.sb-dock #autosave-dot{ bottom:72px; }
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۱۸κ
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۱۹α
 </div>
 </div>
 
@@ -5056,9 +5061,9 @@ body.sb-dock #autosave-dot{ bottom:72px; }
 })();
 
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.18κ';
-var APP_BASE_VERSION = '1405.5.18κ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۱۸κ';
+var APP_VERSION = '1405.5.19α';
+var APP_BASE_VERSION = '1405.5.19α'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۱۹α';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -5554,8 +5559,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.18κ'; }
-  catch(_e){ return '1405.5.18κ'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.19α'; }
+  catch(_e){ return '1405.5.19α'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -5701,7 +5706,7 @@ try{
   }
 }catch(_bootUpd){}
 
-var APP_DATE = '1405/05/18';
+var APP_DATE = '1405/05/19';
 // قفل ضدثبت‌تکراری — جلوگیری از چند رکورد با چند کلیک سریع
 window._saveLocks = window._saveLocks || {};
 
@@ -5834,7 +5839,7 @@ function _safeStr(s){ return (s==null)?'':String(s); }
 
 function _buildFullBackupData(){
   var data = {
-    version: '1405.5.18κ',
+    version: '1405.5.19α',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -7735,7 +7740,7 @@ function buildPH(list){
 
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18κ">
+<meta name="app-version" content="1405.5.19α">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -7752,8 +7757,8 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18κ">
-<meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
+<meta name="app-version" content="1405.5.19α">
+<meta name="app-date" content="1405/05/19"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
 
@@ -7812,8 +7817,8 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18κ">
-<meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
+<meta name="app-version" content="1405.5.19α">
+<meta name="app-date" content="1405/05/19"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
   const wb=XLSX.utils.book_new();
@@ -7832,12 +7837,12 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18κ">
-<meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
+<meta name="app-version" content="1405.5.19α">
+<meta name="app-date" content="1405/05/19"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18κ">
-<meta name="app-date" content="1405/05/18"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
+<meta name="app-version" content="1405.5.19α">
+<meta name="app-date" content="1405/05/19"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
   const d=invoices[idx];
@@ -8277,7 +8282,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18κ">
+<meta name="app-version" content="1405.5.19α">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -9450,11 +9455,26 @@ let _swReg=null;
 // نمایش یک اعلان دسکتاپ به مطمئن‌ترین روش ممکن:
 // وقتی پنجره باز است، new Notification مستقیم و بدون وابستگی به سرویس‌ورکر کار می‌کند (مسیر اصلی و قابل‌اعتماد).
 // اگر به هر دلیل شکست خورد، از طریق سرویس‌ورکر (که برای حالت پس‌زمینه هم لازم است) تلاش می‌شود.
+function isSirmanDesktopNotifyReady(){
+  try{
+    if(typeof sirmanDesktopNotify === 'function') return true;
+    if(window.SIRMAN_DESKTOP_HOST) return true;
+    if(localStorage.getItem('laegh_desktop_host')==='1') return true;
+    if(localStorage.getItem('laegh_desktop_notify_on')==='1') return true;
+  }catch(_e){}
+  return false;
+}
+function desktopNotifyAllowed(){
+  if(isSirmanDesktopNotifyReady()) return true;
+  try{
+    return ('Notification' in window) && Notification.permission==='granted';
+  }catch(_e2){ return false; }
+}
 function showLaeghNotification(title, opts){
   opts = opts || {};
   var ok = false;
-  // پل اعلان ویندوز (اعلان_سیرمان.ps1 روی پورت ۸۷۶۶) — مستقل از اجازهٔ مرورگر
-  try{ pushWindowsNotifyBridge(title, opts); }catch(_e){}
+  // پل اعلان ویندوز (اعلان_سیرمان.ps1 / Sirman.exe روی پورت ۸۷۶۶) — مستقل از اجازهٔ مرورگر
+  try{ pushWindowsNotifyBridge(title, opts); ok = true; }catch(_e){}
   if(!('Notification' in window) || Notification.permission!=='granted') return ok;
   try{
     new Notification(title, opts);
@@ -9465,16 +9485,29 @@ function showLaeghNotification(title, opts){
   }
   return ok;
 }
-// ارسال اعلان به اسکریپت محلی ویندوز (مرکز اعلان‌ها)
+// ارسال اعلان به اسکریپت محلی ویندوز / پوستهٔ .NET (مرکز اعلان‌ها)
 function pushWindowsNotifyBridge(title, opts){
   opts = opts || {};
-  var payload = JSON.stringify({
+  var payloadObj = {
     title: String(title||'سیرمان'),
     body: String((opts && opts.body) || ''),
     tag: String((opts && opts.tag) || ''),
     ts: Date.now()
-  });
-  // بهترین تلاش: HTTP محلی؛ اگر پل روشن نباشد بی‌صدا نادیده گرفته می‌شود
+  };
+  var payload = JSON.stringify(payloadObj);
+  // مسیر ۱: میزبان دسکتاپ WebView2 (.NET)
+  try{
+    if(typeof sirmanDesktopNotify === 'function'){
+      if(sirmanDesktopNotify(payloadObj.title, {body: payloadObj.body, tag: payloadObj.tag})) return;
+    }
+    if(window.chrome && window.chrome.webview && window.chrome.webview.postMessage){
+      window.chrome.webview.postMessage(JSON.stringify({
+        type:'notify', title: payloadObj.title, body: payloadObj.body, tag: payloadObj.tag
+      }));
+      return;
+    }
+  }catch(_h){}
+  // مسیر ۲: HTTP محلی؛ اگر پل روشن نباشد بی‌صدا نادیده گرفته می‌شود
   try{
     if(typeof fetch === 'function'){
       fetch('http://127.0.0.1:8766/notify', {
@@ -9488,28 +9521,63 @@ function pushWindowsNotifyBridge(title, opts){
   try{
     var q = [];
     try{ q = JSON.parse(localStorage.getItem('laegh_win_notify_q')||'[]') || []; }catch(_e){ q = []; }
-    q.push(JSON.parse(payload));
+    q.push(payloadObj);
     if(q.length > 40) q = q.slice(-40);
     localStorage.setItem('laegh_win_notify_q', JSON.stringify(q));
   }catch(e2){}
 }
 function enableTaskNotifications(){
-  if(!('Notification' in window)){ ntf('مرورگر شما از اعلان دسکتاپ پشتیبانی نمی‌کند','err'); return; }
-  Notification.requestPermission().then(p=>{
-    if(p==='granted'){
-      ntf('اعلان دسکتاپ فعال شد ✅');
-      registerLaeghSW();
-      // اعلان تست فوری تا کاربر بلافاصله مطمئن شود کار می‌کند
-      showLaeghNotification('✅ اعلان دسکتاپ سیرمان فعال شد', {body:'از این پس یادآوری کارهای سررسیددار در مرکز اعلان ویندوز هم نمایش داده می‌شود.', tag:'laegh-enable-test'});
-      // یک‌بار همان لحظه کارهای سررسیدشده را هم چک کن (نه اینکه تا ۶۰ ثانیه‌ی بعد صبر کند)
-      checkDueTasksForNotification();
+  function markOk(){
+    try{ localStorage.setItem('laegh_desktop_notify_on','1'); }catch(_e){}
+    ntf('اعلان دسکتاپ فعال شد ✅');
+    try{ registerLaeghSW(); }catch(_e2){}
+    showLaeghNotification('✅ اعلان دسکتاپ سیرمان فعال شد', {body:'از این پس یادآوری کارهای سررسیددار در مرکز اعلان ویندوز هم نمایش داده می‌شود.', tag:'laegh-enable-test'});
+    checkDueTasksForNotification();
+  }
+  // پوستهٔ نصب‌شدهٔ .NET / پل میزبان — بدون نیاز به Notification API مرورگر
+  if(isSirmanDesktopNotifyReady() || (window.chrome && window.chrome.webview)){
+    try{
+      if(window.chrome && window.chrome.webview && window.chrome.webview.postMessage){
+        window.chrome.webview.postMessage(JSON.stringify({type:'notify-enable'}));
+      }
+    }catch(_e3){}
+    markOk();
+    return;
+  }
+  // اگر پل محلی ۸۷۶۶ زنده باشد (Sirman_Start.bat / Sirman.exe)
+  function afterBridgeProbe(ok){
+    if(ok){ markOk(); return; }
+    if(!('Notification' in window)){
+      ntf('اعلان دسکتاپ در این محیط در دسترس نیست. برنامه را با Sirman.exe یا Sirman_Start.bat باز کنید.','err');
+      return;
     }
-    else ntf('اجازه‌ی اعلان داده نشد — از تنظیمات مرورگر برای این سایت اجازه‌ی Notification بدهید','err');
-  });
+    try{
+      Notification.requestPermission().then(function(p){
+        if(p==='granted') markOk();
+        else ntf('اجازه‌ی اعلان داده نشد — از تنظیمات مرورگر برای این سایت اجازه‌ی Notification بدهید','err');
+      }).catch(function(){
+        ntf('فعال‌سازی اعلان ناموفق بود — از Sirman.exe یا Sirman_Start.bat استفاده کنید','err');
+      });
+    }catch(_e4){
+      ntf('فعال‌سازی اعلان ناموفق بود — از Sirman.exe یا Sirman_Start.bat استفاده کنید','err');
+    }
+  }
+  var settled = false;
+  function finish(ok){ if(settled) return; settled = true; afterBridgeProbe(!!ok); }
+  try{
+    if(typeof fetch === 'function'){
+      fetch('http://127.0.0.1:8766/health', {method:'GET', mode:'cors'}).then(function(r){
+        finish(r && r.ok);
+      }).catch(function(){ finish(false); });
+      setTimeout(function(){ finish(false); }, 1200);
+      return;
+    }
+  }catch(_e5){}
+  finish(false);
 }
 function registerLaeghSW(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('sw.js?v=1405.5.18κ').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=1405.5.19α').then(reg=>{
     _swReg=reg;
     // Check for SW updates
     reg.addEventListener('updatefound', ()=>{
@@ -9525,7 +9593,7 @@ function registerLaeghSW(){
   }).catch(()=>{});
 }
 function checkDueTasksForNotification(){
-  if(!('Notification' in window) || Notification.permission!=='granted') return;
+  if(typeof desktopNotifyAllowed==='function' ? !desktopNotifyAllowed() : (!('Notification' in window) || Notification.permission!=='granted')) return;
   const now=Date.now(); let changed=false;
   tasks.forEach(t=>{
     // اعلان یک‌بار فرستاده می‌شود (notifiedAt جلوی تکرار/اسپم را می‌گیرد) برای:
@@ -10655,8 +10723,8 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18κ">'+
-    '<meta name="app-date" content="1405/05/18">'+
+    '<meta name="app-version" content="1405.5.19α">'+
+    '<meta name="app-date" content="1405/05/19">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
     '@page{size:A5;margin:8mm}'+
@@ -10806,7 +10874,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.18κ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.19α"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -12348,7 +12416,7 @@ function doPrint(paperSize){
   const effPaper = pw.paper || paperSize;
   const w = window.open('','_blank');
   w.document.open(); w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.18κ">
+<meta name="app-version" content="1405.5.19α">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -12446,7 +12514,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18κ"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.19α"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -12475,7 +12543,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18κ"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.19α"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -12512,8 +12580,8 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18κ">'+
-    '<meta name="app-date" content="1405/05/18">'+
+    '<meta name="app-version" content="1405.5.19α">'+
+    '<meta name="app-date" content="1405/05/19">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
     '@page{size:A5;margin:8mm}'+
@@ -12588,7 +12656,7 @@ function printCompanyReport(idx){
   var qcResultLbl = {'pass':'✅ تأیید کیفیت','fail':'❌ رد شد — نیاز به اصلاح','pending':'در حال بررسی'};
   var mgrApproveLbl = {'approved':'✅ تأیید نهایی','pending':'در انتظار بررسی','rejected':'❌ رد شد'};
 
-  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.18κ';
+  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.19α';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
     '<title>گزارش داخلی شرکت — '+wHdr.id+'</title>'+
     '<style>'+
@@ -13219,8 +13287,8 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18κ">'+
-    '<meta name="app-date" content="1405/05/18">'+
+    '<meta name="app-version" content="1405.5.19α">'+
+    '<meta name="app-date" content="1405/05/19">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
     '@page{size:A4;margin:10mm}'+
@@ -13439,7 +13507,7 @@ function expSalesExcel(){
 // ══════ حسابداری ══════
 // ═══════════════════════════════════════════════════════════════════════════
 // ماژول داغی (پیگیری رسید امضا‌شده‌ی نمایندگی‌های خدمات)
-// نسخه ۱۴۰۵.۵.۱۸κ — فاز داغی
+// نسخه ۱۴۰۵.۵.۱۹α — فاز داغی
 //
 // «داغی» یعنی وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستیم، آن‌ها باید رسید امضا‌شده
 // (داغی) را به ما برگردانند. این ماژول پیگیری می‌کند که چه کسانی داغی معوقه دارند.
@@ -14743,7 +14811,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.18κ">'+
+    '<meta name="app-version" content="1405.5.19α">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
@@ -16883,7 +16951,7 @@ setInterval(syncAllAutoTasks,300000);
 setInterval(checkDueTasksForNotification, 60000);
 // ساعت زنده‌ی مرکز زمان
 updateLiveClock(); setInterval(updateLiveClock, 1000);
-if('Notification' in window && Notification.permission==='granted'){ registerLaeghSW(); }
+if((typeof desktopNotifyAllowed==='function' && desktopNotifyAllowed()) || ('Notification' in window && Notification.permission==='granted')){ try{ registerLaeghSW(); }catch(_e){} }
 syncNotifiedFromIDB();
 
 </script>
