@@ -1,0 +1,39 @@
+# سیرمان دسکتاپ — فاز ۱ و ۲
+
+پوسته ویندوزی با **WebView2** برای همان `Sirman_Final.html`.
+
+## فاز ۱
+- باز کردن HTML
+- تک‌نسخه‌ای بودن
+- منوی تازه‌سازی / انتخاب HTML
+
+## فاز ۲
+- **آپدیت خودکار:** اگر `Sirman_Pending_Update.json` کنار exe باشد، موقع اجرا اعمال می‌شود
+- منوی آپدیت: اعمال در انتظار / انتخاب فایل JSON
+- **پوشه بک‌آپ** قابل انتخاب (قبل از آپدیت از HTML قبلی کپی می‌گیرد)
+- **نصب محلی** در `%LOCALAPPDATA%\Sirman\App` + میانبر منوی Start
+
+## پیش‌نیاز ویندوز
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (برای بیلد)
+- WebView2 Runtime (معمولاً با Edge)
+
+## ساخت و نصب
+
+```bat
+cd desktop
+build-win.bat
+install-sirman.bat
+```
+
+یا فقط اجرا از خروجی بیلد:
+
+```bat
+desktop\publish\Sirman.exe
+```
+
+## آپدیت روی چند سیستم
+1. فایل `Sirman_Pending_Update.json` را کنار `Sirman.exe` بگذارید  
+2. برنامه را باز کنید — خودکار اعمال می‌شود  
+
+## منوها
+- آپدیت / بک‌آپ / نصب / پرونده / نمایش
