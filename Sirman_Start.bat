@@ -1,11 +1,11 @@
 @echo off
 setlocal EnableExtensions
 cd /d "%~dp0"
-title Sirman 1405.5.19β
+title Sirman 1405.5.19γ
 color 0A
 
 rem === ALWAYS keep this version equal to the latest Sirman HTML release ===
-set "SIRMAN_VERSION=1405.5.19β"
+set "SIRMAN_VERSION=1405.5.19γ"
 set "SIRMAN_HTML=Sirman_Final.html"
 set "SIRMAN_HTML_VER=Sirman_Final_%SIRMAN_VERSION%.html"
 
@@ -35,20 +35,20 @@ if exist "%~dp0%SIRMAN_HTML%" (
   exit /b 1
 )
 
-echo [1/3] Opening %APP_FILE%  (version %SIRMAN_VERSION%) ...
-start "" "%~dp0%APP_FILE%"
-
-echo [2/3] Starting local server + notify (optional)...
+echo [1/3] Starting local server + notify + browser (http)...
 if exist "%~dp0sirman_run.ps1" (
   start "Sirman-Server-%SIRMAN_VERSION%" /min powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0sirman_run.ps1"
 ) else (
-  echo [WARN] sirman_run.ps1 missing - app still opened as file.
+  echo [WARN] sirman_run.ps1 missing - opening file directly.
+  start "" "%~dp0%APP_FILE%"
 )
 
-echo [3/3] Done.
+echo [2/3] Done.
 echo.
-echo Browser should show Sirman %SIRMAN_VERSION% now.
-echo If a minimized PowerShell window is running, leave it open for notifications.
+echo Browser should open http://127.0.0.1:8765/%APP_FILE%
+echo Leave the minimized PowerShell window open for notifications + stable settings.
+echo.
+echo For Start/Desktop shortcuts: run  نصب_میانبر_سیرمان.bat  once.
 echo.
 echo Mass update: put Sirman_Pending_Update.json next to this BAT, then run Start.
 echo.
