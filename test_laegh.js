@@ -1100,7 +1100,7 @@ test('شبیه‌سازی واقعی: doAutoSave(true) باید حتی با isDi
     parts: [], services: [], warranties: [], sales: [], tasks: [], accounts: [],
     defectiveStock: [], warehouseDocs: [], stockMoves: [], userAuditLog: [], bgAuditLog: [], userRoles: [], loginPw: '',
     senderInfo: {}, logoSrc: '', acH: {},
-    APP_VERSION: '1405.5.19α',
+    APP_VERSION: '1405.5.19β',
     autoSaveFileHandle: null,
     ensureFsPermission: async () => true,
     writeAutoSaveTarget: null, // set below after extract
@@ -3832,14 +3832,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۱۹α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۱۹β باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.19α', 'نسخه meta باید 1405.5.19α باشد');
+  assertEqual(metaVer, '1405.5.19β', 'نسخه meta باید 1405.5.19β باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/19', 'app-date باید 1405/05/19 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۹α', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۹α را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۱۹β', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۱۹β را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.19α'", 'فیلد version بک‌آپ باید 1405.5.19α باشد');
+  assertContainsString(buildSrc, "version: '1405.5.19β'", 'فیلد version بک‌آپ باید 1405.5.19β باشد');
 });
 
 
@@ -3904,12 +3904,12 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
   };
   // validate + compare
   const vRunner = new Function(cmpSrc + '\n' + valSrc + `\n
-    var APP_BASE_VERSION = '1405.5.19α';
+    var APP_BASE_VERSION = '1405.5.19β';
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
-      good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.19α', minBaseVersion:'1405.5.19α'}),
+      good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.19β', minBaseVersion:'1405.5.19β'}),
       tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.20α'}),
-      cmp: compareSirmanVersions('1405.5.19α','1405.5.18ε')
+      cmp: compareSirmanVersions('1405.5.19β','1405.5.18ε')
     };
   `);
   const vr = vRunner();
@@ -3920,7 +3920,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
 
   // setRuntimeAppVersion + meta save
   const metaRunner = new Function('localStorage', getMetaSrc + '\n' + saveMetaSrc + `\n
-    saveAppliedUpdatesMeta([{id:'t1', version:'1405.5.19α'}]);
+    saveAppliedUpdatesMeta([{id:'t1', version:'1405.5.19β'}]);
     return getAppliedUpdatesMeta();
   `);
   const meta = metaRunner(sandboxLocal);
@@ -3939,12 +3939,12 @@ test('ζ: لانچر توکار و دانگرید باید در HTML و فایل
   const runner = new Function(
     'var SIRMAN_LAUNCHER_TEMPLATES = {"Sirman_Start.bat":"ver=__SIRMAN_VERSION__"};\n'
     + 'function ensureLauncherTemplates(){ return SIRMAN_LAUNCHER_TEMPLATES; }\n'
-    + 'var APP_VERSION = "1405.5.19α";\n'
+    + 'var APP_VERSION = "1405.5.19β";\n'
     + 'function getLauncherVersionTag(){ return APP_VERSION; }\n'
     + buildSrc + '\n'
     + 'return buildEmbeddedLauncher("Sirman_Start.bat");'
   );
-  assertEqual(runner(), 'ver=1405.5.19α', 'لانچر باید نسخه جاری را جایگزین کند');
+  assertEqual(runner(), 'ver=1405.5.19β', 'لانچر باید نسخه جاری را جایگزین کند');
 
   // decode one real template from HTML and ensure placeholder exists
   const m = html.match(/SIRMAN_LAUNCHER_TEMPLATES_B64 = (\{[\s\S]*?\});/);
@@ -3982,12 +3982,12 @@ test('η/θ: خروج با بک‌آپ، نشانگر ذخیره خودکار، 
   assertContainsString(uiSrc, 'flashAutosaveDot', 'updateAutoSaveUI باید نشانگر را روشن کند');
   const fs = require('fs');
   const path = require('path');
-  const updPath = path.join(path.dirname(filePath), 'updates', 'Sirman_Update_1405.5.19α.json');
+  const updPath = path.join(path.dirname(filePath), 'updates', 'Sirman_Update_1405.5.19β.json');
   assertTrue(fs.existsSync(updPath), 'فایل آپدیت θ باید موجود باشد');
   const pkg = JSON.parse(fs.readFileSync(updPath, 'utf8'));
   assertEqual(pkg.magic, 'SIRMAN_UPDATE');
-  assertEqual(pkg.version, '1405.5.19α');
-  assertTrue(Array.isArray(pkg.changelog) && pkg.changelog.some(function(c){ return String(c).indexOf('اعلان')>=0; }), 'آپدیت ۱۹α باید changelog اعلان داشته باشد');
+  assertEqual(pkg.version, '1405.5.19β');
+  assertTrue(Array.isArray(pkg.changelog) && pkg.changelog.some(function(c){ return String(c).indexOf('اعلان')>=0; }), 'آپدیت ۱۹β باید changelog اعلان داشته باشد');
   // ویژگی‌های η در خود HTML پایه θ هستند
   assertTrue(!!extractFunctionSource(html, 'exitWithBackup') && html.indexOf('flashAutosaveDot')>=0, 'رفع‌های η باید در HTML θ موجود باشند');
 });
@@ -4617,53 +4617,56 @@ test('پل اعلان ویندوز باید از showLaeghNotification صدا ز
   assertContainsString(src, 'pushWindowsNotifyBridge(', 'showLaeghNotification باید پل را صدا بزند');
   const bridge = extractFunctionSource(html, 'pushWindowsNotifyBridge');
   assertContainsString(bridge, '127.0.0.1:8766', 'آدرس پل اعلان باید 8766 باشد');
-  assertContainsString(bridge, 'chrome.webview', 'پل باید مسیر WebView2/میزبان دسکتاپ را هم داشته باشد');
+  assertTrue(bridge.indexOf('chrome.webview') === -1, 'مسیر WebView2/.NET نباید در پل بماند');
   assertContainsString(html, 'اعلان_سیرمان.ps1', 'راهنما باید به اسکریپت پل اشاره کند');
-  assertContainsString(html, 'Sirman.exe', 'راهنما باید به برنامه نصبی اشاره کند');
+  assertContainsString(html, 'Sirman_Start.bat', 'راهنما باید به لانچر BAT اشاره کند');
+  assertTrue(html.indexOf('Sirman.exe') === -1, 'اشاره به Sirman.exe نباید بماند');
 });
 
-test('فعال‌سازی اعلان دسکتاپ نباید فقط به Notification API مرورگر وابسته باشد', () => {
-  assertContainsString(html, 'function isSirmanDesktopNotifyReady(', 'isSirmanDesktopNotifyReady لازم است');
+test('فعال‌سازی اعلان دسکتاپ باید اول پل BAT (8766) را چک کند', () => {
   assertContainsString(html, 'function desktopNotifyAllowed(', 'desktopNotifyAllowed لازم است');
   const en = extractFunctionSource(html, 'enableTaskNotifications');
   assertContainsString(en, '8766/health', 'باید سلامت پل محلی را چک کند');
-  assertContainsString(en, 'notify-enable', 'باید به میزبان دسکتاپ پیام بدهد');
+  assertContainsString(en, 'Sirman_Start.bat', 'پیام خطا باید به Start.bat اشاره کند');
+  assertTrue(en.indexOf('Sirman.exe') === -1, 'نباید Sirman.exe پیشنهاد شود');
   assertTrue(en.indexOf("ntf('مرورگر شما از اعلان دسکتاپ پشتیبانی نمی‌کند'") === -1,
     'نباید فوراً با نبود Notification API ارور سخت بدهد');
   const due = extractFunctionSource(html, 'checkDueTasksForNotification');
   assertContainsString(due, 'desktopNotifyAllowed', 'بررسی کارهای سررسید باید desktopNotifyAllowed را رعایت کند');
 });
 
-test('شبیه‌سازی: enableTaskNotifications با میزبان دسکتاپ بدون Notification موفق می‌شود', () => {
-  const helpers = extractFunctionSource(html, 'isSirmanDesktopNotifyReady') + '\n' + extractFunctionSource(html, 'desktopNotifyAllowed');
+test('شبیه‌سازی: enableTaskNotifications با پل 8766 بدون Notification موفق می‌شود', () => {
+  const helpers = extractFunctionSource(html, 'desktopNotifyAllowed');
   const enSrc = extractFunctionSource(html, 'enableTaskNotifications');
   assertTrue(helpers && enSrc, 'توابع اعلان پیدا نشد');
   const msgs = [];
   const shown = [];
   const store = {};
   const ctx = {
-    window: { SIRMAN_DESKTOP_HOST: true, chrome: { webview: { postMessage(){ msgs.push('enable'); } } } },
     localStorage: {
       getItem(k){ return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },
       setItem(k,v){ store[k]=String(v); }
     },
-    sirmanDesktopNotify(){ return true; },
     ntf(m){ msgs.push(m); },
     registerLaeghSW(){},
     showLaeghNotification(t,o){ shown.push(t); },
     checkDueTasksForNotification(){ msgs.push('due'); },
-    fetch(){ return Promise.reject(new Error('no')); },
+    // then هم‌زمان اجرا شود تا تست sync بماند
+    fetch(){
+      return {
+        then(fn){ fn({ ok: true }); return { catch(){ return this; } }; },
+        catch(){ return this; }
+      };
+    },
     Notification: undefined,
-    SIRMAN_DESKTOP_HOST: true
+    setTimeout(){ /* تایم‌اوت fallback را در این تست نادیده بگیر */ }
   };
-  ctx.chrome = ctx.window.chrome;
   const runner = new Function('ctx', 'with(ctx){ ' + helpers + '; (' + enSrc.replace(/^function enableTaskNotifications/, 'function') + ')(); }');
   runner(ctx);
   assertTrue(store.laegh_desktop_notify_on === '1', 'فلگ فعال‌سازی باید ست شود');
   assertTrue(msgs.some(m => String(m).indexOf('فعال')>=0), 'باید پیام موفقیت بدهد');
   assertArrayLength(shown, 1, 'باید یک اعلان تست بفرستد');
 });
-
 
 test('resolveDocArray باید wDocs/saleDocs را از let پیدا کند نه window', () => {
   const src = extractFunctionSource(html, 'resolveDocArray');
@@ -4920,12 +4923,12 @@ test('لانچر باید apply_sirman_update.ps1 را صدا بزند', () => {
   assertTrue(fs.existsSync(path.join(root, 'apply_sirman_update.ps1')), 'apply_sirman_update.ps1 باید موجود باشد');
   const bat = fs.readFileSync(path.join(root, 'Sirman_Start.bat'), 'utf8');
   assertContainsString(bat, 'apply_sirman_update.ps1', 'Start.bat باید اسکریپت آپدیت خودکار را صدا بزند');
-  const upd = path.join(root, 'updates', 'Sirman_Update_1405.5.19α.json');
-  assertTrue(fs.existsSync(upd), 'فایل آپدیت ۱۹α باید موجود باشد');
+  const upd = path.join(root, 'updates', 'Sirman_Update_1405.5.19β.json');
+  assertTrue(fs.existsSync(upd), 'فایل آپدیت ۱۹β باید موجود باشد');
   const pkg = JSON.parse(fs.readFileSync(upd, 'utf8'));
   assertEqual(pkg.magic, 'SIRMAN_UPDATE');
-  assertEqual(pkg.version, '1405.5.19α');
-  assertTrue((pkg.patches||[]).some(p => p.op==='replaceAppFile' && p.content && p.content.indexOf('<!DOCTYPE html')>=0), 'آپدیت ۱۹α باید HTML کامل داشته باشد');
+  assertEqual(pkg.version, '1405.5.19β');
+  assertTrue((pkg.patches||[]).some(p => p.op==='replaceAppFile' && p.content && p.content.indexOf('<!DOCTYPE html')>=0), 'آپدیت ۱۹β باید HTML کامل داشته باشد');
 });
 
 
