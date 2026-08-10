@@ -1,13 +1,18 @@
 # سیرمان — پوسته دسکتاپ (.NET)
 
-فاز ۱: برنامه ویندوزی که HTML فعلی را با WebView2 نشان می‌دهد.
+## فاز ۱
+WebView2 + باز کردن HTML
 
-جزئیات و دستور ساخت: [`Sirman.Desktop/README.md`](Sirman.Desktop/README.md)
+## فاز ۲
+آپدیت خودکار، پوشه بک‌آپ، نصب + میانبر Start
 
-روی ویندوز:
+جزئیات: [`Sirman.Desktop/README.md`](Sirman.Desktop/README.md)
+
+### روی ویندوز
 
 ```bat
 desktop\build-win.bat
+desktop\install-sirman.bat
 ```
 
-سپس `desktop\publish\Sirman.exe` را باز کنید.
+سپس از منوی Start: **سیرمان**

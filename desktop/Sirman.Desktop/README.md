@@ -1,40 +1,39 @@
-# سیرمان دسکتاپ — فاز ۱ (پوسته .NET + HTML)
+# سیرمان دسکتاپ — فاز ۱ و ۲
 
-پوسته ویندوزی با **WebView2** که همان `Sirman_Final.html` را باز می‌کند.  
-منطق برنامه هنوز داخل HTML است.
+پوسته ویندوزی با **WebView2** برای همان `Sirman_Final.html`.
 
-## پیش‌نیاز (ویندوز)
+## فاز ۱
+- باز کردن HTML
+- تک‌نسخه‌ای بودن
+- منوی تازه‌سازی / انتخاب HTML
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- WebView2 Runtime (معمولاً با Microsoft Edge نصب است)
+## فاز ۲
+- **آپدیت خودکار:** اگر `Sirman_Pending_Update.json` کنار exe باشد، موقع اجرا اعمال می‌شود
+- منوی آپدیت: اعمال در انتظار / انتخاب فایل JSON
+- **پوشه بک‌آپ** قابل انتخاب (قبل از آپدیت از HTML قبلی کپی می‌گیرد)
+- **نصب محلی** در `%LOCALAPPDATA%\Sirman\App` + میانبر منوی Start
 
-## اجرا
+## پیش‌نیاز ویندوز
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (برای بیلد)
+- WebView2 Runtime (معمولاً با Edge)
 
-در PowerShell / CMD روی ویندوز:
+## ساخت و نصب
 
 ```bat
-cd desktop\Sirman.Desktop
-dotnet restore
-dotnet run
+cd desktop
+build-win.bat
+install-sirman.bat
 ```
 
-یا انتشار تک‌فایلی:
+یا فقط اجرا از خروجی بیلد:
 
 ```bat
-dotnet publish -c Release -r win-x64 --self-contained false -o ..\publish
+desktop\publish\Sirman.exe
 ```
 
-بعد `Sirman_Final.html` را کنار `Sirman.exe` در پوشه `publish` بگذارید و `Sirman.exe` را باز کنید.
+## آپدیت روی چند سیستم
+1. فایل `Sirman_Pending_Update.json` را کنار `Sirman.exe` بگذارید  
+2. برنامه را باز کنید — خودکار اعمال می‌شود  
 
-## رفتار فاز ۱
-
-- باز کردن خودکار `Sirman_Final.html`
-- فقط یک نمونه از برنامه (single-instance)
-- منو: تازه‌سازی، انتخاب HTML، باز کردن پوشه برنامه
-- F5 = Reload
-
-## فازهای بعدی (هنوز نه)
-
-- آپدیت خودکار
-- نصب‌کننده
-- انتقال ماژول‌ها به .NET
+## منوها
+- آپدیت / بک‌آپ / نصب / پرونده / نمایش
