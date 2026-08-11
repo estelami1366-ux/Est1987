@@ -248,6 +248,8 @@ public sealed class MainForm : Form
         install.DropDownItems.Add(new ToolStripMenuItem("نصب + میانبر Start و دسکتاپ", null, (_, _) => DoInstall(true)));
         install.DropDownItems.Add(new ToolStripMenuItem("فقط ساخت میانبر Start", null, (_, _) => DoShortcutsOnly(false)));
         install.DropDownItems.Add(new ToolStripMenuItem("فقط ساخت میانبر Start و دسکتاپ", null, (_, _) => DoShortcutsOnly(true)));
+        install.DropDownItems.Add(new ToolStripSeparator());
+        install.DropDownItems.Add(new ToolStripMenuItem("حذف سالم برنامه (Uninstall)…", null, (_, _) => DoUninstall()));
         install.DropDownItems.Add(new ToolStripMenuItem("باز کردن پوشه نصب", null, (_, _) =>
         {
             Directory.CreateDirectory(InstallService.InstallDir);
@@ -282,6 +284,7 @@ public sealed class MainForm : Form
                 "• آپدیت خودکار از Sirman_Pending_Update.json\n" +
                 "• پوشه بک‌آپ قابل انتخاب\n" +
                 "• نصب محلی + میانبر منوی Start\n" +
+                "• حذف سالم (Uninstall-Sirman.bat + میانبر Start)\n" +
                 "• پل اعلان مرکز اعلان ویندوز (پورت ۸۷۶۶)\n\n" +
                 "HTML:\n" + (_htmlPath ?? "—") + "\n\n" +
                 "بک‌آپ:\n" + AppPaths.ResolveBackupFolder(_settings) + "\n\n" +
@@ -329,6 +332,9 @@ public sealed class MainForm : Form
 
             var userData = Path.Combine(AppPaths.AppDataRoot, "WebView2");
             Directory.CreateDirectory(userData);
+
+            // هر بار کنار exe، اسکریپت حذف سالم + میانبر Start را تازه کن
+            try { InstallService.WriteUninstallArtifacts(AppPaths.ExeDir); } catch { /* ignore */ }
 
             // پل اعلان محلی (همان ۸۷۶۶ که HTML به آن fetch می‌زند)
             var bridgeOk = _notify.Start(NotifyBridgeService.DefaultPort);
@@ -528,6 +534,29 @@ public sealed class MainForm : Form
         MessageBox.Show(res.Message, "میانبر", MessageBoxButtons.OK,
             res.Ok ? MessageBoxIcon.Information : MessageBoxIcon.Error);
         if (res.Ok) SetStatus("میانبر ساخته شد");
+    }
+
+    private void DoUninstall()
+    {
+        var ask = MessageBox.Show(
+            this,
+            "پنجره حذف سالم سیرمان باز شود؟\n\n" +
+            "برنامه فعلی بسته می‌شود و اسکریپت Uninstall اجرا می‌گردد.",
+            "حذف سیرمان",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning,
+            MessageBoxDefaultButton.Button2);
+        if (ask != DialogResult.Yes) return;
+
+        try { InstallService.WriteUninstallArtifacts(AppPaths.ExeDir); } catch { /* ignore */ }
+        var res = InstallService.LaunchUninstall();
+        if (!res.Ok)
+        {
+            MessageBox.Show(res.Message, "حذف", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+        // اجازه بده uninstall بات taskkill کند
+        RequestForceClose();
     }
 
     private async Task RunHtmlBackupBeforeExitAsync()

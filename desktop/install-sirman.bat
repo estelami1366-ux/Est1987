@@ -22,14 +22,17 @@ if exist "%~dp0Sirman_Final.html" copy /Y "%~dp0Sirman_Final.html" "%DEST%\Sirma
 if exist "%~dp0..\Sirman_Final.html" copy /Y "%~dp0..\Sirman_Final.html" "%DEST%\Sirman_Final.html" >nul
 if exist "%~dp0Sirman_Pending_Update.json" copy /Y "%~dp0Sirman_Pending_Update.json" "%DEST%\Sirman_Pending_Update.json" >nul
 if exist "%~dp0..\Sirman_Pending_Update.json" copy /Y "%~dp0..\Sirman_Pending_Update.json" "%DEST%\Sirman_Pending_Update.json" >nul
+if exist "%~dp0Uninstall-Sirman.bat" copy /Y "%~dp0Uninstall-Sirman.bat" "%DEST%\Uninstall-Sirman.bat" >nul
+if exist "%~dp0publish\Uninstall-Sirman.bat" copy /Y "%~dp0publish\Uninstall-Sirman.bat" "%DEST%\Uninstall-Sirman.bat" >nul
 
-echo ساخت میانبر منوی Start...
+echo ساخت میانبر منوی Start (اجرا + حذف)...
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-  "$s=(New-Object -ComObject WScript.Shell); $d=Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\سیرمان'; New-Item -ItemType Directory -Force -Path $d | Out-Null; $l=$s.CreateShortcut((Join-Path $d 'سیرمان.lnk')); $l.TargetPath=(Join-Path $env:LOCALAPPDATA 'Sirman\App\Sirman.exe'); $l.WorkingDirectory=(Join-Path $env:LOCALAPPDATA 'Sirman\App'); $l.Description='سیرمان'; $l.Save()"
+  "$s=(New-Object -ComObject WScript.Shell); $d=Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\سیرمان'; New-Item -ItemType Directory -Force -Path $d | Out-Null; $app=Join-Path $env:LOCALAPPDATA 'Sirman\App'; $exe=Join-Path $app 'Sirman.exe'; $un=Join-Path $app 'Uninstall-Sirman.bat'; $l=$s.CreateShortcut((Join-Path $d 'سیرمان.lnk')); $l.TargetPath=$exe; $l.WorkingDirectory=$app; $l.Description='سیرمان'; $l.Save(); $u=$s.CreateShortcut((Join-Path $d 'حذف سیرمان.lnk')); $u.TargetPath=$un; $u.WorkingDirectory=$app; $u.Description='حذف سالم سیرمان'; $u.Save()"
 
 echo.
 echo OK
 echo اجرا: %DEST%\Sirman.exe
-echo میانبر: Start Menu \ سیرمان
+echo حذف سالم: %DEST%\Uninstall-Sirman.bat
+echo میانبر: Start Menu \ سیرمان  (+ «حذف سیرمان»)
 echo.
 pause

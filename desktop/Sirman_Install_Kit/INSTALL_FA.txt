@@ -12,7 +12,8 @@ Sirman_Install_Kit/
 ├── Sirman_Pending_Update.json     ← آپدیت کامل (اختیاری؛ برای اعمال خودکار)
 ├── updates/                       ← آپدیت‌های اضافی (اختیاری)
 ├── build-win.bat                  ← ساخت Sirman.exe روی ویندوز
-├── install-sirman.bat             ← نصب در AppData + میانبر Start
+├── install-sirman.bat             ← نصب در AppData + میانبر Start + حذف
+├── Uninstall-Sirman.bat           ← حذف سالم برنامه (کنار هر نصب/بیلد کپی می‌شود)
 ├── apply_sirman_update.ps1        ← آپدیت از طریق اسکریپت (اختیاری)
 ├── README.md
 └── Sirman.Desktop/                ← سورس پوسته .NET
@@ -57,8 +58,11 @@ Sirman_Install_Kit/
    → کپی می‌شود به:
       %LOCALAPPDATA%\Sirman\App
    → میانبر منوی Start با نام «سیرمان» ساخته می‌شود
+   → میانبر «حذف سیرمان» و فایل Uninstall-Sirman.bat هم کنارش ساخته می‌شود
 
 4) از منوی Start برنامه «سیرمان» را باز کنید.
+   برای حذف: Start → سیرمان → حذف سیرمان
+   یا فایل Uninstall-Sirman.bat کنار exe
 
 ────────────────────────────────────────
 د) نصب سریع بدون install-sirman (دستی)
