@@ -1,0 +1,500 @@
+  if(changed){ svTasks(); renderTasks(); }
+}
+
+// INIT
+addDev();
+let parts=JSON.parse(localStorage.getItem('lp2')||'[]');
+let services=JSON.parse(localStorage.getItem('ls2')||'[{"code":"S001","name":"تعویض پره","cat":"مکانیکی","price":150000,"warr":"no"},{"code":"S002","name":"تعمیر موتور","cat":"برقی","price":300000,"warr":"no"},{"code":"S003","name":"تعویض گارانتی","cat":"گارانتی","price":0,"warr":"yes"},{"code":"S004","name":"سرویس و نظافت","cat":"عمومی","price":80000,"warr":"no"}]');
+let warranties=JSON.parse(localStorage.getItem('lw2')||'[]');
+let pb=JSON.parse(localStorage.getItem('laegh_pb')||'[]');
+let tasks=JSON.parse(localStorage.getItem('laegh_tasks')||'[]');
+let defectiveStock=JSON.parse(localStorage.getItem('laegh_defective')||'[]');
+let userAuditLog=JSON.parse(localStorage.getItem('laegh_audit_user')||'[]');
+let bgAuditLog=JSON.parse(localStorage.getItem('laegh_audit_bg')||'[]');
+let auditTab='user';
+let calPageState={cal:'j',jy:0,jm:1,selDay:null};
+let wDevCnt=0;
+let wSocials=[];
+let svcs=services; // alias so old code works
+let wDocs=[];let wEditIdx=-1;
+let saleDocs=[]; // اسناد/عکس‌های ضمیمه فروش قطعه
+
+// ═════════════════ سیستم دسترسی کاربران (نقش‌ها) ═════════════════
+const ALL_PAGES = [
+  {key:'tasks',     label:'🗓 وظایف و یادآوری'},
+  {key:'invoice',   label:'📋 فاکتور جدید'},
+  {key:'saved',     label:'🗂 فاکتورهای ذخیره‌شده'},
+  {key:'products',  label:'📦 مدیریت کالاها'},
+  {key:'inventory', label:'🏷 انبار کالا'},
+  {key:'defective', label:'⚠️ انبار محصولات معیوب'},
+  {key:'phonebook', label:'📖 دفترچه تلفن'},
+  {key:'postal',    label:'✉️ برچسب پستی'},
+  {key:'parts',     label:'🔩 انبار قطعات'},
+  {key:'services',  label:'🛠 لیست خدمات'},
+  {key:'sales',     label:'🛒 فروش قطعات'},
+  {key:'warranty',  label:'🛡 پرونده گارانتی'},
+  {key:'dataio',    label:'📤 ورود/خروج داده'},
+  {key:'datetime',  label:'🕐 زمان و تقویم'},
+  {key:'audit',     label:'📋 ثبت عملیات'},
+  {key:'settings',  label:'⚙️ تنظیمات'},
+  {key:'help',      label:'❓ راهنما'}
+];
+const ALL_PAGE_KEYS = ALL_PAGES.map(p=>p.key);
+
+let userRoles = JSON.parse(localStorage.getItem('laegh_roles')||'[]');
+let currentRole = null; // پروفایلی که الان لاگین کرده (null = مدیر کل / بدون پروفایل)
+let loginPw = localStorage.getItem('laegh_login_pw') || '';
+
+// بررسی نیاز به نمایش صفحه ورود — این کد باید همین‌جا، بعد از تعریف loginPw و userRoles باشد
+// (قبلاً به‌اشتباه بالاتر از این خط بود و باعث ReferenceError و قفل‌شدن دائمی صفحه ورود می‌شد)
+(function initLoginScreen(){
+  const needsLogin = !!loginPw || (userRoles && userRoles.length > 0);
+  if (!needsLogin) {
+    document.getElementById('login-overlay').style.display = 'none';
+  } else {
+    document.getElementById('login-overlay').style.display = 'flex';
+    setTimeout(()=>{ const inp=document.getElementById('login-pw-input'); if(inp) inp.focus(); }, 100);
+  }
+})();
+
+function svRoles(){ localStorage.setItem('laegh_roles', JSON.stringify(userRoles)); markDirty(); }
+
+function attemptLogin(){
+  const entered = document.getElementById('login-pw-input').value;
+  const errEl = document.getElementById('login-error-msg');
+  // اول چک می‌کنیم آیا رمز یکی از پروفایل‌های کارمندان است
+  const matchedRole = userRoles.find(r => r.pw === entered);
+  if (matchedRole) {
+    currentRole = matchedRole;
+    finishLogin();
+    return;
+  }
+  // اگر رمز کلی نرم‌افزار تنظیم شده و برابر بود → ورود به‌عنوان مدیر کل (دسترسی کامل)
+  if (loginPw && entered === loginPw) {
+    currentRole = null; // مدیر کل
+    finishLogin();
+    return;
+  }
+  // اگر هیچ رمزی (نه کلی، نه پروفایلی) تنظیم نشده، اصلاً نباید این مرحله دیده شود؛
+  // ولی برای اطمینان، اگر هیچ رمزی نباشد همیشه اجازه ورود بده
+  if (!loginPw && userRoles.length === 0) {
+    currentRole = null;
+    finishLogin();
+    return;
+  }
+  errEl.textContent = '❌ رمز اشتباه است';
+  document.getElementById('login-pw-input').value = '';
+}
+
+function finishLogin(){
+  document.getElementById('login-overlay').style.display = 'none';
+  applyRoleRestrictions();
+}
+
+function applyRoleRestrictions(){
+  // مدیر کل (currentRole === null) همه‌چیز را می‌بیند
+  if (!currentRole) {
+    document.querySelectorAll('.nav-it[data-page]').forEach(el => el.style.display = '');
+    document.querySelectorAll('.sb-section').forEach(el => el.style.display = '');
+    return;
+  }
+  const allowed = currentRole.pages || [];
+  document.querySelectorAll('.nav-it[data-page]').forEach(el => {
+    const key = el.getAttribute('data-page');
+    el.style.display = allowed.includes(key) ? '' : 'none';
+  });
+  // اگر همه آیتم‌های زیر یک sb-section پنهان شدند، خود عنوان بخش را هم پنهان کن
+  document.querySelectorAll('.sb-section').forEach(section => {
+    let sib = section.nextElementSibling;
+    let anyVisible = false;
+    while (sib && !sib.classList.contains('sb-section')) {
+      if (sib.classList.contains('nav-it') && sib.style.display !== 'none') anyVisible = true;
+      sib = sib.nextElementSibling;
+    }
+    section.style.display = anyVisible ? '' : 'none';
+  });
+  // اگر صفحه فعلی باز‌شده در دسترس این پروفایل نیست، برو به اولین صفحه مجاز
+  const activePage = document.querySelector('.page.active');
+  if (activePage && allowed.length > 0) {
+    const activeId = activePage.id.replace('page-','');
+    if (!allowed.includes(activeId)) {
+      const firstAllowedNav = document.querySelector('.nav-it[data-page="'+allowed[0]+'"]');
+      if (firstAllowedNav) firstAllowedNav.click();
+    }
+  }
+}
+
+function setLoginPw(){
+  const a=document.getElementById('login-pw-new').value, b=document.getElementById('login-pw-rep').value;
+  const msg=document.getElementById('login-pw-msg');
+  if(!a){msg.textContent='رمز را وارد کنید';msg.style.color='#e74c3c';return;}
+  if(a!==b){msg.textContent='رمزها یکسان نیستند';msg.style.color='#e74c3c';return;}
+  loginPw=a; localStorage.setItem('laegh_login_pw',a);
+  document.getElementById('login-pw-new').value='';document.getElementById('login-pw-rep').value='';
+  msg.textContent='✅ رمز ورود تنظیم شد';msg.style.color='#3fb950';
+  ntf('رمز ورود نرم‌افزار تنظیم شد','ok');
+}
+function clearLoginPw(){
+  if(!confirm('رمز ورود حذف شود؟ بعد از این، نرم‌افزار بدون رمز کلی باز می‌شود (پروفایل‌های کارمندان دست نمی‌خورند)'))return;
+  loginPw='';localStorage.removeItem('laegh_login_pw');
+  document.getElementById('login-pw-msg').textContent='رمز ورود حذف شد';
+  document.getElementById('login-pw-msg').style.color='#3fb950';
+  ntf('رمز ورود حذف شد');
+}
+
+// ── مدیریت پروفایل‌های دسترسی ──
+function renderRolesGridCheckboxes(selectedKeys){
+  const grid = document.getElementById('role-pages-grid');
+  grid.innerHTML = ALL_PAGES.map(p => {
+    const checked = selectedKeys.includes(p.key) ? 'checked' : '';
+    return `<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 8px;background:var(--bg2);border-radius:6px">
+      <input type="checkbox" class="role-page-chk" value="${p.key}" ${checked}> ${p.label}
+    </label>`;
+  }).join('');
+}
+function selectAllRolePages(val){
+  document.querySelectorAll('.role-page-chk').forEach(c => c.checked = val);
+}
+function openRoleModal(idx=-1){
+  document.getElementById('role-idx').value = idx;
+  if (idx === -1) {
+    document.getElementById('role-m-title').textContent = 'پروفایل دسترسی جدید';
+    document.getElementById('role-name').value = '';
+    document.getElementById('role-pw').value = '';
+    renderRolesGridCheckboxes([]);
+  } else {
+    const r = userRoles[idx];
+    document.getElementById('role-m-title').textContent = 'ویرایش پروفایل';
+    document.getElementById('role-name').value = r.name;
+    document.getElementById('role-pw').value = r.pw;
+    renderRolesGridCheckboxes(r.pages||[]);
+  }
+  document.getElementById('role-modal').classList.add('open');
+}
+function saveRole(){
+  const idx = parseInt(document.getElementById('role-idx').value);
+  const name = document.getElementById('role-name').value.trim();
+  const pw = document.getElementById('role-pw').value.trim();
+  const pages = Array.from(document.querySelectorAll('.role-page-chk:checked')).map(c=>c.value);
+  if (!name) { ntf('نام پروفایل را وارد کنید','err'); return; }
+  if (!pw) { ntf('رمز پروفایل را وارد کنید','err'); return; }
+  if (pages.length === 0) { ntf('حداقل یک بخش را انتخاب کنید','err'); return; }
+  // رمز نباید با رمز کلی نرم‌افزار یا رمز یک پروفایل دیگر یکی باشد
+  const dup = userRoles.find((r,i) => r.pw === pw && i !== idx);
+  if (dup) { ntf('این رمز قبلاً برای پروفایل «'+dup.name+'» استفاده شده — رمز دیگری انتخاب کنید','err'); return; }
+  if (pw === loginPw) { ntf('این رمز همان رمز کلی نرم‌افزار است — رمز دیگری انتخاب کنید','err'); return; }
+  const roleObj = {name, pw, pages};
+  if (idx === -1) userRoles.push(roleObj); else userRoles[idx] = roleObj;
+  svRoles(); closeMod('role-modal'); renderRolesList();
+  ntf('پروفایل ذخیره شد','ok');
+}
+function delRole(idx){
+  if(!confirm('پروفایل «'+userRoles[idx].name+'» حذف شود؟'))return;
+  userRoles.splice(idx,1); svRoles(); renderRolesList();
+  ntf('پروفایل حذف شد');
+}
+function renderRolesList(){
+  const el = document.getElementById('roles-list');
+  if (!el) return;
+  let html = `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg2);border-radius:8px;margin-bottom:8px">
+    <div><b>👑 مدیر کل</b><div style="font-size:11px;color:var(--text2)">دسترسی کامل به همه بخش‌ها — همیشه فعال</div></div>
+  </div>`;
+  if (userRoles.length === 0) {
+    html += '<div style="text-align:center;color:#aaa;padding:20px;font-size:12px">هنوز پروفایلی برای کارمندان نساخته‌اید</div>';
+  } else {
+    html += userRoles.map((r,i) => {
+      const pageLabels = (r.pages||[]).map(k => (ALL_PAGES.find(p=>p.key===k)||{}).label||k).join('، ');
+      return `<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;background:var(--bg2);border-radius:8px;margin-bottom:8px">
+        <div>
+          <b>${r.name}</b>
+          <div style="font-size:11px;color:var(--text2);margin-top:3px;max-width:480px">${pageLabels}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-o" onclick="openRoleModal(${i})">✏️ ویرایش</button>
+          <button class="btn btn-sm btn-r" onclick="delRole(${i})">🗑</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  el.innerHTML = html;
+}
+
+function svParts(){localStorage.setItem('lp2',JSON.stringify(parts));markDirty();}
+function svSvcs(){localStorage.setItem('ls2',JSON.stringify(services));services=services;svcs=services;markDirty();}
+function svWars(){localStorage.setItem('lw2',JSON.stringify(warranties));markDirty();}
+function svWarr(){localStorage.setItem('lw2',JSON.stringify(warranties));markDirty();}
+function svPB(){localStorage.setItem('laegh_pb',JSON.stringify(pb));markDirty();}
+
+// قطعات
+function openPartMod(idx){
+  idx=idx==undefined?-1:idx;
+  document.getElementById('part-idx').value=idx;
+  const sel=document.getElementById('part-prod');
+  sel.innerHTML='<option value="">-- انتخاب --</option>'+products.map(p=>'<option value="'+p.code+'">'+p.code+' — '+p.name+'</option>').join('');
+  if(idx===-1){
+    document.getElementById('part-mod-title').textContent='قطعه جدید';
+    ['part-code','part-name','part-cat'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('part-qty').value=0;document.getElementById('part-min').value=0;document.getElementById('part-price').value=0;sel.value='';
+  }else{
+    const p=parts[idx];document.getElementById('part-mod-title').textContent='ویرایش قطعه';
+    document.getElementById('part-code').value=p.code||'';document.getElementById('part-name').value=p.name||'';
+    document.getElementById('part-cat').value=p.cat||'';document.getElementById('part-qty').value=p.qty||0;
+    document.getElementById('part-min').value=p.min||0;document.getElementById('part-price').value=p.price||0;sel.value=p.prodCode||'';
+  }
+  document.getElementById('part-mod').classList.add('open');
+}
+function savePart(){
+  const idx=parseInt(document.getElementById('part-idx').value);
+  const code=document.getElementById('part-code').value.trim(),name=document.getElementById('part-name').value.trim();
+  if(!code||!name){ntf('کد و نام الزامی است','err');return;}
+  const p={code,name,cat:document.getElementById('part-cat').value,prodCode:document.getElementById('part-prod').value,
+    qty:parseInt(document.getElementById('part-qty').value)||0,min:parseInt(document.getElementById('part-min').value)||0,
+    price:parseFloat(document.getElementById('part-price').value)||0};
+  if(idx===-1)parts.push(p);else parts[idx]=p;
+  svParts();closeMod('part-mod');renderParts();ntf(idx===-1?'قطعه ثبت شد':'ویرایش شد');
+}
+function delPart(idx){if(!confirm('حذف؟'))return;parts.splice(idx,1);svParts();renderParts();}
+function renderParts(){
+  const q=(document.getElementById('part-q').value||'').toLowerCase();
+  const pf=document.getElementById('part-pf').value;
+  const prods=[...new Set(parts.map(p=>p.prodCode).filter(Boolean))];
+  const sel=document.getElementById('part-pf');const cur=sel.value;
+  sel.innerHTML='<option value="">همه کالاها</option>'+prods.map(c=>{const pr=products.find(p=>p.code===c);return'<option value="'+c+'"'+(c===cur?' selected':'')+'>'+c+(pr?' — '+pr.name:'')+'</option>';}).join('');
+  const f=parts.filter(p=>(!q||(p.code+p.name+(p.cat||'')).toLowerCase().includes(q))&&(!pf||p.prodCode===pf));
+  const c=document.getElementById('parts-list');
+  if(!f.length){c.innerHTML='<div style="text-align:center;color:#aaa;padding:20px">قطعه‌ای یافت نشد</div>';return;}
+  const grouped={};f.forEach(p=>{const k=p.prodCode||'—';if(!grouped[k])grouped[k]=[];grouped[k].push(p);});
+  c.innerHTML=Object.entries(grouped).map(([pc,pts])=>{
+    const pr=products.find(p=>p.code===pc);
+    return'<div style="margin-bottom:10px"><div style="background:var(--blue-l);color:var(--blue2);font-weight:700;font-size:12px;padding:5px 10px;border-radius:6px;margin-bottom:4px;display:flex;justify-content:space-between"><span>📦 '+pc+(pr?' — '+pr.name:'')+'</span><button class="btn btn-sm btn-p" onclick="openPartMod()" style="font-size:10px">+ قطعه</button></div>'
+      +pts.map(pt=>{const ri=parts.indexOf(pt);const low=pt.qty<=pt.min;return'<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-bottom:1px solid #f5f5f5;font-size:12px"><span style="color:#aaa;min-width:70px;font-size:10px">'+pt.code+'</span><span style="flex:1;font-weight:500">'+pt.name+'</span><span style="font-size:10px;color:#888">'+( pt.cat||'')+'</span><span style="color:'+(low?'var(--red)':'var(--green)')+';font-weight:600;font-size:11px">'+pt.qty+(low?' ⚠':'')+'</span><span style="font-size:11px;color:#666">'+(pt.price?pt.price.toLocaleString()+' ریال':'—')+'</span><button class="btn btn-sm btn-p" onclick="openPartMod('+ri+')" style="padding:2px 6px">✏</button><button class="btn btn-sm btn-r" onclick="delPart('+ri+')" style="padding:2px 6px">✕</button></div>';}).join('')+'</div>';
+  }).join('');
+}
+
+// خدمات
+function openSvcMod(idx){
+  idx=idx==undefined?-1:idx;
+  document.getElementById('svc-idx').value=idx;
+  if(idx===-1){document.getElementById('svc-mod-title').textContent='خدمت جدید';['svc-code','svc-name','svc-cat','svc-desc'].forEach(id=>document.getElementById(id).value='');document.getElementById('svc-price').value=0;document.getElementById('svc-warr').value='no';}
+  else{const s=services[idx];document.getElementById('svc-mod-title').textContent='ویرایش';document.getElementById('svc-code').value=s.code||'';document.getElementById('svc-name').value=s.name||'';document.getElementById('svc-cat').value=s.cat||'';document.getElementById('svc-price').value=s.price||0;document.getElementById('svc-warr').value=s.warr||'no';document.getElementById('svc-desc').value=s.desc||'';}
+  document.getElementById('svc-mod').classList.add('open');
+}
+function saveSvc(){
+  const idx=parseInt(document.getElementById('svc-idx').value);
+  const name=document.getElementById('svc-name').value.trim();
+  if(!name){ntf('نام الزامی','err');return;}
+  const s={code:document.getElementById('svc-code').value,name,cat:document.getElementById('svc-cat').value,price:parseFloat(document.getElementById('svc-price').value)||0,warr:document.getElementById('svc-warr').value,desc:document.getElementById('svc-desc')?document.getElementById('svc-desc').value:''};
+  if(idx===-1)services.push(s);else services[idx]=s;
+  svSvcs();closeMod('svc-mod');renderSvcs();ntf(idx===-1?'خدمت ثبت شد':'ویرایش شد');
+}
+function delSvc(idx){if(!confirm('حذف؟'))return;services.splice(idx,1);svSvcs();renderSvcs();}
+function renderSvcs(){
+  const q=(document.getElementById('svc-q').value||'').toLowerCase();
+  const f=services.filter(s=>!q||(s.name+(s.cat||'')+(s.code||'')).toLowerCase().includes(q));
+  const c=document.getElementById('svcs-list');
+  if(!f.length){c.innerHTML='<div style="text-align:center;color:#aaa;padding:20px">خدمتی تعریف نشده</div>';return;}
+  c.innerHTML='<table class="stbl"><thead><tr><th>کد</th><th>نام خدمت</th><th>دسته</th><th>قیمت</th><th>گارانتی</th><th>عملیات</th></tr></thead><tbody>'
+    +f.map(s=>{const ri=services.indexOf(s);return'<tr><td style="font-size:11px;color:#aaa">'+( s.code||'—')+'</td><td style="font-weight:600">'+s.name+'</td><td style="font-size:11px">'+( s.cat||'—')+'</td><td style="font-weight:600;color:'+(s.warr==='yes'?'var(--green)':'var(--text)')+'">'+( s.warr==='yes'?'رایگان':s.price.toLocaleString()+' ریال')+'</td><td><span style="padding:2px 8px;border-radius:8px;font-size:11px;background:'+(s.warr==='yes'?'var(--green-l)':'var(--red-l)')+';color:'+(s.warr==='yes'?'var(--green)':'var(--red)')+'">'+( s.warr==='yes'?'✓ بله':'✗ خیر')+'</span></td><td style="display:flex;gap:4px"><button class="btn btn-sm btn-p" onclick="openSvcMod('+ri+')">✏</button><button class="btn btn-sm btn-r" onclick="delSvc('+ri+')">✕</button></td></tr>';}).join('')
+    +'</tbody></table>';
+}
+
+// خدمات در فاکتور
+function openSvcDD(n,btn){
+  document.querySelectorAll('.svc-dd').forEach(e=>e.remove());
+  if(!services.length){ntf('ابتدا خدمات تعریف کنید','err');return;}
+  const dd=document.createElement('div');dd.className='svc-dd';
+  dd.style.cssText='position:fixed;z-index:999;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);width:280px;max-height:220px;overflow-y:auto;';
+  const rect=btn.getBoundingClientRect();
+  dd.style.top=(rect.bottom+4)+'px';dd.style.right=(window.innerWidth-rect.right)+'px';
+  dd.innerHTML=services.map(s=>'<div onclick="selSvc('+n+',\''+s.name+'\','+s.price+',\''+s.warr+'\')" style="padding:7px 12px;cursor:pointer;border-bottom:1px solid #f5f5f5;display:flex;justify-content:space-between;font-size:12px"><span>'+s.name+'</span><span style="color:'+(s.warr==='yes'?'var(--green)':'var(--amber)')+';font-size:11px;font-weight:600">'+( s.warr==='yes'?'گارانتی':s.price.toLocaleString()+' ریال')+'</span></div>').join('');
+  document.body.appendChild(dd);
+  setTimeout(()=>document.addEventListener('click',()=>dd.remove(),{once:true}),0);
+}
+function selSvc(n,name,price,warr){
+  const e=document.getElementById('d'+n+'_svc');if(e)e.value=name;
+  if(warr==='no'&&price){const ee=document.getElementById('d'+n+'_est');if(ee)ee.value=price;}
+  if(warr==='yes'){const we=document.getElementById('d'+n+'_warr');if(we)we.value='بله';const ee=document.getElementById('d'+n+'_est');if(ee)ee.value=0;}
+  calcT();
+}
+
+// کپی سطر
+
+// بخش دوم کد نرم‌افزار لایق (دفترچه تلفن تا انتها)
+function copyDev(n){
+  const keys=['code','model','date','carton','body','acc','warr','color','dmg','miss','perf','svc','pd','est','disc','fin'];
+  const vals={};keys.forEach(k=>{const e=document.getElementById('d'+n+'_'+k);if(e)vals[k]=e.value||'';});
+  addDev();const nn=devCnt;
+  keys.forEach(k=>{const e=document.getElementById('d'+nn+'_'+k);if(e)e.value=vals[k]||'';});
+  calcT();ntf('سطر کپی شد');
+}
+
+// مرتب‌سازی دستگاه‌ها
+function openSortDlg(){document.getElementById('sort-modal').classList.add('open');}
+function applyDevSort(){
+  const by=document.getElementById('sort-by').value,dir=document.getElementById('sort-dir').value;
+  const c=document.getElementById('devs');
+  const cards=Array.from(c.querySelectorAll('.dev-card'));
+  cards.sort((a,b)=>{
+    const n1=parseInt(a.id.replace('dv-','')),n2=parseInt(b.id.replace('dv-',''));
+    let va='',vb='';
+    if(by==='date'){va=document.getElementById('d'+n1+'_date')?.value||'';vb=document.getElementById('d'+n2+'_date')?.value||'';}
+    else if(by==='model'){va=document.getElementById('d'+n1+'_model')?.value||'';vb=document.getElementById('d'+n2+'_model')?.value||'';}
+    else if(by==='fin'){va=parseFloat(document.getElementById('d'+n1+'_fin')?.value)||0;vb=parseFloat(document.getElementById('d'+n2+'_fin')?.value)||0;}
+    if(typeof va==='number')return dir==='asc'?va-vb:vb-va;
+    return dir==='asc'?va.localeCompare(vb,'fa'):vb.localeCompare(va,'fa');
+  });
+  cards.forEach(card=>c.appendChild(card));
+  closeMod('sort-modal');ntf('مرتب شد');
+}
+
+// حذف با رمز
+function askDelInv(idx,mode){
+  document.getElementById('del-target').value=String(idx);
+  document.getElementById('del-mode').value=mode||'single';
+  document.getElementById('del-pw-inp').value='';
+  document.getElementById('del-pw-err').textContent='';
+  document.getElementById('del-pw-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('del-pw-inp').focus(),100);
+}
+function confirmDelInv(){
+  const adminPw=localStorage.getItem('admin-pw')||'';
+  const entered=document.getElementById('del-pw-inp').value;
+  if(adminPw&&entered!==adminPw){document.getElementById('del-pw-err').textContent='رمز اشتباه است';return;}
+  const mode=document.getElementById('del-mode').value;
+  const target=document.getElementById('del-target').value;
+  if(mode==='single'){savedInvoices.splice(parseInt(target),1);}
+  else{target.split(',').map(Number).sort((a,b)=>b-a).forEach(i=>savedInvoices.splice(i,1));}
+  save();closeMod('del-pw-modal');renderSaved();ntf('فاکتور حذف شد');
+}
+
+// تنظیم رمز مدیر
+function setAdminPw(){
+  const n=document.getElementById('admin-pw-new').value;
+  const r=document.getElementById('admin-pw-rep').value;
+  const msg=document.getElementById('admin-pw-msg');
+  if(!n){msg.style.color='var(--red)';msg.textContent='رمز نمی‌تواند خالی باشد';return;}
+  if(n!==r){msg.style.color='var(--red)';msg.textContent='رمز و تکرار یکسان نیستند';return;}
+  localStorage.setItem('admin-pw',n);
+  document.getElementById('admin-pw-new').value='';document.getElementById('admin-pw-rep').value='';
+  msg.style.color='var(--green)';msg.textContent='✓ رمز تنظیم شد';ntf('رمز مدیر تنظیم شد');
+}
+function clearAdminPw(){
+  localStorage.removeItem('admin-pw');
+  document.getElementById('admin-pw-msg').style.color='var(--amber)';
+  document.getElementById('admin-pw-msg').textContent='رمز حذف شد';ntf('رمز حذف شد');
+}
+
+// ─── ثبت عملیات (Audit Log) ───────────────────────────────────────────────────
+function auditUser(action, detail){
+  userAuditLog.unshift({ts:Date.now(), action:action, detail:detail||'', user:(currentRole&&currentRole.name)||'مدیر'});
+  if(userAuditLog.length>800) userAuditLog.length=800;
+  localStorage.setItem('laegh_audit_user', JSON.stringify(userAuditLog));
+}
+function auditBg(action, detail){
+  bgAuditLog.unshift({ts:Date.now(), action:action, detail:detail||''});
+  if(bgAuditLog.length>1200) bgAuditLog.length=1200;
+  localStorage.setItem('laegh_audit_bg', JSON.stringify(bgAuditLog));
+}
+function switchAuditTab(tab){
+  auditTab=tab;
+  document.getElementById('audit-tab-user').classList.toggle('active', tab==='user');
+  document.getElementById('audit-tab-bg').classList.toggle('active', tab==='bg');
+  renderAuditLog();
+}
+function renderAuditLog(){
+  const q=(document.getElementById('audit-q').value||'').toLowerCase();
+  const log=auditTab==='user'?userAuditLog:bgAuditLog;
+  const filtered=log.filter(e=>!q||(e.action+e.detail+(e.user||'')).toLowerCase().includes(q));
+  const box=document.getElementById('audit-log-body');
+  if(!filtered.length){ box.innerHTML='<div style="color:#555;text-align:center;padding:30px">ثبت‌ای یافت نشد</div>'; return; }
+  box.innerHTML=filtered.slice(0,200).map(e=>'<div class="dbg-entry info"><div class="dbg-label">'+(auditTab==='user'?(e.user||'—')+' — ':'')+fdt(e.ts)+'</div><div class="dbg-msg"><b>'+e.action+'</b>'+(e.detail?' — '+e.detail:'')+'</div></div>').join('');
+}
+function clearAuditLog(){
+  if(!confirm('لاگ '+ (auditTab==='user'?'عملیات کاربران':'پس‌زمینه') +' پاک شود؟')) return;
+  if(auditTab==='user'){ userAuditLog=[]; localStorage.setItem('laegh_audit_user','[]'); }
+  else { bgAuditLog=[]; localStorage.setItem('laegh_audit_bg','[]'); }
+  renderAuditLog(); ntf('لاگ پاک شد');
+}
+
+// ─── انبار محصولات معیوب ────────────────────────────────────────────────────────
+const DEF_SRC_LBL={store:'فروشگاه',digikala:'برگشت دیجی‌کالا',customer:'برگشت مشتری',other:'سایر'};
+const DEF_LVL_LBL={low:'جزئی',medium:'متوسط',high:'شدید',critical:'غیرقابل استفاده'};
+function svDefective(){ localStorage.setItem('laegh_defective', JSON.stringify(defectiveStock)); markDirty(); }
+function openDefectiveModal(idx){
+  document.getElementById('def-edit-idx').value=idx==null?-1:idx;
+  if(idx==null||idx<0){
+    ['def-model','def-code','def-serial','def-cname','def-cphone','def-wid','def-invnum','def-note'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+    document.getElementById('def-source').value='customer';
+    document.getElementById('def-level').value='medium';
+    document.getElementById('def-qty').value='1';
+  }else{
+    const d=defectiveStock[idx];
+    document.getElementById('def-model').value=d.model||'';
+    document.getElementById('def-code').value=d.productCode||'';
+    document.getElementById('def-serial').value=d.serial||'';
+    document.getElementById('def-source').value=d.source||'customer';
+    document.getElementById('def-level').value=d.defectLevel||'medium';
+    document.getElementById('def-qty').value=d.qty||1;
+    document.getElementById('def-cname').value=d.customerName||'';
+    document.getElementById('def-cphone').value=d.customerPhone||'';
+    document.getElementById('def-wid').value=d.warrantyId||'';
+    document.getElementById('def-invnum').value=d.invoiceNum||'';
+    document.getElementById('def-note').value=d.note||'';
+  }
+  document.getElementById('def-modal').classList.add('open');
+}
+function saveDefectiveItem(){
+  const idx=+document.getElementById('def-edit-idx').value;
+  const model=document.getElementById('def-model').value.trim();
+  if(!model){ ntf('نام/مدل کالا الزامی است','err'); return; }
+  const item={
+    id: idx>=0?defectiveStock[idx].id:('DEF-'+String(defectiveStock.length+1).padStart(4,'0')),
+    model, productCode:document.getElementById('def-code').value.trim(),
+    serial:document.getElementById('def-serial').value.trim(),
+    source:document.getElementById('def-source').value,
+    defectLevel:document.getElementById('def-level').value,
+    qty:Math.max(1,+document.getElementById('def-qty').value||1),
+    customerName:document.getElementById('def-cname').value.trim(),
+    customerPhone:document.getElementById('def-cphone').value.trim(),
+    warrantyId:document.getElementById('def-wid').value.trim(),
+    invoiceNum:document.getElementById('def-invnum').value.trim(),
+    note:document.getElementById('def-note').value.trim(),
+    status: idx>=0?(defectiveStock[idx].status||'in_stock'):'in_stock',
+    enteredAt: idx>=0?(defectiveStock[idx].enteredAt||fdt()):fdt(),
+    returnedAt: idx>=0?defectiveStock[idx].returnedAt:null
+  };
+  if(idx>=0) defectiveStock[idx]=item; else defectiveStock.push(item);
+  svDefective(); closeMod('def-modal'); renderDefective();
+  auditUser('ثبت انبار معیوب', item.id+' — '+model);
+  ntf('در انبار معیوب ثبت شد ✅');
+}
+function returnDefectiveItem(idx){
+  const d=defectiveStock[idx]; if(!d||d.status==='returned') return;
+  if(!confirm('کالا «'+d.model+'» به مشتری/مقصد عودت داده شد و از انبار کم شود؟')) return;
+  d.status='returned'; d.returnedAt=fdt(); d.qty=0;
+  svDefective(); renderDefective();
+  auditUser('عودت از انبار معیوب', d.id+' — '+d.model);
+  ntf('از انبار معیوب خارج شد');
+}
+function delDefectiveItem(idx){
+  if(!confirm('حذف این ردیف از انبار معیوب؟')) return;
+  const d=defectiveStock[idx];
+  defectiveStock.splice(idx,1); svDefective(); renderDefective();
+  auditUser('حذف از انبار معیوب', d?(d.id+' — '+d.model):'');
+}
+function addDefectiveFromWarranty(w, dev){
+  const ex=defectiveStock.find(x=>x.warrantyId===w.id && x.serial===(dev.serial||'') && x.status==='in_stock');
+  if(ex) return;
+  defectiveStock.push({
+    id:'DEF-'+String(defectiveStock.length+1).padStart(4,'0'),
+    model:dev.model||'', productCode:dev.productCode||'', serial:dev.serial||'',
+    source:'customer', defectLevel:'medium', qty:1,
+    customerName:w.name||'', customerPhone:w.phone||'',
+    warrantyId:w.id||'', invoiceNum:'', note:'ورود خودکار — ارجاع به شرکت',
+    status:'in_stock', enteredAt:fdt(), returnedAt:null
+  });
+  svDefective(); auditBg('ورود خودکار انبار معیوب', w.id);
+}
+function renderDefective(){
+  const q=(document.getElementById('def-q').value||'').toLowerCase();
+  const sf=document.getElementById('def-src-f').value;
