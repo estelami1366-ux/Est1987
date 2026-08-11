@@ -47,35 +47,39 @@ public sealed class MainForm : Form
 
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
-        if (_allowClose || !_settings.AskBackupOnClose || e.CloseReason == CloseReason.WindowsShutDown)
+        if (_allowClose || !_settings.AskBackupOnClose ||
+            e.CloseReason is CloseReason.WindowsShutDown or CloseReason.TaskManagerClosing)
         {
             base.OnFormClosing(e);
             return;
         }
 
-        e.Cancel = true;
-        _ = CloseWithBackupPromptAsync();
-    }
-
-    private async Task CloseWithBackupPromptAsync()
-    {
+        // پرسش هم‌زمان در خود FormClosing — بعد از تأیید، همین بستن ادامه پیدا می‌کند
         var ans = MessageBox.Show(
             this,
             "قبل از بستن، بک‌آپ گرفته شود؟\n\n" +
-            "Yes = بک‌آپ و بستن\n" +
-            "No = بستن بدون بک‌آپ\n" +
-            "Cancel = انصراف",
+            "Yes / بله = بک‌آپ و بستن\n" +
+            "No / خیر = بستن بدون بک‌آپ\n" +
+            "Cancel / انصراف = بسته نشود",
             "خروج از سیرمان",
             MessageBoxButtons.YesNoCancel,
             MessageBoxIcon.Question,
             MessageBoxDefaultButton.Button1);
 
-        if (ans == DialogResult.Cancel) return;
+        if (ans == DialogResult.Cancel)
+        {
+            e.Cancel = true;
+            return;
+        }
 
         if (ans == DialogResult.Yes)
         {
             SetStatus("در حال بک‌آپ قبل از خروج…");
-            try { await RunHtmlBackupBeforeExitAsync(); }
+            try
+            {
+                // ConfigureAwait(false) تا UI thread قفل نشود
+                RunHtmlBackupBeforeExitAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            }
             catch (Exception ex)
             {
                 var cont = MessageBox.Show(
@@ -84,12 +88,41 @@ public sealed class MainForm : Form
                     "بک‌آپ",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning);
-                if (cont != DialogResult.Yes) return;
+                if (cont != DialogResult.Yes)
+                {
+                    e.Cancel = true;
+                    return;
+                }
             }
         }
 
         _allowClose = true;
-        BeginInvoke(new Action(Close));
+        e.Cancel = false;
+        base.OnFormClosing(e);
+    }
+
+    private void ForceCloseWindow()
+    {
+        void Go()
+        {
+            _allowClose = true;
+            try { Close(); } catch { /* ignore */ }
+            try
+            {
+                if (!IsDisposed && Visible)
+                    Application.Exit();
+            }
+            catch { /* ignore */ }
+            try { Environment.Exit(0); } catch { /* ignore */ }
+        }
+
+        if (IsDisposed)
+        {
+            try { Environment.Exit(0); } catch { /* ignore */ }
+            return;
+        }
+        if (InvokeRequired) BeginInvoke(Go);
+        else Go();
     }
 
     private MenuStrip BuildMenu()
@@ -413,30 +446,38 @@ public sealed class MainForm : Form
 
     private async Task RunHtmlBackupBeforeExitAsync()
     {
-        // 1) بک‌آپ داخل HTML (دانلود exportData + autosave)
+        // بک‌آپ سریع و بدون دیالوگ دانلود (exportData ممکن است بستن را قفل کند)
         if (_webView.CoreWebView2 != null)
         {
             const string js = """
                 (async function(){
                   try{
-                    if(typeof exportData==='function') await exportData();
-                    if(typeof doAutoSave==='function' && (window.autoSaveFileHandle || window.autoSaveDirHandle || (typeof autoSaveFileHandle!=='undefined' && autoSaveFileHandle) || (typeof autoSaveDirHandle!=='undefined' && autoSaveDirHandle))){
+                    if(typeof doAutoSave==='function'){
                       try{ await doAutoSave(true); }catch(_e){}
                     }
+                    try{
+                      if(typeof _buildFullBackupData==='function'){
+                        var data = _buildFullBackupData();
+                        localStorage.setItem('laegh_autosave_snapshot', JSON.stringify(data));
+                        localStorage.setItem('laegh_exit_backup_at', new Date().toISOString());
+                      }
+                    }catch(_e2){}
                     if(typeof clearDirty==='function') clearDirty();
                     return 'ok';
                   }catch(e){ return 'err:'+String(e && e.message ? e.message : e); }
                 })()
                 """;
-            var raw = await _webView.CoreWebView2.ExecuteScriptAsync(js);
-            // WebView2 returns JSON-encoded string
-            await Task.Delay(900);
-            if (!string.IsNullOrWhiteSpace(raw) && raw.Contains("err:", StringComparison.Ordinal))
-                throw new InvalidOperationException(raw.Trim('"'));
+            var op = _webView.CoreWebView2.ExecuteScriptAsync(js);
+            var finished = await Task.WhenAny(op, Task.Delay(7000)).ConfigureAwait(false);
+            if (finished == op)
+            {
+                var raw = await op.ConfigureAwait(false);
+                if (!string.IsNullOrWhiteSpace(raw) && raw.Contains("err:", StringComparison.Ordinal))
+                    throw new InvalidOperationException(raw.Trim('"'));
+            }
         }
 
-        // 2) کپی HTML در پوشه بک‌آپ پوسته
-        try { BackupCurrentHtmlSilent(); } catch { /* optional */ }
+        BackupCurrentHtmlSilent();
     }
 
     private void BackupCurrentHtmlSilent()
@@ -506,11 +547,7 @@ public sealed class MainForm : Form
                      string.Equals(type, "close", StringComparison.OrdinalIgnoreCase))
             {
                 // HTML کار خروج/بک‌آپ را تمام کرده — پنجره را بدون پرسش دوباره ببند
-                _allowClose = true;
-                BeginInvoke(new Action(() =>
-                {
-                    try { Close(); } catch { /* ignore */ }
-                }));
+                ForceCloseWindow();
             }
         }
         catch

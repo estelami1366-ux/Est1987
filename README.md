@@ -11,7 +11,7 @@
 نرم‌افزار خدمات پس از فروش (HTML تک‌تکه) + فضای کاری AutoClaw.
 
 ## نسخهٔ فعلی
-سیرمان: **`Sirman_Final.html` → ۱۴۰۵.۵.۲۰δ** — اجرا با `Sirman_Start.bat`
+سیرمان: **`Sirman_Final.html` → ۱۴۰۵.۵.۲۰ε** — اجرا با `Sirman_Start.bat`
 
 ## دستورهای مهم
 ```bash
