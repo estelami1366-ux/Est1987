@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon />
+    <StartupObject>Sirman.Desktop.Program</StartupObject>
+    <AssemblyName>Sirman</AssemblyName>
+    <RootNamespace>Sirman.Desktop</RootNamespace>
+    <Product>سیرمان</Product>
+    <Company>سیرمان</Company>
+    <Description>پوسته ویندوزی سیرمان — Sirman.exe (WebView2 + آپدیت + نصب + اعلان + پرسش بک‌آپ خروج)</Description>
+    <Version>1405.5.20.3</Version>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+  </ItemGroup>
+
+  <!-- کپی HTML کنار خروجی بیلد (برای تست محلی) -->
+  <ItemGroup>
+    <None Include="..\..\Sirman_Final.html" Condition="Exists('..\..\Sirman_Final.html')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Sirman_Final.html</Link>
+    </None>
+  </ItemGroup>
+
+</Project>
