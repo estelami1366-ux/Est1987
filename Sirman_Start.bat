@@ -1,11 +1,11 @@
 @echo off
 setlocal EnableExtensions
 cd /d "%~dp0"
-title Sirman 1405.5.20α
+title Sirman 1405.5.20β
 color 0A
 
 rem === ALWAYS keep this version equal to the latest Sirman HTML release ===
-set "SIRMAN_VERSION=1405.5.20α"
+set "SIRMAN_VERSION=1405.5.20β"
 set "SIRMAN_HTML=Sirman_Final.html"
 set "SIRMAN_HTML_VER=Sirman_Final_%SIRMAN_VERSION%.html"
 
@@ -47,6 +47,7 @@ echo [2/3] Done.
 echo.
 echo Browser should open http://127.0.0.1:8765/%APP_FILE%
 echo Leave the minimized PowerShell window open for notifications + stable settings.
+echo Close Sirman with the RED X inside the app (asks backup). Do not rely on Windows title-bar X.
 echo.
 echo For Start/Desktop shortcuts: run  نصب_میانبر_سیرمان.bat  once.
 echo.

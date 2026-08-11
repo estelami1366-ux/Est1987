@@ -6,7 +6,7 @@ $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $Root
 
 # === ALWAYS keep this version equal to the latest Sirman HTML release ===
-$SirmanVersion = '1405.5.20α'
+$SirmanVersion = '1405.5.20β'
 $Port = 8765
 $NotifyPort = 8766
 $DefaultFile = 'Sirman_Final.html'
@@ -170,9 +170,34 @@ try {
   $fileListener = $null
 }
 
-# Also open http URL if server started
+# Open as app window (Edge/Chrome --app) so user closes via in-app ✕ which asks backup
+function Open-SirmanApp([string]$Url) {
+  $edge1 = Join-Path ${env:ProgramFiles(x86)} 'Microsoft\Edge\Application\msedge.exe'
+  $edge2 = Join-Path $env:ProgramFiles 'Microsoft\Edge\Application\msedge.exe'
+  $chrome1 = Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe'
+  $chrome2 = Join-Path ${env:ProgramFiles(x86)} 'Google\Chrome\Application\chrome.exe'
+  $list = @(
+    @{ Exe = $edge2; Arg = "--app=`"$Url`"" },
+    @{ Exe = $edge1; Arg = "--app=`"$Url`"" },
+    @{ Exe = $chrome1; Arg = "--app=`"$Url`"" },
+    @{ Exe = $chrome2; Arg = "--app=`"$Url`"" }
+  )
+  foreach ($item in $list) {
+    if ($item.Exe -and (Test-Path -LiteralPath $item.Exe)) {
+      try {
+        Start-Process -FilePath $item.Exe -ArgumentList $item.Arg | Out-Null
+        Write-Host "[OK] Opened app window:" $item.Exe
+        return $true
+      } catch {}
+    }
+  }
+  try { Start-Process $Url | Out-Null; return $true } catch { return $false }
+}
+
 if ($fileListener) {
-  try { Start-Process "http://127.0.0.1:$Port/$DefaultFile" | Out-Null } catch {}
+  $appUrl = "http://127.0.0.1:$Port/$DefaultFile?app=1&t=$([DateTimeOffset]::Now.ToUnixTimeSeconds())"
+  [void](Open-SirmanApp $appUrl)
+  Write-Host "Close the app with the red ✕ inside Sirman (asks for backup)."
 }
 
 Write-Host "Keep this window open for server/notifications."
