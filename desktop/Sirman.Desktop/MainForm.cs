@@ -501,6 +501,17 @@ public sealed class MainForm : Form
             {
                 _notify.ShowToast("✅ اعلان دسکتاپ سیرمان", "پل میزبان فعال است.");
             }
+            else if (string.Equals(type, "host-close", StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(type, "exit", StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(type, "close", StringComparison.OrdinalIgnoreCase))
+            {
+                // HTML کار خروج/بک‌آپ را تمام کرده — پنجره را بدون پرسش دوباره ببند
+                _allowClose = true;
+                BeginInvoke(new Action(() =>
+                {
+                    try { Close(); } catch { /* ignore */ }
+                }));
+            }
         }
         catch
         {
@@ -532,16 +543,23 @@ public sealed class MainForm : Form
                 };
                 try{ localStorage.setItem('laegh_desktop_host','1'); }catch(_e2){}
                 try{ localStorage.setItem('laegh_desktop_notify_on','1'); }catch(_e3){}
+                window.sirmanRequestHostClose = function(){
+                  try{
+                    if(window.chrome && window.chrome.webview && window.chrome.webview.postMessage){
+                      window.chrome.webview.postMessage(JSON.stringify({type:'host-close'}));
+                      return true;
+                    }
+                  }catch(_c){}
+                  return false;
+                };
                 try{
                   if(typeof autoEnableDesktopNotifyOnBoot==='function') autoEnableDesktopNotifyOnBoot();
-                  else if(typeof enableTaskNotifications==='function' && localStorage.getItem('laegh_desktop_notify_on')==='1'){
-                    /* already marked */
-                  }
                 }catch(_e4){}
-                // مخفی کردن ✕ مرورگری اگر در HTML هست — بستن از نوار عنوان WinForms انجام می‌شود
                 try{
                   var x=document.getElementById('sirman-win-close');
                   if(x) x.style.display='none';
+                  var hint=document.getElementById('exit-close-hint');
+                  if(hint) hint.remove();
                 }catch(_e5){}
               }catch(_e6){}
             })();
