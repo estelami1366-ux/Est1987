@@ -13,6 +13,8 @@ public sealed class MainForm : Form
     private string? _htmlPath;
     private DesktopSettings _settings;
     private bool _allowClose;
+    private bool _closePromptOpen;
+    private SirmanHostObject? _hostObject;
 
     public MainForm(string[] args)
     {
@@ -47,73 +49,151 @@ public sealed class MainForm : Form
 
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
-        if (_allowClose || !_settings.AskBackupOnClose ||
-            e.CloseReason is CloseReason.WindowsShutDown or CloseReason.TaskManagerClosing)
+        // بستن تأییدشده / خاموشی سیستم
+        if (_allowClose || e.CloseReason is CloseReason.WindowsShutDown or CloseReason.TaskManagerClosing)
         {
+            try { _notify.HideTray(); } catch { /* ignore */ }
             base.OnFormClosing(e);
             return;
         }
 
-        // پرسش هم‌زمان در خود FormClosing — بعد از تأیید، همین بستن ادامه پیدا می‌کند
-        var ans = MessageBox.Show(
-            this,
-            "قبل از بستن، بک‌آپ گرفته شود؟\n\n" +
-            "Yes / بله = بک‌آپ و بستن\n" +
-            "No / خیر = بستن بدون بک‌آپ\n" +
-            "Cancel / انصراف = بسته نشود",
-            "خروج از سیرمان",
-            MessageBoxButtons.YesNoCancel,
-            MessageBoxIcon.Question,
-            MessageBoxDefaultButton.Button1);
-
-        if (ans == DialogResult.Cancel)
+        // اگر همین الان دیالوگ باز است، بستن تکراری را قطع کن
+        if (_closePromptOpen)
         {
             e.Cancel = true;
             return;
         }
 
-        if (ans == DialogResult.Yes)
+        // بدون پرسش
+        if (!_settings.AskBackupOnClose)
         {
-            SetStatus("در حال بک‌آپ قبل از خروج…");
-            try
-            {
-                // ConfigureAwait(false) تا UI thread قفل نشود
-                RunHtmlBackupBeforeExitAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-            }
-            catch (Exception ex)
-            {
-                var cont = MessageBox.Show(
-                    this,
-                    "بک‌آپ کامل نشد:\n" + ex.Message + "\n\nباز هم بسته شود؟",
-                    "بک‌آپ",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning);
-                if (cont != DialogResult.Yes)
-                {
-                    e.Cancel = true;
-                    return;
-                }
-            }
+            _allowClose = true;
+            try { _notify.HideTray(); } catch { /* ignore */ }
+            base.OnFormClosing(e);
+            return;
         }
 
-        _allowClose = true;
-        e.Cancel = false;
-        base.OnFormClosing(e);
+        // الگوی استاندارد WinForms:
+        // FormClosing را Cancel کن، بعد از برگشت از رویداد دیالوگ را نشان بده، سپس Close قطعی.
+        e.Cancel = true;
+        _closePromptOpen = true;
+        BeginInvoke(new Action(ShowExitPromptThenClose));
     }
 
-    private void ForceCloseWindow()
+    private void ShowExitPromptThenClose()
+    {
+        try
+        {
+            var ans = MessageBox.Show(
+                this,
+                "قبل از بستن، بک‌آپ گرفته شود؟\n\n" +
+                "Yes / بله = بک‌آپ و بستن\n" +
+                "No / خیر = بستن بدون بک‌آپ\n" +
+                "Cancel / انصراف = بسته نشود",
+                "خروج از سیرمان",
+                MessageBoxButtons.YesNoCancel,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button1);
+
+            if (ans == DialogResult.Cancel)
+            {
+                _closePromptOpen = false;
+                return;
+            }
+
+            if (ans == DialogResult.Yes)
+            {
+                SetStatus("در حال بک‌آپ قبل از خروج…");
+                try { TryQuickBackupBeforeClose(); }
+                catch (Exception ex)
+                {
+                    var cont = MessageBox.Show(
+                        this,
+                        "بک‌آپ کامل نشد:\n" + ex.Message + "\n\nباز هم بسته شود؟",
+                        "بک‌آپ",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning);
+                    if (cont != DialogResult.Yes)
+                    {
+                        _closePromptOpen = false;
+                        return;
+                    }
+                }
+            }
+
+            RequestForceClose();
+        }
+        catch
+        {
+            RequestForceClose();
+        }
+    }
+
+    /// <summary>بک‌آپ سریع — بدون Wait روی UI (Wait باعث deadlock با WebView2 می‌شود).</summary>
+    private void TryQuickBackupBeforeClose()
+    {
+        try { BackupCurrentHtmlSilent(); } catch { /* ignore */ }
+        try
+        {
+            if (_webView.CoreWebView2 == null) return;
+            const string js = """
+                (function(){
+                  try{
+                    if(typeof clearDirty==='function') clearDirty();
+                    if(typeof _buildFullBackupData==='function'){
+                      localStorage.setItem('laegh_autosave_snapshot', JSON.stringify(_buildFullBackupData()));
+                      localStorage.setItem('laegh_exit_backup_at', new Date().toISOString());
+                    }
+                  }catch(e){}
+                  return 'ok';
+                })()
+                """;
+            // Fire-and-forget: هرگز .Wait/.Result روی UI thread نزن
+            _ = _webView.CoreWebView2.ExecuteScriptAsync(js);
+            Thread.Sleep(250);
+        }
+        catch { /* ignore — بستن مهم‌تر است */ }
+    }
+
+    public void RequestNotify(string? title, string? body)
+    {
+        void Go() => _notify.ShowToast(title, body);
+        if (InvokeRequired) BeginInvoke(Go);
+        else Go();
+    }
+
+    /// <summary>
+    /// بستن قطعی پروسه. Close()/Dispose وب‌ویو گاهی hang می‌کند —
+    /// بعد از مخفی‌کردن tray مستقیم Environment.Exit.
+    /// </summary>
+    public void RequestForceClose()
     {
         void Go()
         {
             _allowClose = true;
-            try { Close(); } catch { /* ignore */ }
+            _closePromptOpen = false;
+            try { _notify.HideTray(); } catch { /* ignore */ }
+            try { _notify.Dispose(); } catch { /* ignore */ }
             try
             {
-                if (!IsDisposed && Visible)
-                    Application.Exit();
+                if (!IsDisposed)
+                {
+                    Visible = false;
+                    ShowInTaskbar = false;
+                }
             }
             catch { /* ignore */ }
+            try
+            {
+                if (_webView.CoreWebView2 != null)
+                    _webView.CoreWebView2.Stop();
+            }
+            catch { /* ignore */ }
+
+            // اول Exit سخت — Close ممکن است روی Dispose وب‌ویو گیر کند
             try { Environment.Exit(0); } catch { /* ignore */ }
+            try { Application.Exit(); } catch { /* ignore */ }
+            try { Close(); } catch { /* ignore */ }
         }
 
         if (IsDisposed)
@@ -264,6 +344,12 @@ public sealed class MainForm : Form
                 var t = _webView.CoreWebView2?.DocumentTitle;
                 Text = string.IsNullOrWhiteSpace(t) ? "سیرمان" : ("سیرمان — " + t);
             };
+            _hostObject = new SirmanHostObject(this);
+            try
+            {
+                _webView.CoreWebView2.AddHostObjectToScript("sirmanHost", _hostObject);
+            }
+            catch { /* برخی محیط‌ها host object را محدود می‌کنند — postMessage باقی است */ }
             _webView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
             _webView.CoreWebView2.NavigationCompleted += async (_, e) =>
             {
@@ -524,8 +610,20 @@ public sealed class MainForm : Form
     {
         try
         {
-            var raw = e.TryGetWebMessageAsString();
+            string? raw = null;
+            try { raw = e.TryGetWebMessageAsString(); } catch { /* ignore */ }
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                try { raw = e.WebMessageAsJson; } catch { /* ignore */ }
+            }
             if (string.IsNullOrWhiteSpace(raw)) return;
+
+            raw = raw.Trim();
+            // اگر کل پیام یک رشتهٔ JSON اینکودشده باشد
+            if (raw.Length >= 2 && raw[0] == '"')
+            {
+                try { raw = System.Text.Json.JsonSerializer.Deserialize<string>(raw) ?? raw; } catch { /* ignore */ }
+            }
 
             using var doc = System.Text.Json.JsonDocument.Parse(raw);
             var root = doc.RootElement;
@@ -547,7 +645,7 @@ public sealed class MainForm : Form
                      string.Equals(type, "close", StringComparison.OrdinalIgnoreCase))
             {
                 // HTML کار خروج/بک‌آپ را تمام کرده — پنجره را بدون پرسش دوباره ببند
-                ForceCloseWindow();
+                RequestForceClose();
             }
         }
         catch
@@ -563,8 +661,18 @@ public sealed class MainForm : Form
             (function(){
               try{
                 window.SIRMAN_DESKTOP_HOST = true;
+                window.SIRMAN_HOST_CLOSE = true;
+                function _sirmanHost(){
+                  try{
+                    return window.chrome && chrome.webview && chrome.webview.hostObjects && chrome.webview.hostObjects.sync && chrome.webview.hostObjects.sync.sirmanHost;
+                  }catch(_e){ return null; }
+                }
                 window.sirmanDesktopNotify = function(title, opts){
                   opts = opts || {};
+                  try{
+                    var h = _sirmanHost();
+                    if(h && h.Notify){ h.Notify(String(title || 'سیرمان'), String((opts && opts.body) || '')); return true; }
+                  }catch(_n){}
                   try{
                     if(window.chrome && window.chrome.webview && window.chrome.webview.postMessage){
                       window.chrome.webview.postMessage(JSON.stringify({
@@ -582,8 +690,15 @@ public sealed class MainForm : Form
                 try{ localStorage.setItem('laegh_desktop_notify_on','1'); }catch(_e3){}
                 window.sirmanRequestHostClose = function(){
                   try{
+                    var h = _sirmanHost();
+                    if(h && h.CloseApp){ h.CloseApp(); return true; }
+                  }catch(_h){}
+                  try{
                     if(window.chrome && window.chrome.webview && window.chrome.webview.postMessage){
                       window.chrome.webview.postMessage(JSON.stringify({type:'host-close'}));
+                      setTimeout(function(){
+                        try{ window.chrome.webview.postMessage(JSON.stringify({type:'host-close'})); }catch(_e2){}
+                      }, 120);
                       return true;
                     }
                   }catch(_c){}

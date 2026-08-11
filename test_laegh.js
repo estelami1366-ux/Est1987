@@ -2460,6 +2460,9 @@ test('مودال خروج و توابع promptExitBackup/exitWithBackup باید
   assertContainsString(html, 'btn-exit-safe', 'دکمه خروج امن لازم است');
   assertContainsString(html, 'id="sirman-win-close"', 'دکمه ✕ داخل برنامه لازم است');
   assertContainsString(html, 'function sirmanRequestHostClose(', 'بستن میزبان دسکتاپ لازم است');
+  const hc = extractFunctionSource(html, 'sirmanRequestHostClose');
+  assertContainsString(hc, 'hostObjects.sync.sirmanHost', 'باید اول Host Object CloseApp را صدا بزند');
+  assertContainsString(hc, 'host-close', 'fallback postMessage host-close لازم است');
   const dx = extractFunctionSource(html, '_doExit');
   assertContainsString(dx, 'sirmanRequestHostClose', '_doExit باید در Sirman.exe به میزبان بگوید ببند');
 
@@ -3860,14 +3863,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۰ε باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۰ζ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.20ε', 'نسخه meta باید 1405.5.20ε باشد');
+  assertEqual(metaVer, '1405.5.20ζ', 'نسخه meta باید 1405.5.20ζ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/20', 'app-date باید 1405/05/20 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۰ε', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۰ε را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۰ζ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۰ζ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.20ε'", 'فیلد version بک‌آپ باید 1405.5.20ε باشد');
+  assertContainsString(buildSrc, "version: '1405.5.20ζ'", 'فیلد version بک‌آپ باید 1405.5.20ζ باشد');
 });
 
 

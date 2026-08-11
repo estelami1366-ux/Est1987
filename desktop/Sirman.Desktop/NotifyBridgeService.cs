@@ -72,6 +72,22 @@ public sealed class NotifyBridgeService : IDisposable
         }
     }
 
+    /// <summary>
+    /// قبل از خروج، آیکون tray را مخفی کن تا NotifyIcon پروسه را زنده نگه ندارد.
+    /// </summary>
+    public void HideTray()
+    {
+        try
+        {
+            if (_tray != null)
+            {
+                _tray.Visible = false;
+                _tray.Text = "سیرمان";
+            }
+        }
+        catch { /* ignore */ }
+    }
+
     private async Task ListenLoopAsync(CancellationToken ct)
     {
         var listener = _listener;
