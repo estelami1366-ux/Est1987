@@ -1,0 +1,10 @@
+نصب ویندوزی سیرمان (Exe)
+========================
+پیش‌نیاز: .NET 8 SDK + WebView2 Runtime
+
+1) build-win.bat
+2) install-sirman.bat
+
+حذف: Uninstall-Sirman.bat یا Start → سیرمان → حذف سیرمان
+جزئیات: INSTALL_FA.txt
+نسخه HTML: 1405.5.21α — تاریخ تحویل: ۱۴۰۵/۰۵/۲۱
