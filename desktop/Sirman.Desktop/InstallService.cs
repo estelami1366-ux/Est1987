@@ -4,11 +4,36 @@ using System.Text;
 namespace Sirman.Desktop;
 
 /// <summary>
-/// نصب محلی در LocalAppData + میانبر منوی Start / دسکتاپ + اسکریپت حذف سالم.
+/// نصب پکیج سیرمان: مسیر را از کاربر می‌پرسد، در همان‌جا کپی می‌کند،
+/// میانبر Start/دسکتاپ و Uninstall می‌سازد.
 /// </summary>
 static class InstallService
 {
-    public static string InstallDir => AppPaths.DefaultInstallDir;
+    public static string InstallLocationFile =>
+        Path.Combine(AppPaths.AppDataRoot, "install-location.txt");
+
+    /// <summary>مسیر نصب ذخیره‌شده؛ اگر نبود پیش‌فرض AppData.</summary>
+    public static string InstallDir
+    {
+        get
+        {
+            try
+            {
+                if (File.Exists(InstallLocationFile))
+                {
+                    var p = File.ReadAllText(InstallLocationFile).Trim();
+                    if (!string.IsNullOrWhiteSpace(p))
+                        return Path.GetFullPath(p);
+                }
+            }
+            catch { /* ignore */ }
+
+            var s = AppPaths.LoadSettings();
+            if (!string.IsNullOrWhiteSpace(s.InstallFolder))
+                return Path.GetFullPath(s.InstallFolder!);
+            return AppPaths.DefaultInstallDir;
+        }
+    }
 
     public static string StartMenuFolder
     {
@@ -37,19 +62,34 @@ static class InstallService
         public bool Ok { get; init; }
         public string Message { get; init; } = "";
         public string? ExePath { get; init; }
+        public string? InstallPath { get; init; }
     }
 
-    public static InstallResult InstallCurrentBuild(bool createDesktopShortcut = false)
+    /// <summary>
+    /// نصب پکیج: اگر targetDir خالی باشد، FolderBrowser از کاربر می‌پرسد.
+    /// </summary>
+    public static InstallResult InstallCurrentBuild(bool createDesktopShortcut = false, string? targetDir = null, IWin32Window? owner = null)
     {
         try
         {
             var srcDir = AppPaths.ExeDir;
-            var dstDir = InstallDir;
+            if (string.IsNullOrWhiteSpace(targetDir))
+            {
+                targetDir = PromptInstallFolder(owner);
+                if (string.IsNullOrWhiteSpace(targetDir))
+                    return new InstallResult { Ok = false, Message = "نصب لغو شد — مسیری انتخاب نشد." };
+            }
+
+            var dstDir = Path.GetFullPath(targetDir.Trim());
+            // اگر کاربر ریشه درایو داد، زیرپوشه Sirman بساز
+            if (IsDriveRoot(dstDir))
+                dstDir = Path.Combine(dstDir, "Sirman");
+
             Directory.CreateDirectory(dstDir);
 
             var sameDir = string.Equals(
                 Path.GetFullPath(srcDir).TrimEnd('\\', '/'),
-                Path.GetFullPath(dstDir).TrimEnd('\\', '/'),
+                dstDir.TrimEnd('\\', '/'),
                 StringComparison.OrdinalIgnoreCase);
 
             if (!sameDir)
@@ -61,7 +101,6 @@ static class InstallService
                     File.Copy(file, Path.Combine(dstDir, name), overwrite: true);
                 }
 
-                // زیرپوشه updates اگر باشد
                 var updSrc = Path.Combine(srcDir, "updates");
                 if (Directory.Exists(updSrc))
                 {
@@ -76,32 +115,88 @@ static class InstallService
 
             var exe = Path.Combine(dstDir, "Sirman.exe");
             if (!File.Exists(exe))
-                exe = Path.Combine(srcDir, "Sirman.exe");
-            if (!File.Exists(exe))
-                return new InstallResult { Ok = false, Message = "Sirman.exe پیدا نشد.\nاز پوشه publish یا محل بیلد اجرا کنید." };
+                return new InstallResult
+                {
+                    Ok = false,
+                    Message = "بعد از کپی، Sirman.exe در مسیر انتخابی پیدا نشد.\nابتدا build-win.bat را اجرا کنید یا از پوشه publish نصب کنید."
+                };
 
-            var work = Path.GetDirectoryName(exe)!;
-            WriteUninstallArtifacts(work);
+            RememberInstallFolder(dstDir);
+            WriteUninstallArtifacts(dstDir);
 
-            CreateShortcut(StartMenuShortcutPath, exe, work, "سیرمان — خدمات پس از فروش");
-            CreateUninstallShortcut(work);
+            CreateShortcut(StartMenuShortcutPath, exe, dstDir, "سیرمان — خدمات پس از فروش");
+            CreateUninstallShortcut(dstDir);
             if (createDesktopShortcut)
-                CreateShortcut(DesktopShortcutPath, exe, work, "سیرمان — خدمات پس از فروش");
+                CreateShortcut(DesktopShortcutPath, exe, dstDir, "سیرمان — خدمات پس از فروش");
 
-            var unBat = Path.Combine(work, UninstallBatName);
-            var msg = "نصب/میانبر آماده شد.\n\nاجرا:\n" + exe +
-                      "\n\nمیانبر Start:\n" + StartMenuShortcutPath +
-                      "\n\nحذف سالم:\n" + unBat +
-                      "\nمیانبر حذف:\n" + StartMenuUninstallShortcutPath;
+            var unBat = Path.Combine(dstDir, UninstallBatName);
+            var msg =
+                "✅ نصب پکیج سیرمان تمام شد.\n\n" +
+                "مسیر نصب:\n" + dstDir + "\n\n" +
+                "اجرا:\n" + exe + "\n\n" +
+                "میانبر Start:\n" + StartMenuShortcutPath + "\n" +
+                "حذف سالم:\n" + unBat + "\n" +
+                "میانبر حذف:\n" + StartMenuUninstallShortcutPath;
             if (createDesktopShortcut)
                 msg += "\n\nمیانبر دسکتاپ:\n" + DesktopShortcutPath;
 
-            return new InstallResult { Ok = true, ExePath = exe, Message = msg };
+            return new InstallResult { Ok = true, ExePath = exe, InstallPath = dstDir, Message = msg };
         }
         catch (Exception ex)
         {
             return new InstallResult { Ok = false, Message = "نصب ناموفق:\n" + ex.Message };
         }
+    }
+
+    public static string? PromptInstallFolder(IWin32Window? owner = null)
+    {
+        using var dlg = new FolderBrowserDialog
+        {
+            Description = "پوشه نصب سیرمان را انتخاب کنید (مثلاً D:\\Sirman یا Documents\\Sirman)",
+            UseDescriptionForTitle = true,
+            ShowNewFolderButton = true
+        };
+
+        var suggested = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            "Sirman");
+        try
+        {
+            var cur = InstallDir;
+            if (Directory.Exists(cur)) dlg.SelectedPath = cur;
+            else if (Directory.Exists(Path.GetDirectoryName(suggested)!))
+            {
+                Directory.CreateDirectory(suggested);
+                dlg.SelectedPath = suggested;
+            }
+        }
+        catch { /* ignore */ }
+
+        var r = owner != null ? dlg.ShowDialog(owner) : dlg.ShowDialog();
+        if (r != DialogResult.OK) return null;
+        return string.IsNullOrWhiteSpace(dlg.SelectedPath) ? null : dlg.SelectedPath;
+    }
+
+    public static void RememberInstallFolder(string folder)
+    {
+        folder = Path.GetFullPath(folder);
+        Directory.CreateDirectory(AppPaths.AppDataRoot);
+        File.WriteAllText(InstallLocationFile, folder, Encoding.UTF8);
+        var s = AppPaths.LoadSettings();
+        s.InstallFolder = folder;
+        AppPaths.SaveSettings(s);
+    }
+
+    private static bool IsDriveRoot(string path)
+    {
+        try
+        {
+            var full = Path.GetFullPath(path).TrimEnd('\\', '/');
+            var root = Path.GetPathRoot(full)?.TrimEnd('\\', '/');
+            return !string.IsNullOrEmpty(root) &&
+                   string.Equals(full, root, StringComparison.OrdinalIgnoreCase);
+        }
+        catch { return false; }
     }
 
     public static InstallResult CreateShortcutsOnly(bool desktop)
@@ -115,6 +210,7 @@ static class InstallService
                 return new InstallResult { Ok = false, Message = "Sirman.exe پیدا نشد." };
 
             var work = Path.GetDirectoryName(exe)!;
+            RememberInstallFolder(work);
             WriteUninstallArtifacts(work);
             CreateShortcut(StartMenuShortcutPath, exe, work, "سیرمان — خدمات پس از فروش");
             CreateUninstallShortcut(work);
@@ -125,6 +221,7 @@ static class InstallService
             {
                 Ok = true,
                 ExePath = exe,
+                InstallPath = work,
                 Message = "میانبر ساخته شد.\nStart: " + StartMenuShortcutPath +
                           "\nحذف: " + StartMenuUninstallShortcutPath +
                           (desktop ? ("\nدسکتاپ: " + DesktopShortcutPath) : "")
@@ -136,9 +233,6 @@ static class InstallService
         }
     }
 
-    /// <summary>
-    /// همیشه کنار exe فایل Uninstall-Sirman.bat را می‌نویسد و میانبر Start «حذف سیرمان» می‌سازد.
-    /// </summary>
     public static void WriteUninstallArtifacts(string targetDir)
     {
         Directory.CreateDirectory(targetDir);
@@ -199,8 +293,11 @@ cd /d "%~dp0"
 title حذف سیرمان
 color 0C
 
-set "INSTALL_DIR=%LOCALAPPDATA%\Sirman\App"
+rem مسیر نصب = همین پوشه‌ای که Uninstall از آن اجرا شده (مسیر انتخاب‌شده هنگام نصب)
+set "INSTALL_DIR=%~dp0"
+if "%INSTALL_DIR:~-1%"=="\" set "INSTALL_DIR=%INSTALL_DIR:~0,-1%"
 set "APP_ROOT=%LOCALAPPDATA%\Sirman"
+set "LOC_FILE=%APP_ROOT%\install-location.txt"
 set "START_DIR=%APPDATA%\Microsoft\Windows\Start Menu\Programs\سیرمان"
 set "DESKTOP_LNK=%USERPROFILE%\Desktop\سیرمان.lnk"
 set "DESKTOP_LNK2=%USERPROFILE%\OneDrive\Desktop\سیرمان.lnk"
@@ -210,12 +307,15 @@ echo ===============================================
 echo   حذف سالم سیرمان (Uninstall)
 echo ===============================================
 echo.
+echo مسیر نصب:
+echo   %INSTALL_DIR%
+echo.
 echo این کار انجام می‌شود:
 echo   - بستن Sirman.exe در صورت اجرا
 echo   - حذف میانبر Start و دسکتاپ
-echo   - حذف پوشه نصب: %INSTALL_DIR%
+echo   - حذف پوشه نصب بالا
 echo.
-echo داده بک‌آپ و تنظیمات در صورت تمایل جداگانه پرسیده می‌شود.
+echo داده بک‌آپ و تنظیمات AppData در صورت تمایل جداگانه پرسیده می‌شود.
 echo.
 
 choice /C YN /M "حذف سیرمان انجام شود؟"
@@ -235,11 +335,16 @@ if exist "%START_DIR%" rd /s /q "%START_DIR%" 2>nul
 if exist "%DESKTOP_LNK%" del /f /q "%DESKTOP_LNK%" 2>nul
 if exist "%DESKTOP_LNK2%" del /f /q "%DESKTOP_LNK2%" 2>nul
 
-echo [3/4] حذف پوشه نصب برنامه...
+echo [3/4] حذف ثبت مسیر نصب...
+if exist "%LOC_FILE%" del /f /q "%LOC_FILE%" 2>nul
+
+echo [4/4] حذف پوشه نصب...
+cd /d "%TEMP%"
 if exist "%INSTALL_DIR%" (
   rd /s /q "%INSTALL_DIR%" 2>nul
   if exist "%INSTALL_DIR%" (
     echo هشدار: بخشی از پوشه نصب حذف نشد — شاید فایل قفل باشد.
+    echo مسیر: %INSTALL_DIR%
   ) else (
     echo پوشه نصب حذف شد.
   )
@@ -248,10 +353,9 @@ if exist "%INSTALL_DIR%" (
 )
 
 echo.
-choice /C YN /M "تنظیمات/کش WebView2 و داده LocalAppData\Sirman هم پاک شود؟ (بک‌آپ‌های پیش‌فرض هم می‌روند)"
+choice /C YN /M "تنظیمات/کش WebView2 در LocalAppData\Sirman هم پاک شود؟ (بک‌آپ‌های پیش‌فرض هم می‌روند)"
 if errorlevel 2 goto :skip_data
 
-echo [4/4] حذف داده کاربر...
 if exist "%APP_ROOT%" (
   rd /s /q "%APP_ROOT%" 2>nul
   if exist "%APP_ROOT%" (
@@ -265,7 +369,7 @@ if exist "%APP_ROOT%" (
 goto :done
 
 :skip_data
-echo [4/4] داده کاربر نگه داشته شد.
+echo داده کاربر نگه داشته شد.
 
 :done
 echo.
@@ -274,7 +378,6 @@ echo   حذف تمام شد
 echo ===============================================
 echo.
 echo اگر بک‌آپ جداگانه دارید، دست نخورده است.
-echo این پنجره را ببندید.
 pause
 exit /b 0
 """;

@@ -244,8 +244,8 @@ public sealed class MainForm : Form
         backup.DropDownItems.Add(askBackup);
 
         var install = new ToolStripMenuItem("نصب");
-        install.DropDownItems.Add(new ToolStripMenuItem("نصب در این کاربر + میانبر Start", null, (_, _) => DoInstall(false)));
-        install.DropDownItems.Add(new ToolStripMenuItem("نصب + میانبر Start و دسکتاپ", null, (_, _) => DoInstall(true)));
+        install.DropDownItems.Add(new ToolStripMenuItem("نصب پکیج… (انتخاب مسیر + میانبر Start)", null, (_, _) => DoInstall(false)));
+        install.DropDownItems.Add(new ToolStripMenuItem("نصب پکیج… (مسیر + Start و دسکتاپ)", null, (_, _) => DoInstall(true)));
         install.DropDownItems.Add(new ToolStripMenuItem("فقط ساخت میانبر Start", null, (_, _) => DoShortcutsOnly(false)));
         install.DropDownItems.Add(new ToolStripMenuItem("فقط ساخت میانبر Start و دسکتاپ", null, (_, _) => DoShortcutsOnly(true)));
         install.DropDownItems.Add(new ToolStripSeparator());
@@ -521,9 +521,20 @@ public sealed class MainForm : Form
 
     private void DoInstall(bool desktopShortcut)
     {
-        var res = InstallService.InstallCurrentBuild(desktopShortcut);
+        var intro = MessageBox.Show(
+            this,
+            "نصب پکیج سیرمان\n\n" +
+            "در مرحله بعد پوشه نصب را خودتان انتخاب می‌کنید.\n" +
+            "برنامه کنار این فایل‌ها نصب نمی‌شود — فقط در مسیر انتخابی شما کپی می‌گردد.\n\n" +
+            "ادامه؟",
+            "نصب سیرمان",
+            MessageBoxButtons.OKCancel,
+            MessageBoxIcon.Information);
+        if (intro != DialogResult.OK) return;
+
+        var res = InstallService.InstallCurrentBuild(desktopShortcut, targetDir: null, owner: this);
         MessageBox.Show(res.Message, "نصب", MessageBoxButtons.OK,
-            res.Ok ? MessageBoxIcon.Information : MessageBoxIcon.Error);
+            res.Ok ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
         if (res.Ok && !string.IsNullOrWhiteSpace(res.ExePath))
             SetStatus("نصب شد: " + res.ExePath);
     }

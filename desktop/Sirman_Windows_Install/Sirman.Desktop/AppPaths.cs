@@ -53,6 +53,8 @@ sealed class DesktopSettings
 {
     public string? BackupFolder { get; set; }
     public string? PreferredHtmlPath { get; set; }
+    /// <summary>آخرین مسیر نصب انتخاب‌شده توسط کاربر.</summary>
+    public string? InstallFolder { get; set; }
     public string? LastAppliedUpdateId { get; set; }
     public string? LastAppliedUpdateVersion { get; set; }
     public bool NotifyEnabled { get; set; } = true;

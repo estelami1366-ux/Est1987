@@ -1,38 +1,67 @@
 @echo off
 chcp 65001 >nul
-setlocal
+setlocal EnableExtensions
 cd /d "%~dp0"
 
+title نصب پکیج سیرمان
+color 0B
+
+echo.
 echo ===============================================
-echo   نصب سیرمان (فاز ۲)
+echo   پکیج نصب سیرمان
 echo ===============================================
+echo.
+echo این نصب‌کننده مسیر نصب را از شما می‌پرسد
+echo و فایل‌ها را فقط آنجا کپی می‌کند
+echo (کنار پوشه تحویل/سورس نصب نمی‌شود).
 echo.
 
 if not exist "%~dp0publish\Sirman.exe" (
-  echo ابتدا build-win.bat را اجرا کنید تا publish ساخته شود.
+  echo [!] Sirman.exe ساخته نشده — اول build-win.bat را اجرا کنید.
+  echo.
+  choice /C YN /M "الان build اجرا شود؟"
+  if errorlevel 2 goto :cancel
+  call "%~dp0build-win.bat"
+  if not exist "%~dp0publish\Sirman.exe" (
+    echo ساخت ناموفق بود.
+    pause
+    exit /b 1
+  )
+)
+
+echo باز کردن پنجره انتخاب پوشه...
+set "DEST="
+for /f "usebackq delims=" %%I in (`powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-choose-path.ps1"`) do set "DEST=%%I"
+if not defined DEST goto :cancel
+
+echo.
+echo مسیر انتخاب‌شده:
+echo   %DEST%
+echo.
+set "DESKTOP=0"
+choice /C YN /M "میانبر دسکتاپ هم ساخته شود؟"
+if not errorlevel 2 set "DESKTOP=1"
+
+echo.
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-package.ps1" -Dest "%DEST%" -SourceRoot "%~dp0" -DesktopShortcut %DESKTOP%
+if errorlevel 1 (
+  echo نصب ناموفق بود.
   pause
   exit /b 1
 )
 
-set "DEST=%LOCALAPPDATA%\Sirman\App"
-mkdir "%DEST%" 2>nul
-echo کپی به: %DEST%
-xcopy /E /Y /I "%~dp0publish\*" "%DEST%\" >nul
-if exist "%~dp0Sirman_Final.html" copy /Y "%~dp0Sirman_Final.html" "%DEST%\Sirman_Final.html" >nul
-if exist "%~dp0..\Sirman_Final.html" copy /Y "%~dp0..\Sirman_Final.html" "%DEST%\Sirman_Final.html" >nul
-if exist "%~dp0Sirman_Pending_Update.json" copy /Y "%~dp0Sirman_Pending_Update.json" "%DEST%\Sirman_Pending_Update.json" >nul
-if exist "%~dp0..\Sirman_Pending_Update.json" copy /Y "%~dp0..\Sirman_Pending_Update.json" "%DEST%\Sirman_Pending_Update.json" >nul
-if exist "%~dp0Uninstall-Sirman.bat" copy /Y "%~dp0Uninstall-Sirman.bat" "%DEST%\Uninstall-Sirman.bat" >nul
-if exist "%~dp0publish\Uninstall-Sirman.bat" copy /Y "%~dp0publish\Uninstall-Sirman.bat" "%DEST%\Uninstall-Sirman.bat" >nul
-
-echo ساخت میانبر منوی Start (اجرا + حذف)...
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-  "$s=(New-Object -ComObject WScript.Shell); $d=Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\سیرمان'; New-Item -ItemType Directory -Force -Path $d | Out-Null; $app=Join-Path $env:LOCALAPPDATA 'Sirman\App'; $exe=Join-Path $app 'Sirman.exe'; $un=Join-Path $app 'Uninstall-Sirman.bat'; $l=$s.CreateShortcut((Join-Path $d 'سیرمان.lnk')); $l.TargetPath=$exe; $l.WorkingDirectory=$app; $l.Description='سیرمان'; $l.Save(); $u=$s.CreateShortcut((Join-Path $d 'حذف سیرمان.lnk')); $u.TargetPath=$un; $u.WorkingDirectory=$app; $u.Description='حذف سالم سیرمان'; $u.Save()"
-
 echo.
-echo OK
-echo اجرا: %DEST%\Sirman.exe
-echo حذف سالم: %DEST%\Uninstall-Sirman.bat
-echo میانبر: Start Menu \ سیرمان  (+ «حذف سیرمان»)
+echo ===============================================
+echo   نصب با موفقیت انجام شد
+echo ===============================================
+echo مسیر: %DEST%
+echo اجرا از منوی Start \ سیرمان
+echo حذف: Uninstall-Sirman.bat داخل همان مسیر
 echo.
 pause
+exit /b 0
+
+:cancel
+echo نصب لغو شد.
+pause
+exit /b 0
