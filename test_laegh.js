@@ -3855,14 +3855,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱β باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21α', 'نسخه meta باید 1405.5.21α باشد');
+  assertEqual(metaVer, '1405.5.21β', 'نسخه meta باید 1405.5.21β باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱α', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱α را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱β', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱β را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21α'", 'فیلد version بک‌آپ باید 1405.5.21α باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21β'", 'فیلد version بک‌آپ باید 1405.5.21β باشد');
 });
 
 
@@ -3931,7 +3931,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
       good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.20ε', minBaseVersion:'1405.5.20ε'}),
-      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21α'}),
+      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21β'}),
       cmp: compareSirmanVersions('1405.5.20ε','1405.5.18ε')
     };
   `);
@@ -4029,6 +4029,22 @@ test('قانون ۹: لانچر BAT/PS1 باید با نسخه meta همگام �
   assertContainsString(ps1, "$SirmanVersion = '"+metaVer+"'", 'sirman_run.ps1 باید $SirmanVersion = \''+metaVer+'\' داشته باشد');
 });
 
+
+
+console.log('📋 گروه ۲۱β: نشانه سبز ذخیره خودکار');
+
+test('نشانه سبز autosave باید حالت armed و پالس on داشته باشد', () => {
+  assertContainsString(html, 'id="autosave-dot"', 'عنصر autosave-dot لازم است');
+  assertContainsString(html, '#autosave-dot.armed', 'حالت همیشه-روشن armed لازم است');
+  assertContainsString(html, 'function setAutosaveDotArmed(', 'setAutosaveDotArmed لازم است');
+  assertContainsString(html, 'function autoSaveTick(', 'autoSaveTick لازم است');
+  const st = extractFunctionSource(html, 'startAutoSave');
+  assertContainsString(st, 'setAutosaveDotArmed', 'startAutoSave باید نشانه را روشن کند');
+  assertContainsString(st, 'doAutoSave(true)', 'شروع باید یک ذخیره فوری هم بزند');
+  const fl = extractFunctionSource(html, 'flashAutosaveDot');
+  assertContainsString(fl, 'armed', 'پالس باید حالت فعال را نگه دارد');
+});
+
 console.log('📋 گروه ۲۱α: پیش‌نمایش و بازگردانی انتخابی بک‌آپ');
 
 test('مودال پیش‌نمایش بک‌آپ و توابع انتخاب بخش باید موجود باشند', () => {
@@ -4048,7 +4064,7 @@ test('شبیه‌سازی واقعی: summarizeBackupInventory باید بخش�
   assertTrue(!!extractFunctionSource(html, 'summarizeBackupInventory'), 'summarizeBackupInventory پیدا نشد');
   const runner = new Function(src + `;
     return summarizeBackupInventory({
-      version:'1405.5.21α',
+      version:'1405.5.21β',
       invoices:[{id:1},{id:2}],
       phonebook:[{fn:'علی',phones:['0912']}],
       pb:[],
