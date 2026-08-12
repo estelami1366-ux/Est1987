@@ -356,17 +356,23 @@ console.log('');
 console.log('📋 گروه ۲: منطق ذخیره و بازگردانی (مهم‌ترین بخش)');
 
 // -------------------------------------------------------------------
+
+function runReplaceSectionsOnSandbox(html, sandbox){
+  const wantsSrc = extractFunctionSource(html, '_restoreWants');
+  const replaceSrc = extractFunctionSource(html, 'applyBackupReplaceSections');
+  if(!wantsSrc || !replaceSrc) throw new Error('توابع بازگردانی پیدا نشد');
+  const body = replaceSrc.substring(replaceSrc.indexOf('{')+1, replaceSrc.lastIndexOf('}'));
+  // بدنه را داخل with اجرا کن تا assignmentها روی sandbox بنشینند (مثل applyAll قدیمی)
+  const runner = new Function('ctx', wantsSrc + '\n' + 'with(ctx){ var d = ctx.d; var selectedKeys = null;\n' + body + '\n}');
+  runner(sandbox);
+}
+
 // گروه ۲: شبیه‌سازی واقعی منطق importData / applyAll
 // این دقیقاً همان باگی است که دفترچه تلفن را خالی نشان می‌داد
 // -------------------------------------------------------------------
 
 test('متغیر phonebook (نه فقط pb) باید واقعاً در منطق بازگردانی اجرا و پر شود', () => {
-  const importDataSrc = extractFunctionSource(html, 'importData');
-  assertTrue(importDataSrc !== null, 'تابع importData پیدا نشد');
-
-  // به جای فقط جستجوی متن، واقعاً منطق applyAll را با eval در یک محیط شبیه‌سازی‌شده اجرا می‌کنیم
-  const applyAllSrc = importDataSrc.match(/function applyAll\(\)\s*\{[\s\S]*?\n    \}/);
-  assertTrue(applyAllSrc !== null, 'تابع applyAll داخل importData پیدا نشد');
+  assertTrue(extractFunctionSource(html, 'applyBackupReplaceSections') !== null, 'تابع applyBackupReplaceSections پیدا نشد');
 
   const sandbox = {
     d: {
@@ -375,21 +381,19 @@ test('متغیر phonebook (نه فقط pb) باید واقعاً در منطق 
       pb: [], parts: [], services: [], svcs: [], warranties: [], sales: []
     },
     invoices: [], products: [], inventory: {}, phonebook: [], pb: [], parts: [], services: [], svcs: [], warranties: [], sales: [], tasks: [], invCtr: 1,
-    sv(){}, svParts(){}, svSvcs(){}, svSales(){}, svWarr(){}, svPB(){}, svTasks(){},
+    accounts: [], defectiveStock: [],
+    sv(){}, svParts(){}, svSvcs(){}, svSales(){}, svWarr(){}, svPB(){}, svTasks(){}, svAccounts(){}, svDefective(){},
     getNum(){}, renderSaved(){}, renderProds(){}, renderInv(){}, renderPB(){}, renderParts(){}, renderSvcs(){}, renderSales(){}, renderWarList(){}, renderDataStats(){}, renderTasks(){}, renderSidebarBadges(){},
     localStorage: new MockLocalStorage(), logoSrc: ''
   };
 
-  const fnBody = applyAllSrc[0].replace('function applyAll()', '');
-  const runner = new Function('ctx', 'with(ctx) { ' + fnBody.substring(fnBody.indexOf('{')+1, fnBody.lastIndexOf('}')) + ' }');
-
   try {
-    runner(sandbox);
+    runReplaceSectionsOnSandbox(html, sandbox);
   } catch(e) {
-    throw new Error('اجرای واقعی applyAll با خطا متوقف شد: ' + e.message);
+    throw new Error('اجرای واقعی applyBackupReplaceSections با خطا متوقف شد: ' + e.message);
   }
 
-  assertArrayLength(sandbox.phonebook, 2, 'بعد از اجرای واقعی applyAll روی یک بک‌اپ نمونه، phonebook باید ۲ مخاطب داشته باشد — اگر این تست fail شود یعنی منطق واقعاً phonebook را پر نمی‌کند (حتی اگر متن کد آن را داشته باشد)');
+  assertArrayLength(sandbox.phonebook, 2, 'بعد از اجرای واقعی بازگردانی روی یک بک‌اپ نمونه، phonebook باید ۲ مخاطب داشته باشد');
 });
 
 test('شبیه‌سازی کامل: بازگردانی یک فایل بک‌اپ واقعی باید همه ۲۷ مخاطب را برگرداند', () => {
@@ -453,28 +457,15 @@ test('فایل بک‌اپ خراب (JSON نامعتبر) باید پیام خط
 // این دقیقاً همان باگی است که کاربر گزارش کرد: «بعد از ریست و بک‌آپ، مالی برنمی‌گرده»
 // ریشه: در حالت merge، accounts اصلاً پردازش نمی‌شد و svAccounts صدا زده نمی‌شد
 test('شبیه‌سازی واقعی: ادغام بک‌آپ باید حساب‌های مالی (accounts) را برگرداند', () => {
-  const importDataSrc = extractFunctionSource(html, 'importData');
-  assertTrue(importDataSrc !== null, 'تابع importData پیدا نشد');
-
-  // استخراج بخش merge (ادغام) از importData — از مارکر تا انتهای تابع
-  const mergeMarker = importDataSrc.indexOf('// ادغام');
-  assertTrue(mergeMarker !== -1, 'بخش ادغام در importData پیدا نشد');
-  // کل بخش merge (تا انتهای importData)
-  const mergeSection = importDataSrc.substring(mergeMarker);
-
-  // بررسی متنی: accounts و svAccounts باید در بخش merge ذکر شوند
+  const mergeSection = extractFunctionSource(html, 'applyBackupMergeSections');
+  assertTrue(mergeSection !== null, 'تابع applyBackupMergeSections پیدا نشد');
   assertContainsString(mergeSection, 'accounts', 'بخش ادغام باید accounts را پردازش کند');
   assertContainsString(mergeSection, 'svAccounts', 'بخش ادغام باید svAccounts را صدا بزند');
   assertContainsString(mergeSection, 'renderAccounts', 'بخش ادغام باید renderAccounts را صدا بزند');
 });
 
 test('شبیه‌سازی واقعی: applyAll (جایگزینی) باید accounts را در localStorage ذخیره کند', () => {
-  const importDataSrc = extractFunctionSource(html, 'importData');
-  const applyAllSrc = importDataSrc.match(/function applyAll\(\)\s*\{[\s\S]*?\n    \}/);
-  assertTrue(applyAllSrc !== null, 'تابع applyAll داخل importData پیدا نشد');
-
-  const fnBody = applyAllSrc[0].replace('function applyAll()', '');
-  const runner = new Function('ctx', 'with(ctx) { ' + fnBody.substring(fnBody.indexOf('{')+1, fnBody.lastIndexOf('}')) + ' }');
+  assertTrue(extractFunctionSource(html, 'applyBackupReplaceSections') !== null, 'تابع applyBackupReplaceSections پیدا نشد');
 
   const mockStore = {};
   const sandbox = {
@@ -510,13 +501,13 @@ test('شبیه‌سازی واقعی: applyAll (جایگزینی) باید accou
   };
 
   try {
-    runner(sandbox);
+    runReplaceSectionsOnSandbox(html, sandbox);
   } catch(e) {
-    throw new Error('اجرای واقعی applyAll با خطا متوقف شد: ' + e.message);
+    throw new Error('اجرای واقعی applyBackupReplaceSections با خطا متوقف شد: ' + e.message);
   }
 
-  assertArrayLength(sandbox.accounts, 2, 'بعد از اجرای واقعی applyAll، accounts باید ۲ حساب داشته باشد');
-  assertTrue(sandbox.svAccountsCalled, 'applyAll باید svAccounts را صدا بزند تا accounts در localStorage ذخیره شود');
+  assertArrayLength(sandbox.accounts, 2, 'بعد از اجرای واقعی جایگزینی، accounts باید ۲ حساب داشته باشد');
+  assertTrue(sandbox.svAccountsCalled, 'بازگردانی باید svAccounts را صدا بزند تا accounts در localStorage ذخیره شود');
   assertEqual(sandbox.accounts[0].id, 'ACC-1', 'حساب اول باید ACC-1 باشد');
 });
 
@@ -874,9 +865,9 @@ test('بک‌اپ باید userRoles و loginPw را هم شامل شود تا �
 });
 
 test('بازگردانی بک‌اپ (importData/applyAll) باید userRoles را از فایل بک‌اپ بازیابی کند', () => {
-  const importSrc = extractFunctionSource(html, 'importData');
-  assertTrue(importSrc !== null, 'تابع importData پیدا نشد');
-  assertContainsString(importSrc, 'd.userRoles', 'applyAll باید d.userRoles از فایل بک‌اپ را بخواند');
+  const importSrc = extractFunctionSource(html, 'applyBackupReplaceSections');
+  assertTrue(importSrc !== null, 'تابع applyBackupReplaceSections پیدا نشد');
+  assertContainsString(importSrc, 'd.userRoles', 'بازگردانی باید d.userRoles از فایل بک‌اپ را بخواند');
 });
 
 test('بازگردانی بک‌اپ قدیمی (بدون userRoles) نباید کرش کند یا پروفایل‌های فعلی را خراب کند', () => {
@@ -1562,10 +1553,11 @@ test('syncBackupReminderTask: فقط وقتی داده هست و بیش از ۷ 
 });
 
 test('بازگردانی جایگزینی باید پیش‌نمایش سلامت (شمارش رکوردها) و هشدار فایل خالی داشته باشد', () => {
-  const src = extractFunctionSource(html, 'importData');
-  assertTrue(src !== null, 'تابع importData پیدا نشد');
-  assertContainsString(src, '_preview', 'پیش‌نمایش سلامت (شمارش رکوردها) قبل از جایگزینی پیدا نشد');
-  assertContainsString(src, 'هشدار جدی', 'هشدار «فایل خالی ولی داده‌ی فعلی دارید» باید وجود داشته باشد');
+  const src = extractFunctionSource(html, 'openRestorePreviewModal');
+  assertTrue(src !== null, 'تابع openRestorePreviewModal پیدا نشد');
+  assertContainsString(html, 'id="restore-inv-meta"', 'متای پیش‌نمایش بک‌آپ پیدا نشد');
+  assertContainsString(src, 'خالی', 'هشدار فایل خالی در پیش‌نمایش باید وجود داشته باشد');
+  assertContainsString(html, 'id="restore-inv-warn"', 'باکس هشدار پیش‌نمایش پیدا نشد');
 });
 
 test('مدیریت کالا: دکمه‌ها و توابع اکسل (import/export/نمونه) باید وجود داشته و ستون‌های خروجی با ورودی هماهنگ باشند', () => {
@@ -1888,9 +1880,9 @@ test('migrateBackup روی بک‌اپ قدیمی بدون فیلد accounts ن�
 });
 
 test('applyAll در importData باید accounts را از فایل بک‌اپ بازیابی کند', () => {
-  const importSrc = extractFunctionSource(html, 'importData');
-  assertTrue(importSrc !== null, 'تابع importData پیدا نشد');
-  assertContainsString(importSrc, 'd.accounts', 'applyAll باید d.accounts از فایل بک‌اپ را بخواند');
+  const importSrc = extractFunctionSource(html, 'applyBackupReplaceSections');
+  assertTrue(importSrc !== null, 'تابع applyBackupReplaceSections پیدا نشد');
+  assertContainsString(importSrc, 'd.accounts', 'بازگردانی باید d.accounts از فایل بک‌اپ را بخواند');
 });
 
 test('resetAll باید کلید laegh_accounts را در لیست کلیدهای پاک‌شونده داشته باشد', () => {
@@ -3863,14 +3855,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۰ζ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.20ζ', 'نسخه meta باید 1405.5.20ζ باشد');
+  assertEqual(metaVer, '1405.5.21α', 'نسخه meta باید 1405.5.21α باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
-  assertEqual(metaDate, '1405/05/20', 'app-date باید 1405/05/20 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۰ζ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۰ζ را نشان دهد');
+  assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱α', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱α را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.20ζ'", 'فیلد version بک‌آپ باید 1405.5.20ζ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21α'", 'فیلد version بک‌آپ باید 1405.5.21α باشد');
 });
 
 
@@ -4036,6 +4028,64 @@ test('قانون ۹: لانچر BAT/PS1 باید با نسخه meta همگام �
   assertContainsString(openBat, 'SIRMAN_VERSION='+metaVer, 'OPEN_SIRMAN.bat باید SIRMAN_VERSION='+metaVer+' داشته باشد');
   assertContainsString(ps1, "$SirmanVersion = '"+metaVer+"'", 'sirman_run.ps1 باید $SirmanVersion = \''+metaVer+'\' داشته باشد');
 });
+
+console.log('📋 گروه ۲۱α: پیش‌نمایش و بازگردانی انتخابی بک‌آپ');
+
+test('مودال پیش‌نمایش بک‌آپ و توابع انتخاب بخش باید موجود باشند', () => {
+  assertContainsString(html, 'id="restore-preview-modal"', 'مودال پیش‌نمایش بازگردانی لازم است');
+  assertContainsString(html, 'function openRestorePreviewModal(', 'openRestorePreviewModal لازم است');
+  assertContainsString(html, 'function summarizeBackupInventory(', 'summarizeBackupInventory لازم است');
+  assertContainsString(html, 'function applyBackupSelective(', 'applyBackupSelective لازم است');
+  assertContainsString(html, 'function confirmRestorePreview(', 'confirmRestorePreview لازم است');
+  assertContainsString(html, 'پیش‌نمایش بازگردانی', 'راهنمای پیش‌نمایش بازگردانی لازم است');
+  const imp = extractFunctionSource(html, 'importData');
+  assertContainsString(imp, 'openRestorePreviewModal', 'importData باید مودال پیش‌نمایش را باز کند');
+  assertTrue(imp.indexOf('applyAll()') === -1, 'importData نباید بدون انتخاب بخش applyAll کند');
+});
+
+test('شبیه‌سازی واقعی: summarizeBackupInventory باید بخش‌های دارای داده را گزارش کند', () => {
+  const src = [extractFunctionSource(html, 'getBackupSectionDefs'), extractFunctionSource(html, 'describeBackupValue'), extractFunctionSource(html, 'summarizeBackupInventory')].join('\n');
+  assertTrue(!!extractFunctionSource(html, 'summarizeBackupInventory'), 'summarizeBackupInventory پیدا نشد');
+  const runner = new Function(src + `;
+    return summarizeBackupInventory({
+      version:'1405.5.21α',
+      invoices:[{id:1},{id:2}],
+      phonebook:[{fn:'علی',phones:['0912']}],
+      pb:[],
+      parts:[],
+      company:{name:'سیرمان'},
+      logoSrc:''
+    });
+  `);
+  const rows = runner();
+  assertTrue(Array.isArray(rows) && rows.length > 5, 'باید چند بخش برگردد');
+  const inv = rows.find(r => r.key === 'invoices');
+  const pb = rows.find(r => r.key === 'phonebook');
+  const logo = rows.find(r => r.key === 'logoSrc');
+  assertTrue(inv && inv.has && inv.count === 2, 'فاکتورها باید ۲ مورد نشان دهد');
+  assertTrue(pb && pb.has && pb.count === 1, 'دفترچه باید ۱ نفر نشان دهد');
+  assertTrue(logo && !logo.has, 'لوگوی خالی نباید has باشد');
+});
+
+test('شبیه‌سازی واقعی: _restoreWants باید فقط بخش‌های انتخاب‌شده را بپذیرد', () => {
+  const src = extractFunctionSource(html, '_restoreWants');
+  assertTrue(!!src, '_restoreWants پیدا نشد');
+  const runner = new Function(src + `;
+    return {
+      a: _restoreWants(['invoices','phonebook'], 'invoices'),
+      b: _restoreWants(['invoices','phonebook'], 'sales'),
+      c: _restoreWants([], 'sales'),
+      d: _restoreWants(null, 'sales')
+    };
+  `);
+  const r = runner();
+  assertEqual(r.a, true, 'بخش انتخاب‌شده باید true باشد');
+  assertEqual(r.b, false, 'بخش انتخاب‌نشده باید false باشد');
+  assertEqual(r.c, true, 'آرایه خالی یعنی همه');
+  assertEqual(r.d, true, 'null یعنی همه');
+});
+
+
 
 
 

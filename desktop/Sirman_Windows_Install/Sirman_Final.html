@@ -2,8 +2,8 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.20ζ">
-<meta name="app-date" content="1405/05/20">
+<meta name="app-version" content="1405.5.21α">
+<meta name="app-date" content="1405/05/21">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
 <title>سیرمان — سیستم خدمات پس از فروش</title>
@@ -951,7 +951,7 @@ body.has-bg-image::after{
 }
 body.has-bg-image.theme-dark::after{background:rgba(10,12,15,var(--bg-overlay,0.55));}
 
-/* ══════ اسکین قوی / Skin Pack (v1405.5.20ζ) ══════ */
+/* ══════ اسکین قوی / Skin Pack (v1405.5.21α) ══════ */
 .skin-card{width:148px;border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--card);transition:.18s;text-align:right;}
 .skin-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,40,55,.10);}
 .skin-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 25%,transparent);}
@@ -1295,6 +1295,15 @@ body.theme-dark .dd-menu{background:#1a2027;border-color:#2c333d}
 .sec-chk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin:10px 0;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg)}
 .sec-chk-grid label{font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer}
 .sec-chk-grid input[type="checkbox"]{accent-color:var(--blue)}
+
+/* restore selective preview */
+.restore-inv-meta{font-size:12px;line-height:1.9;color:var(--text2);margin-bottom:10px;padding:10px;background:var(--bg2);border-radius:8px}
+.restore-inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;max-height:42vh;overflow:auto;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);margin:8px 0}
+.restore-inv-grid label{font-size:12px;display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:4px 2px}
+.restore-inv-grid .cnt{color:var(--text2);font-size:11px}
+.restore-inv-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.restore-inv-warn{font-size:12px;color:#b45309;background:#fff7ed;border:1px solid #fdba74;border-radius:8px;padding:8px 10px;margin:8px 0;line-height:1.7}
+
 
 /* ───── داشبورد مرکزی ───── */
 .dash-kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:16px}
@@ -1649,7 +1658,7 @@ body.sb-dock #autosave-dot{ bottom:72px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۰ζ — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۱α — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-r btn-sm" id="btn-exit-safe" onclick="promptExitBackup()" style="width:100%;margin-top:8px;font-weight:700">🚪 خروج امن (پرسش بک‌آپ)</button>
   <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;padding:0 2px">اگر ✕ پنجره را بزنید، مرورگر اول هشدار می‌دهد؛ برای بک‌آپ از این دکمه استفاده کنید.</div>
 </div>
@@ -2802,6 +2811,32 @@ body.sb-dock #autosave-dot{ bottom:72px; }
 
 </div></div>
 
+
+<!-- مودال پیش‌نمایش و انتخاب بخش‌های بازگردانی بک‌آپ -->
+<div class="ov" id="restore-preview-modal">
+<div class="modal modal-lg" style="max-width:720px">
+  <button class="modal-x" onclick="closeRestorePreviewModal()">×</button>
+  <div class="modal-title">📦 محتوای فایل بک‌آپ</div>
+  <div id="restore-inv-meta" class="restore-inv-meta"></div>
+  <div id="restore-inv-warn" class="restore-inv-warn" style="display:none"></div>
+  <div style="font-size:12px;font-weight:700;margin:6px 0">کدام بخش‌ها بازگردانی شوند؟</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px;font-size:12px">
+    <label style="cursor:pointer"><input type="checkbox" id="restore-sel-all" checked onchange="toggleRestoreSectionChecks(this.checked)"> انتخاب همه بخش‌های دارای داده</label>
+  </div>
+  <div id="restore-inv-grid" class="restore-inv-grid"></div>
+  <div style="font-size:12px;margin-top:10px;font-weight:700">حالت بازگردانی</div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 4px;font-size:13px">
+    <label style="cursor:pointer"><input type="radio" name="restore-preview-mode" value="merge" checked> 🔄 ادغام (رکورد جدید اضافه شود)</label>
+    <label style="cursor:pointer"><input type="radio" name="restore-preview-mode" value="replace"> 🔁 جایگزینی فقط بخش‌های انتخاب‌شده</label>
+  </div>
+  <p style="font-size:11px;color:var(--text2);line-height:1.7;margin:0 0 8px">در جایگزینیِ بخشی، فقط همان بخش‌های تیک‌خورده عوض می‌شوند؛ بقیه داده‌های فعلی دست‌نخورده می‌مانند.</p>
+  <div class="restore-inv-actions">
+    <button class="btn btn-p" onclick="confirmRestorePreview()">✅ بازگردانی بخش‌های انتخاب‌شده</button>
+    <button class="btn btn-o" onclick="closeRestorePreviewModal()">انصراف</button>
+  </div>
+</div>
+</div>
+
 <!-- ===== DATA I/O PAGE ===== -->
 <div class="page" id="page-dataio">
 <div class="topbar"><div class="topbar-title">🔄 ورود / خروج داده‌ها</div></div>
@@ -2842,7 +2877,7 @@ body.sb-dock #autosave-dot{ bottom:72px; }
   </div>
   <div class="card">
     <div class="card-title">📥 ورود داده (بازگردانی از بک‌اپ)</div>
-    <p style="font-size:12px;color:var(--text2);margin-bottom:10px">فایل پشتیبان JSON را انتخاب کنید، سپس نوع بازگردانی را مشخص کنید.</p>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:10px">فایل پشتیبان JSON را انتخاب کنید. اول فهرست داده‌های داخل فایل نشان داده می‌شود، بعد خودتان مشخص می‌کنید کدام بخش‌ها بازگردانی شوند.</p>
     <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
       <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
         <input type="radio" name="restore-mode" value="merge" checked> 🔄 بروزرسانی (ادغام با داده‌های فعلی)
@@ -4180,6 +4215,7 @@ body.sb-dock #autosave-dot{ bottom:72px; }
     <li><b>💾 بک‌آپ کامل:</b> بک‌آپ اکنون <b>تمام بخش‌ها</b> را شامل می‌شود: فاکتورها، کالاها، دفترچه تلفن، قطعات، خدمات، گارانتی، فروش، وظایف، حساب‌ها، انبار معیوب، تنظیمات ظاهر، تنظیمات پرینت، اطلاعات شرکت، لوگو، نقش‌های کاربری، و تنظیمات SMS/AI. قبلاً چندین بخش (وظایف، حساب‌ها، تنظیمات ظاهر و...) بی‌صدا گم می‌شدند — این باگ رفع شد.</li>
     <li><b>🔒 حفاظت از داده:</b> همیشه قبل از بستن یا ریست، یک فایل بک‌آپ بگیرید و در یک جای امن (فلش، کلود) نگه دارید. داده‌ها در حافظه‌ی مرورگر هستند — اگر کش پاک شود، بدون فایل بک‌آپ از دست می‌روند.</li>
     <li><b>☑️ بک‌آپ بخشی:</b> در بخش «ورود/خروج داده»، می‌توانید تیک بخش‌هایی که می‌خواهید بک‌آپ بگیرید را روشن/خاموش کنید (مثلاً فقط دفترچه تلفن و قطعات). فقط بخش‌های تیک‌خورده در فایل ذخیره می‌شوند. هنگام بازگردانی، فقط همان بخش‌ها جایگزین/ادغام می‌شوند و بقیه دست‌نخورده می‌مانند.</li>
+    <li><b>📦 پیش‌نمایش بازگردانی:</b> وقتی فایل بک‌آپ را انتخاب می‌کنید، اول نسخه و تعداد هر بخش (فاکتور، مخاطب، گارانتی و …) نمایش داده می‌شود. سپس تیک می‌زنید کدام بخش‌ها بازگردانی شوند و بین «ادغام» و «جایگزینی بخشی» انتخاب می‌کنید. بدون تأیید شما چیزی اعمال نمی‌شود.</li>
     <li><b>🔍 مقایسه‌ی دو بک‌آپ:</b> در همان بخش، دکمه‌ی «مقایسه‌ی دو بک‌آپ» به شما اجازه می‌دهد دو فایل بک‌آپ (مثلاً دیروز و امروز) را انتخاب کنید و تفاوت‌ها را ببینید: کدام موارد جدید اضافه شده، کدام حذف شده، و کدام تغییر کرده — به تفکیک هر بخش (فاکتورها، دفترچه، قطعات و...).</li>
     <li><b>🔐 checksum و سلامت فایل:</b> هر فایل بک‌آپ اکنون دارای یک «اثرانگشت» (SHA-256) است که هنگام بازگردانی تأیید می‌شود. اگر فایل خراب یا دستکاری شده باشد، هشدار می‌دهد. همچنین شمارش اقلام هر بخش (itemCounts) برای تشخیص ناقص‌بودن بررسی می‌شود.</li>
     <li><b>🗄 ذخیره‌ی سه‌گانه (۳-۲-۱):</b> داده‌های شما اکنون در سه مکان ذخیره می‌شوند: ۱) حافظه‌ی مرورگر (localStorage)، ۲) فایل دانلودی، ۳) IndexedDB مرورگر (کپی امن اضافی). اگر localStorage پاک شود، نسخه‌ی IndexedDB باقی می‌ماند.</li>
@@ -4427,7 +4463,7 @@ body.sb-dock #autosave-dot{ bottom:72px; }
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۰ζ
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۱α
 </div>
 </div>
 
@@ -5078,9 +5114,9 @@ body.sb-dock #autosave-dot{ bottom:72px; }
 })();
 
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.20ζ';
-var APP_BASE_VERSION = '1405.5.20ζ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۲۰ζ';
+var APP_VERSION = '1405.5.21α';
+var APP_BASE_VERSION = '1405.5.21α'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۲۱α';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -5576,8 +5612,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.20ζ'; }
-  catch(_e){ return '1405.5.20ζ'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.21α'; }
+  catch(_e){ return '1405.5.21α'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -5734,7 +5770,7 @@ try{
   }
 }catch(_bootUpd){}
 
-var APP_DATE = '1405/05/20';
+var APP_DATE = '1405/05/21';
 // قفل ضدثبت‌تکراری — جلوگیری از چند رکورد با چند کلیک سریع
 window._saveLocks = window._saveLocks || {};
 
@@ -5867,7 +5903,7 @@ function _safeStr(s){ return (s==null)?'':String(s); }
 
 function _buildFullBackupData(){
   var data = {
-    version: '1405.5.20ζ',
+    version: '1405.5.21α',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -7961,7 +7997,7 @@ function buildPH(list){
 
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.20ζ">
+<meta name="app-version" content="1405.5.21α">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -7978,8 +8014,8 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.20ζ">
-<meta name="app-date" content="1405/05/20"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
+<meta name="app-version" content="1405.5.21α">
+<meta name="app-date" content="1405/05/21"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
 
@@ -8038,8 +8074,8 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.20ζ">
-<meta name="app-date" content="1405/05/20"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
+<meta name="app-version" content="1405.5.21α">
+<meta name="app-date" content="1405/05/21"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
   const wb=XLSX.utils.book_new();
@@ -8058,12 +8094,12 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.20ζ">
-<meta name="app-date" content="1405/05/20"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
+<meta name="app-version" content="1405.5.21α">
+<meta name="app-date" content="1405/05/21"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.20ζ">
-<meta name="app-date" content="1405/05/20"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
+<meta name="app-version" content="1405.5.21α">
+<meta name="app-date" content="1405/05/21"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
   const d=invoices[idx];
@@ -8503,7 +8539,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.20ζ">
+<meta name="app-version" content="1405.5.21α">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -8852,10 +8888,376 @@ function migrateBackup(d) {
   return { data: d, log: log };
 }
 
+
+// ─── پیش‌نمایش و بازگردانی انتخابی بک‌آپ ───
+var _pendingRestore = null;
+
+function getBackupSectionDefs(){
+  return [
+    {key:'invoices', label:'فاکتورها', kind:'array'},
+    {key:'products', label:'کالاها', kind:'array'},
+    {key:'inventory', label:'موجودی انبار', kind:'object'},
+    {key:'phonebook', label:'دفترچه تلفن', kind:'array'},
+    {key:'parts', label:'قطعات', kind:'array'},
+    {key:'services', label:'خدمات', kind:'array'},
+    {key:'warranties', label:'گارانتی', kind:'array'},
+    {key:'sales', label:'فروش', kind:'array'},
+    {key:'tasks', label:'وظایف', kind:'array'},
+    {key:'accounts', label:'حساب‌های مالی', kind:'array'},
+    {key:'defectiveStock', label:'انبار معیوب', kind:'array'},
+    {key:'warehouses', label:'انبارهای نام‌گذاری‌شده', kind:'array'},
+    {key:'warehouseDocs', label:'اسناد انبار', kind:'array'},
+    {key:'stockMoves', label:'حرکات انبار', kind:'array'},
+    {key:'daqi', label:'داغی', kind:'array'},
+    {key:'daqiWarehouse', label:'انبار داغی', kind:'array'},
+    {key:'daqiVouchers', label:'حواله داغی', kind:'array'},
+    {key:'postalHistory', label:'تاریخچه پستی', kind:'array'},
+    {key:'userAuditLog', label:'لاگ کاربر', kind:'array'},
+    {key:'bgAuditLog', label:'لاگ پس‌زمینه', kind:'array'},
+    {key:'userRoles', label:'پروفایل‌های دسترسی', kind:'array'},
+    {key:'loginPw', label:'رمز ورود', kind:'scalar'},
+    {key:'printSettings', label:'تنظیمات چاپ', kind:'object'},
+    {key:'company', label:'اطلاعات شرکت', kind:'object'},
+    {key:'senderInfo', label:'اطلاعات فرستنده', kind:'object'},
+    {key:'logoSrc', label:'لوگو', kind:'scalar'},
+    {key:'acH', label:'تاریخچه حسابداری', kind:'object'},
+    {key:'appearance', label:'تنظیمات ظاهر', kind:'object'},
+    {key:'sms', label:'تنظیمات پیامک', kind:'object'},
+    {key:'tz', label:'منطقه زمانی', kind:'scalar'},
+    {key:'aiKeys', label:'کلیدهای AI', kind:'object'},
+    {key:'appliedUpdates', label:'آپدیت‌های اعمال‌شده', kind:'array'},
+    {key:'updatePackages', label:'بسته‌های آپدیت ذخیره‌شده', kind:'array'}
+  ];
+}
+
+function describeBackupValue(d, def){
+  var v = d ? d[def.key] : undefined;
+  if(def.key === 'phonebook'){
+    var pb = Array.isArray(d.phonebook) ? d.phonebook : (Array.isArray(d.pb) ? d.pb : []);
+    return {has: pb.length > 0, text: pb.length + ' نفر', count: pb.length};
+  }
+  if(def.key === 'services'){
+    var sv = Array.isArray(d.services) ? d.services : (Array.isArray(d.svcs) ? d.svcs : []);
+    return {has: sv.length > 0, text: sv.length + ' مورد', count: sv.length};
+  }
+  if(def.kind === 'array'){
+    var arr = Array.isArray(v) ? v : [];
+    return {has: arr.length > 0, text: arr.length + ' مورد', count: arr.length};
+  }
+  if(def.kind === 'object'){
+    if(!v || typeof v !== 'object') return {has:false, text:'خالی', count:0};
+    var n = Array.isArray(v) ? v.length : Object.keys(v).length;
+    return {has: n > 0, text: n + (Array.isArray(v)?' مورد':' کلید'), count:n};
+  }
+  // scalar
+  if(v === undefined || v === null || v === '') return {has:false, text:'خالی', count:0};
+  if(typeof v === 'string') return {has:true, text: (v.length > 40 ? (v.slice(0,40)+'…') : 'موجود') + ' ('+v.length+' کاراکتر)', count:1};
+  return {has:true, text:'موجود', count:1};
+}
+
+function summarizeBackupInventory(d){
+  var defs = getBackupSectionDefs();
+  var rows = [];
+  defs.forEach(function(def){
+    var info = describeBackupValue(d, def);
+    rows.push({key:def.key, label:def.label, kind:def.kind, has:info.has, text:info.text, count:info.count});
+  });
+  return rows;
+}
+
+function closeRestorePreviewModal(){
+  _pendingRestore = null;
+  var m = document.getElementById('restore-preview-modal');
+  if(m) m.classList.remove('open');
+}
+
+function toggleRestoreSectionChecks(on){
+  document.querySelectorAll('.restore-sec-chk').forEach(function(c){
+    if(c.disabled) return;
+    c.checked = !!on;
+  });
+}
+
+function openRestorePreviewModal(d, migLog, defaultMode, chkInfo){
+  _pendingRestore = { data: d, migLog: migLog || [], chkInfo: chkInfo || null };
+  var rows = summarizeBackupInventory(d);
+  var meta = document.getElementById('restore-inv-meta');
+  var grid = document.getElementById('restore-inv-grid');
+  var warn = document.getElementById('restore-inv-warn');
+  if(!meta || !grid){ ntf('مودال پیش‌نمایش بک‌آپ پیدا نشد','err'); return; }
+
+  var exported = d.exportedAt ? String(d.exportedAt) : '—';
+  try{
+    if(d.exportedAt){
+      var dt = new Date(d.exportedAt);
+      if(!isNaN(dt.getTime())) exported = dt.toLocaleString('fa-IR');
+    }
+  }catch(_e){}
+  var withData = rows.filter(function(r){ return r.has; }).length;
+  meta.innerHTML = '<div><b>نسخه بک‌آپ:</b> '+(d.version||'نامشخص')+(d.partial?' <span style="color:#b45309">(جزئی)</span>':'')+'</div>'
+    + '<div><b>تاریخ تهیه:</b> '+exported+'</div>'
+    + '<div><b>بخش‌های دارای داده:</b> '+withData+' از '+rows.length+'</div>'
+    + (chkInfo && chkInfo.msg ? ('<div><b>سلامت فایل:</b> '+String(chkInfo.msg).replace(/</g,'&lt;')+'</div>') : '')
+    + (d.origin ? ('<div><b>منبع:</b> '+String(d.origin)+'</div>') : '');
+
+  var curTotal = 0;
+  try{
+    curTotal = (invoices&&invoices.length||0)+(products&&products.length||0)+(phonebook&&phonebook.length||0)+(parts&&parts.length||0)+(warranties&&warranties.length||0)+(sales&&sales.length||0);
+  }catch(_c){}
+  var newTotal = 0;
+  rows.forEach(function(r){ if(['invoices','products','phonebook','parts','warranties','sales'].indexOf(r.key)>=0) newTotal += (r.count||0); });
+  if(warn){
+    var w = '';
+    if(curTotal>0 && newTotal===0) w = '⛔ این فایل در بخش‌های اصلی خالی به‌نظر می‌رسد، ولی شما داده فعلی دارید. فقط بخش‌های لازم را تیک بزنید یا انصراف دهید.';
+    else if(newTotal>0 && curTotal > newTotal*3) w = '⚠️ داده فعلی شما خیلی بیشتر از این بک‌آپ است. در صورت جایگزینی بخشی، فقط بخش‌های انتخاب‌شده عوض می‌شوند.';
+    if(w){ warn.style.display='block'; warn.textContent=w; }
+    else { warn.style.display='none'; warn.textContent=''; }
+  }
+
+  grid.innerHTML = rows.map(function(r){
+    var dis = r.has ? '' : ' disabled';
+    var chk = r.has ? ' checked' : '';
+    return '<label><input type="checkbox" class="restore-sec-chk" value="'+r.key+'"'+chk+dis+'> '
+      + '<span><b>'+r.label+'</b><br><span class="cnt">'+(r.has?r.text:'بدون داده در این فایل')+'</span></span></label>';
+  }).join('');
+
+  var mode = defaultMode === 'replace' ? 'replace' : 'merge';
+  document.querySelectorAll('input[name="restore-preview-mode"]').forEach(function(r){ r.checked = (r.value===mode); });
+  var sa = document.getElementById('restore-sel-all');
+  if(sa) sa.checked = true;
+
+  document.getElementById('restore-preview-modal').classList.add('open');
+}
+
+function confirmRestorePreview(){
+  if(!_pendingRestore || !_pendingRestore.data){ closeRestorePreviewModal(); return; }
+  var keys = Array.from(document.querySelectorAll('.restore-sec-chk:checked')).map(function(c){ return c.value; });
+  if(!keys.length){ ntf('حداقل یک بخش دارای داده را انتخاب کنید','err'); return; }
+  var modeEl = document.querySelector('input[name="restore-preview-mode"]:checked');
+  var mode = modeEl ? modeEl.value : 'merge';
+  var d = _pendingRestore.data;
+  var migLog = _pendingRestore.migLog || [];
+  if(mode === 'replace'){
+    var msg = 'بخش‌های انتخاب‌شده با دادهٔ بک‌آپ جایگزین می‌شوند:\n• '+keys.join('\n• ')+'\n\nادامه؟';
+    if(!confirm(msg)) return;
+  }
+  try{
+    applyBackupSelective(d, keys, mode, migLog);
+    closeRestorePreviewModal();
+  }catch(err){
+    addDbgEntry('err','بازگردانی',err.message,'خطا در اعمال انتخابی: '+err.message,'');
+    alert('❌ خطا: '+err.message);
+  }
+}
+
+function _restoreWants(selected, key){
+  if(!selected || !selected.length) return true;
+  return selected.indexOf(key) !== -1;
+}
+
+function applyBackupSelective(d, selectedKeys, mode, migLog){
+  migLog = migLog || [];
+  selectedKeys = selectedKeys || [];
+  if(mode === 'replace'){
+    applyBackupReplaceSections(d, selectedKeys);
+    addDbgEntry('ok','بازگردانی','','✅ جایگزینی بخشی\nبخش‌ها: '+selectedKeys.join(', ')+'\n'+migLog.join('\n'),'');
+    ntf('بازگردانی بخش‌های انتخاب‌شده انجام شد ✅','ok');
+    auditUser('بازگردانی بک‌اپ (جایگزینی بخشی)', selectedKeys.length+' بخش');
+    alert('✅ بازگردانی بخش‌های انتخاب‌شده انجام شد!\n\n'+migLog.join('\n')+'\n\nبخش‌ها: '+selectedKeys.join('، '));
+    if(typeof emit==='function') emit('data:loaded', {});
+  } else {
+    var sum = applyBackupMergeSections(d, selectedKeys);
+    addDbgEntry('ok','ادغام بک‌اپ','',sum,'');
+    ntf('ادغام بخش‌های انتخاب‌شده انجام شد ✅','ok');
+    auditUser('ادغام بک‌اپ (انتخابی)', selectedKeys.length+' بخش');
+    alert('✅ ادغام بخش‌های انتخاب‌شده!\n\n'+migLog.join('\n')+'\n\n'+sum);
+  }
+}
+
+function applyBackupReplaceSections(d, selectedKeys){
+  if(_restoreWants(selectedKeys,'invoices')) invoices = Array.isArray(d.invoices) ? d.invoices : [];
+  if(_restoreWants(selectedKeys,'products')) products = Array.isArray(d.products) ? d.products : [];
+  if(_restoreWants(selectedKeys,'inventory')) inventory = (d.inventory && typeof d.inventory==='object' && !Array.isArray(d.inventory)) ? d.inventory : {};
+  if(_restoreWants(selectedKeys,'phonebook')){
+    if (Array.isArray(d.phonebook) && d.phonebook.length > 0) phonebook = d.phonebook;
+    else if (Array.isArray(d.pb) && d.pb.length > 0) {
+      phonebook = d.pb.map(function(c) {
+        if (c.fn !== undefined || c.phones !== undefined) return c;
+        var parts2 = (c.name||'').split(' ');
+        return { fn:parts2[0]||'', ln:parts2.slice(1).join(' ')||'', shop:c.shop||'', addr:c.address||c.addr||'', zip:c.zip||'', phones:c.phone?[c.phone]:[], ita:c.ita||'', tg:c.tg||'', wa:c.wa||'', ig:c.ig||'', note:c.note||'', cat:c.cat||'other' };
+      });
+    } else phonebook = [];
+  }
+  if(_restoreWants(selectedKeys,'parts')) parts = Array.isArray(d.parts) ? d.parts : [];
+  if(_restoreWants(selectedKeys,'services')){
+    services = Array.isArray(d.services) ? d.services : (Array.isArray(d.svcs) ? d.svcs : []);
+    svcs = services;
+  }
+  if(_restoreWants(selectedKeys,'warranties')) warranties = Array.isArray(d.warranties) ? d.warranties : [];
+  if(_restoreWants(selectedKeys,'sales')) sales = Array.isArray(d.sales) ? d.sales : [];
+  if(_restoreWants(selectedKeys,'tasks')) tasks = Array.isArray(d.tasks) ? d.tasks : [];
+  if(_restoreWants(selectedKeys,'accounts')) accounts = Array.isArray(d.accounts) ? d.accounts : [];
+  if(_restoreWants(selectedKeys,'defectiveStock')) defectiveStock = Array.isArray(d.defectiveStock) ? d.defectiveStock : [];
+  if(_restoreWants(selectedKeys,'warehouses') && typeof warehouses!=='undefined'){
+    warehouses = Array.isArray(d.warehouses) ? d.warehouses : [];
+    localStorage.setItem('laegh_warehouses', JSON.stringify(warehouses));
+  }
+  if(_restoreWants(selectedKeys,'warehouseDocs') && typeof warehouseDocs!=='undefined') warehouseDocs = Array.isArray(d.warehouseDocs)?d.warehouseDocs:[];
+  if(_restoreWants(selectedKeys,'stockMoves') && typeof stockMoves!=='undefined') stockMoves = Array.isArray(d.stockMoves)?d.stockMoves:[];
+  if(_restoreWants(selectedKeys,'daqi') && typeof daqi!=='undefined'){ daqi = Array.isArray(d.daqi)?d.daqi:[]; if(typeof svDaqi==='function') svDaqi(); }
+  if(_restoreWants(selectedKeys,'daqiWarehouse') && typeof daqiWarehouse!=='undefined'){ daqiWarehouse = Array.isArray(d.daqiWarehouse)?d.daqiWarehouse:[]; if(typeof svDaqiWarehouse==='function') svDaqiWarehouse(); }
+  if(_restoreWants(selectedKeys,'daqiVouchers') && typeof daqiVouchers!=='undefined'){ daqiVouchers = Array.isArray(d.daqiVouchers)?d.daqiVouchers:[]; if(typeof svDaqiVouchers==='function') svDaqiVouchers(); }
+  if(_restoreWants(selectedKeys,'postalHistory') && typeof postalHistory!=='undefined'){ postalHistory = Array.isArray(d.postalHistory)?d.postalHistory:[]; if(typeof svPostalHistory==='function') svPostalHistory(); }
+  if(_restoreWants(selectedKeys,'userAuditLog') && typeof userAuditLog!=='undefined') userAuditLog = Array.isArray(d.userAuditLog)?d.userAuditLog:[];
+  if(_restoreWants(selectedKeys,'bgAuditLog') && typeof bgAuditLog!=='undefined') bgAuditLog = Array.isArray(d.bgAuditLog)?d.bgAuditLog:[];
+  if(_restoreWants(selectedKeys,'invoices') || _restoreWants(selectedKeys,'invCtr')){
+    if (d.invCtr && d.invCtr > 0) invCtr = d.invCtr;
+  }
+  if(_restoreWants(selectedKeys,'acH') && d.acH && typeof d.acH==='object'){ acH = d.acH; localStorage.setItem('la', JSON.stringify(d.acH)); }
+  if(_restoreWants(selectedKeys,'userRoles') && Array.isArray(d.userRoles)){ userRoles = d.userRoles; if(typeof svRoles==='function') svRoles(); }
+  if(_restoreWants(selectedKeys,'loginPw') && typeof d.loginPw === 'string' && d.loginPw){ loginPw = d.loginPw; localStorage.setItem('laegh_login_pw', d.loginPw); }
+  if(_restoreWants(selectedKeys,'company') && d.company){ localStorage.setItem('laegh_company', JSON.stringify(d.company)); if(typeof applyBrand==='function') applyBrand(); }
+  if(_restoreWants(selectedKeys,'printSettings') && d.printSettings && Object.keys(d.printSettings).length) localStorage.setItem('laegh_printSettings', JSON.stringify(d.printSettings));
+  if(_restoreWants(selectedKeys,'logoSrc') && d.logoSrc){ logoSrc = d.logoSrc; localStorage.setItem('ll', d.logoSrc); }
+  if(_restoreWants(selectedKeys,'senderInfo') && d.senderInfo && typeof d.senderInfo==='object'){ senderInfo = d.senderInfo; localStorage.setItem('ls', JSON.stringify(d.senderInfo)); }
+  if(_restoreWants(selectedKeys,'appearance') && d.appearance && typeof d.appearance==='object'){
+    var ap = d.appearance;
+    if(ap.skin) localStorage.setItem('laegh_skin', ap.skin);
+    if(ap.depth3d) localStorage.setItem('laegh_depth3d', ap.depth3d);
+    if(ap.colorTheme) localStorage.setItem('laegh_color_theme', ap.colorTheme);
+    if(ap.theme) localStorage.setItem('laegh_theme', ap.theme);
+    if(ap.appFont) localStorage.setItem('laegh_app_font', ap.appFont);
+    if(ap.textSize) localStorage.setItem('laegh_text_size', ap.textSize);
+    if(ap.textColor) localStorage.setItem('laegh_text_color', ap.textColor);
+    if(ap.dashTint) localStorage.setItem('laegh_dash_tint', ap.dashTint);
+    if(ap.lastPage) localStorage.setItem('laegh_last_page', ap.lastPage);
+    if(ap.density) localStorage.setItem('laegh_density', ap.density);
+    if(ap.radius) localStorage.setItem('laegh_radius', ap.radius);
+    if(ap.appBg) localStorage.setItem('laegh_app_bg', ap.appBg);
+    if(ap.appBgOverlay) localStorage.setItem('laegh_app_bg_overlay', ap.appBgOverlay);
+    if(ap.sbMode) localStorage.setItem('laegh_sb_mode', ap.sbMode);
+    if(ap.navShape) localStorage.setItem('laegh_nav_shape', ap.navShape);
+    if(ap.sbBg) localStorage.setItem('laegh_sb_bg', ap.sbBg);
+    if(ap.mainBg) localStorage.setItem('laegh_main_bg', ap.mainBg);
+    if(ap.dashBg) localStorage.setItem('laegh_dash_bg', ap.dashBg);
+    if(ap.dashBgOverlay) localStorage.setItem('laegh_dash_bg_overlay', ap.dashBgOverlay);
+    if(ap.dashShortcuts) localStorage.setItem('laegh_dash_shortcuts', ap.dashShortcuts);
+    if(typeof applyAppearanceSettings==='function') applyAppearanceSettings();
+  }
+  if(_restoreWants(selectedKeys,'sms') && d.sms) localStorage.setItem('laegh_sms', JSON.stringify(d.sms));
+  if(_restoreWants(selectedKeys,'tz') && d.tz) localStorage.setItem('laegh_tz', d.tz);
+  if(_restoreWants(selectedKeys,'aiKeys') && d.aiKeys && typeof d.aiKeys==='object'){
+    Object.keys(d.aiKeys).forEach(function(k){ try{ localStorage.setItem(k, d.aiKeys[k]); }catch(_e){} });
+  }
+  if(_restoreWants(selectedKeys,'appliedUpdates') && Array.isArray(d.appliedUpdates) && typeof saveAppliedUpdatesMeta==='function'){
+    try{ saveAppliedUpdatesMeta(d.appliedUpdates); }catch(_e){}
+  }
+  // persist core arrays
+  try{ sv(); }catch(_e){}
+  try{ svParts(); }catch(_e){}
+  try{ svSvcs(); }catch(_e){}
+  try{ svSales(); }catch(_e){}
+  try{ svWarr(); }catch(_e){}
+  try{ svTasks(); }catch(_e){}
+  if(typeof svDefective==='function') try{ svDefective(); }catch(_e){}
+  if(typeof svAccounts==='function') try{ svAccounts(); }catch(_e){}
+  if(typeof svWarehouses==='function') try{ svWarehouses(); }catch(_e){}
+  try{getNum();}catch(e){}
+  try{renderSaved();}catch(e){} try{renderProds();}catch(e){} try{renderInv();}catch(e){} try{renderPB();}catch(e){}
+  try{renderParts();}catch(e){} try{renderSvcs();}catch(e){} try{renderSales();}catch(e){} try{renderWarList();}catch(e){}
+  try{renderDataStats();}catch(e){} try{renderTasks();}catch(e){} try{renderSidebarBadges();}catch(e){}
+  try{ if(typeof renderAccounts==='function') renderAccounts(); }catch(e){}
+  try{ if(typeof renderDefective==='function') renderDefective(); }catch(e){}
+}
+
+function applyAll(){
+  // سازگاری با تست‌ها و فراخوانی‌های قدیمی: جایگزینی کامل همه بخش‌ها از d سراسری
+  applyBackupReplaceSections(d, null);
+}
+
+function applyBackupMergeSections(d, selectedKeys){
+  // ادغام — فقط رکوردهای جدید بخش‌های انتخاب‌شده
+  var added = {inv:0,prod:0,pb:0,parts:0,svc:0,sale:0,war:0,task:0};
+  var skip  = {inv:0,prod:0,pb:0};
+  var addedAcc = 0;
+  if(_restoreWants(selectedKeys,'invoices')) (d.invoices||[]).forEach(function(x){ if(!invoices.find(function(i){return i.id===x.id||i.num===x.num;})){ invoices.push(x); added.inv++; } else skip.inv++; });
+  if(_restoreWants(selectedKeys,'products')) (d.products||[]).forEach(function(x){ if(!products.find(function(p){return p.code===x.code;})){ products.push(x); added.prod++; } else skip.prod++; });
+  if(_restoreWants(selectedKeys,'phonebook')){
+    var pbSource = (Array.isArray(d.phonebook) && d.phonebook.length>0) ? d.phonebook : (d.pb||[]);
+    pbSource.forEach(function(x){
+      var entry = x;
+      if (x.fn === undefined && x.phones === undefined) {
+        var parts3 = (x.name||'').split(' ');
+        entry = { fn:parts3[0]||'', ln:parts3.slice(1).join(' ')||'', shop:x.shop||'', addr:x.address||x.addr||'', zip:x.zip||'', phones:x.phone?[x.phone]:[], ita:x.ita||'', tg:x.tg||'', wa:x.wa||'', ig:x.ig||'', note:x.note||'', cat:x.cat||'other' };
+      }
+      var entryPhone = (entry.phones&&entry.phones[0]) || '';
+      var exists = phonebook.find(function(p){ return entryPhone && (p.phones||[]).indexOf(entryPhone) !== -1; });
+      if (!exists) { phonebook.push(entry); added.pb++; } else skip.pb++;
+    });
+  }
+  if(_restoreWants(selectedKeys,'parts')) (d.parts||[]).forEach(function(x){ if(!parts.find(function(p){return p.id===x.id;})){ parts.push(x); added.parts++; } });
+  if(_restoreWants(selectedKeys,'services')) (d.services||d.svcs||[]).forEach(function(x){ if(!services.find(function(p){return p.id===x.id||p.code===x.code;})){ services.push(x); svcs=services; added.svc++; } });
+  if(_restoreWants(selectedKeys,'warranties')) (d.warranties||[]).forEach(function(x){ if(!warranties.find(function(p){return p.id===x.id;})){ warranties.push(x); added.war++; } });
+  if(_restoreWants(selectedKeys,'sales')) (d.sales||[]).forEach(function(x){ if(!sales.find(function(p){return p.id===x.id;})){ sales.push(x); added.sale++; } });
+  if(_restoreWants(selectedKeys,'tasks')) (d.tasks||[]).forEach(function(x){ if(!tasks.find(function(p){return p.id===x.id;})){ tasks.push(x); added.task++; } });
+  if(_restoreWants(selectedKeys,'defectiveStock')) (d.defectiveStock||[]).forEach(function(x){ if(!defectiveStock.find(function(p){return p.id===x.id;})){ defectiveStock.push(x); } });
+  if(_restoreWants(selectedKeys,'accounts') && Array.isArray(d.accounts)){
+    d.accounts.forEach(function(x){ if(x && x.id && !accounts.find(function(a){return a.id===x.id;})){ accounts.push(x); addedAcc++; } });
+  }
+  if(_restoreWants(selectedKeys,'warehouseDocs') && Array.isArray(d.warehouseDocs) && typeof warehouseDocs!=='undefined'){
+    d.warehouseDocs.forEach(function(x){ if(x && x.id && !warehouseDocs.find(function(w){return w.id===x.id;})) warehouseDocs.push(x); });
+  }
+  if(_restoreWants(selectedKeys,'stockMoves') && Array.isArray(d.stockMoves) && typeof stockMoves!=='undefined'){
+    d.stockMoves.forEach(function(x){ if(x && x.id && !stockMoves.find(function(s){return s.id===x.id;})) stockMoves.push(x); });
+  }
+  if(_restoreWants(selectedKeys,'warehouses') && Array.isArray(d.warehouses) && typeof warehouses!=='undefined'){
+    d.warehouses.forEach(function(x){ if(x && x.id && !warehouses.find(function(w){return w.id===x.id;})) warehouses.push(x); });
+    if(typeof svWarehouses==='function') svWarehouses();
+  }
+  if(_restoreWants(selectedKeys,'daqi') && Array.isArray(d.daqi) && typeof daqi!=='undefined'){
+    d.daqi.forEach(function(x){ if(x && x.id && !daqi.find(function(q){return q.id===x.id;})) daqi.push(x); });
+    if(typeof svDaqi==='function') svDaqi();
+  }
+  if(_restoreWants(selectedKeys,'daqiWarehouse') && Array.isArray(d.daqiWarehouse) && typeof daqiWarehouse!=='undefined'){
+    d.daqiWarehouse.forEach(function(x){
+      if(!x) return;
+      var found = daqiWarehouse.find(function(w){ return w.manufacturer===x.manufacturer && w.code===x.code && w.name===x.name; });
+      if(found){ found.qty = Math.max(found.qty||0, x.qty||0); }
+      else daqiWarehouse.push(x);
+    });
+    if(typeof svDaqiWarehouse==='function') svDaqiWarehouse();
+  }
+  if(_restoreWants(selectedKeys,'daqiVouchers') && Array.isArray(d.daqiVouchers) && typeof daqiVouchers!=='undefined'){
+    d.daqiVouchers.forEach(function(x){ if(x && x.id && !daqiVouchers.find(function(v){return v.id===x.id;})) daqiVouchers.push(x); });
+    if(typeof svDaqiVouchers==='function') svDaqiVouchers();
+  }
+  if(_restoreWants(selectedKeys,'postalHistory') && Array.isArray(d.postalHistory) && typeof postalHistory!=='undefined'){
+    d.postalHistory.forEach(function(x){ if(x && x.id && !postalHistory.find(function(h){return h.id===x.id;})) postalHistory.push(x); });
+    if(typeof svPostalHistory==='function') svPostalHistory();
+  }
+  if(_restoreWants(selectedKeys,'acH') && d.acH && typeof d.acH==='object'){ acH = d.acH; localStorage.setItem('la', JSON.stringify(d.acH)); }
+  if(_restoreWants(selectedKeys,'inventory') && d.inventory) Object.keys(d.inventory).forEach(function(k){ if(!inventory[k]) inventory[k]=d.inventory[k]; });
+  if(_restoreWants(selectedKeys,'company') && d.company){ localStorage.setItem('laegh_company', JSON.stringify(d.company)); if(typeof applyBrand==='function') applyBrand(); }
+  if(_restoreWants(selectedKeys,'printSettings') && d.printSettings && Object.keys(d.printSettings).length) localStorage.setItem('laegh_printSettings', JSON.stringify(d.printSettings));
+  if(_restoreWants(selectedKeys,'logoSrc') && d.logoSrc){ logoSrc = d.logoSrc; localStorage.setItem('ll', d.logoSrc); }
+  if(_restoreWants(selectedKeys,'senderInfo') && d.senderInfo && typeof d.senderInfo==='object'){ senderInfo = d.senderInfo; localStorage.setItem('ls', JSON.stringify(d.senderInfo)); }
+  if(_restoreWants(selectedKeys,'userRoles') && Array.isArray(d.userRoles)){
+    d.userRoles.forEach(function(r){ if(r && r.id && !userRoles.find(function(x){return x.id===r.id;})) userRoles.push(r); });
+    if(typeof svRoles==='function') svRoles();
+  }
+  sv(); svParts(); svSvcs(); svSales(); svWarr(); svTasks();
+  if(typeof svDefective==='function') svDefective();
+  if(typeof svAccounts==='function') svAccounts();
+  try{getNum();}catch(e){} try{renderSaved();}catch(e){} try{renderProds();}catch(e){} try{renderInv();}catch(e){} try{renderPB();}catch(e){} try{renderParts();}catch(e){} try{renderSvcs();}catch(e){} try{renderSales();}catch(e){} try{renderWarList();}catch(e){} try{renderDataStats();}catch(e){} try{renderTasks();}catch(e){} try{renderSidebarBadges();}catch(e){}
+  try{ if(typeof renderAccounts==='function') renderAccounts(); }catch(e){}
+  try{ if(typeof renderDefective==='function') renderDefective(); }catch(e){}
+  return 'فاکتور:+'+added.inv+'('+skip.inv+' تکراری) کالا:+'+added.prod+' مخاطب:+'+added.pb+'('+skip.pb+' تکراری) قطعه:+'+added.parts+' خدمت:+'+added.svc+' گارانتی:+'+added.war+' وظیفه:+'+added.task+(addedAcc?' حساب:+'+addedAcc:'')+' | بخش‌ها: '+selectedKeys.join('، ');
+}
+
 async function importData(inp) {
   var f = inp.files[0]; if (!f) return;
   var modeEl = document.querySelector('input[name="restore-mode"]:checked');
-  var mode = modeEl ? modeEl.value : 'replace';
+  var mode = modeEl ? modeEl.value : 'merge';
   var r = new FileReader();
   r.onload = async function(e) {
     var raw = e.target.result;
@@ -8876,7 +9278,7 @@ async function importData(inp) {
       addDbgEntry('err','بازگردانی','invalid','فایل خالی یا نامعتبر است','یک فایل JSON معتبر انتخاب کنید');
       inp.value=''; return;
     }
-    var hasData = d.invoices||d.products||d.pb||d.phonebook||d.parts||d.warranties;
+    var hasData = d.invoices||d.products||d.pb||d.phonebook||d.parts||d.warranties||d.sales||d.accounts||d.tasks||d.services||d.svcs||d.daqi||d.company||d.appearance;
     if (!hasData) {
       addDbgEntry('err','بازگردانی','no known keys','این فایل بک‌اپ لایق نیست — کلیدهای موجود: '+Object.keys(d).join(', '),'فایل بک‌اپ باید با نرم‌افزار سیرمان ساخته شده باشد');
       alert('❌ فایل بک‌اپ معتبر نیست\nکلیدهای موجود: '+Object.keys(d).join(', '));
@@ -8884,11 +9286,12 @@ async function importData(inp) {
     }
 
     // مرحله ۲.۵: تأیید checksum (تشخیص خرابی فایل)
+    var chkInfo = { ok:true, msg:'بدون checksum' };
     if(typeof verifyChecksum==='function'){
-      var chk = await verifyChecksum(d);
-      if(!chk.ok){
-        addDbgEntry('err','بازگردانی','checksum mismatch', chk.msg, 'فایل ممکن است خراب یا دستکاری شده باشد');
-        if(!confirm('⚠️ هشدار سلامت فایل:\n'+chk.msg+'\n\nبازگردانی ادامه یابد؟')){ inp.value=''; return; }
+      chkInfo = await verifyChecksum(d);
+      if(!chkInfo.ok){
+        addDbgEntry('err','بازگردانی','checksum mismatch', chkInfo.msg, 'فایل ممکن است خراب یا دستکاری شده باشد');
+        if(!confirm('⚠️ هشدار سلامت فایل:\n'+chkInfo.msg+'\n\nبازگردانی ادامه یابد؟')){ inp.value=''; return; }
       }
     }
 
@@ -8910,266 +9313,8 @@ async function importData(inp) {
       }
     }
 
-    // تابع کمکی اعمال ایمن
-    function applyAll() {
-      invoices   = Array.isArray(d.invoices)   ? d.invoices   : [];
-      products   = Array.isArray(d.products)   ? d.products   : [];
-      inventory  = (d.inventory && typeof d.inventory==='object' && !Array.isArray(d.inventory)) ? d.inventory : {};
-      // دفترچه تلفن — متغیری که صفحه واقعاً نشان می‌دهد همان phonebook است
-      if (Array.isArray(d.phonebook) && d.phonebook.length > 0) {
-        phonebook = d.phonebook;
-      } else if (Array.isArray(d.pb) && d.pb.length > 0) {
-        // فرمت جدید pb (name/phone) را به فرمت phonebook (fn/ln/phones[]) تبدیل کن
-        phonebook = d.pb.map(function(c) {
-          if (c.fn !== undefined || c.phones !== undefined) return c; // از قبل فرمت درست دارد
-          var parts2 = (c.name||'').split(' ');
-          return { fn:parts2[0]||'', ln:parts2.slice(1).join(' ')||'', shop:c.shop||'', addr:c.address||c.addr||'', zip:c.zip||'', phones:c.phone?[c.phone]:[], ita:c.ita||'', tg:c.tg||'', wa:c.wa||'', ig:c.ig||'', note:c.note||'', cat:c.cat||'other' };
-        });
-      } else {
-        phonebook = [];
-      }
-      // pb حذف شد — دیگر متغیر pb وجود ندارد. phonebook منبع حقیقت است.
-      parts      = Array.isArray(d.parts)      ? d.parts      : [];
-      services   = Array.isArray(d.services)   ? d.services   : (Array.isArray(d.svcs) ? d.svcs : services);
-      svcs       = services; // sync alias
-      warranties = Array.isArray(d.warranties) ? d.warranties : [];
-      sales      = Array.isArray(d.sales)      ? d.sales      : [];
-      tasks      = Array.isArray(d.tasks)      ? d.tasks      : [];
-      accounts   = Array.isArray(d.accounts)   ? d.accounts   : (typeof accounts!=='undefined'?accounts:[]);
-      defectiveStock = Array.isArray(d.defectiveStock) ? d.defectiveStock : (typeof defectiveStock!=='undefined'?defectiveStock:[]);
-      // 🔑 فاز ۲ (۱۰.۵.۱۹): انبارهای نام‌گذاری‌شده
-      if(Array.isArray(d.warehouses) && typeof warehouses!=='undefined'){
-        warehouses = d.warehouses;
-        localStorage.setItem('laegh_warehouses', JSON.stringify(warehouses));
-      }
-      // 🔑 داغی (پیگیری رسید نمایندگی)
-      if(Array.isArray(d.daqi) && typeof daqi!=='undefined'){
-        daqi = d.daqi;
-        if(typeof svDaqi==='function') svDaqi();
-      }
-      if(Array.isArray(d.daqiWarehouse) && typeof daqiWarehouse!=='undefined'){
-        daqiWarehouse = d.daqiWarehouse;
-        if(typeof svDaqiWarehouse==='function') svDaqiWarehouse();
-      }
-      if(Array.isArray(d.daqiVouchers) && typeof daqiVouchers!=='undefined'){
-        daqiVouchers = d.daqiVouchers;
-        if(typeof svDaqiVouchers==='function') svDaqiVouchers();
-      }
-      if(Array.isArray(d.postalHistory) && typeof postalHistory!=='undefined'){
-        postalHistory = d.postalHistory;
-        if(typeof svPostalHistory==='function') svPostalHistory();
-      }
-      if (Array.isArray(d.userAuditLog) && typeof userAuditLog!=='undefined') userAuditLog = d.userAuditLog;
-      if (Array.isArray(d.bgAuditLog) && typeof bgAuditLog!=='undefined') bgAuditLog = d.bgAuditLog;
-      if (d.invCtr && d.invCtr > 0) invCtr = d.invCtr;
-      // تاریخچه حسابداری (acH) — قبلاً گم می‌شد
-      if (d.acH && typeof d.acH==='object') { acH = d.acH; localStorage.setItem('la', JSON.stringify(d.acH)); }
-      // دسترسی کاربران — اگر بک‌آپ قدیمی بود و نداشت، پروفایل‌های فعلی دست‌نخورده می‌مانند
-      if (Array.isArray(d.userRoles)) { userRoles = d.userRoles; svRoles(); }
-      if (typeof d.loginPw === 'string' && d.loginPw) { loginPw = d.loginPw; localStorage.setItem('laegh_login_pw', d.loginPw); }
-      // تنظیمات اختیاری
-      if (d.company) { localStorage.setItem('laegh_company', JSON.stringify(d.company)); if(typeof applyBrand==='function') applyBrand(); }
-      if (d.printSettings && Object.keys(d.printSettings).length) localStorage.setItem('laegh_printSettings', JSON.stringify(d.printSettings));
-      if (d.logoSrc) { logoSrc = d.logoSrc; localStorage.setItem('ll', d.logoSrc); }
-      if(d.senderInfo && typeof d.senderInfo==='object'){ senderInfo = d.senderInfo; localStorage.setItem('ls', JSON.stringify(d.senderInfo)); }
-      // تنظیمات ظاهر (appearance) — قبلاً همه‌اش گم می‌شد
-      if(d.appearance && typeof d.appearance==='object'){
-        var ap = d.appearance;
-        if(ap.skin) localStorage.setItem('laegh_skin', ap.skin);
-        if(ap.depth3d) localStorage.setItem('laegh_depth3d', ap.depth3d);
-        if(ap.colorTheme) localStorage.setItem('laegh_color_theme', ap.colorTheme);
-        if(ap.theme) localStorage.setItem('laegh_theme', ap.theme);
-        if(ap.appFont) localStorage.setItem('laegh_app_font', ap.appFont);
-        if(ap.textSize) localStorage.setItem('laegh_text_size', ap.textSize);
-        if(ap.textColor) localStorage.setItem('laegh_text_color', ap.textColor);
-        else if(ap.textColor==='') localStorage.removeItem('laegh_text_color');
-        if(ap.dashTint) localStorage.setItem('laegh_dash_tint', ap.dashTint);
-        else if(ap.dashTint==='') localStorage.removeItem('laegh_dash_tint');
-        if(ap.lastPage) localStorage.setItem('laegh_last_page', ap.lastPage);
-        if(ap.density) localStorage.setItem('laegh_density', ap.density);
-        if(ap.radius) localStorage.setItem('laegh_radius', ap.radius);
-        if(ap.appBg) localStorage.setItem('laegh_app_bg', ap.appBg);
-        if(ap.appBgOverlay) localStorage.setItem('laegh_app_bg_overlay', ap.appBgOverlay);
-        if(ap.sbMode) localStorage.setItem('laegh_sb_mode', ap.sbMode);
-        if(ap.navShape) localStorage.setItem('laegh_nav_shape', ap.navShape);
-        if(ap.sbBg) localStorage.setItem('laegh_sb_bg', ap.sbBg);
-        if(ap.mainBg) localStorage.setItem('laegh_main_bg', ap.mainBg);
-        if(ap.dashBg) localStorage.setItem('laegh_dash_bg', ap.dashBg);
-        if(ap.dashBgOverlay) localStorage.setItem('laegh_dash_bg_overlay', ap.dashBgOverlay);
-        if(ap.dashShortcuts) localStorage.setItem('laegh_dash_shortcuts', ap.dashShortcuts);
-        if(typeof applyAppearanceSettings==='function') applyAppearanceSettings();
-        if(typeof renderDashShortcuts==='function') renderDashShortcuts();
-      }
-      // SMS config
-      if(d.sms && Object.keys(d.sms).length) localStorage.setItem('laegh_sms', JSON.stringify(d.sms));
-      // timezone
-      if(d.tz){ localStorage.setItem('laegh_tz', d.tz); if(typeof TZ!=='undefined') TZ = d.tz; }
-      // کلیدهای AI
-      if(d.aiKeys && typeof d.aiKeys==='object'){
-        Object.keys(d.aiKeys).forEach(function(k){ localStorage.setItem(k, d.aiKeys[k]); });
-      }
-      // آپدیت‌های اعمال‌شده (meta + packages)
-      if(Array.isArray(d.appliedUpdates) && typeof saveAppliedUpdatesMeta==='function'){
-        saveAppliedUpdatesMeta(d.appliedUpdates);
-      }
-      if(Array.isArray(d.updatePackages) && typeof storeUpdatePackage==='function'){
-        d.updatePackages.forEach(function(pkg){
-          try{ if(pkg && pkg.id) storeUpdatePackage(pkg); }catch(_u){}
-        });
-      }
-      try{ if(typeof reapplyStoredUpdates==='function') reapplyStoredUpdates(); }catch(_ru){}
-      // ذخیره (svPB حذف شد — pb دیگر وجود ندارد)
-      sv(); svParts(); svSvcs(); svSales(); svWarr(); svTasks(); if(typeof svAccounts==='function') svAccounts();
-      if(typeof svDefective==='function') svDefective();
-      if(typeof userAuditLog!=='undefined') localStorage.setItem('laegh_audit_user', JSON.stringify(userAuditLog));
-      if(typeof bgAuditLog!=='undefined') localStorage.setItem('laegh_audit_bg', JSON.stringify(bgAuditLog));
-      // رندر
-      try { getNum(); } catch(e){}
-      try { renderSaved(); } catch(e){}
-      try { renderProds(); } catch(e){}
-      try { renderInv(); } catch(e){}
-      try { renderPB(); } catch(e){}
-      try { renderParts(); } catch(e){}
-      try { renderSvcs(); } catch(e){}
-      try { renderSales(); } catch(e){}
-      try { renderWarList(); } catch(e){}
-      try { renderDataStats(); } catch(e){}
-      try { renderTasks(); } catch(e){}
-      try { renderDefective(); } catch(e){}
-      try { renderSidebarBadges(); } catch(e){}
-      try { if(typeof renderAccounts==='function') renderAccounts(); } catch(e){}  // 🔑 رندر مجدد صفحه حساب‌ها
-      try { if(typeof renderDaqiWarehouse==='function') renderDaqiWarehouse(); } catch(e){}
-      try { if(typeof renderDaqiVouchers==='function') renderDaqiVouchers(); } catch(e){}
-      try { if(typeof renderPostalHistory==='function') renderPostalHistory(); } catch(e){}
-      try { if(typeof renderDaqi==='function') renderDaqi(); } catch(e){}
-    }
-
-    if (mode === 'replace') {
-      // ── پیش‌نمایش سلامت بک‌اپ: قبل از جایگزینی، محتوای فایل را بشمار و در صورت مشکوک‌بودن هشدار بده ──
-      var _cNew = {
-        inv:(d.invoices||[]).length, prod:(d.products||[]).length,
-        contact:(Array.isArray(d.phonebook)&&d.phonebook.length?d.phonebook.length:(d.pb||[]).length),
-        part:(d.parts||[]).length, warr:(d.warranties||[]).length,
-        sale:(d.sales||[]).length, task:(d.tasks||[]).length
-      };
-      var _newTotal = _cNew.inv+_cNew.prod+_cNew.contact+_cNew.part+_cNew.warr+_cNew.sale+_cNew.task;
-      var _curTotal = (typeof invoices!=='undefined'&&invoices?invoices.length:0)
-        + (typeof products!=='undefined'&&products?products.length:0)
-        + (typeof phonebook!=='undefined'&&phonebook?phonebook.length:0)
-        + (typeof parts!=='undefined'&&parts?parts.length:0)
-        + (typeof warranties!=='undefined'&&warranties?warranties.length:0)
-        + (typeof sales!=='undefined'&&sales?sales.length:0);
-      var _preview = '📋 محتوای این فایل بک‌اپ:\n'
-        + '• فاکتور: '+_cNew.inv+'   • کالا: '+_cNew.prod+'   • مخاطب: '+_cNew.contact+'\n'
-        + '• قطعه: '+_cNew.part+'   • گارانتی: '+_cNew.warr+'   • فروش: '+_cNew.sale+'   • وظیفه: '+_cNew.task+'\n'
-        + (d.version?('نسخه بک‌اپ: '+d.version+'\n'):'');
-      var _warn='';
-      if (_curTotal>0 && _newTotal===0) _warn='\n⛔ هشدار جدی: این فایل کاملاً خالی به‌نظر می‌رسد، ولی شما داده‌ی فعلی دارید!\nبا ادامه، همه‌چیز با یک فایل خالی جایگزین و داده‌هایتان نابود می‌شود.\n';
-      else if (_newTotal>0 && _curTotal > _newTotal*3) _warn='\n⚠️ توجه: داده‌ی فعلی شما خیلی بیشتر از این بک‌اپ است. مطمئنید می‌خواهید با این نسخه‌ی قدیمی‌تر جایگزین شود؟\n';
-      if (!confirm('⚠️ جایگزینی کامل (غیرقابل بازگشت)\n\n'+_preview+_warn+'\nهمه داده‌های فعلی پاک و با این بک‌اپ جایگزین می‌شوند.\n\nادامه؟')) { inp.value=''; return; }
-      try {
-        applyAll();
-        addDbgEntry('ok','بازگردانی','','✅ جایگزینی موفق\n'+migLog.join('\n'),'');
-        ntf('بازگردانی کامل شد ✅','ok');
-        auditUser('بازگردانی بک‌اپ (جایگزینی)', (invoices?invoices.length:0)+' فاکتور، '+(phonebook?phonebook.length:0)+' مخاطب');
-        alert('✅ بازگردانی موفق!\n\n'+migLog.join('\n')+'\n\nفاکتور: '+invoices.length+' | کالا: '+products.length+' | مخاطب: '+phonebook.length+' | قطعه: '+parts.length);
-        if(typeof emit==='function') emit('data:loaded', {});
-      } catch(err) {
-        addDbgEntry('err','بازگردانی',err.message,'خطا در اعمال داده‌ها: '+err.message,'صفحه را Refresh کنید و دوباره امتحان کنید');
-        alert('❌ خطا: '+err.message);
-      }
-
-    } else {
-      // ادغام — فقط رکوردهای جدید اضافه میشه
-      var added = {inv:0,prod:0,pb:0,parts:0,svc:0,sale:0,war:0,task:0};
-      var skip  = {inv:0,prod:0,pb:0};
-      try {
-        (d.invoices||[]).forEach(function(x){ if(!invoices.find(function(i){return i.id===x.id||i.num===x.num;})){ invoices.push(x); added.inv++; } else skip.inv++; });
-        (d.products||[]).forEach(function(x){ if(!products.find(function(p){return p.code===x.code;})){ products.push(x); added.prod++; } else skip.prod++; });
-        // ادغام دفترچه تلفن — همان آرایه‌ای که صفحه واقعاً نمایش می‌دهد (phonebook)
-        var pbSource = (Array.isArray(d.phonebook) && d.phonebook.length>0) ? d.phonebook : (d.pb||[]);
-        pbSource.forEach(function(x){
-          // اگر فرمت جدید (name/phone) بود، تبدیل به فرمت phonebook کن
-          var entry = x;
-          if (x.fn === undefined && x.phones === undefined) {
-            var parts3 = (x.name||'').split(' ');
-            entry = { fn:parts3[0]||'', ln:parts3.slice(1).join(' ')||'', shop:x.shop||'', addr:x.address||x.addr||'', zip:x.zip||'', phones:x.phone?[x.phone]:[], ita:x.ita||'', tg:x.tg||'', wa:x.wa||'', ig:x.ig||'', note:x.note||'', cat:x.cat||'other' };
-          }
-          var entryPhone = (entry.phones&&entry.phones[0]) || '';
-          var exists = phonebook.find(function(p){ return entryPhone && (p.phones||[]).indexOf(entryPhone) !== -1; });
-          if (!exists) { phonebook.push(entry); added.pb++; } else skip.pb++;
-        });
-        // pb حذف شد — فقط phonebook
-        (d.parts||[]).forEach(function(x){ if(!parts.find(function(p){return p.id===x.id;})){ parts.push(x); added.parts++; } });
-        (d.services||d.svcs||[]).forEach(function(x){ if(!services.find(function(p){return p.id===x.id||p.code===x.code;})){ services.push(x); svcs=services; added.svc++; } });
-        (d.warranties||[]).forEach(function(x){ if(!warranties.find(function(p){return p.id===x.id;})){ warranties.push(x); added.war++; } });
-        (d.sales||[]).forEach(function(x){ if(!sales.find(function(p){return p.id===x.id;})){ sales.push(x); added.sale++; } });
-        (d.tasks||[]).forEach(function(x){ if(!tasks.find(function(p){return p.id===x.id;})){ tasks.push(x); added.task++; } });
-        (d.defectiveStock||[]).forEach(function(x){ if(!defectiveStock.find(function(p){return p.id===x.id;})){ defectiveStock.push(x); } });
-        // 🔑 رفع باگ حیاتی: حساب‌های مالی (accounts) در حالت ادغام کاملاً فراموش شده بودند!
-        // این دقیقاً همان باگی بود که کاربر گزارش کرد: «بعد از ریست و بک‌آپ، مالی برنمی‌گرده»
-        var addedAcc = 0;
-        if(Array.isArray(d.accounts)){
-          d.accounts.forEach(function(x){
-            if(x && x.id && !accounts.find(function(a){return a.id===x.id;})){
-              accounts.push(x); addedAcc++;
-            }
-          });
-        }
-        // warehouseDocs و stockMoves هم در ادغام اضافه شوند
-        if(Array.isArray(d.warehouseDocs)){
-          d.warehouseDocs.forEach(function(x){ if(x && x.id && !(typeof warehouseDocs!=='undefined' && warehouseDocs.find(function(w){return w.id===x.id;}))){ if(typeof warehouseDocs!=='undefined') warehouseDocs.push(x); } });
-        }
-        if(Array.isArray(d.stockMoves)){
-          d.stockMoves.forEach(function(x){ if(x && x.id && !(typeof stockMoves!=='undefined' && stockMoves.find(function(s){return s.id===x.id;}))){ if(typeof stockMoves!=='undefined') stockMoves.push(x); } });
-        }
-        // 🔑 فاز ۲ (۱۰.۵.۱۹): انبارهای نام‌گذاری‌شده در ادغام
-        if(Array.isArray(d.warehouses)){
-          d.warehouses.forEach(function(x){ if(x && x.id && !(typeof warehouses!=='undefined' && warehouses.find(function(w){return w.id===x.id;}))){ if(typeof warehouses!=='undefined') warehouses.push(x); } });
-          if(typeof svWarehouses==='function') svWarehouses();
-        }
-        // 🔑 داغی در ادغام
-        if(Array.isArray(d.daqi)){
-          d.daqi.forEach(function(x){ if(x && x.id && !(typeof daqi!=='undefined' && daqi.find(function(q){return q.id===x.id;}))){ if(typeof daqi!=='undefined') daqi.push(x); } });
-          if(typeof svDaqi==='function') svDaqi();
-        }
-        if(Array.isArray(d.daqiWarehouse)){
-          d.daqiWarehouse.forEach(function(x){
-            if(!x) return;
-            if(typeof daqiWarehouse==='undefined') return;
-            var found = daqiWarehouse.find(function(w){ return w.manufacturer===x.manufacturer && w.code===x.code && w.name===x.name; });
-            if(found){ found.qty = Math.max(found.qty||0, x.qty||0); }
-            else daqiWarehouse.push(x);
-          });
-          if(typeof svDaqiWarehouse==='function') svDaqiWarehouse();
-        }
-        if(Array.isArray(d.daqiVouchers)){
-          d.daqiVouchers.forEach(function(x){ if(x && x.id && !(typeof daqiVouchers!=='undefined' && daqiVouchers.find(function(v){return v.id===x.id;}))){ if(typeof daqiVouchers!=='undefined') daqiVouchers.push(x); } });
-          if(typeof svDaqiVouchers==='function') svDaqiVouchers();
-        }
-        if(Array.isArray(d.postalHistory)){
-          d.postalHistory.forEach(function(x){ if(x && x.id && !(typeof postalHistory!=='undefined' && postalHistory.find(function(h){return h.id===x.id;}))){ if(typeof postalHistory!=='undefined') postalHistory.push(x); } });
-          if(typeof svPostalHistory==='function') svPostalHistory();
-        }
-        // تاریخچه حسابداری (acH)
-        if (d.acH && typeof d.acH==='object') { acH = d.acH; localStorage.setItem('la', JSON.stringify(d.acH)); }
-        if (d.inventory) Object.keys(d.inventory).forEach(function(k){ if(!inventory[k]) inventory[k]=d.inventory[k]; });
-        sv(); svParts(); svSvcs(); svSales(); svWarr(); svTasks();
-        if(typeof svDefective==='function') svDefective();
-        if(typeof svAccounts==='function') svAccounts();  // 🔑 حیاتی: ذخیره accounts در localStorage
-        try{getNum();}catch(e){} try{renderSaved();}catch(e){} try{renderProds();}catch(e){} try{renderInv();}catch(e){} try{renderPB();}catch(e){} try{renderParts();}catch(e){} try{renderSvcs();}catch(e){} try{renderSales();}catch(e){} try{renderWarList();}catch(e){} try{renderDataStats();}catch(e){} try{renderTasks();}catch(e){} try{renderSidebarBadges();}catch(e){}
-        try{ if(typeof renderAccounts==='function') renderAccounts(); }catch(e){}  // 🔑 رندر مجدد صفحه حساب‌ها
-        try{ if(typeof renderDefective==='function') renderDefective(); }catch(e){}
-        var sum='فاکتور:+'+added.inv+'('+skip.inv+' تکراری) کالا:+'+added.prod+' مخاطب:+'+added.pb+'('+skip.pb+' تکراری) قطعه:+'+added.parts+' خدمت:+'+added.svc+' گارانتی:+'+added.war+' وظیفه:+'+added.task+(addedAcc?' حساب:+'+addedAcc:'');
-        addDbgEntry('ok','ادغام بک‌اپ','',sum,'');
-        ntf('ادغام انجام شد ✅','ok');
-        auditUser('ادغام بک‌اپ', added.inv+' فاکتور جدید، '+added.pb+' مخاطب');
-        alert('✅ ادغام موفق!\n\n'+migLog.join('\n')+'\n\n'+sum);
-      } catch(err) {
-        addDbgEntry('err','ادغام بک‌اپ',err.message,'خطا در ادغام: '+err.message,'');
-        alert('❌ خطا در ادغام: '+err.message);
-      }
-    }
+    // مرحله ۴: پیش‌نمایش محتوا + اجازه انتخاب بخش‌ها (اجباری)
+    openRestorePreviewModal(d, migLog, mode, chkInfo);
   };
   r.onerror = function() {
     addDbgEntry('err','خواندن فایل','FileReader error','خطا در خواندن فایل از دیسک','فایل را دوباره انتخاب کنید');
@@ -9178,6 +9323,7 @@ async function importData(inp) {
   r.readAsText(f, 'UTF-8');
   inp.value = '';
 }
+
 
 async function resetAll(){
   const pw=localStorage.getItem('laegh_adminpw');
@@ -9797,7 +9943,7 @@ function enableTaskNotifications(){
 }
 function registerLaeghSW(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('sw.js?v=1405.5.20ζ').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=1405.5.21α').then(reg=>{
     _swReg=reg;
     // Check for SW updates
     reg.addEventListener('updatefound', ()=>{
@@ -10943,8 +11089,8 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.20ζ">'+
-    '<meta name="app-date" content="1405/05/20">'+
+    '<meta name="app-version" content="1405.5.21α">'+
+    '<meta name="app-date" content="1405/05/21">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
     '@page{size:A5;margin:8mm}'+
@@ -11094,7 +11240,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.20ζ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.21α"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -12636,7 +12782,7 @@ function doPrint(paperSize){
   const effPaper = pw.paper || paperSize;
   const w = window.open('','_blank');
   w.document.open(); w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.20ζ">
+<meta name="app-version" content="1405.5.21α">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -12734,7 +12880,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.20ζ"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.21α"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -12763,7 +12909,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.20ζ"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.21α"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -12800,8 +12946,8 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.20ζ">'+
-    '<meta name="app-date" content="1405/05/20">'+
+    '<meta name="app-version" content="1405.5.21α">'+
+    '<meta name="app-date" content="1405/05/21">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
     '@page{size:A5;margin:8mm}'+
@@ -12876,7 +13022,7 @@ function printCompanyReport(idx){
   var qcResultLbl = {'pass':'✅ تأیید کیفیت','fail':'❌ رد شد — نیاز به اصلاح','pending':'در حال بررسی'};
   var mgrApproveLbl = {'approved':'✅ تأیید نهایی','pending':'در انتظار بررسی','rejected':'❌ رد شد'};
 
-  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.20ζ';
+  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.21α';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
     '<title>گزارش داخلی شرکت — '+wHdr.id+'</title>'+
     '<style>'+
@@ -13507,8 +13653,8 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.20ζ">'+
-    '<meta name="app-date" content="1405/05/20">'+
+    '<meta name="app-version" content="1405.5.21α">'+
+    '<meta name="app-date" content="1405/05/21">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
     '@page{size:A4;margin:10mm}'+
@@ -13727,7 +13873,7 @@ function expSalesExcel(){
 // ══════ حسابداری ══════
 // ═══════════════════════════════════════════════════════════════════════════
 // ماژول داغی (پیگیری رسید امضا‌شده‌ی نمایندگی‌های خدمات)
-// نسخه ۱۴۰۵.۵.۲۰ζ — فاز داغی
+// نسخه ۱۴۰۵.۵.۲۱α — فاز داغی
 //
 // «داغی» یعنی وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستیم، آن‌ها باید رسید امضا‌شده
 // (داغی) را به ما برگردانند. این ماژول پیگیری می‌کند که چه کسانی داغی معوقه دارند.
@@ -15031,7 +15177,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.20ζ">'+
+    '<meta name="app-version" content="1405.5.21α">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
