@@ -1,0 +1,31 @@
+{
+  "magic": "SIRMAN_UPDATE",
+  "format": 1,
+  "id": "1405.5.18η-exit-close-autosave-dot",
+  "version": "1405.5.18η",
+  "versionFa": "۱۴۰۵.۵.۱۸η",
+  "minBaseVersion": "1405.5.18ε",
+  "date": "1405/05/18",
+  "title": "بستن بعد از بک‌آپ + نشانگر ذخیره خودکار",
+  "changelog": [
+    "رفع باگ: بعد از «بک‌آپ بگیر و ببند» واقعاً تلاش برای بستن انجام می‌شود",
+    "اگر مرورگر تب را نبندد، راهنمای Ctrl+W نشان داده می‌شود",
+    "بعد از هر ذخیره خودکار موفق، دایره سبز کوچک گوشه صفحه چشمک می‌زند",
+    "نسخه ۱۴۰۵.۵.۱۸η"
+  ],
+  "patches": [
+    {
+      "op": "setVersion",
+      "version": "1405.5.18η",
+      "versionFa": "۱۴۰۵.۵.۱۸η"
+    },
+    {
+      "op": "notify",
+      "message": "خروج+نشانگر ذخیره خودکار فعال شد"
+    },
+    {
+      "op": "runJs",
+      "code": "\n// 1405.5.18η — fix exit close after backup + autosave green dot\n(function(){\n  // CSS\n  if(!document.getElementById('autosave-dot-css')){\n    var st = document.createElement('style');\n    st.id = 'autosave-dot-css';\n    st.textContent = '#autosave-dot{position:fixed;bottom:16px;left:16px;width:12px;height:12px;border-radius:50%;background:#16a34a;opacity:0;pointer-events:none;z-index:99999;box-shadow:0 0 0 0 rgba(22,163,74,.55);transition:opacity .15s ease;}#autosave-dot.on{opacity:1;animation:autosavePulse 1.4s ease-out;}@keyframes autosavePulse{0%{transform:scale(.85);box-shadow:0 0 0 0 rgba(22,163,74,.65);}40%{transform:scale(1.2);box-shadow:0 0 0 8px rgba(22,163,74,.15);}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(22,163,74,0);}}body.sb-dock #autosave-dot{bottom:72px;}';\n    document.head.appendChild(st);\n  }\n  if(!document.getElementById('autosave-dot')){\n    var d = document.createElement('div');\n    d.id = 'autosave-dot';\n    d.title = 'ذخیره خودکار';\n    document.body.appendChild(d);\n  }\n\n  window.flashAutosaveDot = function(){\n    var dot = document.getElementById('autosave-dot');\n    if(!dot){\n      dot = document.createElement('div');\n      dot.id = 'autosave-dot';\n      document.body.appendChild(dot);\n    }\n    dot.classList.remove('on');\n    void dot.offsetWidth;\n    dot.classList.add('on');\n    clearTimeout(window._autosaveDotTimer);\n    window._autosaveDotTimer = setTimeout(function(){ try{ dot.classList.remove('on'); }catch(_e){} }, 1800);\n  };\n\n  window._showExitCloseHint = function(){\n    try{\n      var old = document.getElementById('exit-close-hint');\n      if(old) old.remove();\n      var ov = document.createElement('div');\n      ov.id = 'exit-close-hint';\n      ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(15,23,42,.72);display:flex;align-items:center;justify-content:center;padding:20px';\n      ov.innerHTML = '<div style=\"background:#fff;color:#111;border-radius:14px;padding:22px 20px;max-width:420px;width:100%;text-align:center;line-height:1.9;font-family:Tahoma,sans-serif\">'\n        + '<div style=\"font-size:18px;font-weight:800;margin-bottom:8px\">بک‌آپ/خروج انجام شد</div>'\n        + '<div style=\"font-size:13px;color:#555;margin-bottom:14px\">مرورگر اجازه بستن خودکار این تب را نداد.<br>لطفاً با <b>Ctrl+W</b> ببندید.</div>'\n        + '<button style=\"width:100%;padding:10px;border:0;border-radius:8px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer\" onclick=\"try{window.close();}catch(e){}\">تلاش دوباره برای بستن</button>'\n        + '</div>';\n      document.body.appendChild(ov);\n    }catch(_e){}\n  };\n\n  window._doExit = function(){\n    try{ if(typeof clearDirty==='function') clearDirty(); }catch(_e){}\n    try{ window.open('', '_self'); window.close(); }catch(e){}\n    setTimeout(function(){\n      try{ if(!document.hidden) _showExitCloseHint(); }catch(_e2){ _showExitCloseHint(); }\n    }, 350);\n  };\n\n  window.exitWithBackup = async function(){\n    var modal = document.getElementById('exit-modal');\n    if(modal) modal.classList.remove('open');\n    try{\n      if(typeof exportData==='function') await exportData();\n      if(typeof doAutoSave==='function' && ((typeof autoSaveFileHandle!=='undefined' && autoSaveFileHandle) || (typeof autoSaveDirHandle!=='undefined' && autoSaveDirHandle))){\n        try{ await doAutoSave(true); }catch(_as){}\n      }\n      if(typeof clearDirty==='function') clearDirty();\n      if(typeof ntf==='function') ntf('بک‌آپ گرفته شد — در حال بستن...','ok');\n      _doExit();\n    }catch(e){\n      if(typeof ntf==='function') ntf('بک‌آپ خطا داد؛ بسته نشد','err');\n      alert('بک‌آپ قبل از خروج ناموفق بود:\\n'+(e && e.message ? e.message : e));\n    }\n  };\n\n  window.exitWithoutBackup = function(){\n    var modal = document.getElementById('exit-modal');\n    if(modal) modal.classList.remove('open');\n    if(typeof clearDirty==='function') clearDirty();\n    _doExit();\n  };\n\n  // wrap updateAutoSaveUI to flash dot\n  if(typeof updateAutoSaveUI==='function' && !window._sirmanUpdateAutoSaveUIWrappedEta){\n    var _u = updateAutoSaveUI;\n    updateAutoSaveUI = function(success, errMsg){\n      try{ _u(success, errMsg); }catch(_e){}\n      if(success){ try{ flashAutosaveDot(); }catch(_e2){} }\n    };\n    window._sirmanUpdateAutoSaveUIWrappedEta = true;\n  }\n\n  var btn = document.querySelector('#exit-modal .btn-p');\n  if(btn && (btn.textContent||'').indexOf('بک')>=0) btn.textContent = '💾 بک‌آپ بگیر و ببند';\n})();\n"
+    }
+  ]
+}
