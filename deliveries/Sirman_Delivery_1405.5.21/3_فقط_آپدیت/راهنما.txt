@@ -1,0 +1,4 @@
+فقط فایل آپدیت
+==============
+- Sirman_Update_1405.5.21α.json → از تنظیمات → آپدیت در برنامه انتخاب/اعمال کنید
+- یا Sirman_Pending_Update.json را کنار Sirman.exe / Sirman_Start.bat بگذارید و برنامه را باز کنید
