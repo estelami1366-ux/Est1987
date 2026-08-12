@@ -1,9 +1,10 @@
-# install-choose-path.ps1 — پنجره انتخاب پوشه نصب سیرمان
+# install-choose-path.ps1 - folder picker for Sirman install path
+# ASCII-only (Windows PowerShell 5.1 encoding-safe)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Windows.Forms | Out-Null
 
 $dlg = New-Object System.Windows.Forms.FolderBrowserDialog
-$dlg.Description = 'پوشه نصب سیرمان را انتخاب کنید (مثلاً D:\Sirman یا Documents\Sirman)'
+$dlg.Description = 'Choose Sirman install folder (example: D:\Sirman or Documents\Sirman)'
 $dlg.ShowNewFolderButton = $true
 
 $suggested = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'Sirman'
