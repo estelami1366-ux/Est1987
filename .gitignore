@@ -1,0 +1,6 @@
+
+# build
+desktop/**/bin/
+desktop/**/obj/
+**/bin/
+**/obj/

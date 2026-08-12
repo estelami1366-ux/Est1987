@@ -1,0 +1,500 @@
+      <div class="acw"><input id="inv-seller" placeholder="نام فروشنده" oninput="acIn(this,'seller')" onblur="acSv('seller',this.value)" onchange="linkPB(this.value)"></div>
+    </div>
+    <div class="f"><label>شماره تماس</label><input id="inv-phone" placeholder="۰۹۱۲۰۰۰۰۰۰۰"></div>
+    <div class="f"><label>وضعیت</label>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+        <span class="badge badge-open" id="inv-st">⏳ باز</span>
+        <button class="btn btn-sm btn-g" onclick="closeInv()" id="btn-close">✓ تکمیل</button>
+        <a id="pb-link" href="#" onclick="goToPB(event)" style="font-size:11px;color:var(--blue);display:none">📖 دفترچه</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title" style="justify-content:space-between;display:flex">
+    <span>📦 دستگاه‌ها</span>
+    <button class="btn btn-sm" onclick="openSortDlg()" style="margin-left:4px">↕ مرتب</button>
+      <button class="btn btn-p btn-sm" onclick="addDev()">+ افزودن دستگاه</button>
+  </div>
+  <div id="devs"></div>
+  <div class="total-bar">
+    <div class="ti"><div class="ti-lbl">جمع برآورد</div><div class="ti-val" style="color:var(--amber)" id="t-est">۰ ریال</div></div>
+    <div class="ti"><div class="ti-lbl">جمع تخفیف</div><div class="ti-val" style="color:var(--purple)" id="t-disc">۰ ریال</div></div>
+    <div class="ti"><div class="ti-lbl">جمع نهایی</div><div class="ti-val" style="color:var(--green)" id="t-fin">۰ ریال</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">📝 توضیحات فاکتور</div>
+  <div class="f"><textarea id="inv-notes" placeholder="توضیحات تکمیلی..." rows="4"></textarea></div>
+</div>
+
+<div class="btn-bar">
+  <button class="btn btn-p" onclick="printInv()">🖨 چاپ</button>
+  <button class="btn btn-g" onclick="saveInv()">💾 ذخیره</button>
+  <button class="btn btn-o" onclick="expExcel()">📊 Excel</button>
+  <button class="btn btn-o" onclick="expWord()">📄 Word</button>
+  <button class="btn btn-pu" onclick="expPDF()">📑 PDF</button>
+  <button class="btn btn-p" onclick="notifyInvoiceCustomer()">📩 ارسال به مشتری</button>
+  <button class="btn btn-r" onclick="clearInv()">🗑 پاک</button>
+</div>
+</div></div>
+
+<!-- ===== SAVED PAGE ===== -->
+<div class="page" id="page-saved">
+<div class="topbar"><div class="topbar-title">📂 فاکتورهای ذخیره‌شده</div></div>
+<div style="padding:16px">
+<div class="card">
+  <div class="search-bar">
+    <input class="search-in" id="s-q" placeholder="جستجو: نام، تلفن، شماره فاکتور..." oninput="renderSaved()">
+    <select id="s-st" onchange="renderSaved()" style="padding:7px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+      <option value="">همه</option><option value="open">باز</option><option value="closed">تکمیل</option>
+    </select>
+    <select id="s-sort" onchange="renderSaved()" style="padding:7px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px" title="مرتب‌سازی">
+      <option value="_idx:desc">جدیدترین</option>
+      <option value="_idx:asc">قدیمی‌ترین</option>
+      <option value="num:asc">شماره فاکتور</option>
+      <option value="seller:asc">نام فروشنده</option>
+      <option value="tF:desc">مبلغ (زیاد→کم)</option>
+      <option value="tF:asc">مبلغ (کم→زیاد)</option>
+      <option value="status:asc">وضعیت</option>
+    </select>
+    <button class="btn btn-sm" onclick="selAll()">انتخاب همه</button>
+    <button class="btn btn-sm btn-r" onclick="delSel()">حذف انتخاب‌شده</button>
+    <button class="btn btn-sm btn-p" onclick="printSel()">🖨 چاپ فاکتورها (کامل)</button>
+    <button class="btn btn-sm" onclick="printSavedList()">📃 چاپ لیست</button>
+    <button class="btn btn-sm btn-o" onclick="expSelExcel()">Excel انتخاب‌شده</button>
+    <span id="sel-cnt" style="font-size:11px;color:var(--text2)"></span>
+  </div>
+  <div id="saved-tbl"></div>
+</div></div></div>
+
+<!-- ===== PRODUCTS PAGE ===== -->
+<div class="page" id="page-products">
+<div class="topbar">
+  <div class="topbar-title">📦 مدیریت کالاها</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <button class="btn btn-p btn-sm" onclick="openProdModal()">+ کالای جدید</button>
+    <button class="btn btn-sm" onclick="document.getElementById('prod-xlsx-inp').click()">📥 افزودن از اکسل</button>
+    <button class="btn btn-sm btn-o" onclick="expProductsExcel()">📤 خروجی اکسل</button>
+    <button class="btn btn-sm" onclick="downloadProductTemplate()">📄 نمونه اکسل</button>
+    <button class="btn btn-sm" onclick="printProdsList()">📃 چاپ لیست</button>
+    <input type="file" id="prod-xlsx-inp" accept=".xlsx,.xls" style="display:none" onchange="importProducts(this)">
+  </div>
+</div>
+<div style="padding:16px">
+<div class="card">
+  <div class="search-bar">
+    <input class="search-in" id="p-q" placeholder="جستجو: نام، کد، برند..." oninput="renderProds()">
+    <select id="p-cat" onchange="renderProds()" style="padding:7px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+      <option value="">همه دسته‌ها</option>
+    </select>
+    <select id="p-sort" onchange="renderProds()" style="padding:7px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px" title="مرتب‌سازی">
+      <option value="name:asc">نام (الفبا)</option>
+      <option value="code:asc">کد کالا</option>
+      <option value="price:asc">قیمت (کم→زیاد)</option>
+      <option value="price:desc">قیمت (زیاد→کم)</option>
+      <option value="cat:asc">دسته‌بندی</option>
+      <option value="_idx:desc">جدیدترین</option>
+    </select>
+  </div>
+  <div id="prods-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
+</div></div></div>
+
+<!-- ===== INVENTORY PAGE ===== -->
+<div class="page" id="page-inventory">
+<div class="topbar"><div class="topbar-title">📋 انبار کالا</div>
+  <div><button class="btn btn-sm" onclick="printInvList()" data-tip="چاپ لیست موجودی با محل امضا">📃 چاپ لیست</button></div>
+</div>
+<div style="padding:16px">
+<div id="inv-stats-bar"></div>
+<div class="card">
+  <div class="search-bar">
+    <input class="search-in" id="inv-q" placeholder="جستجوی کالا..." oninput="renderInv()">
+  </div>
+  <table class="stbl" id="inv-tbl">
+    <thead><tr><th>کد</th><th>نام کالا</th><th>برند</th><th>موجودی</th><th>حداقل</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+    <tbody id="inv-body"></tbody>
+  </table>
+</div></div></div>
+
+<!-- ===== DEFECTIVE INVENTORY PAGE ===== -->
+<div class="page" id="page-defective">
+<div class="topbar">
+  <div class="topbar-title">⚠️ انبار محصولات معیوب</div>
+  <div style="display:flex;gap:6px">
+    <button class="btn btn-sm" onclick="printDefectiveList()" data-tip="چاپ لیست موجودی انبار معیوب">📃 چاپ لیست</button>
+    <button class="btn btn-p btn-sm" onclick="openDefectiveModal()" data-tip="ثبت کالای برگشتی یا معیوب جدید">+ ثبت کالا</button>
+  </div>
+</div>
+<div style="padding:16px">
+<div id="def-stats-bar"></div>
+<div class="card">
+  <div class="search-bar">
+    <input class="search-in" id="def-q" placeholder="جستجو: نام، تلفن، سریال، شناسه گارانتی، فاکتور، منبع..." oninput="renderDefective()">
+    <select id="def-src-f" onchange="renderDefective()" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+      <option value="">همه منابع</option>
+      <option value="store">فروشگاه</option>
+      <option value="digikala">برگشت دیجی‌کالا</option>
+      <option value="customer">برگشت مشتری</option>
+      <option value="other">سایر</option>
+    </select>
+    <select id="def-st-f" onchange="renderDefective()" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+      <option value="">همه وضعیت‌ها</option>
+      <option value="in_stock">در انبار</option>
+      <option value="returned">عودت داده شده</option>
+    </select>
+  </div>
+  <table class="stbl"><thead><tr><th>شناسه</th><th>کالا/مدل</th><th>منبع</th><th>میزان عیب</th><th>مشتری</th><th>تلفن</th><th>گارانتی/فاکتور</th><th>تاریخ ورود</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+  <tbody id="def-body"></tbody></table>
+</div>
+</div></div>
+
+<!-- ===== PHONEBOOK PAGE ===== -->
+<div class="page" id="page-phonebook">
+<div class="topbar">
+  <div class="topbar-title">📖 دفترچه تلفن</div>
+  <div style="display:flex;gap:6px">
+    <button class="btn btn-sm btn-o" onclick="document.getElementById('imp-pb-excel').click()">📥 ورود از Excel</button>
+    <input type="file" id="imp-pb-excel" accept=".xlsx,.xls" style="display:none" onchange="importPhonebook(this)">
+    <button class="btn btn-sm btn-o" onclick="expPhonebookExcel()">📤 خروجی اکسل</button>
+    <button class="btn btn-sm" onclick="tplPhonebook()">📄 نمونه اکسل</button>
+    <button class="btn btn-sm" onclick="printPhonebookList()">📃 چاپ لیست</button>
+    <button class="btn btn-p btn-sm" onclick="openPBModal()">+ مخاطب جدید</button>
+  </div>
+</div>
+<div style="padding:16px">
+<div class="card">
+  <div class="pb-cat-tabs" id="pb-cat-tabs"></div>
+  <input type="text" id="pb-q" placeholder="جستجو..." style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;margin-bottom:12px" oninput="renderPB()">
+  <div id="pb-list"></div>
+</div></div></div>
+
+<!-- ===== POSTAL PAGE ===== -->
+<div class="page" id="page-postal">
+<div class="topbar"><div class="topbar-title">📮 برچسب پستی</div></div>
+<div style="padding:16px">
+<div class="card no-print">
+  <div class="card-title">آدرس فرستنده (ثابت)</div>
+  <div class="g3">
+    <div class="f"><label>نام فرستنده</label><input id="snd-name" placeholder="فروشگاه / شرکت"></div>
+    <div class="f"><label>آدرس</label><input id="snd-addr" placeholder="آدرس کامل"></div>
+    <div class="f"><label>کدپستی</label><input id="snd-zip" placeholder="کدپستی ۱۰ رقمی"></div>
+  </div>
+  <div class="g2" style="margin-top:10px">
+    <div class="f"><label>تلفن</label><input id="snd-tel" placeholder="شماره تماس"></div>
+    <div class="f"><label>نام مسئول</label><input id="snd-person" placeholder="آقای / خانم ..."></div>
+  </div>
+  <button class="btn btn-sm btn-g" onclick="saveSender()" style="margin-top:8px">💾 ذخیره فرستنده</button>
+</div>
+
+<div class="card no-print">
+  <div class="card-title">آدرس گیرنده</div>
+  <div class="search-bar">
+    <input class="search-in" id="rcv-pbq" placeholder="جستجو از دفترچه تلفن..." oninput="searchRcv()">
+  </div>
+  <div id="rcv-pb-results" style="margin-bottom:10px"></div>
+  <div class="g3">
+    <div class="f"><label>نام گیرنده</label><input id="rcv-name" placeholder="نام و نام‌خانوادگی"></div>
+    <div class="f"><label>آدرس</label><input id="rcv-addr" placeholder="آدرس کامل"></div>
+    <div class="f"><label>کدپستی</label><input id="rcv-zip" placeholder="کدپستی"></div>
+  </div>
+  <div class="g2" style="margin-top:10px">
+    <div class="f"><label>شماره تماس</label><input id="rcv-tel" placeholder="شماره تماس"></div>
+    <div class="f"><label>توضیح بار</label><input id="rcv-note" placeholder="شکستنی / فوری / ..."></div>
+  </div>
+</div>
+
+<div class="btn-bar no-print">
+  <button class="btn btn-p" onclick="printPostal()">🖨 پرینت برچسب</button>
+  <button class="btn btn-sm" onclick="clearPostal()">🗑 پاک</button>
+</div>
+
+<div id="postal-preview" style="margin-top:16px"></div>
+</div></div>
+
+
+<!-- ===== PARTS PAGE ===== -->
+<div class="page" id="page-parts">
+<div class="topbar">
+  <div class="topbar-title">🔩 انبار قطعات</div>
+  <div style="display:flex;gap:6px">
+    <button class="btn btn-sm btn-o" onclick="document.getElementById('imp-parts-excel').click()">📥 ورود از Excel</button>
+    <input type="file" id="imp-parts-excel" accept=".xlsx,.xls" style="display:none" onchange="importParts(this)">
+    <button class="btn btn-sm btn-o" onclick="expPartsExcel()">📤 خروجی اکسل</button>
+    <button class="btn btn-sm" onclick="tplParts()">📄 نمونه اکسل</button>
+    <button class="btn btn-sm" onclick="printPartsList()">📃 چاپ لیست</button>
+    <button class="btn btn-p btn-sm" onclick="openPartMod()">+ قطعه جدید</button>
+  </div>
+</div>
+<div style="padding:16px">
+<div class="card">
+  <div class="s-bar">
+    <input class="s-in" id="part-q" placeholder="جستجو: نام، کد..." oninput="renderParts()">
+    <select id="part-pf" onchange="renderParts()" style="padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font)"><option value="">همه کالاها</option></select>
+  </div>
+  <div id="parts-list"></div>
+</div>
+</div></div>
+
+<!-- ===== SERVICES PAGE ===== -->
+<div class="page" id="page-services">
+<div class="topbar">
+  <div class="topbar-title">🔧 لیست خدمات</div>
+  <div style="display:flex;gap:6px">
+    <button class="btn btn-sm btn-o" onclick="document.getElementById('imp-svcs-excel').click()">📥 ورود از Excel</button>
+    <input type="file" id="imp-svcs-excel" accept=".xlsx,.xls" style="display:none" onchange="importServices(this)">
+    <button class="btn btn-sm btn-o" onclick="expServicesExcel()">📤 خروجی اکسل</button>
+    <button class="btn btn-sm" onclick="tplServices()">📄 نمونه اکسل</button>
+    <button class="btn btn-sm" onclick="printServicesList()">📃 چاپ لیست</button>
+    <button class="btn btn-p btn-sm" onclick="openSvcMod()">+ خدمت جدید</button>
+  </div>
+</div>
+<div style="padding:16px">
+<div class="card">
+  <input class="s-in" id="svc-q" placeholder="جستجو..." oninput="renderSvcs()" style="width:100%;margin-bottom:10px">
+  <div id="svcs-list"></div>
+</div>
+</div></div>
+
+
+<!-- ===== SALES PAGE ===== -->
+<div class="page" id="page-sales">
+<div class="topbar">
+  <div class="topbar-title">🛒 فروش قطعات</div>
+  <div style="display:flex;gap:6px">
+    <button class="btn btn-sm btn-o" onclick="expSalesExcel()">📤 خروجی اکسل</button>
+    <button class="btn btn-sm btn-o" onclick="document.getElementById('imp-sales-excel').click()">📥 ورود از Excel</button>
+    <input type="file" id="imp-sales-excel" accept=".xlsx,.xls" style="display:none" onchange="importSales(this)">
+    <button class="btn btn-sm" onclick="tplSales()">📄 نمونه اکسل</button>
+    <button class="btn btn-sm" onclick="printSalesList()">📃 چاپ لیست</button>
+    <button class="btn btn-p btn-sm" onclick="openSaleForm()">+ فروش جدید</button>
+  </div>
+</div>
+<div style="padding:16px">
+
+<!-- فرم فروش -->
+<div id="sale-form-wrap" style="display:none">
+<div class="card">
+  <div class="card-title">📦 مشخصات قطعه</div>
+  <div class="g3" style="margin-bottom:8px">
+    <div class="f"><label>قطعه *</label>
+      <select id="sale-part-sel" onchange="onSalePartChange()">
+        <option value="">-- انتخاب قطعه --</option>
+      </select>
+    </div>
+    <div class="f"><label>تعداد *</label>
+      <input type="number" id="sale-qty" min="1" value="1" oninput="calcSaleTotal()">
+    </div>
+    <div class="f"><label>قیمت واحد (ریال)</label>
+      <input type="number" id="sale-price" min="0" value="0" oninput="calcSaleTotal()">
+    </div>
+  </div>
+  <div class="g3" style="margin-bottom:8px">
+    <div class="f"><label>تخفیف (%)</label>
+      <input type="number" id="sale-disc" min="0" max="100" value="0" oninput="calcSaleTotal()">
+    </div>
+    <div class="f"><label>تاریخ فروش *</label>
+      <input id="sale-date" readonly placeholder="۱۴۰۳/۰۸/۱۵" onclick="openDatePicker(this)">
+    </div>
+    <div class="f"><label>جمع کل</label>
+      <div id="sale-total-lbl" style="font-size:14px;font-weight:700;color:var(--green);padding:5px 0">۰ ریال</div>
+    </div>
+  </div>
+  <div class="f"><label>توضیحات</label>
+    <input id="sale-note" placeholder="توضیحات اضافه...">
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">👤 مشخصات خریدار</div>
+  <div class="g3" style="margin-bottom:8px">
+    <div class="f"><label>نام و نام‌خانوادگی *</label>
+      <input id="sale-name" placeholder="نام خریدار">
+    </div>
+    <div class="f"><label>شماره تماس *</label>
+      <input id="sale-phone" placeholder="۰۹۱۲۰۰۰۰۰۰۰">
+    </div>
+    <div class="f"><label>ایتا / روبیکا / تلگرام</label>
+      <input id="sale-msg" placeholder="@username یا شماره">
+    </div>
+  </div>
+  <div class="g2" style="margin-bottom:8px">
+    <div class="f"><label>آدرس کامل</label>
+      <input id="sale-addr" placeholder="استان، شهر، خیابان، پلاک">
+    </div>
+    <div class="f"><label>کدپستی</label>
+      <input id="sale-zip" placeholder="کدپستی ۱۰ رقمی">
+    </div>
+  </div>
+  <div class="f" style="margin-bottom:8px"><label>نحوه ارسال</label>
+    <select id="sale-ship">
+      <option value="post">پست پیشتاز</option>
+      <option value="tipax">تیپاکس</option>
+      <option value="snap">اسنپ‌باکس</option>
+      <option value="inperson">حضوری</option>
+      <option value="other">سایر</option>
+    </select>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">📎 ضمیمه سند / عکس</div>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">عکس فاکتور خرید، رسید واریزی، کارت گارانتی قطعه یا هر سند مرتبط دیگر</p>
+  <button class="btn btn-sm btn-p" onclick="document.getElementById('sale-doc-inp').click()">📷 انتخاب عکس/سند</button>
+  <input type="file" id="sale-doc-inp" accept="image/*" multiple style="display:none" onchange="addSaleDocs(this)">
+  <div id="sale-docs-prev" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+</div>
+
+<div class="btn-bar">
+  <button class="btn btn-p" onclick="saveSale()">💾 ثبت فروش</button>
+  <button class="btn btn-pu" onclick="saleToPostal()">📮 انتقال به برچسب پستی</button>
+  <button class="btn btn-p" onclick="notifySaleCustomer()">📩 اطلاع به مشتری</button>
+  <button class="btn" onclick="closeSaleForm()">انصراف</button>
+</div>
+</div><!-- /sale-form-wrap -->
+
+<!-- لیست فروش‌ها -->
+<div id="sale-list-wrap">
+<div class="card">
+  <div class="s-bar">
+    <input class="s-in" id="sale-q" placeholder="جستجو: نام، تلفن، قطعه..." oninput="renderSales()">
+    <input type="month" id="sale-month-f" onchange="renderSales()" style="padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font)" title="فیلتر ماه">
+    <button class="btn btn-sm" onclick="document.getElementById('sale-month-f').value='';renderSales()">همه</button>
+    <select id="sale-sort" onchange="renderSales()" style="padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font)" title="مرتب‌سازی">
+      <option value="_idx:desc">جدیدترین</option>
+      <option value="_idx:asc">قدیمی‌ترین</option>
+      <option value="total:desc">مبلغ (زیاد→کم)</option>
+      <option value="total:asc">مبلغ (کم→زیاد)</option>
+      <option value="name:asc">نام خریدار</option>
+      <option value="qty:desc">تعداد</option>
+    </select>
+  </div>
+  <div id="sale-stats-bar" style="margin-bottom:10px"></div>
+  <div id="sales-tbl"></div>
+</div>
+</div>
+
+</div></div>
+
+<!-- ===== WARRANTY PAGE ===== -->
+<div class="page" id="page-warranty">
+<div class="topbar">
+  <div class="topbar-title">🛡 پرونده گارانتی مشتریان</div>
+  <div style="display:flex;gap:6px">
+    <button class="btn btn-sm btn-o" onclick="document.getElementById('imp-war-excel').click()">📥 ورود از Excel</button>
+    <input type="file" id="imp-war-excel" accept=".xlsx,.xls" style="display:none" onchange="importWarranties(this)">
+    <button class="btn btn-sm btn-o" onclick="expWarrantiesExcel()">📤 خروجی اکسل</button>
+    <button class="btn btn-sm" onclick="tplWarranties()">📄 نمونه اکسل</button>
+    <button class="btn btn-sm" onclick="printWarrantyList()">📃 چاپ لیست</button>
+    <button class="btn btn-sm" onclick="showWarList()">📋 لیست پرونده‌ها</button>
+    <button class="btn btn-p btn-sm" onclick="showWarForm()">+ پرونده جدید</button>
+  </div>
+</div>
+<div style="padding:16px">
+
+<!-- فرم -->
+<div id="war-form" style="display:none">
+<div class="card">
+  <div class="card-title">👤 اطلاعات مشتری</div>
+  <div class="g3" style="margin-bottom:8px">
+    <div class="f"><label>نام و نام‌خانوادگی *</label><input id="wn" placeholder="نام مشتری"></div>
+    <div class="f"><label>شماره تماس *</label><input id="wph" placeholder="۰۹۱۲۰۰۰۰۰۰۰"></div>
+    <div class="f"><label>تاریخ مراجعه</label><input id="wdt" readonly placeholder="۱۴۰۳/۰۸/۱۵" onclick="openDatePicker(this)"></div>
+  </div>
+  <div class="g2">
+    <div class="f"><label>آدرس</label><input id="waddr" placeholder="آدرس"></div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title">📱 شبکه‌های اجتماعی</div>
+  <div class="g3" style="margin-bottom:8px">
+    <div class="f"><label>نوع شبکه</label>
+      <select id="wsoc-type">
+        <option value="whatsapp">واتساپ</option>
+        <option value="telegram">تلگرام</option>
+        <option value="eitaa">ایتا</option>
+        <option value="instagram">اینستاگرام</option>
+        <option value="rubika">روبیکا</option>
+        <option value="bale">بله</option>
+        <option value="sms">پیامک</option>
+      </select>
+    </div>
+    <div class="f"><label>شماره / آیدی</label><input id="wsoc-val" placeholder="@username یا 09..."></div>
+    <div class="f" style="justify-content:flex-end"><label>&nbsp;</label><button class="btn btn-sm btn-p" type="button" onclick="addWSocial()">+ افزودن</button></div>
+  </div>
+  <div id="wsoc-list"></div>
+</div>
+<div class="card">
+  <div class="card-title">📦 دستگاه‌ها
+    <button class="btn btn-sm btn-p" type="button" onclick="addWDev()" data-tip="افزودن دستگاه دیگر به همین پرونده">+ دستگاه</button>
+  </div>
+  <div id="w-devs"></div>
+</div>
+<div class="card">
+  <div class="card-title">⚙️ وضعیت اولیه خدمات</div>
+  <div class="f"><label>اقدام اولیه *</label>
+    <select id="winit" onchange="onWInitChange()">
+      <option value="">— انتخاب کنید —</option>
+      <option value="activate">فعال‌سازی گارانتی</option>
+      <option value="phone_fix">ارائه مشاوره تلفنی و رفع مشکل</option>
+      <option value="refer_agency">ارجاع به نمایندگی</option>
+      <option value="refer_company">ارجاع به شرکت (ورود به انبار خدمات)</option>
+    </select>
+  </div>
+  <div id="winit-hint" style="font-size:11px;color:var(--amber);margin-top:6px;display:none"></div>
+</div>
+<div id="war-ext-sections">
+<div class="card">
+  <div class="card-title">🔧 شرح مشکل</div>
+  <div class="f" style="margin-bottom:8px"><label>مشکل اعلام‌شده توسط مشتری *</label>
+    <textarea id="wprob" rows="3" placeholder="مشتری چه مشکلی گزارش داده..."></textarea></div>
+  <div class="f"><label>نظر کارشناس</label>
+    <textarea id="wexp2" rows="2" placeholder="نظر اولیه کارشناس..."></textarea></div>
+</div>
+<div class="card">
+  <div class="card-title">📎 اسناد مشتری</div>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">عکس فاکتور، کارت گارانتی یا هر سند دیگه‌ای</p>
+  <button class="btn btn-sm btn-p" onclick="document.getElementById('wdoc-inp').click()">📷 انتخاب عکس/سند</button>
+  <input type="file" id="wdoc-inp" accept="image/*" multiple style="display:none" onchange="addWDocs(this)">
+  <div id="wdocs-prev" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+</div>
+<div class="card">
+  <div class="card-title">📋 ارجاع</div>
+  <div class="g3">
+    <div class="f"><label>ارجاع به</label>
+      <select id="wref" onchange="toggleCompanyReport(this.value)">
+        <option value="agency">نمایندگی مجاز</option>
+        <option value="company">شرکت مرکزی (ارسال)</option>
+        <option value="internal">واحد داخلی</option>
+        <option value="pending">در انتظار بررسی</option>
+      </select>
+    </div>
+    <div class="f"><label>نام نمایندگی/مقصد</label><input id="wrefn" placeholder="نام نمایندگی"></div>
+    <div class="f"><label>تاریخ ارجاع</label><input id="wrefd" placeholder="تاریخ"></div>
+  </div>
+  <div class="f" style="margin-top:8px"><label>توضیحات ارجاع</label>
+    <textarea id="wrefnote" rows="2" placeholder="جزئیات..."></textarea></div>
+  <div style="margin-top:10px">
+    <button class="btn btn-sm btn-p" type="button" onclick="notifyWarrantyReferral()">📩 اطلاع به مشتری (پیامک / واتساپ / کپی)</button>
+    <span style="font-size:11px;color:var(--text2);margin-right:8px">یک پیام آماده با تاریخ و ساعت ارجاع برای مشتری ساخته می‌شود.</span>
+  </div>
+</div>
+
+<!-- گزارش داخلی شرکت — فقط وقتی ارجاع به شرکت مرکزی است نمایان می‌شود -->
+<div id="company-report-section" style="display:none">
+<div class="company-report">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div style="font-size:14px;font-weight:800;color:#1e3a5f">📑 گزارش داخلی شرکت</div>
+    <span class="cr-report-badge">فقط داخلی — ارجاع به شرکت مرکزی</span>
+  </div>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:14px">این بخش پس از تعمیر و کنترل کیفیت توسط واحدهای مربوطه تکمیل و امضاء می‌شود.</p>
+
+  <div class="f" style="margin-bottom:10px">
+    <label>🔧 شرح عملیات انجام‌شده توسط کارشناس تعمیر</label>
+    <textarea id="cr-repair-desc" rows="3" placeholder="توضیح کامل کارهای انجام‌شده، قطعات تعویضی، روش تعمیر..."></textarea>
+  </div>
+  <div class="g3" style="margin-bottom:14px">
+    <div class="f"><label>تاریخ تعمیر</label><input id="cr-repair-date" placeholder="۱۴۰۵/۰۳/۲۹"></div>
+    <div class="f"><label>مدت تعمیر</label><input id="cr-repair-dur" placeholder="مثال: ۲ روز کاری"></div>
