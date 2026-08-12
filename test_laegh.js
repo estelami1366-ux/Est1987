@@ -997,7 +997,7 @@ test('openSaleForm هنگام ویرایش یک فروش قبلی باید docs 
 });
 
 test('شبیه‌سازی واقعی کامل: یک چرخه کامل ثبت فروش با عکس ضمیمه باید عکس را در رکورد نهایی sales[] ذخیره کند', async () => {
-  // از ۱۴۰۵.۵.۲۱ε ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
+  // از ۱۴۰۵.۵.۲۱ζ ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
   const addSrc = extractFunctionSource(html, 'addSaleDocs');
   assertTrue(addSrc !== null, 'تابع addSaleDocs پیدا نشد');
   assertContainsString(addSrc, 'storeDocFileOnDisk', 'addSaleDocs باید روی دیسک بنویسد');
@@ -3875,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱ε باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱ζ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21ε', 'نسخه meta باید 1405.5.21ε باشد');
+  assertEqual(metaVer, '1405.5.21ζ', 'نسخه meta باید 1405.5.21ζ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ε', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ε را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ζ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ζ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21ε'", 'فیلد version بک‌آپ باید 1405.5.21ε باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21ζ'", 'فیلد version بک‌آپ باید 1405.5.21ζ باشد');
 });
 
 
@@ -3951,7 +3951,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
       good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.20ε', minBaseVersion:'1405.5.20ε'}),
-      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21ε'}),
+      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21ζ'}),
       cmp: compareSirmanVersions('1405.5.20ε','1405.5.18ε')
     };
   `);
@@ -4084,7 +4084,7 @@ test('شبیه‌سازی واقعی: summarizeBackupInventory باید بخش�
   assertTrue(!!extractFunctionSource(html, 'summarizeBackupInventory'), 'summarizeBackupInventory پیدا نشد');
   const runner = new Function(src + `;
     return summarizeBackupInventory({
-      version:'1405.5.21ε',
+      version:'1405.5.21ζ',
       invoices:[{id:1},{id:2}],
       phonebook:[{fn:'علی',phones:['0912']}],
       pb:[],
@@ -5148,10 +5148,17 @@ test('توابع چندپنجره باید تعریف شده باشند', () => 
     assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
   });
   const workspace = extractFunctionSource(html, 'renderWinWorkspace');
+  const openSrc = extractFunctionSource(html, 'winOpen');
+  const navSrc = extractFunctionSource(html, 'winNavigate');
+  const mountSrc = extractFunctionSource(html, 'winMountPage');
   const moveIdx = workspace.indexOf('parking.appendChild(page)');
   const rebuildIdx = workspace.indexOf('ws.innerHTML = htmlPanes.join');
   assertTrue(moveIdx >= 0, 'بازسازی میزکار باید صفحه‌های قبلی را موقتاً به parking منتقل کند');
   assertTrue(rebuildIdx > moveIdx, 'انتقال صفحه‌ها باید قبل از innerHTML باشد؛ وگرنه پنجره‌ها خالی می‌شوند');
+  assertContainsString(openSrc, "'«'+winPageTitle", 'پنجره تکراری باید به تب موجود برود، نه DOM آن را جابه‌جا کند');
+  assertContainsString(navSrc, 'در پنجرهٔ دیگر باز است', 'ناوبری به صفحه باز باید تب موجود را فعال کند');
+  assertContainsString(mountSrc, 'return other.id !== wid && other.pageId === pageId', 'winMountPage باید صفحه تکراری را تشخیص دهد');
+  assertContainsString(html, 'id="win-new-page"', 'انتخاب‌گر بخش برای پنجره جدید باید باشد');
   assertContainsString(html, 'id="win-chrome"', 'نوار پنجره باید باشد');
   assertContainsString(html, 'id="win-workspace"', 'میزکار باید باشد');
   assertContainsString(html, 'چندپنجره', 'راهنمای چندپنجره باید باشد');
