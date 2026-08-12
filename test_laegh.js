@@ -997,7 +997,7 @@ test('openSaleForm هنگام ویرایش یک فروش قبلی باید docs 
 });
 
 test('شبیه‌سازی واقعی کامل: یک چرخه کامل ثبت فروش با عکس ضمیمه باید عکس را در رکورد نهایی sales[] ذخیره کند', async () => {
-  // از ۱۴۰۵.۵.۲۱ι ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
+  // از ۱۴۰۵.۵.۲۱κ ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
   const addSrc = extractFunctionSource(html, 'addSaleDocs');
   assertTrue(addSrc !== null, 'تابع addSaleDocs پیدا نشد');
   assertContainsString(addSrc, 'storeDocFileOnDisk', 'addSaleDocs باید روی دیسک بنویسد');
@@ -3875,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱ι باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱κ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21ι', 'نسخه meta باید 1405.5.21ι باشد');
+  assertEqual(metaVer, '1405.5.21κ', 'نسخه meta باید 1405.5.21κ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ι', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ι را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱κ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱κ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21ι'", 'فیلد version بک‌آپ باید 1405.5.21ι باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21κ'", 'فیلد version بک‌آپ باید 1405.5.21κ باشد');
 });
 
 
@@ -3951,7 +3951,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
       good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.20ε', minBaseVersion:'1405.5.20ε'}),
-      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21ι'}),
+      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21κ'}),
       cmp: compareSirmanVersions('1405.5.20ε','1405.5.18ε')
     };
   `);
@@ -4084,7 +4084,7 @@ test('شبیه‌سازی واقعی: summarizeBackupInventory باید بخش�
   assertTrue(!!extractFunctionSource(html, 'summarizeBackupInventory'), 'summarizeBackupInventory پیدا نشد');
   const runner = new Function(src + `;
     return summarizeBackupInventory({
-      version:'1405.5.21ι',
+      version:'1405.5.21κ',
       invoices:[{id:1},{id:2}],
       phonebook:[{fn:'علی',phones:['0912']}],
       pb:[],
@@ -5229,6 +5229,22 @@ test('منوی راست‌کلیک باید برای هر صفحه عمل مفی
   assertEqual(r.help, 'کالا', 'راهنمای مدیریت کالا باید با کلید کالا پیدا شود');
   assertContainsString(menuSrc, 'راهنمای این پنجره', 'منو باید گزینه راهنمای همان پنجره داشته باشد');
   assertContainsString(runSrc, 'openProdModal', 'عمل کالای جدید باید به مودال کالا وصل باشد');
+});
+
+test('میانبرها باید منوی بالایی، عملیات پنجره و راهنمای دقیق بخش را پوشش دهند', () => {
+  const ensureSrc = extractFunctionSource(html, 'ensureWindowManager');
+  const helpSrc = extractFunctionSource(html, 'winOpenContextHelp');
+  const menuSrc = extractFunctionSource(html, 'winContextMenu');
+  assertContainsString(ensureSrc, "code==='KeyN'", 'Alt+N باید انتخاب‌گر پنجره جدید را فعال کند');
+  assertContainsString(ensureSrc, "code==='Enter'", 'Alt+Enter باید پنجره انتخاب‌شده را باز کند');
+  ['Digit[1-9]','KeyB','KeyH','KeyM','KeyX','KeyW'].forEach(key=>{
+    assertContainsString(ensureSrc, key, 'میانبر '+key+' باید ثبت شده باشد');
+  });
+  assertContainsString(menuSrc, 'Alt+W', 'بستن پنجره باید میانبر نمایان داشته باشد');
+  assertContainsString(menuSrc, 'Alt+H', 'راهنما باید میانبر نمایان داشته باشد');
+  assertContainsString(helpSrc, 'help-tree-label', 'راهنما باید دسته درختی مربوط را پیدا کند');
+  assertContainsString(helpSrc, "node.classList.remove('collapsed')", 'راهنمای همان دسته باید دقیقاً باز شود');
+  assertTrue(helpSrc.indexOf("input.value = '';") < helpSrc.indexOf("help-tree-label"), 'قبل از فعال‌سازی دسته، جستجوی کلی باید پاک شود');
 });
 
 
