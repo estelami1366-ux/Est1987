@@ -997,7 +997,7 @@ test('openSaleForm هنگام ویرایش یک فروش قبلی باید docs 
 });
 
 test('شبیه‌سازی واقعی کامل: یک چرخه کامل ثبت فروش با عکس ضمیمه باید عکس را در رکورد نهایی sales[] ذخیره کند', async () => {
-  // از ۱۴۰۵.۵.۲۱η ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
+  // از ۱۴۰۵.۵.۲۱θ ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
   const addSrc = extractFunctionSource(html, 'addSaleDocs');
   assertTrue(addSrc !== null, 'تابع addSaleDocs پیدا نشد');
   assertContainsString(addSrc, 'storeDocFileOnDisk', 'addSaleDocs باید روی دیسک بنویسد');
@@ -3875,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱η باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱θ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21η', 'نسخه meta باید 1405.5.21η باشد');
+  assertEqual(metaVer, '1405.5.21θ', 'نسخه meta باید 1405.5.21θ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱η', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱η را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱θ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱θ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21η'", 'فیلد version بک‌آپ باید 1405.5.21η باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21θ'", 'فیلد version بک‌آپ باید 1405.5.21θ باشد');
 });
 
 
@@ -3951,7 +3951,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
       good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.20ε', minBaseVersion:'1405.5.20ε'}),
-      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21η'}),
+      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21θ'}),
       cmp: compareSirmanVersions('1405.5.20ε','1405.5.18ε')
     };
   `);
@@ -4084,7 +4084,7 @@ test('شبیه‌سازی واقعی: summarizeBackupInventory باید بخش�
   assertTrue(!!extractFunctionSource(html, 'summarizeBackupInventory'), 'summarizeBackupInventory پیدا نشد');
   const runner = new Function(src + `;
     return summarizeBackupInventory({
-      version:'1405.5.21η',
+      version:'1405.5.21θ',
       invoices:[{id:1},{id:2}],
       phonebook:[{fn:'علی',phones:['0912']}],
       pb:[],
@@ -5147,6 +5147,9 @@ test('توابع چندپنجره باید تعریف شده باشند', () => 
   ['ensureWindowManager','winOpen','winClose','winMinimize','winMaximize','winRestore','winBack','winNavigate','winMountPage','renderWinChrome','renderWinWorkspace'].forEach(fn=>{
     assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
   });
+  ['winContextMenu','winContextAction','closeWinContextMenu'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع منوی راست‌کلیک '+fn+' پیدا نشد');
+  });
   const workspace = extractFunctionSource(html, 'renderWinWorkspace');
   const openSrc = extractFunctionSource(html, 'winOpen');
   const navSrc = extractFunctionSource(html, 'winNavigate');
@@ -5159,6 +5162,11 @@ test('توابع چندپنجره باید تعریف شده باشند', () => 
   assertContainsString(navSrc, 'در پنجرهٔ دیگر باز است', 'ناوبری به صفحه باز باید تب موجود را فعال کند');
   assertContainsString(mountSrc, 'return other.id !== wid && other.pageId === pageId', 'winMountPage باید صفحه تکراری را تشخیص دهد');
   assertContainsString(html, 'id="win-new-page"', 'انتخاب‌گر بخش برای پنجره جدید باید باشد');
+  assertContainsString(html, 'oncontextmenu="return winContextMenu', 'راست‌کلیک باید به تب پنجره وصل باشد');
+  const contextSrc = extractFunctionSource(html, 'winContextMenu');
+  assertContainsString(contextSrc, 'بستن پنجره', 'آخرین گزینه منوی راست‌کلیک باید بستن پنجره باشد');
+  assertContainsString(contextSrc, 'بزرگ‌نمایی', 'منوی راست‌کلیک باید بزرگ‌نمایی داشته باشد');
+  assertContainsString(contextSrc, 'کوچک‌سازی', 'منوی راست‌کلیک باید کوچک‌سازی داشته باشد');
   assertContainsString(html, '@media (max-width:640px)', 'پنجره‌ها نباید در عرض معمول ویندوز زیر ۹۰۰ پیکسل روی هم بیفتند');
   const closeSrc = extractFunctionSource(html, 'winClose');
   assertContainsString(closeSrc, "window._winActive = null", 'بستن آخرین پنجره باید میزکار را خالی کند، نه داشبورد را نگه دارد');
