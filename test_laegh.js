@@ -997,7 +997,7 @@ test('openSaleForm هنگام ویرایش یک فروش قبلی باید docs 
 });
 
 test('شبیه‌سازی واقعی کامل: یک چرخه کامل ثبت فروش با عکس ضمیمه باید عکس را در رکورد نهایی sales[] ذخیره کند', async () => {
-  // از ۱۴۰۵.۵.۲۱θ ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
+  // از ۱۴۰۵.۵.۲۱ι ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
   const addSrc = extractFunctionSource(html, 'addSaleDocs');
   assertTrue(addSrc !== null, 'تابع addSaleDocs پیدا نشد');
   assertContainsString(addSrc, 'storeDocFileOnDisk', 'addSaleDocs باید روی دیسک بنویسد');
@@ -3875,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱θ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱ι باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21θ', 'نسخه meta باید 1405.5.21θ باشد');
+  assertEqual(metaVer, '1405.5.21ι', 'نسخه meta باید 1405.5.21ι باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱θ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱θ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ι', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ι را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21θ'", 'فیلد version بک‌آپ باید 1405.5.21θ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21ι'", 'فیلد version بک‌آپ باید 1405.5.21ι باشد');
 });
 
 
@@ -3951,7 +3951,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
       good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.20ε', minBaseVersion:'1405.5.20ε'}),
-      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21θ'}),
+      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21ι'}),
       cmp: compareSirmanVersions('1405.5.20ε','1405.5.18ε')
     };
   `);
@@ -4084,7 +4084,7 @@ test('شبیه‌سازی واقعی: summarizeBackupInventory باید بخش�
   assertTrue(!!extractFunctionSource(html, 'summarizeBackupInventory'), 'summarizeBackupInventory پیدا نشد');
   const runner = new Function(src + `;
     return summarizeBackupInventory({
-      version:'1405.5.21θ',
+      version:'1405.5.21ι',
       invoices:[{id:1},{id:2}],
       phonebook:[{fn:'علی',phones:['0912']}],
       pb:[],
@@ -5204,6 +5204,31 @@ test('اجرای واقعی: تاریخچه پنجره و برگشت باید ک
   assertEqual(r.hist.join(','), 'dashboard,warranty', 'تاریخچه بعد از pop');
   assertTrue(!!r.title, 'عنوان صفحه باید برگردد');
   assertEqual(r.n, 2, '۲ پنجره');
+});
+
+test('منوی راست‌کلیک باید برای هر صفحه عمل مفید و راهنمای مرتبط داشته باشد', () => {
+  const actionsSrc = extractFunctionSource(html, 'winContextPageActions');
+  const helpSrc = extractFunctionSource(html, 'winHelpMeta');
+  const menuSrc = extractFunctionSource(html, 'winContextMenu');
+  const runSrc = extractFunctionSource(html, 'winRunPageAction');
+  assertTrue(!!(actionsSrc && helpSrc && menuSrc && runSrc), 'توابع عملیات/راهنمای منوی پنجره استخراج نشدند');
+  const fn = new Function(actionsSrc + '\n' + helpSrc + `;\n
+    return {
+      product: winContextPageActions('products').map(x=>x.id).join(','),
+      warranty: winContextPageActions('warranty').map(x=>x.id).join(','),
+      sale: winContextPageActions('sales').map(x=>x.id).join(','),
+      help: winHelpMeta('products').q,
+      account: winContextPageActions('accounts').map(x=>x.id).join(',')
+    };
+  `);
+  const r = fn();
+  assertContainsString(r.product, 'product-new', 'مدیریت کالا باید کالای جدید داشته باشد');
+  assertContainsString(r.warranty, 'warranty-new', 'گارانتی باید پرونده جدید داشته باشد');
+  assertContainsString(r.sale, 'sale-new', 'فروش باید فروش جدید داشته باشد');
+  assertContainsString(r.account, 'account-new', 'حساب‌ها باید حساب جدید داشته باشد');
+  assertEqual(r.help, 'کالا', 'راهنمای مدیریت کالا باید با کلید کالا پیدا شود');
+  assertContainsString(menuSrc, 'راهنمای این پنجره', 'منو باید گزینه راهنمای همان پنجره داشته باشد');
+  assertContainsString(runSrc, 'openProdModal', 'عمل کالای جدید باید به مودال کالا وصل باشد');
 });
 
 
