@@ -1,0 +1,27 @@
+بسته نصب سیرمان روی ویندوز
+==========================
+
+مسیر همین پوشه را کامل روی ویندوز کپی کنید.
+
+۱) پیش‌نیاز:
+   - .NET 8 SDK
+   - WebView2 Runtime (معمولاً با Edge هست)
+
+۲) دوبارکلیک:
+   build-win.bat
+   → پوشه publish و Sirman.exe ساخته می‌شود
+   → Uninstall-Sirman.bat هم کنار exe کپی می‌شود
+
+۳) دوبارکلیک:
+   install-sirman.bat
+   → نصب در %LOCALAPPDATA%\Sirman\App
+   → میانبر Start: «سیرمان» و «حذف سیرمان»
+
+۴) اجرا از منوی Start → سیرمان
+
+حذف سالم:
+   Start → سیرمان → حذف سیرمان
+   یا Uninstall-Sirman.bat
+
+جزئیات بیشتر: INSTALL_FA.txt
+نسخه HTML: 1405.5.20ζ
