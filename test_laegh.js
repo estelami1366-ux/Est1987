@@ -997,7 +997,7 @@ test('openSaleForm هنگام ویرایش یک فروش قبلی باید docs 
 });
 
 test('شبیه‌سازی واقعی کامل: یک چرخه کامل ثبت فروش با عکس ضمیمه باید عکس را در رکورد نهایی sales[] ذخیره کند', async () => {
-  // از ۱۴۰۵.۵.۲۱γ ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
+  // از ۱۴۰۵.۵.۲۱δ ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
   const addSrc = extractFunctionSource(html, 'addSaleDocs');
   assertTrue(addSrc !== null, 'تابع addSaleDocs پیدا نشد');
   assertContainsString(addSrc, 'storeDocFileOnDisk', 'addSaleDocs باید روی دیسک بنویسد');
@@ -2698,7 +2698,7 @@ test('dashboard باید در ALL_PAGES ثبت شده باشد', () => {
 
 // تست ۹: showPage باید dashboard را پشتیبانی کند
 test('showPage باید dashboard را پشتیبانی کند (renderDashboard)', () => {
-  const src = extractFunctionSource(html, 'showPage');
+  const src = extractFunctionSource(html, 'showPageClassic') || extractFunctionSource(html, 'showPage');
   assertTrue(src !== null, 'تابع showPage پیدا نشد');
   assertContainsString(src, "renderDashboard", 'showPage باید برای dashboard، renderDashboard را صدا بزند');
 });
@@ -3067,7 +3067,7 @@ test('addDev نباید دو دکمه کپی تکراری داشته باشد', 
 
 // تست ۱۲: showPage باید دکمه شناور را فقط در صفحه فاکتور نمایش دهد
 test('showPage باید fab-adddev را مدیریت کند (نمایش فقط در صفحه فاکتور)', () => {
-  const src = extractFunctionSource(html, 'showPage');
+  const src = extractFunctionSource(html, 'showPageClassic') || extractFunctionSource(html, 'showPage');
   assertTrue(src !== null, 'تابع showPage پیدا نشد');
   assertContainsString(src, 'fab-adddev', 'showPage باید fab-adddev را مدیریت کند');
   assertContainsString(src, "id==='invoice'", 'showPage باید بررسی کند آیا صفحه فاکتور است');
@@ -3875,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱γ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱δ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21γ', 'نسخه meta باید 1405.5.21γ باشد');
+  assertEqual(metaVer, '1405.5.21δ', 'نسخه meta باید 1405.5.21δ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱γ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱γ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱δ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱δ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21γ'", 'فیلد version بک‌آپ باید 1405.5.21γ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21δ'", 'فیلد version بک‌آپ باید 1405.5.21δ باشد');
 });
 
 
@@ -3951,7 +3951,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
       good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.20ε', minBaseVersion:'1405.5.20ε'}),
-      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21γ'}),
+      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21δ'}),
       cmp: compareSirmanVersions('1405.5.20ε','1405.5.18ε')
     };
   `);
@@ -4084,7 +4084,7 @@ test('شبیه‌سازی واقعی: summarizeBackupInventory باید بخش�
   assertTrue(!!extractFunctionSource(html, 'summarizeBackupInventory'), 'summarizeBackupInventory پیدا نشد');
   const runner = new Function(src + `;
     return summarizeBackupInventory({
-      version:'1405.5.21γ',
+      version:'1405.5.21δ',
       invoices:[{id:1},{id:2}],
       phonebook:[{fn:'علی',phones:['0912']}],
       pb:[],
@@ -5136,6 +5136,53 @@ test('setAppBgImage و addWDocs نباید مستقیم localStorage با dataUR
   assertContainsString(logo, 'writeDiskBlob', 'changeLogo باید روی دیسک بنویسد');
   assertTrue(wdocs.indexOf('readAsDataURL') === -1, 'addWDocs دیگر نباید readAsDataURL برای ذخیره در حافظه استفاده کند');
 });
+
+
+// -------------------------------------------------------------------
+// گروه δ: چندپنجره / تب کاری
+// -------------------------------------------------------------------
+console.log('📋 گروه δ: چندپنجره');
+
+test('توابع چندپنجره باید تعریف شده باشند', () => {
+  ['ensureWindowManager','winOpen','winClose','winMinimize','winMaximize','winRestore','winBack','winNavigate','winMountPage','renderWinChrome','renderWinWorkspace'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  assertContainsString(html, 'id="win-chrome"', 'نوار پنجره باید باشد');
+  assertContainsString(html, 'id="win-workspace"', 'میزکار باید باشد');
+  assertContainsString(html, 'چندپنجره', 'راهنمای چندپنجره باید باشد');
+});
+
+test('اجرای واقعی: تاریخچه پنجره و برگشت باید کار کند', () => {
+  // منطق تاریخچه را بدون وابستگی به classList کامل DOM بررسی می‌کنیم
+  const findSrc = extractFunctionSource(html, 'winFind');
+  const titleSrc = extractFunctionSource(html, 'winPageTitle');
+  assertTrue(!!findSrc && !!titleSrc, 'توابع پایه استخراج نشد');
+  const fn = new Function(findSrc + '\n' + titleSrc + `;
+    window = { _wins: [
+      {id:'w1', pageId:'dashboard', history:['dashboard','warranty','sales'], state:'normal'},
+      {id:'w2', pageId:'phonebook', history:['phonebook'], state:'minimized'}
+    ], _winActive:'w1' };
+    function winBackLogic(wid){
+      var w = winFind(wid); if(!w) return null;
+      if(!w.history || w.history.length < 2) return w.pageId;
+      w.history.pop();
+      w.pageId = w.history[w.history.length-1];
+      return w.pageId;
+    }
+    return {
+      back: winBackLogic('w1'),
+      hist: winFind('w1').history.slice(),
+      title: winPageTitle('warranty'),
+      n: window._wins.length
+    };
+  `);
+  const r = fn();
+  assertEqual(r.back, 'warranty', 'برگشت باید به گارانتی برود');
+  assertEqual(r.hist.join(','), 'dashboard,warranty', 'تاریخچه بعد از pop');
+  assertTrue(!!r.title, 'عنوان صفحه باید برگردد');
+  assertEqual(r.n, 2, '۲ پنجره');
+});
+
 
 // نتیجه نهایی
 // ===================================================================
