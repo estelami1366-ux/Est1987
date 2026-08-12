@@ -996,31 +996,51 @@ test('openSaleForm هنگام ویرایش یک فروش قبلی باید docs 
   assertContainsString(fnSrc, 's.docs', 'هنگام ویرایش، باید فیلد docs رکورد فروش موجود را بخواند و در saleDocs قرار دهد');
 });
 
-test('شبیه‌سازی واقعی کامل: یک چرخه کامل ثبت فروش با عکس ضمیمه باید عکس را در رکورد نهایی sales[] ذخیره کند', () => {
-  // اجرای واقعی addSaleDocs با FileReader شبیه‌سازی‌شده، سپس بررسی نتیجه در getSaleData
+test('شبیه‌سازی واقعی کامل: یک چرخه کامل ثبت فروش با عکس ضمیمه باید عکس را در رکورد نهایی sales[] ذخیره کند', async () => {
+  // از ۱۴۰۵.۵.۲۱γ ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
   const addSrc = extractFunctionSource(html, 'addSaleDocs');
-  const getSrc = extractFunctionSource(html, 'getSaleData');
-  assertTrue(addSrc !== null && getSrc !== null, 'توابع لازم پیدا نشدند');
+  assertTrue(addSrc !== null, 'تابع addSaleDocs پیدا نشد');
+  assertContainsString(addSrc, 'storeDocFileOnDisk', 'addSaleDocs باید روی دیسک بنویسد');
 
-  // محیط شبیه‌سازی‌شده شامل saleDocs، FileReader ساختگی، و عناصر DOM لازم برای getSaleData
   let saleDocs = [];
-  const fakeFile = { name: 'invoice.jpg' };
-  class FakeFileReader {
-    readAsDataURL(file) {
-      this.result = 'data:image/jpeg;base64,FAKE';
-      if (this.onload) this.onload({ target: { result: this.result } });
-    }
-  }
+  const fakeFile = { name: 'invoice.jpg', type: 'image/jpeg' };
   const fakeInput = { files: [fakeFile], value: '' };
-  const renderSaleDocs = () => {}; // فقط برای جلوگیری از خطا، رندر واقعی DOM لازم نیست
-
-  const runnerAdd = new Function('saleDocs', 'FileReader', 'renderSaleDocs',
-    addSrc + '\naddSaleDocs(arguments[3]); return saleDocs;');
-  saleDocs = runnerAdd(saleDocs, FakeFileReader, renderSaleDocs, fakeInput);
-
-  assertArrayLength(saleDocs, 1, 'بعد از اجرای واقعی addSaleDocs با یک فایل، آرایه saleDocs باید دقیقاً ۱ آیتم داشته باشد');
-  assertEqual(saleDocs[0].name, 'invoice.jpg', 'نام فایل ضمیمه باید درست ذخیره شده باشد');
-  assertTrue(saleDocs[0].data.indexOf('data:image') === 0, 'محتوای فایل باید به‌صورت data URL ذخیره شده باشد');
+  const written = [];
+  const ctx = {
+    saleDocs,
+    ntf(){},
+    markDirty(){},
+    renderSaleDocs(){},
+    requireDiskOrAbort: async () => true,
+    storeDocFileOnDisk: async (file, prefix) => {
+      written.push({name:file.name, prefix});
+      return 'disk://sirman_media/docs/' + prefix + '_invoice.jpg';
+    },
+    hydrateDocList: async (arr) => {
+      arr.forEach(d => { d._blobUrl = 'blob:mock'; });
+      return arr;
+    }
+  };
+  const runner = new Function('ctx',
+    'return (async function(){ with(ctx){ ' + addSrc + '\n await new Promise(function(r){ addSaleDocs(fakeInput); setTimeout(r, 30); }); return saleDocs; } })();'
+    .replace('fakeInput', 'arguments[1]')
+  );
+  // cleaner runner:
+  const runner2 = new Function('ctx', 'inp', `
+    return (async function(){
+      with(ctx){
+        ${addSrc}
+        addSaleDocs(inp);
+        await new Promise(function(r){ setTimeout(r, 40); });
+        return saleDocs;
+      }
+    })();
+  `);
+  saleDocs = await runner2(ctx, fakeInput);
+  assertArrayLength(saleDocs, 1, 'بعد از addSaleDocs باید ۱ ضمیمه باشد');
+  assertEqual(saleDocs[0].name, 'invoice.jpg', 'نام فایل ضمیمه باید درست باشد');
+  assertTrue(String(saleDocs[0].data).indexOf('disk://') === 0, 'ضمیمه باید ارجاع disk:// روی هارد باشد نه dataURL حافظه');
+  assertEqual(written.length, 1, 'باید یک‌بار روی دیسک نوشته شده باشد');
 });
 
 console.log('');
@@ -3855,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱β باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱γ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21β', 'نسخه meta باید 1405.5.21β باشد');
+  assertEqual(metaVer, '1405.5.21γ', 'نسخه meta باید 1405.5.21γ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱β', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱β را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱γ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱γ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21β'", 'فیلد version بک‌آپ باید 1405.5.21β باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21γ'", 'فیلد version بک‌آپ باید 1405.5.21γ باشد');
 });
 
 
@@ -3931,7 +3951,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
       good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.20ε', minBaseVersion:'1405.5.20ε'}),
-      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21β'}),
+      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21γ'}),
       cmp: compareSirmanVersions('1405.5.20ε','1405.5.18ε')
     };
   `);
@@ -4064,7 +4084,7 @@ test('شبیه‌سازی واقعی: summarizeBackupInventory باید بخش�
   assertTrue(!!extractFunctionSource(html, 'summarizeBackupInventory'), 'summarizeBackupInventory پیدا نشد');
   const runner = new Function(src + `;
     return summarizeBackupInventory({
-      version:'1405.5.21β',
+      version:'1405.5.21γ',
       invoices:[{id:1},{id:2}],
       phonebook:[{fn:'علی',phones:['0912']}],
       pb:[],
@@ -4777,7 +4797,7 @@ test('resolveDocArray باید wDocs/saleDocs را از let پیدا کند نه
   assertContainsString(named, 'resolveDocArray', 'openDocViewerNamed باید resolveDocArray را صدا بزند');
 });
 
-test('شبیه‌سازی: openDocViewerNamed با آرایه let باید viewer را باز کند', () => {
+test('شبیه‌سازی: openDocViewerNamed با آرایه let باید viewer را باز کند', async () => {
   const resolveSrc = extractFunctionSource(html, 'resolveDocArray');
   const namedSrc = extractFunctionSource(html, 'openDocViewerNamed');
   const openSrc = extractFunctionSource(html, 'openDocViewer');
@@ -4792,16 +4812,18 @@ test('شبیه‌سازی: openDocViewerNamed با آرایه let باید viewe
   };
   const wDocs = [{data:'data:image/png;base64,XX', name:'تست'}];
   const fakeDoc = { getElementById(id){ return els[id]||null; } };
-  const ctx = { document: fakeDoc, window: { _dvDocs:[], _dvIdx:0, _dvZoom:1, _dvRotate:0 }, wDocs, saleDocs: [], ntf(){} };
+  const win = { _dvDocs:[], _dvIdx:0, _dvZoom:1, _dvRotate:0, DISK_REF_PREFIX:'disk://', _diskUrlCache:{} };
+  const isDiskRefSrc = extractFunctionSource(html, 'isDiskRef') || 'function isDiskRef(){return false;}';
+  const resolveDiskSrc = extractFunctionSource(html, 'resolveDiskRef') || 'async function resolveDiskRef(r){return r;}';
   // eslint-disable-next-line no-new-func
   const fn = new Function('document','window','wDocs','saleDocs','ntf',
+    isDiskRefSrc + '\n' + resolveDiskSrc + '\n' +
     resolveSrc + '\n' + openSrc + '\n' + showSrc + '\n' + applySrc + '\n' + namedSrc + '\n' +
     'return {openDocViewerNamed, openDocViewer};'
   );
-  const api = fn(ctx.document, ctx.window, ctx.wDocs, ctx.saleDocs, ctx.ntf);
-  // bind window refs used inside functions
-  ctx.window._dvDocs = [];
+  const api = fn(fakeDoc, win, wDocs, [], function(){});
   api.openDocViewerNamed('wDocs', 0);
+  await new Promise(r => setTimeout(r, 40));
   assertEqual(els['dv-img'].src, 'data:image/png;base64,XX', 'عکس باید در viewer ست شود');
   assertTrue(els['doc-viewer'].classList._open === true || els['doc-viewer'].style.display === 'flex', 'مودال viewer باید باز شود');
 });
@@ -5051,6 +5073,68 @@ test('اسکین ویندوز باید در SKIN_PRESETS و CSS باشد', () =>
   const src = extractFunctionSource(html, 'setSkin');
   assertContainsString(src, "preferMenu", 'setSkin باید preferMenu را اعمال کند');
   assertContainsString(html, 'اسکین ویندوز', 'راهنمای اسکین ویندوز');
+});
+
+// -------------------------------------------------------------------
+// گروه γ: رسانه روی هارد (نه localStorage)
+// -------------------------------------------------------------------
+console.log('📋 گروه γ: ذخیره رسانه روی هارد');
+
+test('توابع دیسک‌مدیا باید تعریف شده باشند و dataURL سنگین را رد کنند', () => {
+  ['isDiskRef','writeDiskBlob','storeBgOnDisk','requireDiskOrAbort','migrateAllHeavyMediaToDisk','mediaUrl','docThumbSrc'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  const safeSrc = extractFunctionSource(html, '_safeSetItem');
+  assertContainsString(safeSrc, 'isHeavyDataUrl', '_safeSetItem باید dataURL سنگین را رد کند');
+  assertContainsString(html, 'sirman_media', 'پوشه sirman_media باید ذکر شده باشد');
+  assertContainsString(html, 'عکس و ضمیمه روی هارد', 'راهنما باید ذخیره روی هارد را توضیح دهد');
+});
+
+test('اجرای واقعی: isDiskRef / isHeavyDataUrl / mediaUrl', () => {
+  const src =
+    extractFunctionSource(html, 'isDiskRef') + '\n' +
+    extractFunctionSource(html, 'diskRefPath') + '\n' +
+    extractFunctionSource(html, 'isHeavyDataUrl') + '\n' +
+    extractFunctionSource(html, 'mediaUrl') + '\n' +
+    extractFunctionSource(html, 'mediaExtFromMimeOrName') + '\n' +
+    extractFunctionSource(html, 'mediaSafeFileName') + '\n' +
+    'window = { DISK_REF_PREFIX:"disk://", _diskUrlCache:{"disk://sirman_media/bg_app.jpg":"blob:mock"} };\n' +
+    'function safeFsFileName(n){ return String(n||"f").replace(/[^a-zA-Z0-9._-]/g,"_"); }\n';
+  const fn = new Function(src + `;
+    return {
+      ref: isDiskRef('disk://sirman_media/a.jpg'),
+      not: isDiskRef('data:image/jpeg;base64,xx'),
+      heavy: isHeavyDataUrl('data:image/jpeg;base64,' + 'A'.repeat(900)),
+      light: isHeavyDataUrl('disk://x'),
+      url: mediaUrl('disk://sirman_media/bg_app.jpg'),
+      path: diskRefPath('disk://sirman_media/a.jpg'),
+      ext: mediaExtFromMimeOrName('image/png', 'x.PNG'),
+      name: mediaSafeFileName('گزارش.pdf', 'application/pdf')
+    };
+  `);
+  const r = fn();
+  assertTrue(r.ref === true, 'disk:// باید isDiskRef باشد');
+  assertTrue(r.not === false, 'dataURL نباید isDiskRef باشد');
+  assertTrue(r.heavy === true, 'dataURL بلند باید heavy باشد');
+  assertTrue(r.light === false, 'disk ref نباید heavy باشد');
+  assertEqual(r.url, 'blob:mock', 'mediaUrl باید از کش بخواند');
+  assertEqual(r.path, 'sirman_media/a.jpg', 'diskRefPath');
+  assertEqual(r.ext, '.png', 'پسوند png');
+  assertTrue(String(r.name).toLowerCase().indexOf('.pdf') >= 0, 'نام امن باید pdf داشته باشد');
+});
+
+test('setAppBgImage و addWDocs نباید مستقیم localStorage با dataURL پر کنند', () => {
+  const app = extractFunctionSource(html, 'setAppBgImage');
+  const cover = extractFunctionSource(html, '_setCoverBg');
+  const wdocs = extractFunctionSource(html, 'addWDocs');
+  const sales = extractFunctionSource(html, 'addSaleDocs');
+  const logo = extractFunctionSource(html, 'changeLogo');
+  assertContainsString(app, 'storeBgOnDisk', 'setAppBgImage باید storeBgOnDisk را صدا بزند');
+  assertContainsString(cover, 'storeBgOnDisk', '_setCoverBg باید storeBgOnDisk را صدا بزند');
+  assertContainsString(wdocs, 'storeDocFileOnDisk', 'addWDocs باید روی دیسک بنویسد');
+  assertContainsString(sales, 'storeDocFileOnDisk', 'addSaleDocs باید روی دیسک بنویسد');
+  assertContainsString(logo, 'writeDiskBlob', 'changeLogo باید روی دیسک بنویسد');
+  assertTrue(wdocs.indexOf('readAsDataURL') === -1, 'addWDocs دیگر نباید readAsDataURL برای ذخیره در حافظه استفاده کند');
 });
 
 // نتیجه نهایی
