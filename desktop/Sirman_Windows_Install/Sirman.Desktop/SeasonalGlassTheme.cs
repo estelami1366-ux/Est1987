@@ -42,9 +42,14 @@ public static class SeasonalGlassTheme
 .war-browse-mode.active{background:rgba(255,255,255,.72);box-shadow:0 4px 14px rgba(15,40,55,.12);color:var(--blue2)}
 .war-browse-crumb{font-size:12px;color:var(--text2);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .war-browse-crumb button{border:0;background:transparent;color:var(--blue2);font-weight:800;cursor:pointer;font-family:var(--font);font-size:12px}
-.war-browse-years{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:980px}
-.war-year-chip{border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.42);border-radius:999px;padding:6px 12px;font-family:var(--font);font-size:12px;font-weight:800;cursor:pointer;color:var(--text)}
-.war-year-chip.active{background:rgba(255,255,255,.88);box-shadow:0 4px 14px rgba(15,40,55,.12);color:var(--blue2)}
+.war-year-dd{position:relative;z-index:30}
+.war-year-dd-btn{min-width:148px;padding:8px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.58);background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.40));box-shadow:0 8px 22px rgba(15,40,55,.10), inset 0 1px 0 rgba(255,255,255,.85);font-family:var(--font);font-size:12px;font-weight:800;color:var(--text);display:inline-flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer}
+.war-year-dd-btn:hover{box-shadow:0 10px 24px rgba(15,40,55,.14), inset 0 1px 0 rgba(255,255,255,.95)}
+.war-year-dd-chev{opacity:.7;font-size:11px}
+.war-year-dd.open .war-year-dd-chev{transform:rotate(180deg)}
+.war-year-dd-menu{position:fixed;z-index:1200;min-width:148px;max-height:260px;overflow:auto;padding:6px;border-radius:14px;border:1px solid rgba(255,255,255,.62);background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(248,252,255,.92));box-shadow:0 18px 40px rgba(20,40,70,.20);direction:rtl}
+.war-year-dd-item{display:block;width:100%;text-align:right;border:0;background:transparent;padding:8px 10px;border-radius:10px;font-family:var(--font);font-size:12px;font-weight:700;color:var(--text);cursor:pointer}
+.war-year-dd-item:hover,.war-year-dd-item.active{background:rgba(11,79,108,.10);color:var(--blue2)}
 #war-browse-year{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 #war-browse-gallery{display:none;gap:18px;justify-content:center;align-items:stretch;margin:18px auto 8px;max-width:980px;padding:8px 4px 24px}
 #war-browse-gallery.war-gallery-season{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr))}
@@ -65,7 +70,9 @@ public static class SeasonalGlassTheme
 .war-glass-card.season-summer{background-image:radial-gradient(circle at 80% 12%, rgba(253,224,71,.8) 0 28px, transparent 29px),radial-gradient(circle at 18% 82%, rgba(251,146,60,.35) 0 22px, transparent 23px),linear-gradient(160deg, rgba(255,247,237,.5), rgba(253,230,138,.4));box-shadow:0 18px 40px rgba(245,158,11,.18), inset 0 1px 0 rgba(255,255,255,.7)}
 .war-glass-card.season-autumn{background-image:radial-gradient(circle at 20% 20%, rgba(251,146,60,.55) 0 14px, transparent 15px),radial-gradient(circle at 72% 30%, rgba(220,38,38,.28) 0 18px, transparent 19px),radial-gradient(circle at 40% 80%, rgba(180,83,9,.28) 0 20px, transparent 21px),linear-gradient(150deg, rgba(255,247,237,.5), rgba(253,186,116,.42));box-shadow:0 18px 40px rgba(234,88,12,.18), inset 0 1px 0 rgba(255,255,255,.7)}
 .war-glass-card.season-winter{background-image:radial-gradient(circle at 16% 16%, rgba(255,255,255,.9) 0 6px, transparent 7px),radial-gradient(circle at 70% 22%, rgba(255,255,255,.75) 0 5px, transparent 6px),radial-gradient(circle at 40% 70%, rgba(191,219,254,.7) 0 10px, transparent 11px),linear-gradient(160deg, rgba(239,246,255,.55), rgba(224,231,255,.42));box-shadow:0 18px 40px rgba(59,130,246,.16), inset 0 1px 0 rgba(255,255,255,.8)}
-body.theme-dark .war-browse-modes,body.theme-dark .war-glass-card{color:#e8eef5;border-color:rgba(255,255,255,.16)}
+body.theme-dark .war-browse-modes,body.theme-dark .war-glass-card,body.theme-dark .war-year-dd-btn,body.theme-dark .war-year-dd-menu{color:#e8eef5;border-color:rgba(255,255,255,.16)}
+body.theme-dark .war-year-dd-btn,body.theme-dark .war-year-dd-menu{background:linear-gradient(180deg,rgba(30,48,64,.94),rgba(18,32,44,.90))}
+body.theme-dark .war-year-dd-item:hover,body.theme-dark .war-year-dd-item.active{background:rgba(96,205,255,.16);color:#fff}
 body.theme-dark .war-browse-mode.active{background:rgba(30,48,64,.72);color:#fff}
 body.theme-dark .war-glass-count{background:rgba(8,16,28,.35);color:#e8eef5}
 """;

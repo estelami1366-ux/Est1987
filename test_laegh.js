@@ -3875,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱υ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱φ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21υ', 'نسخه meta باید 1405.5.21υ باشد');
+  assertEqual(metaVer, '1405.5.21φ', 'نسخه meta باید 1405.5.21φ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱υ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱υ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱φ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱φ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21υ'", 'فیلد version بک‌آپ باید 1405.5.21υ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21φ'", 'فیلد version بک‌آپ باید 1405.5.21φ باشد');
 });
 
 
@@ -5351,12 +5351,13 @@ test('داشبورد باید فهرست وظایف سررسیدگذشته را 
 });
 
 test('مرور گارانتی باید سه نمای فصلی/ماهیانه/لیستی و کارت شیشه‌ای داشته باشد', () => {
-  ['warLatinDigits','warJalaliParts','warSeasonOfMonth','warBrowseMatches','defaultWarBrowseCatalog','setWarBrowseMode','setWarBrowseYear','renderWarBrowseGallery','openWarBrowseSeason','openWarBrowseMonth'].forEach(fn=>{
+  ['warLatinDigits','warJalaliParts','warSeasonOfMonth','warBrowseMatches','defaultWarBrowseCatalog','setWarBrowseMode','setWarBrowseYear','toggleWarYearDropdown','renderWarBrowseGallery','openWarBrowseSeason','openWarBrowseMonth'].forEach(fn=>{
     assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
   });
   assertContainsString(html, 'id="war-browse-gallery"', 'گالری فصل/ماه لازم است');
-  assertContainsString(html, 'id="war-browse-years"', 'لیست سال‌ها باید دکمه باشد نه فقط select');
-  assertContainsString(html, "setWarBrowseYear(0)", 'دکمه همه سال‌ها باید لیست را باز کند');
+  assertContainsString(html, 'id="war-year-dd"', 'کشویی سال باید دیده شود');
+  assertContainsString(html, 'function toggleWarYearDropdown(', 'کشویی سال باید باز و بسته شود');
+  assertContainsString(html, "setWarBrowseYear(0)", 'گزینه همه سال‌ها باید لیست را باز کند');
   assertContainsString(html, "setWarBrowseMode('season')", 'دکمه نمای فصلی لازم است');
   assertContainsString(html, "setWarBrowseMode('month')", 'دکمه نمای ماهیانه لازم است');
   assertContainsString(html, "setWarBrowseMode('list')", 'دکمه نمای لیستی لازم است');
@@ -5428,7 +5429,7 @@ test('فیلتر فصل و ماه گارانتی باید تاریخ شمسی ف
   assertEqual(r.allYears.join(','), 'A,B,C,D', 'همه سال‌ها باید همه پرونده‌ها را نشان دهد');
 });
 
-test('دکمه همه سال‌ها باید از نمای فصلی به لیست کامل برگردد', () => {
+test('کشویی همه سال‌ها باید از نمای فصلی به لیست کامل برگردد', () => {
   const src = [
     extractFunctionSource(html, 'ensureWarBrowseState'),
     extractFunctionSource(html, 'setWarBrowseYear')
@@ -5457,7 +5458,7 @@ test('پوسته دات‌نت باید همان کاتالوگ شیشه‌ای 
   const host = fs.readFileSync(hostPath, 'utf8');
   assertContainsString(host, 'GetWarrantyBrowseCatalog', 'میزبان باید کاتالوگ فصل را بدهد');
   assertContainsString(host, 'GetWarrantyBrowseCss', 'میزبان باید CSS شیشه‌ای را بدهد');
-  ['بهار','تابستان','پاییز','زمستان','فروردین','اسفند','backdrop-filter','war-glass-card','war-year-chip'].forEach(tok=>{
+  ['بهار','تابستان','پاییز','زمستان','فروردین','اسفند','backdrop-filter','war-glass-card','war-year-dd'].forEach(tok=>{
     assertContainsString(cs, tok, 'پوسته دات‌نت باید '+tok+' داشته باشد');
   });
   const catSrc = extractFunctionSource(html, 'defaultWarBrowseCatalog');
