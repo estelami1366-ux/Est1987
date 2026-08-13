@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22η">
+<meta name="app-version" content="1405.5.22θ">
 <meta name="app-date" content="1405/05/22">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -912,6 +912,25 @@ body.sirman-app-frame .topbar{padding-left:56px}
 .ai-model-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
 .ai-input-row{display:flex;gap:6px;}
 .ai-input-row input{flex:1;}
+.ai-float{position:fixed;bottom:88px;left:22px;z-index:8500;background:var(--blue);color:#fff;border:none;border-radius:50px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(24,95,165,.35);font-family:var(--font);display:inline-flex;align-items:center;gap:6px;}
+.ai-float:hover{background:var(--blue2);}
+.ai-float .ai-dot{width:8px;height:8px;border-radius:50%;background:#fbbf24;display:inline-block;}
+.ai-float.ready .ai-dot{background:#4ade80;}
+body.sb-dock .ai-float{bottom:170px;}
+.ai-dock{position:fixed;left:18px;bottom:140px;width:min(420px,calc(100vw - 36px));max-height:min(72vh,640px);z-index:8600;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 18px 50px rgba(15,40,55,.22);display:none;flex-direction:column;overflow:hidden;font-family:var(--font);direction:rtl;}
+.ai-dock.open{display:flex;}
+.ai-dock-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:var(--blue-l);border-bottom:1px solid var(--border);}
+.ai-dock-h b{font-size:13px;color:var(--blue2);}
+.ai-dock-body{padding:10px 12px 12px;display:flex;flex-direction:column;min-height:0;}
+.ai-dock .ai-chat-box{min-height:180px;max-height:280px;flex:1;}
+.ai-status{font-size:12px;padding:8px 10px;border-radius:8px;margin-bottom:10px;line-height:1.7;}
+.ai-status.off{background:var(--amber-l);color:var(--amber);}
+.ai-status.on{background:var(--green-l);color:var(--green);}
+.ai-purpose-bar{display:flex;gap:6px;margin:8px 0;}
+.ai-purpose-btn{flex:1;padding:7px 8px;border-radius:8px;font-size:12px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;}
+.ai-purpose-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+#ai-custom-fields{margin-bottom:10px;}
+@media print{.ai-float,.ai-dock{display:none!important;}}
 /* SETTINGS TABS */
 .stg-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:18px;overflow-x:auto;}
 .stg-tab{padding:10px 18px;font-size:13px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:.15s;}
@@ -921,7 +940,7 @@ body.sirman-app-frame .topbar{padding-left:56px}
 .stg-panel.active{display:block;}
 /* PRINT SETTINGS */
 .print-section-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;}
-/* ══════ مرکز پرینت / Print Center (v1405.5.22η) ══════ */
+/* ══════ مرکز پرینت / Print Center (v1405.5.22θ) ══════ */
 .pc-shell{display:grid;grid-template-columns:210px minmax(0,1fr) 300px;gap:12px;min-height:540px;align-items:stretch;}
 .pc-col{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 24px rgba(15,40,55,.06);display:flex;flex-direction:column;min-width:0;overflow:hidden;}
 .pc-col-h{padding:12px 14px;font-size:12px;font-weight:800;letter-spacing:.02em;color:var(--blue2);background:linear-gradient(180deg,color-mix(in srgb,var(--blue-l) 70%,#fff),transparent);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -1048,7 +1067,7 @@ body.has-bg-image::after{
 }
 body.has-bg-image.theme-dark::after{background:rgba(10,12,15,var(--bg-overlay,0.55));}
 
-/* ══════ اسکین قوی / Skin Pack (v1405.5.22η) ══════ */
+/* ══════ اسکین قوی / Skin Pack (v1405.5.22θ) ══════ */
 .skin-card{width:148px;border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--card);transition:.18s;text-align:right;}
 .skin-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,40,55,.10);}
 .skin-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 25%,transparent);}
@@ -1591,7 +1610,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 
 </style>
 <style id="win-manager-css">
-/* ══════ چندپنجره / تب‌های کاری (v1405.5.22η) ══════ */
+/* ══════ چندپنجره / تب‌های کاری (v1405.5.22θ) ══════ */
 #win-chrome{
   position:sticky; top:0; z-index:60;
   display:flex; flex-wrap:wrap; align-items:center; gap:6px;
@@ -1909,6 +1928,42 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 <div class="notif-c" id="nc"></div>
 <div id="autosave-dot" title="ذخیره خودکار" aria-hidden="true"></div>
+<button type="button" class="ai-float" id="btn-ai-float" onclick="toggleAiDock()" title="دستیار هوشمند — Ctrl+Shift+A"><span class="ai-dot" id="ai-float-dot"></span>🤖 دستیار</button>
+<div id="ai-dock" class="ai-dock" role="dialog" aria-label="دستیار هوشمند سیرمان">
+  <div class="ai-dock-h">
+    <b>🤖 دستیار سیرمان</b>
+    <span style="display:flex;gap:6px;align-items:center">
+      <button type="button" class="btn btn-sm" onclick="openAiSettings()">تنظیمات</button>
+      <button type="button" class="btn btn-sm" onclick="closeAiDock()">بستن</button>
+    </span>
+  </div>
+  <div class="ai-dock-body">
+    <div id="ai-dock-status" class="ai-status off">دستیار داخلی رایگان فعال است. برای ایجنت پولی، کلید را در تنظیمات بگذارید.</div>
+    <div class="ai-purpose-bar">
+      <button type="button" class="ai-purpose-btn active" data-ai-purpose="help" onclick="setAiPurpose('help',this)">❓ راهنمای نرم‌افزار</button>
+      <button type="button" class="ai-purpose-btn" data-ai-purpose="work" onclick="setAiPurpose('work',this)">🛠 کمک در کار</button>
+    </div>
+    <div class="ai-chat-box" id="ai-chat-box">
+      <div class="ai-msg bot">سلام. من دستیار سیرمان هستم. می‌توانم نحوه استفاده از نرم‌افزار را بگویم، یا در کار روزمره (فاکتور، گارانتی، انبار، بک‌آپ) راهنمایی کنم. داده شما را خودم عوض نمی‌کنم.</div>
+    </div>
+    <div class="ai-input-row">
+      <input type="text" id="ai-input" placeholder="سوال خود را بنویسید..." onkeydown="if(event.key==='Enter')sendAiMsg()">
+      <button class="btn btn-p" type="button" onclick="sendAiMsg()">ارسال</button>
+    </div>
+    <div id="ai-quick-help" style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-sm btn-o" type="button" onclick="aiQuickQ('چطور برنامه را قفل کنم؟')">🔒 قفل</button>
+      <button class="btn btn-sm btn-o" type="button" onclick="aiQuickQ('راهنمایی برای بک‌اپ گیری')">💾 بک‌آپ</button>
+      <button class="btn btn-sm btn-o" type="button" onclick="aiQuickQ('چطور از اکسل اطلاعات وارد کنم؟')">📥 اکسل</button>
+      <button class="btn btn-sm btn-o" type="button" onclick="aiQuickQ('دستیار را چطور فعال کنم؟')">🤖 فعال‌سازی</button>
+    </div>
+    <div id="ai-quick-work" style="margin-top:8px;display:none;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-sm btn-o" type="button" onclick="aiQuickQ('الان در این صفحه چه کار باید بکنم؟')">📍 همین صفحه</button>
+      <button class="btn btn-sm btn-o" type="button" onclick="aiQuickQ('وضعیت کلی نرم‌افزار چطوره؟')">📊 وضعیت</button>
+      <button class="btn btn-sm btn-o" type="button" onclick="aiQuickQ('یک پرونده گارانتی را چطور ثبت کنم؟')">🛡 گارانتی</button>
+      <button class="btn btn-sm btn-o" type="button" onclick="aiQuickQ('فروش قطعه را چطور ثبت کنم؟')">🔩 فروش</button>
+    </div>
+  </div>
+</div>
 
 <!-- SIDEBAR -->
 <div class="sb">
@@ -2034,7 +2089,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۲η — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۲θ — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-sm" id="btn-lock-app" onclick="lockApp()" style="width:100%;margin-top:8px;font-weight:700" title="قفل برنامه در حالی که باز است — Ctrl+Shift+L">🔒 قفل برنامه <small style="opacity:.7">Ctrl+Shift+L</small></button>
   <button class="btn btn-r btn-sm" id="btn-exit-safe" onclick="promptExitBackup()" style="width:100%;margin-top:8px;font-weight:700">🚪 خروج امن (پرسش بک‌آپ)</button>
   <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;padding:0 2px">اگر ✕ پنجره را بزنید، مرورگر اول هشدار می‌دهد؛ برای بک‌آپ از این دکمه استفاده کنید.</div>
@@ -4348,33 +4403,41 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   </div>
 
   <div class="stg-panel" id="stg-ai">
-    <div class="ai-model-bar">
-      <div class="ai-model-btn active" onclick="selectAiModel('internal',this)">🧠 دستیار داخلی</div>
-      <div class="ai-model-btn" onclick="selectAiModel('claude',this)">✨ Claude (API)</div>
-      <div class="ai-model-btn" onclick="selectAiModel('gpt',this)">🤖 GPT (API)</div>
-      <div class="ai-model-btn" onclick="selectAiModel('gemini',this)">💎 Gemini (API)</div>
-    </div>
-    <div id="ai-api-key-row" style="display:none;margin-bottom:10px">
-      <div class="f">
-        <label id="ai-key-label">کلید API</label>
-        <div style="display:flex;gap:6px">
-          <input type="password" id="ai-api-key" placeholder="sk-..." style="flex:1">
-          <button class="btn btn-sm btn-p" onclick="saveAiKey()">💾</button>
+    <div class="card" style="max-width:640px">
+      <div class="card-title">🤖 فعال‌سازی دستیار / ایجنت</div>
+      <p style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:10px">
+        همین الان می‌توانید با <b>دستیار داخلی</b> (رایگان، بدون کلید) راهنمایی بگیرید.
+        هر وقت ایجنت پولی خریدید (ChatGPT، Claude، Gemini، OpenRouter، Groq یا هر سرویس سازگار)، کلید را اینجا بگذارید تا همان دستیار قوی‌تر شود — هم برای <b>راهنمای نرم‌افزار</b>، هم برای <b>کمک در کار روزمره</b>.
+        دکمه شناور <b>🤖 دستیار</b> پایین صفحه همیشه در دسترس است (میانبر <b>Ctrl+Shift+A</b>).
+      </p>
+      <div id="ai-settings-status" class="ai-status off">وضعیت: دستیار داخلی — بدون کلید</div>
+      <div class="ai-model-bar" id="ai-model-bar">
+        <div class="ai-model-btn active" data-ai-model="internal" onclick="selectAiModel('internal',this)">🧠 داخلی (رایگان)</div>
+        <div class="ai-model-btn" data-ai-model="claude" onclick="selectAiModel('claude',this)">✨ Claude</div>
+        <div class="ai-model-btn" data-ai-model="gpt" onclick="selectAiModel('gpt',this)">🤖 GPT</div>
+        <div class="ai-model-btn" data-ai-model="gemini" onclick="selectAiModel('gemini',this)">💎 Gemini</div>
+        <div class="ai-model-btn" data-ai-model="custom" onclick="selectAiModel('custom',this)">🔌 سفارشی / هر ایجنت</div>
+      </div>
+      <div id="ai-api-key-row" style="display:none;margin-bottom:10px">
+        <div class="f">
+          <label id="ai-key-label">کلید API</label>
+          <input type="password" id="ai-api-key" placeholder="sk-... یا کلید سرویس شما" autocomplete="off">
         </div>
       </div>
-    </div>
-    <div class="ai-chat-box" id="ai-chat-box">
-      <div class="ai-msg bot">سلام! من دستیار هوشمند نرم‌افزار هستم 👋<br>می‌توانم به سوالات شما درباره نرم‌افزار، عیب‌یابی، تفسیر خطاها و راهنمایی استفاده پاسخ دهم.</div>
-    </div>
-    <div class="ai-input-row">
-      <input type="text" id="ai-input" placeholder="سوال یا مشکل خود را بنویسید..." onkeydown="if(event.key==='Enter')sendAiMsg()">
-      <button class="btn btn-p" onclick="sendAiMsg()">ارسال ↵</button>
-    </div>
-    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
-      <button class="btn btn-sm btn-o" onclick="aiQuickQ('وضعیت کلی نرم‌افزار چطوره؟')">📊 وضعیت کلی</button>
-      <button class="btn btn-sm btn-o" onclick="aiQuickQ('آخرین خطاهای ثبت شده رو تفسیر کن')">🔍 تفسیر خطاها</button>
-      <button class="btn btn-sm btn-o" onclick="aiQuickQ('راهنمایی برای بک‌اپ گیری')">💾 راهنمای بک‌اپ</button>
-      <button class="btn btn-sm btn-o" onclick="aiQuickQ('چطور از اکسل اطلاعات وارد کنم؟')">📥 راهنمای ورود Excel</button>
+      <div id="ai-custom-fields" style="display:none">
+        <div class="f" style="margin-bottom:8px"><label>آدرس API (سازگار با OpenAI)</label>
+          <input id="ai-custom-url" placeholder="مثلاً https://api.openai.com/v1 یا https://openrouter.ai/api/v1">
+        </div>
+        <div class="f" style="margin-bottom:8px"><label>نام مدل</label>
+          <input id="ai-custom-model" placeholder="مثلاً gpt-4o-mini یا llama-3.1-70b">
+        </div>
+        <p style="font-size:11px;color:var(--text2);line-height:1.7">اگر بعداً هر ایجنتی خریدید که آدرس و کلید بدهد، همان را اینجا بگذارید. کلید فقط روی این کامپیوتر ذخیره می‌شود.</p>
+      </div>
+      <div class="btn-bar">
+        <button class="btn btn-p btn-sm" type="button" onclick="saveAiAgentConfig()">💾 ذخیره و فعال کردن</button>
+        <button class="btn btn-sm" type="button" onclick="openAiDock()">💬 شروع گفتگو</button>
+      </div>
+      <div id="ai-cfg-msg" style="font-size:12px;margin-top:8px;min-height:16px"></div>
     </div>
   </div>
 
@@ -4953,6 +5016,18 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   </ul>
 </div>
 
+<div class="help-cat-header">🤖 دستیار و ایجنت</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>🤖 فعال‌سازی دستیار برای راهنما و کمک در کار</span><span class="help-chev">▾</span></div>
+  <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>الان بدون پول:</b> دکمه شناور <b>🤖 دستیار</b> پایین صفحه یا میانبر <b>Ctrl+Shift+A</b> را بزنید. دستیار داخلی رایگان است و سوال‌های «چطور در نرم‌افزار کار کنم» را جواب می‌دهد.</li>
+    <li><b>دو حالت:</b> در پنل دستیار، <b>راهنمای نرم‌افزار</b> برای آموزش دکمه‌ها و صفحات است؛ <b>کمک در کار</b> برای مسیر انجام کار روزمره (فاکتور، گارانتی، فروش، انبار، بک‌آپ) است. دستیار خودش داده را عوض نمی‌کند؛ فقط می‌گوید کجا را بزنید.</li>
+    <li><b>ایجنت پولی بعداً:</b> وقتی ChatGPT یا Claude یا Gemini یا هر سرویس دیگری خریدید، بروید تنظیمات → <b>دستیار هوش مصنوعی</b>، مدل را انتخاب کنید، کلید API را بگذارید و <b>ذخیره و فعال کردن</b> را بزنید. نقطه سبز روی دکمه شناور یعنی فعال است.</li>
+    <li><b>هر ایجنت دیگر:</b> گزینه <b>سفارشی / هر ایجنت</b> را بزنید. آدرس API سازگار با OpenAI (مثلاً OpenRouter یا Groq) و نام مدل و کلید را بگذارید. همان گفتگو برای راهنما و کار استفاده می‌شود.</li>
+    <li><b>حریم خصوصی:</b> کلید فقط روی همین کامپیوتر ذخیره می‌شود. به ایجنت خارجی نام و تلفن مشتری فرستاده نمی‌شود؛ فقط صفحه جاری و تعداد رکوردها می‌رود.</li>
+  </ul>
+</div>
+
 <div class="help-cat-header">🔔 اعلان و پیغام‌ها</div>
 
 <div class="card help-card help-collapsed">
@@ -5160,7 +5235,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۲η
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۲θ
 </div>
 </div>
 
@@ -5883,9 +5958,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 })();
 
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.22η';
-var APP_BASE_VERSION = '1405.5.22η'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۲۲η';
+var APP_VERSION = '1405.5.22θ';
+var APP_BASE_VERSION = '1405.5.22θ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۲۲θ';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -6381,8 +6456,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.22η'; }
-  catch(_e){ return '1405.5.22η'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.22θ'; }
+  catch(_e){ return '1405.5.22θ'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -7008,8 +7083,8 @@ function _buildFullBackupData(){
   var data = {
     magic: (typeof SIRMAN_BACKUP_MAGIC!=='undefined'?SIRMAN_BACKUP_MAGIC:'SIRMAN_BACKUP'),
     schemaVersion: (typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1),
-    version: '1405.5.22η',
-    applicationVersion: '1405.5.22η',
+    version: '1405.5.22θ',
+    applicationVersion: '1405.5.22θ',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -7080,7 +7155,10 @@ function _buildFullBackupData(){
       try {
         for(var i=0;i<localStorage.length;i++){
           var k = localStorage.key(i);
-          if(k && k.indexOf('laegh_ai_key_')===0){ keys[k] = localStorage.getItem(k); }
+          if(!k) continue;
+          if(k.indexOf('laegh_ai_key_')===0 || k==='laegh_ai_custom_url' || k==='laegh_ai_custom_model' || k==='laegh_ai_model' || k==='laegh_ai_purpose'){
+            keys[k] = localStorage.getItem(k);
+          }
         }
       } catch(e){}
       return keys;
@@ -7276,7 +7354,7 @@ async function restoreAutoSaveHandlesOnBoot(){
   }catch(_e2){ return false; }
 }
 
-// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.22η ═══════════════════
+// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.22θ ═══════════════════
 // عکس پس‌زمینه، لوگو و ضمیمه‌ها فقط در پوشهٔ بک‌آپ روی دیسک نوشته می‌شوند.
 // در حافظهٔ مرورگر فقط ارجاع کوتاه disk://sirman_media/... نگه داشته می‌شود.
 window._diskUrlCache = window._diskUrlCache || {};
@@ -8862,7 +8940,7 @@ function showCustomer360(phone, name){
   document.getElementById('cust360-modal').classList.add('open');
 }
 
-// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۲η) ───────────────────────────────────────────
+// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۲θ) ───────────────────────────────────────────
 window._wins = window._wins || [];
 window._winActive = window._winActive || null;
 window._winSeq = window._winSeq || 1;
@@ -9269,7 +9347,7 @@ function winContextPageActions(pageId){
     dataio:[{id:'backup-now', icon:'💾', label:'دانلود بک‌آپ کامل'}],
     datetime:[{id:'refresh', icon:'↻', label:'بروزرسانی تقویم'}],
     audit:[{id:'refresh', icon:'↻', label:'بروزرسانی گزارش فعالیت'}],
-    settings:[{id:'autosave-tab', icon:'💾', label:'تنظیمات ذخیره خودکار'}],
+    settings:[{id:'autosave-tab', icon:'💾', label:'تنظیمات ذخیره خودکار'},{id:'ai-tab', icon:'🤖', label:'دستیار / ایجنت'}],
     help:[{id:'help-focus', icon:'🔍', label:'جستجو در راهنما'}]
   };
   return map[pageId] || [{id:'refresh', icon:'↻', label:'بروزرسانی'}];
@@ -9309,6 +9387,7 @@ function winRunPageAction(wid, action){
     if(action==='warranty-all-years') return setWarBrowseYear(0);
     if(action==='backup-now') return exportData();
     if(action==='autosave-tab') return showStgTab('autosave');
+    if(action==='ai-tab'){ if(typeof openAiSettings==='function') return openAiSettings(); return showStgTab('ai'); }
     if(action==='help-focus'){ var q=document.getElementById('help-search'); if(q) q.focus(); return; }
   }catch(e){
     if(typeof ntf==='function') ntf('عملیات این پنجره ناموفق بود: '+(e.message||e),'err');
@@ -10302,7 +10381,7 @@ function buildPH(list){
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 window._pcActiveDocId='invoice';
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22η">
+<meta name="app-version" content="1405.5.22θ">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -10319,7 +10398,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22η">
+<meta name="app-version" content="1405.5.22θ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -10379,7 +10458,7 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22η">
+<meta name="app-version" content="1405.5.22θ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -10399,11 +10478,11 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22η">
+<meta name="app-version" content="1405.5.22θ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22η">
+<meta name="app-version" content="1405.5.22θ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -11035,7 +11114,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22η">
+<meta name="app-version" content="1405.5.22θ">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -12613,7 +12692,7 @@ function enableTaskNotifications(){
 }
 function registerLaeghSW(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('sw.js?v=1405.5.22η').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=1405.5.22θ').then(reg=>{
     _swReg=reg;
     // Check for SW updates
     reg.addEventListener('updatefound', ()=>{
@@ -12749,6 +12828,7 @@ function finishLogin(){
   setLoginOverlayHint(LOGIN_HINT_DEFAULT);
   document.getElementById('login-overlay').style.display = 'none';
   applyRoleRestrictions();
+  try{ if(typeof syncAiAgentUi==='function') syncAiAgentUi(); }catch(_a){}
 }
 
 var _appLocked = false;
@@ -12793,6 +12873,7 @@ function lockApp(){
     return false;
   }
   _appLocked = true;
+  try{ if(typeof closeAiDock==='function') closeAiDock(); }catch(_d){}
   try{
     var inp = document.getElementById('login-pw-input');
     if(inp) inp.value = '';
@@ -13924,7 +14005,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22η">'+
+    '<meta name="app-version" content="1405.5.22θ">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -14097,7 +14178,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.22η"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.22θ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -16384,7 +16465,7 @@ function doPrint(paperSize){
   const wbg=bgMap[pw.bg||'none']||'#fff';
   const effPaper = pw.paper || paperSize;
   var htmlDoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22η">
+<meta name="app-version" content="1405.5.22θ">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -16480,7 +16561,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22η"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.22θ"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -16509,7 +16590,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22η"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.22θ"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -16546,7 +16627,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22η">'+
+    '<meta name="app-version" content="1405.5.22θ">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -16630,7 +16711,7 @@ function printCompanyReport(idx){
   var qcResultLbl = {'pass':'✅ تأیید کیفیت','fail':'❌ رد شد — نیاز به اصلاح','pending':'در حال بررسی'};
   var mgrApproveLbl = {'approved':'✅ تأیید نهایی','pending':'در انتظار بررسی','rejected':'❌ رد شد'};
 
-  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.22η';
+  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.22θ';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
     '<title>گزارش داخلی شرکت — '+wHdr.id+'</title>'+
     '<style>'+
@@ -17261,7 +17342,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22η">'+
+    '<meta name="app-version" content="1405.5.22θ">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -17481,7 +17562,7 @@ function expSalesExcel(){
 // ══════ حسابداری ══════
 // ═══════════════════════════════════════════════════════════════════════════
 // ماژول داغی (پیگیری رسید امضا‌شده‌ی نمایندگی‌های خدمات)
-// نسخه ۱۴۰۵.۵.۲۲η — فاز داغی
+// نسخه ۱۴۰۵.۵.۲۲θ — فاز داغی
 //
 // «داغی» یعنی وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستیم، آن‌ها باید رسید امضا‌شده
 // (داغی) را به ما برگردانند. این ماژول پیگیری می‌کند که چه کسانی داغی معوقه دارند.
@@ -18785,7 +18866,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22η">'+
+    '<meta name="app-version" content="1405.5.22θ">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
@@ -18828,6 +18909,7 @@ function showStgTab(id, el) {
   if(id === 'access') renderRolesList();
   if(id === 'update' && typeof loadUpdateUI === 'function') loadUpdateUI();
   if(id === 'printer' && typeof refreshPrintCenterUI === 'function') refreshPrintCenterUI();
+  if(id === 'ai' && typeof syncAiAgentUi === 'function') syncAiAgentUi();
 }
 function openDataAutoSave(){
   var dataTab=Array.prototype.slice.call(document.querySelectorAll('.stg-tab')).find(function(t){ return (t.textContent||'').indexOf('داده‌ها')>=0; });
@@ -21492,48 +21574,296 @@ function runCodeAnalysis(){
 var aiModel = 'internal';
 var aiHistory = [];
 var aiKeys = {};
+var aiPurpose = 'help';
 
 var AI_KB = {
-  'بک': 'برای بک‌اپ گیری: به بخش «ورود/خروج داده» بروید ← دکمه «دانلود فایل پشتیبان» را بزنید. فایل JSON در Downloads ذخیره می‌شود.',
-  'فاکتور': 'برای ساخت فاکتور: از منوی سمت راست «فاکتورها» را انتخاب کنید ← دکمه «+ فاکتور جدید» را بزنید. می‌توانید کالا، خدمت و تخفیف اضافه کنید.',
-  'اکسل': 'برای وارد کردن از اکسل: ابتدا فایل نمونه را از بخش «ورود/خروج داده» دانلود کنید، اطلاعات را طبق آن وارد کنید، سپس از دکمه «📥 ورود از Excel» در هر بخش استفاده کنید.',
-  'ارور': 'برای عیب‌یابی: به تنظیمات ← تب «عیب‌یابی» بروید و «عیب‌یابی کامل» را بزنید. لاگ خطاها با ترجمه فارسی و راه‌حل نمایش داده می‌شود.',
-  'خطا': 'برای عیب‌یابی: به تنظیمات ← تب «عیب‌یابی» بروید و «عیب‌یابی کامل» را بزنید.',
-  'گارانتی': 'بخش گارانتی: می‌توانید پرونده گارانتی مشتریان را ثبت کنید. شامل مشخصات محصول، سریال، تاریخ خرید و انقضا. از اکسل هم می‌توانید وارد کنید.',
-  'انبار': 'بخش انبار قطعات: موجودی قطعات را مدیریت کنید. حداقل موجودی تنظیم کنید تا هشدار کمبود دریافت کنید.',
-  'پرینت': 'مرکز پرینت: تنظیمات ← تب مرکز پرینت. سند را انتخاب کنید، پیش‌نمایش را ببینید و چاپ کنید. از بخش‌های دیگر «چاپ سریع» با آخرین تنظیمات کار می‌کند.',
-  'ریست': '⚠️ ریست کامل همه داده‌ها را پاک می‌کند. قبل از ریست حتماً بک‌اپ بگیرید. به تنظیمات ← امنیت بروید.',
+  'بک': 'برای بک‌آپ: بخش «ورود/خروج داده» ← «دانلود فایل پشتیبان». فایل JSON را در جای امن نگه دارید. برای آپدیت نرم‌افزار از تنظیمات ← آپدیت استفاده کنید.',
+  'قفل': 'برای قفل کردن برنامه در حالی که باز است: Ctrl+Shift+L، یا دکمه «قفل برنامه» پایین سایدبار، یا تنظیمات ← امنیت. برای باز کردن همان رمز ورود را بزنید. اول باید رمز ورود گذاشته باشید.',
+  'فاکتور': 'برای ساخت فاکتور: از منو «فاکتورها» را باز کنید و دستگاه را اضافه کنید. با «تکمیل» فاکتور بسته می‌شود. اگر چند پنجره باز است، از نوار بالا بخش را انتخاب کنید.',
+  'اکسل': 'برای ورود از اکسل: اول فایل نمونه را از همان بخش دانلود کنید، ستون‌ها را پر کنید، بعد «ورود از Excel» را بزنید. نام ستون‌ها باید با نمونه یکی باشد.',
+  'ارور': 'برای عیب‌یابی: تنظیمات ← عیب‌یابی ← «عیب‌یابی کامل». خطاها پیام فارسی و کد پیگیری دارند.',
+  'خطا': 'برای عیب‌یابی: تنظیمات ← عیب‌یابی ← «عیب‌یابی کامل».',
+  'گارانتی': 'پرونده گارانتی: منو ← گارانتی ← پرونده جدید. مشخصات دستگاه، سریال، تاریخ خرید و انقضا را بزنید. نمای فصلی/ماهیانه هم برای مرور پرونده‌ها هست.',
+  'انبار': 'انبار: موجودی کالا، قطعات، حواله ورود/خروج، انتقال بین انباری و انبارگردانی. اگر موجودی کم باشد هشدار می‌آید.',
+  'پرینت': 'مرکز پرینت: تنظیمات ← تب مرکز پرینت. سند را انتخاب کنید، پیش‌نمایش ببینید و چاپ کنید. از بخش‌های دیگر «چاپ سریع» با آخرین تنظیمات کار می‌کند.',
+  'ریست': '⚠️ ریست کامل همه داده‌ها را پاک می‌کند. قبلش حتماً بک‌آپ بگیرید. مسیر: تنظیمات ← امنیت.',
+  'فروش': 'فروش قطعه: منو ← فروش قطعات. قطعه و تعداد را انتخاب کنید. فروش نهایی از انبار کم می‌کند؛ پیش‌فاکتور کم نمی‌کند.',
+  'مخاطب': 'دفترچه تلفن: مخاطب جدید را با نام و تلفن ثبت کنید. نمای شرکت و الفبا برای پیدا کردن سریع است.',
+  'وظیفه': 'وظایف: عنوان، اولویت و موعد بگذارید. اگر اعلان دسکتاپ را فعال کنید، سر موعد پیغام ویندوز می‌آید.',
+  'آپدیت': 'آپدیت: تنظیمات ← آپدیت ← بارگذاری فایل JSON. نصب مجدد لازم نیست. فایل آپدیت را از پشتیبانی بگیرید.',
+  'فعال': 'برای فعال کردن ایجنت پولی: تنظیمات ← دستیار هوش مصنوعی. مدل را انتخاب کنید، کلید API را بگذارید و «ذخیره و فعال کردن» را بزنید. بعد دکمه شناور 🤖 یا Ctrl+Shift+A گفتگو را باز می‌کند.',
+  'ایجنت': 'دستیار داخلی رایگان است. برای ایجنت پولی (GPT، Claude، Gemini یا سفارشی مثل OpenRouter) کلید را در تنظیمات ← دستیار بگذارید. گفتگو با دکمه 🤖 پایین صفحه یا Ctrl+Shift+A باز می‌شود.',
+  'راهنما': 'صفحه راهنما در منوی راست است. روی هر عنوان بزنید تا باز شود. دستیار هم با Ctrl+Shift+A سوال‌های شما را جواب می‌دهد.',
+  'حواله': 'حواله ورود/خروج در بخش انبار است. انبار مبدا یا مقصد را مشخص کنید. انتقال بین انباری موجودی را از یکی کم و به دیگری اضافه می‌کند.',
   'وضعیت': function() {
-    var inv = typeof invoices !== 'undefined' ? invoices.length : 0;
-    var pr = typeof parts !== 'undefined' ? parts.length : 0;
-    var pb2 = typeof phonebook !== 'undefined' ? phonebook.length : (typeof pb !== 'undefined' ? pb.length : 0);
-    return 'وضعیت کلی نرم‌افزار:\n📋 فاکتورها: '+inv+' عدد\n🔩 قطعات: '+pr+' عدد\n👥 مخاطبین: '+pb2+' عدد\n\nبرای جزئیات بیشتر عیب‌یابی کامل را اجرا کنید.';
+    return buildAiSafeContext();
   },
-  'default': 'متوجه سوال شما نشدم 😊 می‌توانید از دکمه‌های سریع پایین استفاده کنید یا سوال را واضح‌تر بپرسید. برای عیب‌یابی، تب «عیب‌یابی» را ببینید.'
+  'default': 'سوال را کمی واضح‌تر بپرسید. مثال: «چطور بک‌آپ بگیرم؟»، «چطور قفل کنم؟»، «گارانتی را چطور ثبت کنم؟». برای ایجنت قوی‌تر از تنظیمات ← دستیار کلید API بگذارید.'
 };
 
-function selectAiModel(model, el) {
-  aiModel = model;
-  document.querySelectorAll('.ai-model-btn').forEach(function(b){ b.classList.remove('active'); });
-  el.classList.add('active');
-  var keyRow = document.getElementById('ai-api-key-row');
-  var keyLabel = document.getElementById('ai-key-label');
-  if (model === 'internal') {
-    keyRow.style.display = 'none';
-  } else {
-    keyRow.style.display = 'block';
-    keyLabel.textContent = 'کلید API ' + (model==='claude'?'Claude (Anthropic)':model==='gpt'?'OpenAI':'Google Gemini');
-    var saved = localStorage.getItem('laegh_ai_key_'+model)||'';
-    document.getElementById('ai-api-key').value = saved;
-  }
-  addAiMsg('bot', 'مدل تغییر کرد به: '+(model==='internal'?'دستیار داخلی 🧠':model==='claude'?'Claude ✨':model==='gpt'?'GPT 🤖':'Gemini 💎'));
+function aiBrandName(){
+  try{ return (getBrand() && getBrand().nameFa) || 'سیرمان'; }catch(_e){ return 'سیرمان'; }
 }
 
-function saveAiKey() {
-  var key = document.getElementById('ai-api-key').value.trim();
-  if (!key) { ntf('کلید API خالی است','err'); return; }
-  localStorage.setItem('laegh_ai_key_'+aiModel, key);
-  ntf('کلید API ذخیره شد');
+function getAiCustomConfig(){
+  var url = '', model = '';
+  try{ url = localStorage.getItem('laegh_ai_custom_url') || ''; }catch(_e){}
+  try{ model = localStorage.getItem('laegh_ai_custom_model') || ''; }catch(_e){}
+  try{
+    var uEl = document.getElementById('ai-custom-url');
+    if(uEl && uEl.value) url = uEl.value.trim() || url;
+    var mEl = document.getElementById('ai-custom-model');
+    if(mEl && mEl.value) model = mEl.value.trim() || model;
+  }catch(_e2){}
+  return { url:url, model:model };
+}
+
+function getAiStoredKey(model){
+  model = model || aiModel;
+  try{ return localStorage.getItem('laegh_ai_key_'+model) || ''; }catch(_e){ return ''; }
+}
+
+function isAiAgentReady(model){
+  model = model || aiModel;
+  if(model === 'internal') return true;
+  if(!getAiStoredKey(model)) return false;
+  if(model === 'custom'){
+    var c = getAiCustomConfig();
+    return !!(c.url && c.model);
+  }
+  return true;
+}
+
+function getAiAgentStatus(){
+  var names = {internal:'دستیار داخلی (رایگان)', claude:'Claude', gpt:'GPT', gemini:'Gemini', custom:'ایجنت سفارشی'};
+  var ready = isAiAgentReady(aiModel);
+  var label = names[aiModel] || aiModel;
+  if(aiModel === 'internal') return { ready:true, paid:false, label:label, text:'وضعیت: دستیار داخلی رایگان فعال است. برای ایجنت پولی کلید بگذارید.' };
+  if(ready) return { ready:true, paid:true, label:label, text:'وضعیت: فعال — '+label+' آماده گفتگو است.' };
+  return { ready:false, paid:false, label:label, text:'وضعیت: '+label+' انتخاب شده ولی هنوز کلید/آدرس ذخیره نشده.' };
+}
+
+function buildAiSafeContext(){
+  function len(a){ try{ return (a && a.length) ? a.length : 0; }catch(_e){ return 0; } }
+  var page = '';
+  try{
+    var act = document.querySelector('.page.active');
+    if(act && act.id) page = String(act.id).replace('page-','');
+    if(!page && window._winActive && typeof winFind==='function'){
+      var w = winFind(window._winActive);
+      if(w) page = w.pageId || '';
+    }
+  }catch(_e){}
+  var lines = [
+    'نسخه: '+(typeof APP_VERSION!=='undefined'?APP_VERSION:'?'),
+    'صفحه جاری: '+(page || 'نامشخص'),
+    'تعداد فاکتور: '+len(typeof invoices!=='undefined'?invoices:[]),
+    'تعداد کالا: '+len(typeof products!=='undefined'?products:[]),
+    'تعداد قطعات: '+len(typeof parts!=='undefined'?parts:[]),
+    'تعداد گارانتی: '+len(typeof warranties!=='undefined'?warranties:[]),
+    'تعداد فروش: '+len(typeof sales!=='undefined'?sales:[]),
+    'تعداد مخاطب: '+len(typeof phonebook!=='undefined'?phonebook:[]),
+    'تعداد وظایف: '+len(typeof tasks!=='undefined'?tasks:[])
+  ];
+  return lines.join('\n');
+}
+
+function buildAiSystemPrompt(purpose){
+  purpose = purpose || aiPurpose || 'help';
+  var brand = aiBrandName();
+  var common = 'شما دستیار نرم‌افزار خدمات پس از فروش «'+brand+'» (سیرمان) هستید. فقط فارسی، کوتاه و عملی جواب بده. داده را خودت عوض نکن؛ فقط بگو کاربر کدام دکمه/صفحه را بزند. اطلاعات شخصی مشتری (نام، تلفن، آدرس، سریال) را نخواه و در جواب از خودت نساز.\n\nنقشه نرم‌افزار: فاکتور، فاکتورهای ذخیره‌شده، کالا، انبار، قطعات، فروش، گارانتی، دفترچه تلفن، وظایف، حسابداری، ورود/خروج داده (بک‌آپ)، تنظیمات (پرینت، ظاهر، امنیت، آپدیت، دستیار)، راهنما. قفل جلسه: Ctrl+Shift+L. دستیار: Ctrl+Shift+A.';
+  if(purpose === 'work'){
+    return common + '\n\nحالت: کمک در کار. مسیر انجام کار را قدم‌به‌قدم بگو. اگر صفحه جاری مشخص است، اول همان را در نظر بگیر.';
+  }
+  return common + '\n\nحالت: راهنمای استفاده از نرم‌افزار. سوال‌های «چطور فلان کار را در برنامه بکنم» را جواب بده.';
+}
+
+function normalizeAiBaseUrl(url){
+  url = String(url||'').trim();
+  if(!url) return '';
+  url = url.replace(/\/+$/,'');
+  if(/\/chat\/completions$/i.test(url)) url = url.replace(/\/chat\/completions$/i,'');
+  return url;
+}
+
+function resolveExternalAiRequest(model, apiKey, question, extras){
+  extras = extras || {};
+  var purpose = extras.purpose || aiPurpose || 'help';
+  var sys = buildAiSystemPrompt(purpose) + '\n\nوضعیت فعلی (بدون اطلاعات شخصی):\n' + buildAiSafeContext();
+  var url = '', headers = {}, bodyObj = null;
+  if(model === 'claude'){
+    url = 'https://api.anthropic.com/v1/messages';
+    headers = {
+      'Content-Type':'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    };
+    bodyObj = { model:'claude-haiku-4-5-20251001', max_tokens:700, system:sys, messages:[{role:'user', content:question}] };
+  } else if(model === 'gpt'){
+    url = 'https://api.openai.com/v1/chat/completions';
+    headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+apiKey };
+    bodyObj = { model:'gpt-4o-mini', max_tokens:700, messages:[{role:'system',content:sys},{role:'user',content:question}] };
+  } else if(model === 'gemini'){
+    url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+apiKey;
+    headers = { 'Content-Type':'application/json' };
+    bodyObj = { contents:[{parts:[{text:sys+'\n\nسوال: '+question}]}] };
+  } else if(model === 'custom'){
+    var cfg = extras.custom || getAiCustomConfig();
+    var base = normalizeAiBaseUrl(cfg.url);
+    url = base + '/chat/completions';
+    headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+apiKey };
+    bodyObj = { model: cfg.model || 'gpt-4o-mini', max_tokens:700, messages:[{role:'system',content:sys},{role:'user',content:question}] };
+  }
+  return { url:url, headers:headers, body: bodyObj ? JSON.stringify(bodyObj) : '', bodyObj:bodyObj };
+}
+
+function answerInternalAi(q){
+  q = String(q||'');
+  for(var key in AI_KB){
+    if(key !== 'default' && q.indexOf(key) !== -1){
+      var ans = AI_KB[key];
+      return typeof ans === 'function' ? ans() : ans;
+    }
+  }
+  return AI_KB['default'];
+}
+
+function syncAiAgentUi(){
+  var st = getAiAgentStatus();
+  var s1 = document.getElementById('ai-settings-status');
+  var s2 = document.getElementById('ai-dock-status');
+  var cls = st.ready && (st.paid || aiModel==='internal') ? 'ai-status on' : 'ai-status off';
+  if(s1){ s1.className = cls; s1.textContent = st.text; }
+  if(s2){ s2.className = cls; s2.textContent = st.text; }
+  var flt = document.getElementById('btn-ai-float');
+  if(flt){
+    if(st.paid && st.ready) flt.classList.add('ready'); else flt.classList.remove('ready');
+    try{
+      if(typeof isAppSessionLocked==='function' && isAppSessionLocked()) flt.style.display = 'none';
+      else flt.style.display = 'inline-flex';
+    }catch(_e){}
+  }
+  document.querySelectorAll('[data-ai-model]').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-ai-model') === aiModel);
+  });
+  document.querySelectorAll('[data-ai-purpose]').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-ai-purpose') === aiPurpose);
+  });
+  var keyRow = document.getElementById('ai-api-key-row');
+  var customRow = document.getElementById('ai-custom-fields');
+  var keyLabel = document.getElementById('ai-key-label');
+  if(keyRow) keyRow.style.display = (aiModel==='internal') ? 'none' : 'block';
+  if(customRow) customRow.style.display = (aiModel==='custom') ? 'block' : 'none';
+  if(keyLabel){
+    keyLabel.textContent = aiModel==='claude' ? 'کلید API کلود (Anthropic)' : aiModel==='gpt' ? 'کلید API جی‌پی‌تی (OpenAI)' : aiModel==='gemini' ? 'کلید API جمینای (Google)' : 'کلید API ایجنت';
+  }
+  try{
+    var keyEl = document.getElementById('ai-api-key');
+    if(keyEl && aiModel!=='internal') keyEl.value = getAiStoredKey(aiModel);
+    var urlEl = document.getElementById('ai-custom-url');
+    var mdlEl = document.getElementById('ai-custom-model');
+    var cfg = getAiCustomConfig();
+    if(urlEl && !urlEl.value) urlEl.value = cfg.url;
+    if(mdlEl && !mdlEl.value) mdlEl.value = cfg.model;
+  }catch(_e2){}
+  var qh = document.getElementById('ai-quick-help');
+  var qw = document.getElementById('ai-quick-work');
+  if(qh) qh.style.display = aiPurpose==='work' ? 'none' : 'flex';
+  if(qw) qw.style.display = aiPurpose==='work' ? 'flex' : 'none';
+}
+
+function selectAiModel(model, el){
+  aiModel = model || 'internal';
+  try{ localStorage.setItem('laegh_ai_model', aiModel); }catch(_e){}
+  if(el){
+    document.querySelectorAll('.ai-model-btn').forEach(function(b){ b.classList.remove('active'); });
+    el.classList.add('active');
+  }
+  syncAiAgentUi();
+}
+
+function setAiPurpose(purpose, el){
+  aiPurpose = (purpose === 'work') ? 'work' : 'help';
+  try{ localStorage.setItem('laegh_ai_purpose', aiPurpose); }catch(_e){}
+  if(el){
+    document.querySelectorAll('.ai-purpose-btn').forEach(function(b){ b.classList.remove('active'); });
+    el.classList.add('active');
+  }
+  syncAiAgentUi();
+}
+
+function saveAiKey(){ return saveAiAgentConfig(); }
+
+function saveAiAgentConfig(){
+  var msg = document.getElementById('ai-cfg-msg');
+  if(aiModel === 'internal'){
+    try{ localStorage.setItem('laegh_ai_model','internal'); }catch(_e){}
+    if(msg){ msg.textContent = 'دستیار داخلی فعال است.'; msg.style.color = '#3fb950'; }
+    ntf('دستیار داخلی فعال شد','ok');
+    syncAiAgentUi();
+    return true;
+  }
+  var keyEl = document.getElementById('ai-api-key');
+  var key = keyEl ? String(keyEl.value||'').trim() : getAiStoredKey(aiModel);
+  if(!key){
+    if(msg){ msg.textContent = 'کلید API را وارد کنید.'; msg.style.color = '#e74c3c'; }
+    ntf('کلید API خالی است','err');
+    return false;
+  }
+  if(aiModel === 'custom'){
+    var urlEl = document.getElementById('ai-custom-url');
+    var mdlEl = document.getElementById('ai-custom-model');
+    var url = urlEl ? String(urlEl.value||'').trim() : '';
+    var mdl = mdlEl ? String(mdlEl.value||'').trim() : '';
+    if(!url || !mdl){
+      if(msg){ msg.textContent = 'برای ایجنت سفارشی، آدرس API و نام مدل لازم است.'; msg.style.color = '#e74c3c'; }
+      ntf('آدرس و نام مدل را پر کنید','err');
+      return false;
+    }
+    try{
+      localStorage.setItem('laegh_ai_custom_url', url);
+      localStorage.setItem('laegh_ai_custom_model', mdl);
+    }catch(_e2){}
+  }
+  try{
+    localStorage.setItem('laegh_ai_key_'+aiModel, key);
+    localStorage.setItem('laegh_ai_model', aiModel);
+  }catch(_e3){}
+  if(msg){ msg.textContent = 'ایجنت ذخیره و فعال شد.'; msg.style.color = '#3fb950'; }
+  ntf('ایجنت فعال شد — از دکمه 🤖 یا Ctrl+Shift+A گفتگو کنید','ok');
+  syncAiAgentUi();
+  return true;
+}
+
+function openAiDock(){
+  try{ if(typeof isAppSessionLocked==='function' && isAppSessionLocked()) return; }catch(_e){}
+  var dock = document.getElementById('ai-dock');
+  if(!dock) return;
+  dock.classList.add('open');
+  syncAiAgentUi();
+  try{ var inp=document.getElementById('ai-input'); if(inp) inp.focus(); }catch(_e2){}
+}
+
+function closeAiDock(){
+  var dock = document.getElementById('ai-dock');
+  if(dock) dock.classList.remove('open');
+}
+
+function toggleAiDock(){
+  var dock = document.getElementById('ai-dock');
+  if(dock && dock.classList.contains('open')) closeAiDock();
+  else openAiDock();
+}
+
+function openAiSettings(){
+  closeAiDock();
+  try{
+    if(typeof showPage==='function') showPage('settings');
+    var tab = document.querySelector('.stg-tab[onclick*="\'ai\'"]') || document.querySelector('.stg-tab[onclick*="ai"]');
+    if(typeof showStgTab==='function') showStgTab('ai', tab);
+  }catch(_e){}
+  syncAiAgentUi();
 }
 
 function addAiMsg(role, text) {
@@ -21548,76 +21878,52 @@ function addAiMsg(role, text) {
 }
 
 function aiQuickQ(q) {
-  document.getElementById('ai-input').value = q;
+  var inp = document.getElementById('ai-input');
+  if(inp) inp.value = q;
+  openAiDock();
   sendAiMsg();
 }
 
 function sendAiMsg() {
   var inp = document.getElementById('ai-input');
-  var q = inp.value.trim();
+  var q = inp ? inp.value.trim() : '';
   if (!q) return;
-  inp.value = '';
+  if(inp) inp.value = '';
   addAiMsg('user', q);
   aiHistory.push({ role:'user', content: q });
 
-  if (aiModel === 'internal') {
-    var found = false;
-    for (var key in AI_KB) {
-      if (key !== 'default' && q.indexOf(key) !== -1) {
-        var ans = typeof AI_KB[key] === 'function' ? AI_KB[key]() : AI_KB[key];
-        setTimeout(function(a){ addAiMsg('bot', a); }, 400, ans);
-        found = true; break;
-      }
+  if (aiModel === 'internal' || !isAiAgentReady(aiModel)) {
+    if(aiModel !== 'internal' && !isAiAgentReady(aiModel)){
+      addAiMsg('bot', 'این ایجنت هنوز فعال نیست. از تنظیمات ← دستیار هوش مصنوعی کلید را ذخیره کنید. تا آن موقع از دستیار داخلی جواب می‌دهم.\n\n'+answerInternalAi(q));
+      return;
     }
-    if (!found) setTimeout(function(){ addAiMsg('bot', AI_KB['default']); }, 400);
-  } else {
-    var key2 = localStorage.getItem('laegh_ai_key_'+aiModel)||'';
-    if (!key2) { addAiMsg('bot', '⚠️ ابتدا کلید API را وارد و ذخیره کنید.'); return; }
-    var typing = addAiMsg('bot', '...');
-    typing.className = 'ai-msg bot typing';
-    callExternalAI(aiModel, key2, q, function(reply) {
-      if (typing.parentNode) typing.remove();
-      addAiMsg('bot', reply);
-    });
+    setTimeout(function(){ addAiMsg('bot', answerInternalAi(q)); }, 250);
+    return;
   }
+  var key2 = getAiStoredKey(aiModel);
+  var typing = addAiMsg('bot', '...');
+  typing.className = 'ai-msg bot typing';
+  callExternalAI(aiModel, key2, q, function(reply) {
+    if (typing.parentNode) typing.remove();
+    addAiMsg('bot', reply);
+    aiHistory.push({ role:'assistant', content: reply });
+  });
 }
 
 function callExternalAI(model, apiKey, question, cb) {
-  var sysPrompt = 'شما دستیار هوشمند نرم‌افزار مدیریت خدمات پس از فروش '+getBrand().nameFa+' هستید. به فارسی پاسخ دهید. کوتاه و مفید باشید. اگر سوال درباره خطا یا عیب‌یابی است، راه‌حل عملی بدهید.';
-  var url, headers, body;
-
-  if (model === 'claude') {
-    url = 'https://api.anthropic.com/v1/messages';
-    headers = {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    };
-    body = JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 600,
-      system: sysPrompt,
-      messages: [{ role:'user', content: question }]
-    });
-  } else if (model === 'gpt') {
-    url = 'https://api.openai.com/v1/chat/completions';
-    headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+apiKey };
-    body = JSON.stringify({ model:'gpt-4o-mini', max_tokens:600, messages:[{role:'system',content:sysPrompt},{role:'user',content:question}] });
-  } else if (model === 'gemini') {
-    url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+apiKey;
-    headers = { 'Content-Type':'application/json' };
-    body = JSON.stringify({ contents:[{parts:[{text:sysPrompt+'\n\nسوال: '+question}]}] });
+  var req = resolveExternalAiRequest(model, apiKey, question);
+  if(!req.url){
+    cb('این مدل پشتیبانی نمی‌شود.');
+    return;
   }
-
-  fetch(url, { method:'POST', headers:headers, body:body })
+  fetch(req.url, { method:'POST', headers:req.headers, body:req.body })
     .then(function(r) {
       if (!r.ok) {
         return r.json().then(function(errData) {
           var errMsg = (errData.error && errData.error.message) || ('HTTP '+r.status);
-          var t = translateError(String(r.status));
-          addDbgEntry('err', 'AI API خطا', errMsg, 'کد '+r.status+': '+errMsg, t.sol);
-          cb('❌ خطا '+r.status+': '+errMsg+'\n\n💡 '+t.sol);
+          var t = (typeof translateError==='function') ? translateError(String(r.status)) : {sol:''};
+          if(typeof addDbgEntry==='function') addDbgEntry('err', 'AI API خطا', errMsg, 'کد '+r.status+': '+errMsg, t.sol);
+          cb('❌ خطا '+r.status+': '+errMsg+(t.sol?('\n\n💡 '+t.sol):''));
         });
       }
       return r.json();
@@ -21626,16 +21932,38 @@ function callExternalAI(model, apiKey, question, cb) {
       if (!d) return;
       var reply = '';
       if (model==='claude') reply = (d.content&&d.content[0]&&d.content[0].text) || 'پاسخی دریافت نشد';
-      else if (model==='gpt') reply = (d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content) || 'پاسخی دریافت نشد';
       else if (model==='gemini') reply = (d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts&&d.candidates[0].content.parts[0]&&d.candidates[0].content.parts[0].text) || 'پاسخی دریافت نشد';
+      else reply = (d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content) || 'پاسخی دریافت نشد';
       if (reply) cb(reply);
     })
     .catch(function(e) {
-      var t = translateError(e.message||'');
-      addDbgEntry('err','AI اتصال',e.message,'خطا در اتصال به سرویس AI',t.sol);
-      cb('❌ خطا در اتصال: '+e.message+'\n\n💡 '+t.sol);
+      var t = (typeof translateError==='function') ? translateError(e.message||'') : {sol:''};
+      if(typeof addDbgEntry==='function') addDbgEntry('err','AI اتصال',e.message,'خطا در اتصال به سرویس AI',t.sol);
+      cb('❌ خطا در اتصال: '+e.message+(t.sol?('\n\n💡 '+t.sol):''));
     });
 }
+
+try{
+  var _savedAiModel = localStorage.getItem('laegh_ai_model');
+  if(_savedAiModel) aiModel = _savedAiModel;
+  var _savedAiPurpose = localStorage.getItem('laegh_ai_purpose');
+  if(_savedAiPurpose) aiPurpose = _savedAiPurpose;
+}catch(_aiRest){}
+
+if(!window._aiShortcutBound){
+  window._aiShortcutBound = true;
+  document.addEventListener('keydown', function(e){
+    if(!e) return;
+    var code = e.code || '';
+    var key = (e.key||'').toLowerCase();
+    var isAi = (e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey && (code==='KeyA' || key==='a');
+    if(!isAi) return;
+    try{ e.preventDefault(); if(e.stopPropagation) e.stopPropagation(); }catch(_p){}
+    if(typeof toggleAiDock==='function') toggleAiDock();
+  }, true);
+}
+
+setTimeout(function(){ try{ syncAiAgentUi(); }catch(_s){} }, 50);
 
 function loadAutoSaveUI(){
   var savedInterval = localStorage.getItem('laegh_autosave_interval')||'3';
