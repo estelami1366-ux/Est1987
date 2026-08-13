@@ -1,0 +1,221 @@
+  var rows=warranties.map(function(w){ return {
+    'نام مشتری': w.name||w.customer||'', 'تلفن': w.phone||'', 'محصول': w.model||w.product||'',
+    'سریال': w.serial||'', 'تاریخ خرید': w.buydate||w.buyDate||'', 'تاریخ انقضا': w.warrExp||w.expDate||'',
+    'یادداشت': w.problem||w.note||'', 'وضعیت': w.status||'', 'تاریخ ثبت': w.savedAt||'' }; });
+  _excelExport('Laegh_Warranties_'+fdate().replace(/\//g,'-')+'.xlsx','گارانتی',rows);
+  ntf(warranties.length+' پرونده گارانتی در Excel ذخیره شد ✅');
+}
+function tplWarranties(){
+  _excelExport('Laegh_Warranties_Template.xlsx','گارانتی',[{'نام مشتری':'علی رضایی','تلفن':'09120000000','محصول':'چایساز مدل X','سریال':'SN12345','تاریخ خرید':'1405/01/15','تاریخ انقضا':'1406/01/15','یادداشت':'توضیح مشکل','وضعیت':'فعال'}]);
+  ntf('فایل نمونه‌ی گارانتی دانلود شد — پر کنید و «ورود از Excel» را بزنید');
+}
+
+// --- PHONEBOOK IMPORT ---
+function importPhonebook(inp) {
+  if (!inp.files[0]) return;
+  readExcel(inp.files[0], rows => {
+    let added = 0, skipped = 0;
+    rows.forEach(r => {
+      const fn = (r['نام'] || r['name'] || '').toString().trim();
+      const phone = (r['تلفن'] || r['موبایل'] || r['phone'] || '').toString().trim();
+      if (!fn || !phone) { skipped++; return; }
+      const exists = phonebook.some(p => (p.phones||[]).includes(phone));
+      if (exists) { skipped++; return; }
+      const catRaw = (r['دسته'] || r['دسته‌بندی'] || r['cat'] || '').toString().trim().toLowerCase();
+      const catMap = {'فروشگاه':'shop','نمایندگی':'agency','شرکت':'company','مشتری':'customer'};
+      phonebook.push({
+        fn, ln:'', shop:(r['فروشگاه']||r['شرکت']||'').toString().trim(),
+        addr: (r['آدرس'] || r['address'] || '').toString().trim(),
+        zip: (r['کدپستی']||'').toString().trim(),
+        phones: [phone],
+        ita:'', tg:'', wa:'', ig:'',
+        note: (r['یادداشت'] || r['note'] || '').toString().trim(),
+        cat: catMap[catRaw] || 'other'
+      });
+      added++;
+    });
+    sv(); renderPB();
+    showImportResult(added, skipped, 'مخاطبین');
+  });
+  inp.value = '';
+}
+
+// --- PARTS IMPORT ---
+function importParts(inp) {
+  if (!inp.files[0]) return;
+  readExcel(inp.files[0], rows => {
+    let added = 0, skipped = 0;
+    rows.forEach(r => {
+      const name = (r['نام قطعه'] || r['نام'] || r['name'] || '').toString().trim();
+      const code = (r['کد قطعه'] || r['کد'] || r['code'] || '').toString().trim();
+      if (!name) { skipped++; return; }
+      const exists = parts.some(p => p.code && p.code === code && code !== '');
+      if (exists) { skipped++; return; }
+      parts.push({
+        id: Date.now() + Math.random(),
+        name,
+        code,
+        qty: parseInt(r['موجودی'] || r['qty'] || 0) || 0,
+        price: parseInt((r['قیمت'] || r['price'] || '0').toString().replace(/,/g,'')) || 0,
+        minQty: parseInt(r['حداقل موجودی'] || r['minQty'] || 0) || 0,
+        location: (r['موقعیت'] || r['location'] || '').toString().trim()
+      });
+      added++;
+    });
+    svParts(); renderParts();
+    showImportResult(added, skipped, 'قطعات');
+  });
+  inp.value = '';
+}
+
+// --- SERVICES IMPORT ---
+function importServices(inp) {
+  if (!inp.files[0]) return;
+  readExcel(inp.files[0], rows => {
+    let added = 0, skipped = 0;
+    rows.forEach(r => {
+      const name = (r['نام خدمت'] || r['نام'] || r['name'] || '').toString().trim();
+      if (!name) { skipped++; return; }
+      svcs.push({
+        id: Date.now() + Math.random(),
+        name,
+        price: parseInt((r['قیمت'] || r['price'] || '0').toString().replace(/,/g,'')) || 0,
+        desc: (r['توضیحات'] || r['desc'] || '').toString().trim()
+      });
+      added++;
+    });
+    svSvcs(); renderSvcs();
+    showImportResult(added, skipped, 'خدمات');
+  });
+  inp.value = '';
+}
+
+// --- WARRANTIES IMPORT ---
+function importWarranties(inp) {
+  if (!inp.files[0]) return;
+  readExcel(inp.files[0], rows => {
+    let added = 0, skipped = 0;
+    rows.forEach(r => {
+      const customer = (r['نام مشتری'] || r['مشتری'] || r['customer'] || '').toString().trim();
+      const product = (r['محصول'] || r['product'] || '').toString().trim();
+      if (!customer || !product) { skipped++; return; }
+      warranties.push({
+        id: Date.now() + Math.random(),
+        customer,
+        phone: (r['تلفن'] || r['phone'] || '').toString().trim(),
+        product,
+        serial: (r['سریال'] || r['serial'] || '').toString().trim(),
+        buyDate: (r['تاریخ خرید'] || r['buyDate'] || '').toString().trim(),
+        expDate: (r['تاریخ انقضا'] || r['expDate'] || '').toString().trim(),
+        note: (r['یادداشت'] || r['note'] || '').toString().trim(),
+        status: (r['وضعیت'] || r['status'] || 'فعال').toString().trim()
+      });
+      added++;
+    });
+    svWarr(); renderWarList();
+    showImportResult(added, skipped, 'گارانتی');
+  });
+  inp.value = '';
+}
+
+// --- SALES IMPORT ---
+function importSales(inp) {
+  if (!inp.files[0]) return;
+  readExcel(inp.files[0], rows => {
+    let added = 0, skipped = 0;
+    rows.forEach(r => {
+      const customer = (r['نام مشتری'] || r['نام خریدار'] || r['مشتری'] || r['customer'] || '').toString().trim();
+      const part = (r['قطعه'] || r['نام قطعه'] || r['part'] || '').toString().trim();
+      if (!customer || !part) { skipped++; return; }
+      sales.push({
+        id: Date.now() + Math.random(),
+        customer,
+        phone: (r['تلفن'] || r['phone'] || '').toString().trim(),
+        part,
+        qty: parseInt(r['تعداد'] || r['qty'] || 1) || 1,
+        price: parseInt((r['قیمت واحد'] || r['قیمت'] || r['price'] || '0').toString().replace(/,/g,'')) || 0,
+        date: (r['تاریخ'] || r['date'] || '').toString().trim(),
+        note: (r['یادداشت'] || r['note'] || '').toString().trim()
+      });
+      added++;
+    });
+    svSales(); renderSales();
+    showImportResult(added, skipped, 'فروش');
+  });
+  inp.value = '';
+}
+
+// ===== DOWNLOAD SAMPLE EXCEL FILES =====
+function downloadSampleExcel(type) {
+  loadSheetJS(() => {
+    let data, filename;
+    switch(type) {
+      case 'phonebook':
+        data = [
+          {'نام':'علی احمدی','تلفن':'09121234567','آدرس':'تهران، خیابان آزادی','یادداشت':'مشتری قدیمی'},
+          {'نام':'مریم رضایی','تلفن':'09351234567','آدرس':'اصفهان، خیابان چهارباغ','یادداشت':''}
+        ];
+        filename = 'نمونه_مخاطبین.xlsx';
+        break;
+      case 'parts':
+        data = [
+          {'نام قطعه':'فیلتر هوا','کد قطعه':'F-001','موجودی':10,'قیمت':250000,'حداقل موجودی':2,'موقعیت':'قفسه A1'},
+          {'نام قطعه':'روغن موتور','کد قطعه':'O-002','موجودی':5,'قیمت':180000,'حداقل موجودی':1,'موقعیت':'قفسه B2'}
+        ];
+        filename = 'نمونه_قطعات.xlsx';
+        break;
+      case 'services':
+        data = [
+          {'نام خدمت':'تعویض روغن','قیمت':150000,'توضیحات':'شامل فیلتر روغن'},
+          {'نام خدمت':'تنظیم موتور','قیمت':350000,'توضیحات':'کامل'}
+        ];
+        filename = 'نمونه_خدمات.xlsx';
+        break;
+      case 'warranty':
+        data = [
+          {'نام مشتری':'حسن محمدی','تلفن':'09121111111','محصول':'تلویزیون سامسونگ 55','سریال':'SN-12345','تاریخ خرید':'1403/01/15','تاریخ انقضا':'1404/01/15','وضعیت':'فعال','یادداشت':''},
+          {'نام مشتری':'زهرا کریمی','تلفن':'09132222222','محصول':'یخچال ال جی','سریال':'LG-98765','تاریخ خرید':'1402/06/01','تاریخ انقضا':'1404/06/01','وضعیت':'فعال','یادداشت':'تعویض کمپرسور'}
+        ];
+        filename = 'نمونه_گارانتی.xlsx';
+        break;
+      case 'sales':
+        data = [
+          {'نام مشتری':'رضا نوری','تلفن':'09123333333','قطعه':'فیلتر هوا','تعداد':2,'قیمت واحد':250000,'تاریخ':'1403/03/20','یادداشت':''},
+          {'نام مشتری':'سارا امینی','تلفن':'09134444444','قطعه':'روغن موتور','تعداد':1,'قیمت واحد':180000,'تاریخ':'1403/03/21','یادداشت':'تخفیف داده شد'}
+        ];
+        filename = 'نمونه_فروش.xlsx';
+        break;
+    }
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'داده‌ها');
+    // Set column widths
+    ws['!cols'] = Object.keys(data[0]).map(() => ({wch: 20}));
+    XLSX.writeFile(wb, filename);
+  });
+}
+
+// ─── INIT نهایی سایدبار/وظایف ────────────────────────────────────────────────
+// این بخش عمداً در همین انتهای فایل قرار دارد (بعد از تعریف tasks/invoices/sales/warranties با let)
+// تا با همان منطق پروژه که قبلاً باعث ReferenceError در صفحه ورود شده بود، تکرار نشود.
+restoreSbCollapse();
+renderSidebarBadges();
+renderTaskLinkOptions();
+initHelpTree();
+initTooltips();
+// تاریخ فاکتور هنگام اولین بارگذاری از مرکز زمان (تهران) پر شود اگر خالی باشد
+(function(){ const _id=document.getElementById('inv-date'); if(_id && !_id.value){ _id.value=fdate(); if(_id.dataset) _id.dataset.ts=Date.now(); } })();
+// بارگذاری تنظیمات پنل پیامک در فرم تنظیمات
+if(typeof loadSmsCfgUI==='function') loadSmsCfgUI();
+setTimeout(syncAllAutoTasks,2500);
+setInterval(syncAllAutoTasks,300000);
+setInterval(checkDueTasksForNotification, 60000);
+// ساعت زنده‌ی مرکز زمان
+updateLiveClock(); setInterval(updateLiveClock, 1000);
+if('Notification' in window && Notification.permission==='granted'){ registerLaeghSW(); }
+syncNotifiedFromIDB();
+
+</script>
+
+</body>
+</html>

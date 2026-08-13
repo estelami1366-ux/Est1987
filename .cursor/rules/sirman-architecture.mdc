@@ -1,0 +1,24 @@
+---
+description: معماری بلندمدت سیرمان/لایق — Modular Monolith، HTML فقط UI، هسته در .NET
+alwaysApply: true
+---
+
+# معماری سیرمان
+
+قبل از هر تغییر در این پروژه، `docs/ARCHITECTURE_RULES.md` و مهارت `.agents/skills/laegh-software-workflow/SKILL.md` را رعایت کن.
+
+اصل: قابلیت جدید نباید قابلیت قبلی را خراب کند. حفظ داده بر زیبایی UI اولویت دارد.
+
+## لایه‌ها
+UI (HTML/CSS/JS) → Application Services (.NET Host Object) → Business Logic → Data Access → Database
+
+- HTML فقط UI است. منطق کسب‌وکار، دیتابیس و بک‌آپ جدید را داخل JS ننویس.
+- مسیر مجاز UI↔Core: WebView2 Host Object به نام `sirmanHost` (`chrome.webview.hostObjects.sync.sirmanHost`). فایل: `desktop/Sirman.Desktop/SirmanHostObject.cs`.
+- `fetch`/localhost API و Blazor برای منطق کسب‌وکار ممنوع است مگر تصمیم صریح جدید در `docs/ARCHITECTURE_RULES.md` ثبت شود.
+- Core به بررسی‌های UI اعتماد نمی‌کند؛ دسترسی و اعتبار داده باید در .NET هم چک شود.
+
+## انتقال تدریجی
+منطق فعلی داخل HTML میراث است. بازنویسی کل پروژه ممنوع است. قابلیت موجود را توسعه بده؛ سیستم موازی نساز. مسیر HTML-only تا اطلاع ثانوی باید کار کند.
+
+## قبل از کد
+1. ساختار فعلی را ببین. 2. ماژول مناسب را پیدا کن. 3. لایه را مشخص کن. 4. اگر مشابه وجود دارد همان را گسترش بده. 5. Migration/Backup را نشکن.
