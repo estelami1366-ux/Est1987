@@ -3963,14 +3963,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۲η باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۲θ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.22η', 'نسخه meta باید 1405.5.22η باشد');
+  assertEqual(metaVer, '1405.5.22θ', 'نسخه meta باید 1405.5.22θ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/22', 'app-date باید 1405/05/22 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲η', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲η را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲θ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲θ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.22η'", 'فیلد version بک‌آپ باید 1405.5.22η باشد');
+  assertContainsString(buildSrc, "version: '1405.5.22θ'", 'فیلد version بک‌آپ باید 1405.5.22θ باشد');
 });
 
 
@@ -6266,6 +6266,111 @@ test('شنونده میانبر قفل باید Ctrl+Shift+L را در capture �
   assertContainsString(chunk, 'KeyL', 'میانبر باید کلید L باشد');
   assertContainsString(chunk, 'lockApp()', 'میانبر باید lockApp را صدا بزند');
   assertTrue(/addEventListener\(\s*'keydown'[\s\S]*,\s*true\s*\)/.test(chunk), 'شنونده باید capture باشد تا داخل فیلد هم کار کند');
+});
+
+
+console.log('');
+console.log('📋 گروه: دستیار / ایجنت قابل‌فعال‌سازی (راهنما و کمک در کار)');
+
+test('توابع و رابط فعال‌سازی ایجنت باید در HTML باشند', () => {
+  ['isAiAgentReady','getAiAgentStatus','buildAiSafeContext','buildAiSystemPrompt','resolveExternalAiRequest','answerInternalAi','saveAiAgentConfig','openAiDock','toggleAiDock','setAiPurpose'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  assertContainsString(html, 'id="btn-ai-float"', 'دکمه شناور دستیار لازم است');
+  assertContainsString(html, 'id="ai-dock"', 'پنل گفتگوی دستیار لازم است');
+  assertContainsString(html, 'data-ai-model="custom"', 'گزینه ایجنت سفارشی لازم است');
+  assertContainsString(html, 'id="ai-custom-url"', 'فیلد آدرس API سفارشی لازم است');
+  assertContainsString(html, 'Ctrl+Shift+A', 'میانبر دستیار لازم است');
+  assertContainsString(html, 'فعال‌سازی دستیار برای راهنما و کمک در کار', 'راهنمای دستیار لازم است (قانون ۷)');
+});
+
+test('شبیه‌سازی: ایجنت بدون کلید فعال نشود؛ زمینه کار شماره تلفن نفرستد؛ سفارشی URL سازگار بسازد (execution-based)', () => {
+  const src = [
+    extractFunctionSource(html, 'aiBrandName'),
+    extractFunctionSource(html, 'getAiCustomConfig'),
+    extractFunctionSource(html, 'getAiStoredKey'),
+    extractFunctionSource(html, 'isAiAgentReady'),
+    extractFunctionSource(html, 'getAiAgentStatus'),
+    extractFunctionSource(html, 'buildAiSafeContext'),
+    extractFunctionSource(html, 'buildAiSystemPrompt'),
+    extractFunctionSource(html, 'normalizeAiBaseUrl'),
+    extractFunctionSource(html, 'resolveExternalAiRequest'),
+    extractFunctionSource(html, 'answerInternalAi')
+  ].join('\n');
+  assertTrue(src.indexOf('function isAiAgentReady')>=0, 'سورس ایجنت استخراج نشد');
+
+  const kbMatch = html.match(/var AI_KB = \{[\s\S]*?\n\};\n/);
+  assertTrue(!!kbMatch, 'AI_KB پیدا نشد');
+
+  const runner2 = new Function(
+    'localStorage','document','APP_VERSION','invoices','products','parts','warranties','sales','phonebook','tasks','getBrand',
+    'var aiModel = "gpt";\n' +
+    'var aiPurpose = "help";\n' +
+    kbMatch[0] + '\n' + src + '\n' +
+    'return {\n' +
+    '  internal: isAiAgentReady("internal"),\n' +
+    '  gptNoKey: isAiAgentReady("gpt"),\n' +
+    '  customNoCfg: isAiAgentReady("custom"),\n' +
+    '  afterKey: (function(){ localStorage.setItem("laegh_ai_key_gpt","sk-x"); return isAiAgentReady("gpt"); })(),\n' +
+    '  customReady: (function(){ localStorage.setItem("laegh_ai_key_custom","sk-c"); localStorage.setItem("laegh_ai_custom_url","https://x.ai/v1"); localStorage.setItem("laegh_ai_custom_model","grok"); return isAiAgentReady("custom"); })(),\n' +
+    '  norm: normalizeAiBaseUrl("https://openrouter.ai/api/v1/"),\n' +
+    '  ctx: buildAiSafeContext(),\n' +
+    '  helpPrompt: buildAiSystemPrompt("help"),\n' +
+    '  workPrompt: buildAiSystemPrompt("work"),\n' +
+    '  req: resolveExternalAiRequest("custom","sk-test","چطور بک‌آپ بگیرم؟",{purpose:"work", custom:{url:"https://openrouter.ai/api/v1/", model:"mistral"}}),\n' +
+    '  ans: answerInternalAi("چطور بک‌آپ بگیرم")\n' +
+    '};'
+  );
+
+  const store = {};
+  const els = {};
+  function el(id){
+    if(!els[id]) els[id] = { id:id, value:'', style:{}, classList:{ add(){}, remove(){}, toggle(){}, contains(){return false;} }, textContent:'', focus(){} };
+    return els[id];
+  }
+  const fakeLS = {
+    getItem: k => (Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null),
+    setItem: (k,v) => { store[k]=String(v); }
+  };
+  const fakeDoc = {
+    getElementById: id => el(id),
+    querySelector: () => null,
+    querySelectorAll: () => []
+  };
+  const out = runner2(
+    fakeLS, fakeDoc, '1405.5.22θ',
+    [{num:'1'}], [], [], [], [],
+    [{fn:'علی', phones:['09121234567']}],
+    [],
+    function(){ return { nameFa:'سیرمان' }; }
+  );
+
+  assertEqual(out.internal, true, 'دستیار داخلی باید همیشه آماده باشد');
+  assertEqual(out.gptNoKey, false, 'GPT بدون کلید نباید آماده باشد');
+  assertEqual(out.customNoCfg, false, 'سفارشی بدون آدرس/مدل نباید آماده باشد');
+  assertEqual(out.afterKey, true, 'با کلید، GPT باید آماده شود');
+  assertEqual(out.customReady, true, 'سفارشی با آدرس و مدل و کلید باید آماده شود');
+  assertEqual(out.norm, 'https://openrouter.ai/api/v1', 'اسلش انتهای URL باید حذف شود');
+  assertTrue(String(out.ctx).indexOf('09121234567')===-1, 'زمینه نباید شماره تلفن بفرستد');
+  assertTrue(String(out.ctx).indexOf('علی')===-1, 'زمینه نباید نام مشتری بفرستد');
+  assertTrue(String(out.ctx).indexOf('تعداد مخاطب: 1')>=0, 'زمینه باید تعداد مخاطب را بگوید');
+  assertTrue(String(out.helpPrompt).indexOf('راهنمای استفاده')>=0, 'پرامپت راهنما باید حالت راهنما داشته باشد');
+  assertTrue(String(out.workPrompt).indexOf('کمک در کار')>=0, 'پرامپت کار باید حالت کار داشته باشد');
+  assertEqual(out.req.url, 'https://openrouter.ai/api/v1/chat/completions', 'URL سفارشی باید chat/completions باشد');
+  assertEqual(out.req.headers.Authorization, 'Bearer sk-test', 'کلید باید Bearer شود');
+  const body = JSON.parse(out.req.body);
+  assertEqual(body.model, 'mistral', 'نام مدل سفارشی باید در بدنه باشد');
+  assertTrue(body.messages[0].content.indexOf('کمک در کار')>=0, 'بدنه سفارشی باید پرامپت کار داشته باشد');
+  assertTrue(String(out.ans).indexOf('بک')>=0 || String(out.ans).indexOf('پشتیبان')>=0, 'دستیار داخلی باید سوال بک‌آپ را بشناسد');
+});
+
+test('شنونده میانبر دستیار باید Ctrl+Shift+A را در capture بگیرد', () => {
+  const idx = html.indexOf('_aiShortcutBound');
+  assertTrue(idx > 0, 'شنونده میانبر دستیار پیدا نشد');
+  const chunk = html.slice(idx, idx + 700);
+  assertContainsString(chunk, 'shiftKey', 'میانبر دستیار باید Shift داشته باشد');
+  assertContainsString(chunk, 'KeyA', 'میانبر دستیار باید کلید A باشد');
+  assertContainsString(chunk, 'toggleAiDock()', 'میانبر باید پنل دستیار را باز کند');
 });
 
 
