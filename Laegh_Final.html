@@ -13087,8 +13087,14 @@ function onWInitChange(){
     ref.value = init ? winitToRef(init) : 'agency';
     if(typeof toggleCompanyReport==='function') toggleCompanyReport(ref.value);
   }
-  if(init==='refer_agency'){ fillWarAgencySelect(); fillWarAccountSelects(); if(!(window._waParts||[]).length) addWarPartReq('agency'); }
-  if(init==='refer_company'){ fillWarAccountSelects(); onWarUnderWarrChange(); if(!(window._wcParts||[]).length) addWarPartReq('company'); }
+  if(init==='refer_agency'){
+    fillWarAgencySelect(); fillWarAccountSelects();
+    toggleWarPartRequest('agency', !!(document.getElementById('wa-parts-enabled')||{}).checked);
+  }
+  if(init==='refer_company'){
+    fillWarAccountSelects(); onWarUnderWarrChange();
+    toggleWarPartRequest('company', !!(document.getElementById('wc-parts-enabled')||{}).checked);
+  }
 }
 
 // --- stage docs ---
