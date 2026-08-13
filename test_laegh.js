@@ -997,7 +997,7 @@ test('openSaleForm هنگام ویرایش یک فروش قبلی باید docs 
 });
 
 test('شبیه‌سازی واقعی کامل: یک چرخه کامل ثبت فروش با عکس ضمیمه باید عکس را در رکورد نهایی sales[] ذخیره کند', async () => {
-  // از ۱۴۰۵.۵.۲۱ν ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
+  // از ۱۴۰۵.۵.۲۱ξ ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
   const addSrc = extractFunctionSource(html, 'addSaleDocs');
   assertTrue(addSrc !== null, 'تابع addSaleDocs پیدا نشد');
   assertContainsString(addSrc, 'storeDocFileOnDisk', 'addSaleDocs باید روی دیسک بنویسد');
@@ -3875,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱ν باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱ξ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21ν', 'نسخه meta باید 1405.5.21ν باشد');
+  assertEqual(metaVer, '1405.5.21ξ', 'نسخه meta باید 1405.5.21ξ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ν', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ν را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ξ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ξ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21ν'", 'فیلد version بک‌آپ باید 1405.5.21ν باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21ξ'", 'فیلد version بک‌آپ باید 1405.5.21ξ باشد');
 });
 
 
@@ -3951,7 +3951,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
       good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.20ε', minBaseVersion:'1405.5.20ε'}),
-      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21ν'}),
+      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21ξ'}),
       cmp: compareSirmanVersions('1405.5.20ε','1405.5.18ε')
     };
   `);
@@ -4051,18 +4051,34 @@ test('قانون ۹: لانچر BAT/PS1 باید با نسخه meta همگام �
 
 
 
-console.log('📋 گروه ۲۱β: نشانه سبز ذخیره خودکار');
+console.log('📋 گروه ۲۱β: نشانه ذخیره خودکار');
 
-test('نشانه سبز autosave باید حالت armed و پالس on داشته باشد', () => {
+test('نشانه سبز autosave فقط هنگام ذخیره موفق باید پالس بزند، نه دائمی', () => {
   assertContainsString(html, 'id="autosave-dot"', 'عنصر autosave-dot لازم است');
-  assertContainsString(html, '#autosave-dot.armed', 'حالت همیشه-روشن armed لازم است');
   assertContainsString(html, 'function setAutosaveDotArmed(', 'setAutosaveDotArmed لازم است');
   assertContainsString(html, 'function autoSaveTick(', 'autoSaveTick لازم است');
   const st = extractFunctionSource(html, 'startAutoSave');
-  assertContainsString(st, 'setAutosaveDotArmed', 'startAutoSave باید نشانه را روشن کند');
   assertContainsString(st, 'doAutoSave(true)', 'شروع باید یک ذخیره فوری هم بزند');
   const fl = extractFunctionSource(html, 'flashAutosaveDot');
-  assertContainsString(fl, 'armed', 'پالس باید حالت فعال را نگه دارد');
+  assertContainsString(fl, "dot.classList.add('on')", 'ذخیره موفق باید پالس on را فعال کند');
+  assertContainsString(fl, "dot.classList.remove('on')", 'پس از پالس باید چراغ پنهان شود');
+  const tick = extractFunctionSource(html, 'autoSaveTick');
+  assertTrue(tick.indexOf('setAutosaveDotArmed(true') === -1, 'tick نباید چراغ دائمی روشن کند');
+});
+
+test('اعلان سیرمان باید صدای متمایز داشته باشد', () => {
+  const sound = extractFunctionSource(html, 'playSirmanNotificationSound');
+  const notify = extractFunctionSource(html, 'showLaeghNotification');
+  assertTrue(!!sound && !!notify, 'توابع صدای اعلان پیدا نشدند');
+  assertContainsString(sound, 'AudioContext', 'مرورگر باید چایم اختصاصی بسازد');
+  assertContainsString(sound, '784', 'نت اول چایم سیرمان');
+  assertContainsString(sound, '1047', 'نت دوم چایم سیرمان');
+  assertContainsString(notify, 'playSirmanNotificationSound', 'اعلان ویندوز باید صدای سیرمان را صدا بزند');
+  const fs = require('fs'), path = require('path');
+  const host = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'NotifyBridgeService.cs'), 'utf8');
+  assertContainsString(host, 'PlaySirmanChime', 'پوسته EXE باید چایم اختصاصی داشته باشد');
+  assertContainsString(host, 'Console.Beep(784', 'پوسته EXE باید نت اول را اجرا کند');
+  assertContainsString(host, 'Notification.IM', 'Toast ویندوز باید صدای اطلاع‌رسانی داشته باشد');
 });
 
 console.log('📋 گروه ۲۱α: پیش‌نمایش و بازگردانی انتخابی بک‌آپ');
@@ -4084,7 +4100,7 @@ test('شبیه‌سازی واقعی: summarizeBackupInventory باید بخش�
   assertTrue(!!extractFunctionSource(html, 'summarizeBackupInventory'), 'summarizeBackupInventory پیدا نشد');
   const runner = new Function(src + `;
     return summarizeBackupInventory({
-      version:'1405.5.21ν',
+      version:'1405.5.21ξ',
       invoices:[{id:1},{id:2}],
       phonebook:[{fn:'علی',phones:['0912']}],
       pb:[],

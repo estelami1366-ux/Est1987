@@ -53,6 +53,7 @@ public sealed class NotifyBridgeService : IDisposable
     {
         title = string.IsNullOrWhiteSpace(title) ? "سیرمان" : title.Trim();
         body ??= "";
+        PlaySirmanChime();
 
         if (TryShowWinRtToast(title, body)) return;
 
@@ -70,6 +71,24 @@ public sealed class NotifyBridgeService : IDisposable
         {
             // آخرین راه: بی‌صدا نادیده
         }
+    }
+
+    /// <summary>دو نت کوتاه مخصوص سیرمان؛ با صدای خطای ویندوز اشتباه نمی‌شود.</summary>
+    private static void PlaySirmanChime()
+    {
+        _ = Task.Run(() =>
+        {
+            try
+            {
+                Console.Beep(784, 70);
+                Thread.Sleep(35);
+                Console.Beep(1047, 105);
+            }
+            catch
+            {
+                try { System.Media.SystemSounds.Asterisk.Play(); } catch { /* sound اختیاری */ }
+            }
+        });
     }
 
     /// <summary>
@@ -220,6 +239,7 @@ public sealed class NotifyBridgeService : IDisposable
             var safeBody = System.Security.SecurityElement.Escape(body) ?? body;
             var xml = $"""
                 <toast>
+                  <audio src="ms-winsoundevent:Notification.IM" loop="false"/>
                   <visual>
                     <binding template="ToastGeneric">
                       <text>{safeTitle}</text>
