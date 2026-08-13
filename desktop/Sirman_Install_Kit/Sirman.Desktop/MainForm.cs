@@ -316,6 +316,12 @@ public sealed class MainForm : Form
         file.DropDownItems.Add(new ToolStripMenuItem("باز کردن پوشه برنامه", null, (_, _) => OpenFolder(AppPaths.ExeDir)));
         file.DropDownItems.Add(new ToolStripMenuItem("باز کردن پوشه داده (AppData)", null, (_, _) => OpenFolder(AppPaths.AppDataRoot)));
         file.DropDownItems.Add(new ToolStripSeparator());
+        var lockItem = new ToolStripMenuItem("قفل برنامه", null, async (_, _) => await LockAppFromUiAsync())
+        {
+            ShortcutKeys = Keys.Control | Keys.Shift | Keys.L,
+            ShortcutKeyDisplayString = "Ctrl+Shift+L"
+        };
+        file.DropDownItems.Add(lockItem);
         file.DropDownItems.Add(new ToolStripMenuItem("خروج", null, (_, _) => Close()));
 
         var update = new ToolStripMenuItem("آپدیت");
@@ -411,7 +417,26 @@ public sealed class MainForm : Form
             _webView.CoreWebView2?.Reload();
             return true;
         }
+        if (keyData == (Keys.Control | Keys.Shift | Keys.L))
+        {
+            _ = LockAppFromUiAsync();
+            return true;
+        }
         return base.ProcessCmdKey(ref msg, keyData);
+    }
+
+    private async Task LockAppFromUiAsync()
+    {
+        try
+        {
+            if (_webView.CoreWebView2 == null) return;
+            await _webView.CoreWebView2.ExecuteScriptAsync(
+                "try{ if(typeof lockApp==='function') lockApp(); }catch(e){}");
+        }
+        catch
+        {
+            /* HTML-only lock still works from the page shortcut */
+        }
     }
 
     private async Task InitWebViewAsync()
