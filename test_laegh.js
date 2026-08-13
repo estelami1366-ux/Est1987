@@ -3963,14 +3963,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۲θ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۲ι باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.22θ', 'نسخه meta باید 1405.5.22θ باشد');
+  assertEqual(metaVer, '1405.5.22ι', 'نسخه meta باید 1405.5.22ι باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/22', 'app-date باید 1405/05/22 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲θ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲θ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲ι', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲ι را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.22θ'", 'فیلد version بک‌آپ باید 1405.5.22θ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.22ι'", 'فیلد version بک‌آپ باید 1405.5.22ι باشد');
 });
 
 
@@ -6338,7 +6338,7 @@ test('شبیه‌سازی: ایجنت بدون کلید فعال نشود؛ زم
     querySelectorAll: () => []
   };
   const out = runner2(
-    fakeLS, fakeDoc, '1405.5.22θ',
+    fakeLS, fakeDoc, '1405.5.22ι',
     [{num:'1'}], [], [], [], [],
     [{fn:'علی', phones:['09121234567']}],
     [],
@@ -6371,6 +6371,99 @@ test('شنونده میانبر دستیار باید Ctrl+Shift+A را در cap
   assertContainsString(chunk, 'shiftKey', 'میانبر دستیار باید Shift داشته باشد');
   assertContainsString(chunk, 'KeyA', 'میانبر دستیار باید کلید A باشد');
   assertContainsString(chunk, 'toggleAiDock()', 'میانبر باید پنل دستیار را باز کند');
+});
+
+console.log('');
+console.log('📋 گروه: جمع‌کردن کشویی ستون راست (کلید درز اتصال)');
+
+test('کلید باریک درز منوی راست و CSS جمع شدن باید موجود باشند', () => {
+  assertContainsString(html, 'id="sb-rail-toggle"', 'کلید درز منوی راست پیدا نشد');
+  assertContainsString(html, 'class="sb-rail-toggle"', 'کلاس کلید درز پیدا نشد');
+  assertContainsString(html, 'onclick="toggleSbRail()"', 'کلیک کلید باید toggleSbRail را صدا بزند');
+  assertContainsString(html, 'function applySbCollapsed(', 'تابع applySbCollapsed پیدا نشد');
+  assertContainsString(html, 'function toggleSbRail(', 'تابع toggleSbRail پیدا نشد');
+  assertContainsString(html, 'function restoreSbCollapsed(', 'تابع restoreSbCollapsed پیدا نشد');
+  assertContainsString(html, 'function isSbRailCollapsible(', 'تابع isSbRailCollapsible پیدا نشد');
+  assertContainsString(html, 'body.sb-collapsed .sb', 'قانون CSS جمع‌شدن سایدبار پیدا نشد');
+  assertContainsString(html, "localStorage.setItem('laegh_sb_collapsed'", 'باید حالت جمع بودن ذخیره شود');
+  assertContainsString(html, "sbCollapsed: localStorage.getItem('laegh_sb_collapsed')", 'بک‌آپ باید sbCollapsed داشته باشد');
+  assertContainsString(html, "localStorage.setItem('laegh_sb_collapsed', ap.sbCollapsed)", 'بازگردانی sbCollapsed لازم است');
+  assertContainsString(html, "'laegh_sb_collapsed'", 'کلید ظاهر باید در ریست محافظت شود');
+  assertContainsString(html, 'جمع کردن ستون راست', 'راهنمای جمع کردن ستون راست لازم است (قانون ۷)');
+  assertContainsString(html, 'body.sb-dock .sb-rail-toggle{display:none!important;}', 'در داک پایین کلید درز نباید دیده شود');
+  const btnIdx = html.indexOf('id="sb-rail-toggle"');
+  const sbClose = html.lastIndexOf('</div>', btnIdx);
+  const mainIdx = html.indexOf('class="main"', btnIdx);
+  assertTrue(btnIdx > 0 && mainIdx > btnIdx, 'کلید باید قبل از صفحه وسط باشد');
+  const between = html.slice(Math.max(0, sbClose), mainIdx);
+  assertTrue(between.indexOf('id="sb-rail-toggle"') >= 0, 'کلید باید خواهر سایدبار باشد نه داخل overflow آن');
+  const collapsedSb = html.match(/body\.sb-collapsed \.sb\{[\s\S]*?\}/);
+  assertTrue(!!collapsedSb, 'بلوک CSS body.sb-collapsed .sb پیدا نشد');
+  assertContainsString(collapsedSb[0], 'right:', 'جمع شدن باید با right باشد نه جابه‌جایی کل لایه');
+  assertTrue(!/transform\s*:/.test(collapsedSb[0]), 'جمع شدن نباید transform روی .sb بگذارد (با transform:none سایدبار قفل است)');
+  assertContainsString(html, 'body.sb-collapsed.sb-icons-only .main', 'حالت فقط‌آیکون هم باید با جمع شدن تمام‌عرض شود');
+  assertContainsString(html, 'margin-right:0!important', 'صفحه وسط در حالت جمع باید حاشیه راست صفر داشته باشد');
+});
+
+test('شبیه‌سازی: applySbCollapsed باید منو را جمع کند، در داک بی‌اثر باشد، و ذخیره کند (execution-based)', () => {
+  const src = [
+    extractFunctionSource(html, 'isSbRailCollapsible'),
+    extractFunctionSource(html, 'applySbCollapsed'),
+    extractFunctionSource(html, 'toggleSbRail'),
+    extractFunctionSource(html, 'restoreSbCollapsed')
+  ].join('\n');
+  assertTrue(src.indexOf('function applySbCollapsed') >= 0, 'سورس جمع‌کردن منو استخراج نشد');
+  const classes = new Set();
+  const store = {};
+  const btn = { title:'', attrs:{}, setAttribute(k,v){ this.attrs[k]=String(v); }, getAttribute(k){ return this.attrs[k]; } };
+  const fakeDocument = {
+    body: {
+      classList: {
+        toggle(c, on){ if(on) classes.add(c); else classes.delete(c); },
+        add(c){ classes.add(c); },
+        remove(c){ classes.delete(c); },
+        contains(c){ return classes.has(c); }
+      }
+    },
+    getElementById(id){ return id === 'sb-rail-toggle' ? btn : null; }
+  };
+  const fakeLS = {
+    getItem: k => (Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null),
+    setItem: (k,v) => { store[k]=String(v); }
+  };
+  const runner = new Function('document','localStorage', src + `
+    var r1 = applySbCollapsed(true);
+    var collapsed = document.body.classList.contains('sb-collapsed');
+    var savedOn = localStorage.getItem('laegh_sb_collapsed');
+    var expandedAttr = document.getElementById('sb-rail-toggle').getAttribute('aria-expanded');
+    var r2 = applySbCollapsed(false);
+    var afterOff = document.body.classList.contains('sb-collapsed');
+    var savedOff = localStorage.getItem('laegh_sb_collapsed');
+    applySbCollapsed(true);
+    var toggled = toggleSbRail();
+    var afterToggle = document.body.classList.contains('sb-collapsed');
+    document.body.classList.add('sb-dock');
+    var docked = applySbCollapsed(true);
+    var dockVisual = document.body.classList.contains('sb-collapsed');
+    var dockSaved = localStorage.getItem('laegh_sb_collapsed');
+    document.body.classList.remove('sb-dock');
+    localStorage.setItem('laegh_sb_collapsed','1');
+    var restored = restoreSbCollapsed();
+    var afterRestore = document.body.classList.contains('sb-collapsed');
+    return { r1, collapsed, savedOn, expandedAttr, r2, afterOff, savedOff, toggled, afterToggle, docked, dockVisual, dockSaved, restored, afterRestore };
+  `);
+  const out = runner(fakeDocument, fakeLS);
+  assertEqual(out.r1, true, 'جمع شدن در حالت عادی باید موفق باشد');
+  assertEqual(out.collapsed, true, 'باید کلاس sb-collapsed روی body بیاید');
+  assertEqual(out.savedOn, '1', 'باید laegh_sb_collapsed=1 ذخیره شود');
+  assertEqual(out.expandedAttr, 'false', 'aria-expanded در حالت جمع باید false باشد');
+  assertEqual(out.afterOff, false, 'با false باید کلاس sb-collapsed برداشته شود');
+  assertEqual(out.savedOff, '0', 'باز کردن منو باید 0 ذخیره کند');
+  assertEqual(out.afterToggle, false, 'toggle از حالت جمع باید منو را باز کند');
+  assertEqual(out.docked, false, 'در داک پایین نباید جمع بصری فعال شود');
+  assertEqual(out.dockVisual, false, 'کلاس sb-collapsed در داک نباید بماند');
+  assertEqual(out.dockSaved, '1', 'ترجیح کاربر حتی در داک باید ذخیره شود');
+  assertEqual(out.afterRestore, true, 'restore از localStorage باید منو را جمع کند');
 });
 
 
