@@ -101,6 +101,38 @@ public sealed class MainForm : Form
         catch { /* ظاهر استاندارد ویندوز ادامه دارد */ }
     }
 
+    public void ApplyUiSkinChrome(string? key)
+    {
+        if (!IsHandleCreated) return;
+        try
+        {
+            var chrome = UiSkinPack.For(key);
+            if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 18362))
+            {
+                var caption = ColorTranslator.ToWin32(Color.FromArgb(chrome.CaptionArgb));
+                var border = ColorTranslator.ToWin32(Color.FromArgb(chrome.BorderArgb));
+                var text = ColorTranslator.ToWin32(Color.FromArgb(chrome.TextArgb));
+                _ = DwmSetWindowAttribute(Handle, DwmwaCaptionColor, ref caption, sizeof(int));
+                _ = DwmSetWindowAttribute(Handle, DwmwaBorderColor, ref border, sizeof(int));
+                _ = DwmSetWindowAttribute(Handle, DwmwaTextColor, ref text, sizeof(int));
+            }
+            if (chrome.PreferMica && OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
+            {
+                var backdrop = DwmsbtMainWindow;
+                _ = DwmSetWindowAttribute(Handle, DwmwaSystemBackdropType, ref backdrop, sizeof(int));
+            }
+            var darkTitle = chrome.DarkTitle ? 1 : 0;
+            _ = DwmSetWindowAttribute(Handle, DwmwaUseImmersiveDarkMode, ref darkTitle, sizeof(int));
+            var cap = Color.FromArgb(chrome.CaptionArgb);
+            if (MainMenuStrip != null)
+            {
+                MainMenuStrip.BackColor = cap;
+                MainMenuStrip.ForeColor = Color.FromArgb(chrome.TextArgb);
+            }
+        }
+        catch { /* نوار استاندارد می‌ماند */ }
+    }
+
     private sealed class ModernColorTable : ProfessionalColorTable
     {
         public override Color MenuStripGradientBegin => Color.FromArgb(22, 92, 128);

@@ -26,4 +26,7 @@ public class SirmanHostObject
 
     /// <summary>CSS شیشه‌ای فصل/ماه که از پوستهٔ دات‌نت تزریق می‌شود.</summary>
     public string GetWarrantyBrowseCss() => SeasonalGlassTheme.Css();
+
+    /// <summary>همگام‌سازی نوار عنوان ویندوز با اسکین انتخاب‌شده در HTML.</summary>
+    public void ApplyUiSkin(string key) => _form.ApplyUiSkinChrome(key);
 }

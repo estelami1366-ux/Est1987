@@ -3875,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱φ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱χ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21φ', 'نسخه meta باید 1405.5.21φ باشد');
+  assertEqual(metaVer, '1405.5.21χ', 'نسخه meta باید 1405.5.21χ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱φ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱φ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱χ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱χ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21φ'", 'فیلد version بک‌آپ باید 1405.5.21φ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21χ'", 'فیلد version بک‌آپ باید 1405.5.21χ باشد');
 });
 
 
@@ -5089,6 +5089,85 @@ test('اسکین ویندوز باید در SKIN_PRESETS و CSS باشد', () =>
   const src = extractFunctionSource(html, 'setSkin');
   assertContainsString(src, "preferMenu", 'setSkin باید preferMenu را اعمال کند');
   assertContainsString(html, 'اسکین ویندوز', 'راهنمای اسکین ویندوز');
+});
+
+test('بسته هفت رابط کاربری مدرن باید در SKIN_PRESETS و CSS باشد', () => {
+  const m = html.match(/const SKIN_PRESETS = \{([\s\S]*?)\n\};\n\nconst COLOR_THEMES/);
+  assertTrue(m !== null, 'بدنه SKIN_PRESETS استخراج نشد');
+  const keys = [...m[1].matchAll(/^\s{2}(\w+):\s*\{/gm)].map(x => x[1]);
+  ['fluent','mica','material','darkmodern','glass','neuro','minimal'].forEach(k=>{
+    assertTrue(keys.includes(k), 'اسکین رابط کاربری باید باشد: '+k);
+    assertContainsString(html, 'body.skin-'+k, 'CSS اسکین '+k);
+  });
+  assertContainsString(m[1], "family:'ui'", 'خانواده ui برای رابط‌های مدرن');
+  assertContainsString(m[1], "label:'Fluent Design'", 'برچسب Fluent Design');
+  assertContainsString(m[1], "label:'متریال ۳'", 'برچسب متریال ۳');
+  assertContainsString(m[1], "preferTheme:'dark'", 'دارک مدرن باید تم تیره را ترجیح دهد');
+  assertContainsString(html, 'رابط‌های کاربری مدرن', 'گروه رابط مدرن در ظاهر');
+  assertContainsString(html, 'پوسته‌های برند', 'گروه پوسته‌های برند در ظاهر');
+});
+
+test('راهنما باید هفت سبک رابط کاربری را توضیح دهد', () => {
+  assertContainsString(html, 'Fluent Design', 'راهنمای Fluent Design');
+  assertContainsString(html, 'متریال ۳', 'راهنمای متریال ۳');
+  assertContainsString(html, 'نئومورفیسم', 'راهنمای نئومورفیسم');
+  assertContainsString(html, 'مینیمال اداری', 'راهنمای مینیمال اداری');
+  assertContainsString(html, 'گلس‌مورفیسم', 'راهنمای گلس‌مورفیسم');
+  assertContainsString(html, 'میکا / ویندوز ۱۱', 'راهنمای میکا');
+  assertContainsString(html, 'دارک مدرن', 'راهنمای دارک مدرن');
+});
+
+test('شبیه‌سازی واقعی: setSkin دارک مدرن باید تم تیره و کلاس اسکین را اعمال کند', () => {
+  const applySrc = extractFunctionSource(html, 'applySkinVars');
+  const setSrc = extractFunctionSource(html, 'setSkin');
+  const m = html.match(/const SKIN_PRESETS = \{[\s\S]*?\n\};\n\nconst COLOR_THEMES/);
+  assertTrue(applySrc && setSrc && m, 'توابع اسکین استخراج نشدند');
+  const presetsSrc = m[0].replace(/\n\nconst COLOR_THEMES$/, '');
+  const classes = new Set();
+  const store = {};
+  const fakeDocument = {
+    documentElement: { style: { setProperty(){} } },
+    body: {
+      classList: {
+        remove(...cs){ cs.forEach(c => classes.delete(c)); },
+        add(...cs){ cs.forEach(c => classes.add(c)); },
+        contains(c){ return classes.has(c); }
+      }
+    },
+    getElementById: () => ({ value: '' }),
+    querySelectorAll: () => []
+  };
+  const fakeLS = {
+    getItem: k => (Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null),
+    setItem: (k,v) => { store[k]=String(v); },
+    removeItem: k => { delete store[k]; }
+  };
+  const runner = new Function(
+    'document','localStorage','ntf','setAppFont','renderSkinCards','renderColorThemeSwatches','window','chrome',
+    presetsSrc + '\n' + applySrc + '\n' + setSrc + '\nsetSkin("darkmodern");'
+  );
+  runner(fakeDocument, fakeLS, function(){}, function(){}, function(){}, function(){}, {}, {});
+  assertEqual(store['laegh_skin'], 'darkmodern', 'laegh_skin باید darkmodern شود');
+  assertTrue(classes.has('skin-darkmodern'), 'کلاس skin-darkmodern باید روی body باشد');
+  assertTrue(classes.has('theme-dark'), 'دارک مدرن باید theme-dark بگذارد');
+  assertEqual(store['laegh_theme'], 'dark', 'laegh_theme باید dark شود');
+});
+
+test('پوسته دات‌نت باید نوار عنوان را با اسکین HTML همگام کند', () => {
+  const pack = fs.readFileSync(path.join(__dirname,'desktop','Sirman.Desktop','UiSkinPack.cs'),'utf8');
+  assertContainsString(pack, 'class UiSkinPack', 'UiSkinPack.cs');
+  assertContainsString(pack, 'PreferMica', 'Mica برای Fluent/میکا');
+  ['fluent','mica','material','darkmodern','glass','neuro','minimal'].forEach(k=>{
+    assertContainsString(pack, '"'+k+'"', 'رنگ کروم برای '+k);
+  });
+  const host = fs.readFileSync(path.join(__dirname,'desktop','Sirman.Desktop','SirmanHostObject.cs'),'utf8');
+  assertContainsString(host, 'ApplyUiSkin', 'Host باید ApplyUiSkin داشته باشد');
+  const form = fs.readFileSync(path.join(__dirname,'desktop','Sirman.Desktop','MainForm.cs'),'utf8');
+  assertContainsString(form, 'ApplyUiSkinChrome', 'MainForm باید کروم اسکین را اعمال کند');
+  const setSrc = extractFunctionSource(html, 'setSkin');
+  assertContainsString(setSrc, 'ApplyUiSkin', 'setSkin باید پوسته ویندوز را صدا بزند');
+  const appSrc = extractFunctionSource(html, 'applyAppearanceSettings');
+  assertContainsString(appSrc, 'ApplyUiSkin', 'بارگذاری ظاهر باید کروم ویندوز را همگام کند');
 });
 
 // -------------------------------------------------------------------
