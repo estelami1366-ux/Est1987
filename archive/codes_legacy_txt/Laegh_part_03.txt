@@ -1,0 +1,500 @@
+      <div class="card-title">🔒 رمز ورود به نرم‌افزار</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:10px">این رمز قبل از باز شدن نرم‌افزار پرسیده می‌شود. اگر خالی بگذارید، صفحه ورود نمایش داده نمی‌شود.</p>
+      <div class="g2" style="margin-bottom:8px">
+        <div class="f"><label>رمز جدید</label><input type="password" id="login-pw-new" placeholder="رمز ورود"></div>
+        <div class="f"><label>تکرار</label><input type="password" id="login-pw-rep" placeholder="تکرار"></div>
+      </div>
+      <div class="btn-bar">
+        <button class="btn btn-p btn-sm" onclick="setLoginPw()">💾 تنظیم رمز ورود</button>
+        <button class="btn btn-sm btn-r" onclick="clearLoginPw()">🗑 حذف رمز ورود</button>
+      </div>
+      <div id="login-pw-msg" style="font-size:12px;margin-top:8px;min-height:16px"></div>
+    </div>
+    <div class="card" style="max-width:440px;margin-top:12px">
+      <div class="card-title">🔒 رمز مدیر</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:10px">رمز برای حذف فاکتور و ریست نرم‌افزار</p>
+      <div class="g2" style="margin-bottom:8px">
+        <div class="f"><label>رمز جدید</label><input type="password" id="admin-pw-new" placeholder="رمز دلخواه"></div>
+        <div class="f"><label>تکرار</label><input type="password" id="admin-pw-rep" placeholder="تکرار"></div>
+      </div>
+      <div class="btn-bar">
+        <button class="btn btn-p btn-sm" onclick="setAdminPw()">💾 تنظیم</button>
+        <button class="btn btn-sm btn-r" onclick="clearAdminPw()">🗑 حذف رمز</button>
+      </div>
+      <div id="admin-pw-msg" style="font-size:12px;margin-top:8px;min-height:16px"></div>
+    </div>
+    <div class="card" style="max-width:440px;margin-top:12px;border:2px solid #e74c3c22">
+      <div class="card-title" style="color:#e74c3c">⚠️ ریست کامل نرم‌افزار</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.7">
+        این عملیات <b>همه اطلاعات</b> را پاک می‌کند.<br>
+        <b style="color:#e74c3c">غیرقابل بازگشت است.</b>
+      </p>
+      <button class="btn btn-r" onclick="resetAll()">🗑 ریست کامل</button>
+    </div>
+  </div>
+
+  <!-- TAB: ACCESS CONTROL (USER ROLES) -->
+  <div class="stg-panel" id="stg-access">
+    <div class="card">
+      <div class="card-title">👥 پروفایل‌های دسترسی</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.7">
+        برای هر کارمند یک پروفایل با رمز جداگانه بسازید و مشخص کنید به کدام بخش‌ها دسترسی داشته باشد.
+        وقتی کارمند با آن رمز وارد شود، فقط بخش‌های مجاز در منو نمایش داده می‌شود — بقیه اصلاً دیده نمی‌شوند.
+        <br><b>پروفایل «مدیر کل»</b> همیشه به همه‌چیز دسترسی دارد و قابل حذف نیست.
+      </p>
+      <button class="btn btn-p btn-sm" onclick="openRoleModal()">+ پروفایل دسترسی جدید</button>
+    </div>
+    <div class="card">
+      <div class="card-title">لیست پروفایل‌ها</div>
+      <div id="roles-list"></div>
+    </div>
+  </div>
+
+  <!-- TAB: AUTO-SAVE -->
+  <div class="stg-panel" id="stg-autosave">
+    <div class="card" style="max-width:560px">
+      <div class="card-title">💾 ذخیره خودکار</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.7">
+        برای جلوگیری از قطعی برق یا بسته شدن ناگهانی نرم‌افزار، اطلاعات به‌صورت خودکار ذخیره می‌شوند.<br>
+        پیشنهاد می‌شود یک پوشه روی کامپیوتر مشخص کنید تا فایل پشتیبان مستقیماً در آن ذخیره شود.
+      </p>
+
+      <div style="background:var(--bg2);border-radius:8px;padding:14px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:12px;font-weight:700">محل ذخیره (پوشه دائمی — فقط Chrome/Edge)</span>
+          <span id="as-status" style="font-size:11px;color:var(--text2)">⏸ غیرفعال</span>
+        </div>
+        <div id="as-folder-name" style="font-size:13px;margin-bottom:10px">📁 پوشه‌ای انتخاب نشده</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-p btn-sm" onclick="chooseAutoSaveFolder()">📂 انتخاب پوشه ذخیره</button>
+          <button class="btn btn-sm btn-o" onclick="disableAutoSaveFolder()">⏸ غیرفعال‌سازی</button>
+        </div>
+        <div id="as-last-time" style="font-size:11px;color:var(--text2);margin-top:10px"></div>
+      </div>
+
+      <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:12px;margin-bottom:14px;font-size:11px;color:#856404;line-height:1.8">
+        ⚠️ اگر دکمه «انتخاب پوشه ذخیره» را زدید و هیچ پنجره‌ای باز نشد، یا بعد از انتخاب فایلی در پوشه نمی‌بینید:
+        به تب <b>«عیب‌یابی»</b> بروید — جزئیات دقیق خطا (نوع خطا، نام مرورگر) همان‌جا ثبت می‌شود.
+        در آن صورت، از دکمه پایین (که همیشه کار می‌کند) استفاده کنید.
+      </div>
+
+      <div style="background:var(--bg2);border-radius:8px;padding:14px;margin-bottom:14px;border:1px solid var(--green)">
+        <div style="font-size:12px;font-weight:700;margin-bottom:8px">💾 دانلود دستی بک‌اپ (همیشه کار می‌کند، در همه مرورگرها)</div>
+        <p style="font-size:11px;color:var(--text2);margin-bottom:8px">این روش به API مرورگر وابسته نیست — فایل را مستقیم در پوشه Downloads دانلود می‌کند.</p>
+        <button class="btn btn-g btn-sm" onclick="exportData()">📥 دانلود بک‌اپ همین الان</button>
+      </div>
+
+      <div class="f" style="margin-bottom:14px">
+        <label>فاصله زمانی ذخیره خودکار</label>
+        <select id="as-interval" onchange="setAutoSaveInterval(this.value)">
+          <option value="1">هر ۱ دقیقه</option>
+          <option value="3" selected>هر ۳ دقیقه (پیشنهادی)</option>
+          <option value="5">هر ۵ دقیقه</option>
+          <option value="10">هر ۱۰ دقیقه</option>
+          <option value="15">هر ۱۵ دقیقه</option>
+        </select>
+      </div>
+
+      <button class="btn btn-p btn-sm" onclick="doAutoSave(true).then(()=>ntf('ذخیره دستی انجام شد ✅'))">💾 ذخیره فوری همین الان</button>
+
+      <div style="margin-top:14px;padding:10px;background:var(--bg2);border-radius:8px;font-size:11px;color:var(--text2);line-height:1.8">
+        💡 <b>نکات مهم:</b><br>
+        • انتخاب پوشه فقط در مرورگرهای Chrome / Edge جدید ممکن است<br>
+        • اگر فایل HTML را با دوبار کلیک (یعنی آدرس آن با <code>file://</code> شروع می‌شود) باز کرده‌اید، ممکن است این قابلیت محدودیت داشته باشد — در این حالت از دکمه «دانلود دستی بک‌اپ» بالا استفاده کنید<br>
+        • فایل با نام <code>Laegh_AutoSave.json</code> دائماً بروزرسانی می‌شود<br>
+        • علاوه بر آن، یک نسخه روزانه با تاریخ هم نگه داشته می‌شود<br>
+        • اگر پوشه انتخاب نشود، نسخه پشتیبان در حافظه مرورگر نگه داشته می‌شود (کمتر امن)
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: DEBUG -->
+  <div class="stg-panel" id="stg-debug">
+    <div class="dbg-stat-bar" id="dbg-stats-bar">
+      <div class="dbg-stat"><div class="val" id="dbg-err-count" style="color:#f85149">0</div><div class="lbl">خطا</div></div>
+      <div class="dbg-stat"><div class="val" id="dbg-warn-count" style="color:#d29922">0</div><div class="lbl">اخطار</div></div>
+      <div class="dbg-stat"><div class="val" id="dbg-ok-count" style="color:#3fb950">0</div><div class="lbl">سالم</div></div>
+      <div class="dbg-stat"><div class="val" id="dbg-health-val" style="color:#388bfd">100%</div><div class="lbl">سلامت</div></div>
+    </div>
+    <div class="dbg-health"><div class="dbg-health-bar" id="dbg-health-bar" style="width:100%;background:#3fb950"></div></div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn btn-p btn-sm" onclick="runFullDiag()">🔍 عیب‌یابی کامل</button>
+      <button class="btn btn-sm btn-o" onclick="clearDbgLog()">🗑 پاک کردن لاگ</button>
+      <button class="btn btn-sm" onclick="exportDbgLog()">📋 کپی لاگ</button>
+      <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer">
+        <input type="checkbox" id="dbg-auto" checked onchange="toggleAutoDbg(this)"> ثبت خودکار خطاها
+      </label>
+    </div>
+    <div class="dbg-log" id="dbg-log"><div style="color:#555;text-align:center;margin-top:40px">🔍 عیب‌یابی را شروع کنید...</div></div>
+  </div>
+
+  <!-- TAB: AI -->
+  <!-- TAB: DATE & TIME CENTER -->
+  <div class="stg-panel" id="stg-datetime">
+    <div class="print-section-card">
+      <div class="print-section-title">🕐 مرکز تاریخ و زمان برنامه</div>
+      <p style="font-size:12px;color:var(--text2);line-height:1.9;margin-bottom:14px">
+        همه‌ی تاریخ‌ها و ساعت‌های برنامه (مهرِ زمانِ فاکتور، فروش، گارانتی، وظایف و...) از همین «مرکز» گرفته می‌شوند.
+        منطقه‌ی زمانی را اینجا تعریف کنید؛ پیش‌فرض <b>تهران</b> است.
+      </p>
+      <div style="background:var(--blue-l);border:1px solid #cfe0f5;border-radius:10px;padding:16px;text-align:center;margin-bottom:14px">
+        <div style="font-size:12px;color:var(--blue2);margin-bottom:4px">⏰ ساعت و تاریخ فعلی مرکز</div>
+        <div id="dt-clock-big" style="font-size:22px;font-weight:800;color:var(--blue2);direction:ltr">—</div>
+        <div id="dt-clock-tz" style="font-size:11px;color:var(--text2);margin-top:4px">—</div>
+      </div>
+      <div class="f" style="margin-bottom:12px">
+        <label>منطقه‌ی زمانی (Time Zone)</label>
+        <select id="dt-tz" style="font-family:var(--font)">
+          <option value="Asia/Tehran">تهران (Asia/Tehran) — پیش‌فرض</option>
+          <option value="Asia/Dubai">دبی (Asia/Dubai)</option>
+          <option value="Asia/Baghdad">بغداد (Asia/Baghdad)</option>
+          <option value="Asia/Istanbul">استانبول (Asia/Istanbul)</option>
+          <option value="Europe/London">لندن (Europe/London)</option>
+          <option value="UTC">UTC (جهانی)</option>
+        </select>
+      </div>
+      <div class="btn-bar">
+        <button class="btn btn-g" type="button" onclick="setTimeZone(document.getElementById('dt-tz').value)">💾 ذخیره مرکز زمان</button>
+      </div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.9;margin-top:10px">
+        ℹ️ تغییر منطقه‌ی زمانی فقط روی تاریخ/ساعت‌های <b>جدید</b> اثر می‌گذارد؛ رکوردهای ثبت‌شده‌ی قبلی دست‌نخورده می‌مانند.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: SMS PANEL -->
+  <div class="stg-panel" id="stg-sms">
+    <div class="print-section-card">
+      <div class="print-section-title">📱 ارسال خودکار پیامک از طریق پنل اینترنتی</div>
+      <p style="font-size:12px;color:var(--text2);line-height:1.9;margin-bottom:14px">
+        اگر یک <b>پنل پیامک</b> با «آدرس ارسال GET» دارید، اینجا آن را وارد کنید تا دکمه‌ی «پیامک» در سراسر برنامه
+        به‌جای باز کردن گوشی، <b>خودکار</b> از طریق اینترنت پیامک بفرستد. در متن آدرس از دو جای‌نگهدار استفاده کنید:
+        <code style="direction:ltr;display:inline-block">{to}</code> (شماره‌ی مشتری) و <code style="direction:ltr;display:inline-block">{text}</code> (متن پیام).
+      </p>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:12px;cursor:pointer">
+        <input type="checkbox" id="sms-enabled" style="width:18px;height:18px"> ارسال خودکار پیامک از طریق پنل فعال باشد
+      </label>
+      <div class="f" style="margin-bottom:10px">
+        <label>آدرس ارسال پنل (قالب URL)</label>
+        <input id="sms-url" dir="ltr" style="text-align:left;font-family:monospace;font-size:12px" placeholder="https://panel.example.com/send?user=USER&pass=PASS&from=3000XXXX&to={to}&text={text}">
+      </div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.9;background:var(--blue-l);padding:10px 12px;border-radius:8px;margin-bottom:12px">
+        💡 آدرس دقیق و نام پارامترها (user/pass/from/to/text) را از <b>مستندات API پنل خودتان</b> بردارید و فقط جای شماره را <code style="direction:ltr">{to}</code> و جای متن را <code style="direction:ltr">{text}</code> بگذارید.<br>
+        ⚠️ نکته‌ی امنیتی: این آدرس (شامل رمز/توکن) فقط روی همین کامپیوتر ذخیره می‌شود. روی دستگاه مشترک/عمومی استفاده نکنید.<br>
+        ℹ️ محدودیت مرورگر: ارسال انجام می‌شود ولی برنامه نمی‌تواند «تأییدیه‌ی موفقیت» را از پنل بخواند؛ نتیجه را در پنل خودتان ببینید.
+      </div>
+      <div class="g2" style="margin-bottom:10px">
+        <div class="f"><label>شماره برای تست</label><input id="sms-test-to" placeholder="۰۹۱۲۰۰۰۰۰۰۰"></div>
+        <div class="f" style="display:flex;align-items:flex-end">
+          <button class="btn btn-p" type="button" onclick="sendSmsTest()" style="width:100%">✉️ ارسال پیامک تست</button>
+        </div>
+      </div>
+      <div class="btn-bar">
+        <button class="btn btn-g" type="button" onclick="saveSmsCfg()">💾 ذخیره تنظیمات پیامک</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stg-panel" id="stg-ai">
+    <div class="ai-model-bar">
+      <div class="ai-model-btn active" onclick="selectAiModel('internal',this)">🧠 دستیار داخلی</div>
+      <div class="ai-model-btn" onclick="selectAiModel('claude',this)">✨ Claude (API)</div>
+      <div class="ai-model-btn" onclick="selectAiModel('gpt',this)">🤖 GPT (API)</div>
+      <div class="ai-model-btn" onclick="selectAiModel('gemini',this)">💎 Gemini (API)</div>
+    </div>
+    <div id="ai-api-key-row" style="display:none;margin-bottom:10px">
+      <div class="f">
+        <label id="ai-key-label">کلید API</label>
+        <div style="display:flex;gap:6px">
+          <input type="password" id="ai-api-key" placeholder="sk-..." style="flex:1">
+          <button class="btn btn-sm btn-p" onclick="saveAiKey()">💾</button>
+        </div>
+      </div>
+    </div>
+    <div class="ai-chat-box" id="ai-chat-box">
+      <div class="ai-msg bot">سلام! من دستیار هوشمند نرم‌افزار لایق هستم 👋<br>می‌توانم به سوالات شما درباره نرم‌افزار، عیب‌یابی، تفسیر خطاها و راهنمایی استفاده پاسخ دهم.</div>
+    </div>
+    <div class="ai-input-row">
+      <input type="text" id="ai-input" placeholder="سوال یا مشکل خود را بنویسید..." onkeydown="if(event.key==='Enter')sendAiMsg()">
+      <button class="btn btn-p" onclick="sendAiMsg()">ارسال ↵</button>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-sm btn-o" onclick="aiQuickQ('وضعیت کلی نرم‌افزار چطوره؟')">📊 وضعیت کلی</button>
+      <button class="btn btn-sm btn-o" onclick="aiQuickQ('آخرین خطاهای ثبت شده رو تفسیر کن')">🔍 تفسیر خطاها</button>
+      <button class="btn btn-sm btn-o" onclick="aiQuickQ('راهنمایی برای بک‌اپ گیری')">💾 راهنمای بک‌اپ</button>
+      <button class="btn btn-sm btn-o" onclick="aiQuickQ('چطور از اکسل اطلاعات وارد کنم؟')">📥 راهنمای ورود Excel</button>
+    </div>
+  </div>
+
+</div><!-- /settings padding -->
+</div><!-- /page-settings -->
+
+<!-- ===== TASKS PAGE ===== -->
+<div class="page" id="page-tasks">
+<div class="topbar"><div class="topbar-title">🗓 وظایف و یادآوری</div></div>
+<div class="task-tabs">
+  <div class="task-tab active" id="tab-do" onclick="switchTaskTab('do')">✅ کارها (باید انجام بدم)</div>
+  <div class="task-tab" id="tab-watch" onclick="switchTaskTab('watch')">👁 موارد مدنظر (باید حواسم باشه)</div>
+</div>
+
+<div class="card">
+  <div class="card-title" id="task-form-title">➕ کار جدید</div>
+  <div class="g2">
+    <div class="f"><label>عنوان *</label><input id="tsk-title" placeholder="مثلاً واریز هزینه به تأمین‌کننده"></div>
+    <div class="f"><label>اولویت</label>
+      <select id="tsk-priority">
+        <option value="urgent">🔴 فوری</option>
+        <option value="high">🟠 بالا</option>
+        <option value="normal" selected>🔵 معمولی</option>
+        <option value="low">⚪ پایین</option>
+      </select>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="f"><label>موعد (تاریخ و ساعت — اختیاری)</label>
+      <input id="tsk-deadline" readonly placeholder="بدون موعد" onclick="openDatePicker(this,{withTime:true})">
+    </div>
+    <div class="f"><label>اعلان دسکتاپ برای این کار</label>
+      <select id="tsk-notify"><option value="1">فعال</option><option value="0">غیرفعال</option></select>
+    </div>
+  </div>
+  <div class="f" style="margin-bottom:8px"><label>توضیحات</label><textarea id="tsk-desc" rows="2"></textarea></div>
+  <div class="g2">
+    <div class="f"><label>پیوند به</label>
+      <select id="tsk-link-type" onchange="renderTaskLinkOptions()">
+        <option value="">هیچ‌کدام</option>
+        <option value="invoice">فاکتور</option>
+        <option value="sale">فروش قطعه</option>
+        <option value="warranty">پرونده گارانتی</option>
+      </select>
+    </div>
+    <div class="f"><label>مورد</label><select id="tsk-link-id"><option value="">—</option></select></div>
+  </div>
+  <div class="btn-bar">
+    <button class="btn btn-p" onclick="saveTask()">💾 ذخیره</button>
+    <button class="btn" id="tsk-cancel-edit" style="display:none" onclick="resetTaskForm()">انصراف از ویرایش</button>
+    <button class="btn btn-o" onclick="enableTaskNotifications()">🔔 فعال‌سازی اعلان دسکتاپ</button>
+  </div>
+</div>
+
+<div class="g2" style="margin-bottom:10px">
+  <div class="f"><label>فیلتر اولویت</label>
+    <select id="tsk-filter-pr" onchange="renderTasks()">
+      <option value="">همه</option>
+      <option value="urgent">فوری</option>
+      <option value="high">بالا</option>
+      <option value="normal">معمولی</option>
+      <option value="low">پایین</option>
+    </select>
+  </div>
+  <div class="f"><label>وضعیت</label>
+    <select id="tsk-filter-status" onchange="renderTasks()">
+      <option value="open" selected>باز</option>
+      <option value="done">انجام‌شده</option>
+      <option value="">همه</option>
+    </select>
+  </div>
+</div>
+
+<div id="task-list"></div>
+</div>
+
+<!-- ===== DATETIME PAGE ===== -->
+<div class="page" id="page-datetime">
+<div class="topbar"><div class="topbar-title">🕐 زمان، تقویم و ساختار تاریخی</div></div>
+<div style="padding:16px">
+<div class="g2">
+  <div class="card">
+    <div class="card-title">⏰ ساعت و تاریخ زنده (مرکز زمان نرم‌افزار)</div>
+    <div id="dt-live-big" style="font-size:28px;font-weight:800;color:var(--blue2);text-align:center;padding:16px 0;direction:ltr">—</div>
+    <div id="dt-live-sub" style="text-align:center;font-size:13px;color:var(--text2);line-height:2">—</div>
+    <div style="font-size:12px;color:var(--text2);margin-top:8px;line-height:1.9">منطقه زمانی فعال: <b id="dt-tz-label">—</b> — از تنظیمات → تاریخ و زمان قابل تغییر است.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">📅 تقویم شمسی/میلادی</div>
+    <div class="cal-nav">
+      <button class="btn btn-sm" onclick="calPageNav(-1)" data-tip="ماه قبل">‹ ماه قبل</button>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <select id="cal-jy" onchange="renderCalPage()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px"></select>
+        <select id="cal-jm" onchange="renderCalPage()" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px"></select>
+        <button class="btn btn-sm btn-o" onclick="calToggleMode()" id="cal-mode-btn">میلادی</button>
+      </div>
+      <button class="btn btn-sm" onclick="calPageNav(1)" data-tip="ماه بعد">ماه بعد ›</button>
+    </div>
+    <div id="cal-page-title" style="text-align:center;font-weight:700;color:var(--blue2);margin:10px 0"></div>
+    <div class="cal-page-grid" id="cal-page-grid"></div>
+    <div style="margin-top:10px;font-size:12px;color:var(--text2)">روز انتخاب‌شده: <b id="cal-sel-label">—</b></div>
+  </div>
+</div>
+<div class="card" style="margin-top:14px">
+  <div class="card-title">ℹ️ ساختار زمانی نرم‌افزار</div>
+  <ul style="font-size:13px;line-height:2.2;padding-right:20px;color:var(--text)">
+    <li>همه تاریخ‌های ثبت‌شده (فاکتور، فروش، گارانتی، وظایف، انبار معیوب) از <b>مرکز زمان</b> گرفته می‌شوند.</li>
+    <li>تقویم popup (روی فیلدهای تاریخ) و این صفحه از یک الگوریتم تبدیل شمسی↔میلادی استفاده می‌کنند.</li>
+    <li>ساعت زنده بالای سایدبار هر ثانیه به‌روز می‌شود.</li>
+  </ul>
+</div>
+</div></div>
+
+<!-- ===== AUDIT LOG PAGE ===== -->
+<div class="page" id="page-audit">
+<div class="topbar"><div class="topbar-title">📋 ثبت عملیات و عیب‌یابی</div></div>
+<div style="padding:16px">
+<div class="task-tabs">
+  <div class="task-tab active" id="audit-tab-user" onclick="switchAuditTab('user')">👤 عملیات کاربران</div>
+  <div class="task-tab" id="audit-tab-bg" onclick="switchAuditTab('bg')">⚙️ عملیات پس‌زمینه</div>
+</div>
+<div class="card">
+  <div class="search-bar">
+    <input class="search-in" id="audit-q" placeholder="جستجو در ثبت‌ها..." oninput="renderAuditLog()">
+    <button class="btn btn-sm btn-r" onclick="clearAuditLog()" data-tip="پاک کردن لاگ تب فعلی">🗑 پاک کردن</button>
+  </div>
+  <div class="dbg-log" id="audit-log-body" style="max-height:480px"></div>
+</div>
+</div></div>
+
+<style>
+.help-cat-header{font-weight:800;color:var(--blue2);margin:18px 4px 8px;font-size:14px;border-bottom:2px solid var(--blue-l);padding-bottom:5px;}
+.help-card .card-title.help-toggle{cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0;}
+.help-card.help-collapsed > :not(.card-title){display:none!important;}
+.help-chev{transition:transform .2s;display:inline-block;font-size:12px;color:var(--text2)}
+.help-card:not(.help-collapsed) .help-chev{transform:rotate(180deg);}
+.help-card{transition:.15s}
+</style>
+<!-- ===== HELP PAGE ===== -->
+<div class="page" id="page-help">
+<div class="topbar"><div class="topbar-title">❓ راهنمای نرم‌افزار</div></div>
+
+<div style="padding:16px 16px 0">
+  <input id="help-search" oninput="helpSearch()" placeholder="🔍 جستجو در راهنما... (مثلاً: بک‌اپ، پیامک، اکسل، نصب)" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);box-sizing:border-box">
+  <div style="font-size:12px;color:var(--text2);margin:8px 2px 0">📚 روی هر عنوان بزنید تا باز/بسته شود. این راهنما به‌مرور کامل‌تر می‌شود.</div>
+  <div id="help-noresult" style="display:none;text-align:center;color:var(--text2);padding:20px;font-size:13px">نتیجه‌ای یافت نشد — کلمه‌ی دیگری را امتحان کنید.</div>
+</div>
+
+<div class="help-cat-header">🧾 فاکتور</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>راهنمای بخش فاکتور</span><span class="help-chev">▾</span></div>
+  <div style="font-size:13px;color:var(--text2);line-height:2">🚧 راهنمای این بخش به‌زودی تکمیل می‌شود.</div>
+</div>
+
+<div class="help-cat-header">🛒 فروش قطعات</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>اکسل در فروش (ورود / خروجی / نمونه)</span><span class="help-chev">▾</span></div>
+  <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>📄 نمونه اکسل:</b> فایل با ستون‌های «نام مشتری، قطعه، تلفن، تعداد، قیمت واحد، تاریخ، یادداشت».</li>
+    <li><b>📥 ورود از Excel:</b> فروش‌ها را از فایل اضافه کنید (ستون‌های «نام مشتری» و «قطعه» اجباری‌اند).</li>
+    <li><b>📤 خروجی اکسل:</b> همه‌ی فروش‌ها را در اکسل ذخیره کنید — قابل ویرایش و ورود دوباره.</li>
+  </ul>
+</div>
+
+<div class="help-cat-header">🛡 پرونده گارانتی</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>اکسل در گارانتی (ورود / خروجی / نمونه)</span><span class="help-chev">▾</span></div>
+  <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>📄 نمونه اکسل:</b> ستون‌های «نام مشتری، تلفن، محصول، سریال، تاریخ خرید، تاریخ انقضا، یادداشت، وضعیت».</li>
+    <li><b>📥 ورود از Excel:</b> پرونده‌ها را از فایل اضافه کنید (ستون‌های «نام مشتری» و «محصول» اجباری‌اند).</li>
+    <li><b>📤 خروجی اکسل:</b> همه‌ی پرونده‌های گارانتی را در اکسل ذخیره کنید.</li>
+  </ul>
+  <div style="font-size:12px;color:var(--text2);line-height:1.9;margin-top:6px">برای ارسال پیام ارجاع به مشتری، بخش «📩 ارتباط با مشتری» را ببینید.</div>
+</div>
+
+<div class="help-cat-header">📦 مدیریت کالا و انبار</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>راهنمای بخش کالا و انبار</span><span class="help-chev">▾</span></div>
+  <div style="font-size:13px;color:var(--text2);line-height:2">🚧 راهنمای این بخش به‌زودی تکمیل می‌شود. (ورود/خروجی اکسل را در بخش «اکسل و فهرست‌ها» ببینید.)</div>
+</div>
+
+<div class="help-cat-header">🔩 قطعات و 🔧 خدمات</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>راهنمای بخش قطعات و خدمات</span><span class="help-chev">▾</span></div>
+  <div style="font-size:13px;color:var(--text2);line-height:2">🚧 راهنمای این بخش به‌زودی تکمیل می‌شود.</div>
+</div>
+
+<div class="help-cat-header">📇 دفترچه تلفن</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>راهنمای بخش دفترچه تلفن</span><span class="help-chev">▾</span></div>
+  <div style="font-size:13px;color:var(--text2);line-height:2">🚧 راهنمای این بخش به‌زودی تکمیل می‌شود.</div>
+</div>
+
+<div class="help-cat-header">🔔 اعلان و پیغام‌ها</div>
+
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>🔔 راه‌اندازی پیغام‌ها (اعلان دسکتاپ)</span><span class="help-chev">▾</span></div>
+  <p style="font-size:13px;line-height:2;color:var(--text2)">
+    برای اینکه اخطارها و یادآوری‌ها به‌صورت پیغام واقعی ویندوز (حتی وقتی برنامه پشت پنجره‌های دیگر است) نمایش داده شوند،
+    یک‌بار این مراحل را انجام دهید:
+  </p>
+  <svg viewBox="0 0 360 120" style="width:100%;max-width:360px;display:block;margin:10px auto">
+    <rect x="2" y="2" width="356" height="116" rx="10" fill="#fff" stroke="var(--border)"/>
+    <rect x="2" y="2" width="6" height="116" rx="3" fill="var(--blue)"/>
+    <circle cx="42" cy="44" r="18" fill="var(--blue-l)"/>
+    <text x="42" y="51" text-anchor="middle" font-size="20">🔔</text>
+    <text x="74" y="40" font-size="14" font-weight="700" fill="var(--blue2)">⏰ یادآوری کار</text>
+    <text x="74" y="62" font-size="12" fill="#666">واریز هزینه به تأمین‌کننده — فوری</text>
+    <text x="340" y="26" text-anchor="end" font-size="11" fill="#999">Laegh EPS</text>
+    <text x="340" y="106" text-anchor="end" font-size="10" fill="#bbb">اکنون</text>
+  </svg>
+  <ol style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li>برنامه را از طریق <b>سرور محلی</b> باز کنید (روش بخش بعد) — نه با دابل‌کلیک مستقیم روی فایل.</li>
+    <li>به صفحه‌ی <b>«وظایف و یادآوری»</b> بروید و دکمه‌ی <b>«🔔 فعال‌سازی اعلان دسکتاپ»</b> را بزنید و روی <b>Allow / اجازه</b> کلیک کنید. (بلافاصله یک پیغام تست برایتان می‌آید.)</li>
+    <li>از منوی مرورگر گزینه‌ی <b>«Install / نصب برنامه»</b> را بزنید تا یک آیکون مستقل روی دسکتاپ ساخته شود.</li>
+  </ol>
+  <div style="background:var(--green-l);color:var(--green);padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.9;margin-top:8px">
+    ✅ <b>این اخطار برای همه‌ی بخش‌های برنامه فعال است:</b> علاوه بر کارهای موعددار، برای <b>فاکتور باز/ناقص</b> 🧾، <b>پرونده گارانتی باز</b> 🛡 و <b>موجودی کم انبار</b> 📦 هم به‌صورت خودکار یک پیغام دسکتاپ (یک‌بار، بدون تکرار) می‌گیرید تا هیچ‌کدام فراموش نشوند.
+  </div>
+  <div style="background:var(--amber-l);color:var(--amber);padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.9;margin-top:8px">
+    ⚠️ <b>محدودیت مهم:</b> وقتی مرورگر کاملاً بسته است، زمان‌بندی پیغام در اختیار ویندوز/مرورگر است و ممکن است با تأخیر بیاید.
+    تا وقتی پنجره‌ی برنامه (حتی مینیمایز) باز باشد، پیغام‌ها دقیق و سر وقت هستند.
+  </div>
+  <div style="font-size:12px;line-height:1.9;color:var(--text2);margin-top:8px">
+    اگر پیغامی نیامد: مطمئن شوید <b>حالت تمرکز/Focus assist</b> ویندوز خاموش است و در <b>Settings → System → Notifications</b> اعلان‌های مرورگر روشن‌اند.
+  </div>
+</div>
+
+<div class="help-cat-header">🚀 شروع، نصب و اجرا</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>🖥 اجرای برنامه با سرور محلی (برای فعال شدن کامل اعلان‌ها)</span><span class="help-chev">▾</span></div>
+  <p style="font-size:13px;line-height:2;color:var(--text2)">
+    اعلان پس‌زمینه فقط روی آدرس <code>http://</code> کار می‌کند، نه با باز کردن مستقیم فایل.
+    ساده‌ترین راه: فایل <b>«اجرای لایق.bat»</b> که کنار برنامه قرار دارد را دابل‌کلیک کنید — خودش سرور را اجرا و مرورگر را باز می‌کند.
+  </p>
+  <p style="font-size:13px;line-height:2;color:var(--text2)">
+    یا به‌صورت دستی، در پوشه‌ی برنامه این دستور را اجرا کنید:
+  </p>
+  <div style="background:#1e1e1e;color:#4ec9b0;padding:10px 14px;border-radius:8px;font-family:monospace;font-size:13px;direction:ltr;text-align:left">
+    python -m http.server 8765
+  </div>
+  <p style="font-size:13px;line-height:2;color:var(--text2);margin-top:8px">
+    سپس در مرورگر این آدرس را باز کنید:
+    <code style="direction:ltr;display:inline-block">http://localhost:8765/</code>
+  </p>
+</div>
+
+<div class="help-cat-header">🗓 وظایف و یادآوری</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>🗓 کار با بخش وظایف و یادآوری</span><span class="help-chev">▾</span></div>
+  <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>تب «کارها»</b>: کارهایی که خودتان باید انجام دهید (مثلاً «واریز پول به تأمین‌کننده»).</li>
+    <li><b>تب «موارد مدنظر»</b>: چیزهایی که فقط باید حواستان به آن‌ها باشد (مثلاً «دو چای‌ساز تحویل فلان شرکت شد»).</li>
+    <li><b>اولویت و موعد</b>: هر کار می‌تواند اولویت (فوری/بالا/معمولی/پایین) و موعد دقیق (روز یا حتی ساعت) داشته باشد.</li>
+    <li><b>پیوند به فاکتور/فروش/گارانتی</b>: می‌توانید یک کار را به یک فاکتور باز وصل کنید (مثلاً «بستن فاکتور #۱۰۲»)؛ با دکمه‌ی «باز کردن» مستقیم به آن می‌روید.</li>
+    <li><b>فاکتورهای باز</b> خودکار به‌صورت یک «مورد مدنظر» نمایش داده می‌شوند تا فراموش نشوند.</li>
+  </ul>
+</div>
+
+<div class="help-cat-header">📩 ارتباط با مشتری</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>📩 ارسال پیام به مشتری (پیامک / واتساپ / روبیکا / ایتا / تلگرام)</span><span class="help-chev">▾</span></div>
+  <p style="font-size:13px;line-height:2;color:var(--text2)">
+    در سه جا دکمه‌ی <b>«📩 اطلاع/ارسال به مشتری»</b> اضافه شده: کارت «📋 ارجاع» در <b>پرونده گارانتی</b>، نوار دکمه‌های <b>فاکتور</b>، و فرم <b>فروش قطعه</b>.
+    برنامه یک پیام آماده با <b>تاریخ و ساعت دقیق</b> (از مرکز زمان) می‌سازد و این راه‌ها را می‌دهد:
+  </p>
+  <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>✉️ پیامک:</b> برنامه‌ی پیام‌کِ دستگاه با متن آماده باز می‌شود (روی موبایل مطمئن‌تر است).</li>
+    <li><b>واتساپ:</b> چت واتساپِ همان شماره با متن آماده باز می‌شود.</li>
+    <li><b>📤 اشتراک‌گذاری:</b> اگر دستگاه پشتیبانی کند، متن را مستقیم به <b>روبیکا / ایتا / تلگرام</b> می‌فرستد؛ وگرنه «📋 کپی متن» را بزنید و در چت مشتری Paste کنید.</li>
+    <li><b>📄 تهیه PDF فاکتور:</b> فقط در فاکتور — نسخه‌ی PDF فاکتور را بسازید (Save as PDF)، ذخیره کنید و در واتساپ/تلگرام پیوست کنید.</li>
+  </ul>
+  <div style="background:var(--amber-l);color:var(--amber);padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.9;margin-top:8px">
+    ℹ️ ارسال <b>مستقیم</b> به اکانت روبیکا/ایتا/تلگرامِ مشتری ممکن نیست (محدودیت خود پیام‌رسان‌ها)؛ به‌همین‌خاطر روش «کپی و Paste» گذاشته شده.
+    اگر بعداً پنل پیامک یا ربات راه‌اندازی شد، ارسال خودکار هم اضافه می‌شود.
