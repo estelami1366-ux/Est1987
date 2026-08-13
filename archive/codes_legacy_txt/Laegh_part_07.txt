@@ -1,0 +1,500 @@
+  document.getElementById('inv-stats-bar').innerHTML=`<div class="inv-stat"><div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">کل کالاها</div></div><div class="stat-card"><div class="stat-val" style="color:var(--red)">${low}</div><div class="stat-lbl">کمبود موجودی</div></div><div class="stat-card"><div class="stat-val" style="color:var(--green)">${total-low}</div><div class="stat-lbl">موجود</div></div></div>`;
+}
+function openInvModal(code){
+  document.getElementById('im-code').value=code;
+  const p=products.find(x=>x.code===code);
+  document.getElementById('im-name').textContent=(p?p.name+' — ':'')+code;
+  const inv=inventory[code]||{qty:0,min:0,note:''};
+  document.getElementById('im-qty').value=inv.qty;
+  document.getElementById('im-min').value=inv.min;
+  document.getElementById('im-note').value=inv.note||'';
+  document.getElementById('inv-modal').classList.add('open');
+}
+function saveInvItem(){
+  const code=document.getElementById('im-code').value;
+  inventory[code]={qty:parseInt(document.getElementById('im-qty').value)||0,min:parseInt(document.getElementById('im-min').value)||0,note:document.getElementById('im-note').value};
+  sv();closeMod('inv-modal');renderInv();renderProds();ntf('موجودی ذخیره شد');
+}
+
+// ─── PHONEBOOK ─────────────────────────────────────────────────────────────────
+function openPBModal(idx=-1){
+  pbPCnt=0; document.getElementById('pbm-phones').innerHTML='';
+  document.getElementById('pbm-idx').value=idx;
+  if(idx===-1){
+    document.getElementById('pbm-title').textContent='مخاطب جدید';
+    ['pbm-fn','pbm-ln','pbm-shop','pbm-addr','pbm-zip','pbm-ita','pbm-tg','pbm-wa','pbm-ig','pbm-note'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('pbm-cat').value='other';
+    addPBPhone();
+  } else {
+    const c=phonebook[idx];
+    document.getElementById('pbm-title').textContent='ویرایش مخاطب';
+    document.getElementById('pbm-fn').value=c.fn||'';
+    document.getElementById('pbm-ln').value=c.ln||'';
+    document.getElementById('pbm-shop').value=c.shop||'';
+    document.getElementById('pbm-addr').value=c.addr||'';
+    document.getElementById('pbm-zip').value=c.zip||'';
+    document.getElementById('pbm-ita').value=c.ita||'';
+    document.getElementById('pbm-tg').value=c.tg||'';
+    document.getElementById('pbm-wa').value=c.wa||'';
+    document.getElementById('pbm-ig').value=c.ig||'';
+    document.getElementById('pbm-note').value=c.note||'';
+    document.getElementById('pbm-cat').value=c.cat||'other';
+    (c.phones||['']).forEach(p=>addPBPhone(p));
+  }
+  document.getElementById('pb-modal').classList.add('open');
+}
+function addPBPhone(val=''){
+  pbPCnt++; const n=pbPCnt;
+  const div=document.createElement('div'); div.style.cssText='display:flex;gap:6px;margin-bottom:6px'; div.id='pbp-'+n;
+  div.innerHTML=`<input type="text" value="${val}" id="pbph-${n}" placeholder="شماره تماس ${n}" style="flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px"><button class="btn btn-sm btn-r" onclick="document.getElementById('pbp-${n}').remove()">✕</button>`;
+  document.getElementById('pbm-phones').appendChild(div);
+}
+function savePBContact(){
+  const idx=parseInt(document.getElementById('pbm-idx').value);
+  const phones=Array.from(document.querySelectorAll('[id^=pbph-]')).map(i=>i.value.trim()).filter(Boolean);
+  const c={fn:document.getElementById('pbm-fn').value,ln:document.getElementById('pbm-ln').value,shop:document.getElementById('pbm-shop').value,addr:document.getElementById('pbm-addr').value,zip:document.getElementById('pbm-zip').value,phones,ita:document.getElementById('pbm-ita').value,tg:document.getElementById('pbm-tg').value,wa:document.getElementById('pbm-wa').value,ig:document.getElementById('pbm-ig').value,note:document.getElementById('pbm-note').value,cat:document.getElementById('pbm-cat').value};
+  if(idx===-1)phonebook.push(c);else phonebook[idx]=c;
+  sv();closeMod('pb-modal');renderPB();ntf('مخاطب ذخیره شد');
+}
+function delPBContact(idx){if(!confirm('حذف؟'))return;phonebook.splice(idx,1);sv();renderPB();ntf('حذف شد');}
+var pbCatFilter = 'all';
+var PB_CATS = {
+  shop: {label:'🏪 فروشگاه', color:'#2563eb'},
+  agency: {label:'🏢 نمایندگی', color:'#059669'},
+  company: {label:'🏭 شرکت', color:'#7c3aed'},
+  customer: {label:'👤 مشتری', color:'#d97706'},
+  other: {label:'📌 سایر', color:'#64748b'}
+};
+
+function filterPBCat(cat, el) {
+  pbCatFilter = cat;
+  document.querySelectorAll('.pb-cat-tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderPB();
+}
+
+function renderPB(){
+  const q=(document.getElementById('pb-q').value||'').toLowerCase();
+  let f=phonebook.map((c,i)=>({c,i})).filter(({c})=>{const t=(c.fn+' '+c.ln+' '+c.shop+' '+(c.phones||[]).join(' ')+' '+c.addr).toLowerCase();return !q||t.includes(q);});
+  if (pbCatFilter !== 'all') f = f.filter(({c}) => (c.cat||'other') === pbCatFilter);
+
+  // تب‌های دسته‌بندی با شمارش
+  const counts = {all: phonebook.length};
+  Object.keys(PB_CATS).forEach(k => counts[k] = phonebook.filter(c=>(c.cat||'other')===k).length);
+  let tabsHtml = '<div class="pb-cat-tab'+(pbCatFilter==='all'?' active':'')+'" onclick="filterPBCat(\'all\',this)">همه ('+counts.all+')</div>';
+  Object.keys(PB_CATS).forEach(k => {
+    tabsHtml += '<div class="pb-cat-tab'+(pbCatFilter===k?' active':'')+'" onclick="filterPBCat(\''+k+'\',this)" style="--cat-color:'+PB_CATS[k].color+'">'+PB_CATS[k].label+' ('+counts[k]+')</div>';
+  });
+  document.getElementById('pb-cat-tabs').innerHTML = tabsHtml;
+
+  const el=document.getElementById('pb-list');
+  if(!f.length){el.innerHTML='<div style="text-align:center;color:#aaa;padding:30px">مخاطبی یافت نشد</div>';return;}
+  el.innerHTML=f.map(({c,i})=>{
+    const cat = PB_CATS[c.cat] || PB_CATS.other;
+    return `<div class="pb-card" onclick="openPBModal(${i})" style="border-right:3px solid ${cat.color}">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+        <span style="font-size:10px;background:${cat.color}22;color:${cat.color};padding:1px 8px;border-radius:10px;font-weight:700">${cat.label}</span>
+      </div>
+      <div class="pb-name">${c.fn||''} ${c.ln||''} ${c.shop?'— '+c.shop:''}</div>
+      ${c.addr?`<div style="font-size:11px;color:var(--text2);margin-top:2px">📍 ${c.addr}</div>`:''}
+      ${c.zip?`<div style="font-size:11px;color:var(--text2)">📮 ${c.zip}</div>`:''}
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">${(c.phones||[]).map(p=>`<span class="ph-tag">📞 ${p}</span>`).join('')}</div>
+      <div style="margin-top:5px;display:flex;gap:8px;flex-wrap:wrap;font-size:11px">
+        ${c.ita?`<span style="color:#1a6eb5">ایتا: ${c.ita}</span>`:''}
+        ${c.tg?`<span style="color:#0088cc">تلگرام: ${c.tg}</span>`:''}
+        ${c.wa?`<span style="color:#25d366">واتساپ: ${c.wa}</span>`:''}
+        ${c.ig?`<span style="color:#e1306c">اینستاگرام: ${c.ig}</span>`:''}
+      </div>
+      ${c.note?`<div style="font-size:11px;color:var(--text2);margin-top:3px">📝 ${c.note}</div>`:''}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+      <button class="btn btn-sm btn-pu" onclick="event.stopPropagation();printPBLabelDirect(${i})">📮 برچسب</button>
+      <button class="btn btn-sm btn-r" onclick="event.stopPropagation();delPBContact(${i})">✕</button>
+    </div>
+  </div></div>`;
+  }).join('');
+}
+function printPBLabelDirect(idx){
+  const c=phonebook[idx];
+  // fill postal form
+  document.getElementById('rcv-name').value=(c.fn||'')+' '+(c.ln||'');
+  document.getElementById('rcv-addr').value=c.addr||'';
+  document.getElementById('rcv-zip').value=c.zip||'';
+  document.getElementById('rcv-tel').value=(c.phones&&c.phones[0])||'';
+  document.querySelectorAll('.nav-it').forEach((n,i)=>n.classList.toggle('active',i===5));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-postal').classList.add('active');
+  updatePostalPreview();
+  ntf('اطلاعات گیرنده بارگذاری شد — برای چاپ کلیک کنید');
+}
+function printPBLabel(){
+  const idx=parseInt(document.getElementById('pbm-idx').value);
+  if(idx>=0) printPBLabelDirect(idx);
+  closeMod('pb-modal');
+}
+
+// ─── POSTAL ────────────────────────────────────────────────────────────────────
+function saveSender(){
+  senderInfo={name:document.getElementById('snd-name').value,addr:document.getElementById('snd-addr').value,zip:document.getElementById('snd-zip').value,tel:document.getElementById('snd-tel').value,person:document.getElementById('snd-person').value};
+  localStorage.setItem('ls',JSON.stringify(senderInfo)); ntf('اطلاعات فرستنده ذخیره شد');
+}
+function searchRcv(){
+  const q=(document.getElementById('rcv-pbq').value||'').toLowerCase();
+  const c=document.getElementById('rcv-pb-results');
+  if(!q){c.innerHTML='';return;}
+  const f=phonebook.filter(x=>(x.fn+' '+x.ln+' '+x.shop+' '+(x.phones||[]).join(' ')).toLowerCase().includes(q));
+  if(!f.length){c.innerHTML='';return;}
+  c.innerHTML=f.slice(0,5).map((x,i)=>`<div onclick="fillRcv(${phonebook.indexOf(x)})" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;margin-bottom:4px;background:#f8fbff;font-size:12px">${x.fn||''} ${x.ln||''} ${x.shop?'— '+x.shop:''} | ${(x.phones||[]).join(', ')}</div>`).join('');
+}
+function fillRcv(idx){
+  const c=phonebook[idx];
+  document.getElementById('rcv-name').value=(c.fn||'')+' '+(c.ln||'');
+  document.getElementById('rcv-addr').value=c.addr||'';
+  document.getElementById('rcv-zip').value=c.zip||'';
+  document.getElementById('rcv-tel').value=(c.phones&&c.phones[0])||'';
+  document.getElementById('rcv-pb-results').innerHTML='';
+  document.getElementById('rcv-pbq').value='';
+  updatePostalPreview(); ntf('اطلاعات گیرنده بارگذاری شد');
+}
+function updatePostalPreview(){
+  const snd={name:document.getElementById('snd-name').value||senderInfo.name||'',addr:document.getElementById('snd-addr').value||senderInfo.addr||'',zip:document.getElementById('snd-zip').value||senderInfo.zip||'',tel:document.getElementById('snd-tel').value||senderInfo.tel||'',person:document.getElementById('snd-person').value||senderInfo.person||''};
+  const rcv={name:document.getElementById('rcv-name').value,addr:document.getElementById('rcv-addr').value,zip:document.getElementById('rcv-zip').value,tel:document.getElementById('rcv-tel').value,note:document.getElementById('rcv-note').value};
+  const logo=`<div class="postal-logo-box"><img src="${logoSrc}" alt="Laegh"><div style="font-size:8px;color:#555;margin-top:2px">Laegh Electronic Parsian</div></div>`;
+  const card1=`<div class="postal-box">
+    ${logo}
+    <div style="margin-bottom:6px;font-size:12px"><b>فرستنده:</b> ${snd.addr}</div>
+    <div style="font-size:12px">کدپستی: <b>${snd.zip}</b></div>
+    <div style="font-size:12px">شماره تماس: ${snd.tel} ${snd.person}</div>
+  </div>`;
+  const card2=`<div class="postal-box">
+    <div style="margin-bottom:6px;font-size:12px"><b>آدرس گیرنده:</b> ${rcv.addr}</div>
+    <div style="font-size:12px">کدپستی: <b>${rcv.zip}</b></div>
+    <div style="font-size:12px">شماره تماس: ${rcv.tel}</div>
+    <div style="font-size:13px;font-weight:700;margin-top:4px">${rcv.name}</div>
+    ${rcv.note?`<div style="margin-top:8px"><span class="postal-fragile">${rcv.note}</span></div>`:''}
+  </div>`;
+  document.getElementById('postal-preview').innerHTML=`<div class="postal-wrap">${card2}${card1}</div><div class="postal-wrap" style="margin-top:8px">${card2}${card1}</div>`;
+}
+['snd-name','snd-addr','snd-zip','snd-tel','snd-person','rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>{document.getElementById(id).addEventListener('input',updatePostalPreview);});
+updatePostalPreview();
+
+function printPostal(){
+  const ps=getPrintSettings();const pp=ps.postal||{};
+  const w=window.open('','_blank');
+  const cont=document.getElementById('postal-preview').innerHTML;
+  w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+<meta name="app-version" content="10.4.6">
+<style>body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
+  w.document.close(); w.focus(); w.print(); w.close();
+}
+function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
+
+// ─── DATA I/O ──────────────────────────────────────────────────────────────────
+function exportData(){
+  // نقشه کامل همه داده‌ها با کلیدهای استاندارد
+  var data = {
+    version: '10.4.6',
+    exportedAt: new Date().toISOString(),
+    // داده‌های اصلی
+    invoices:   Array.isArray(invoices)    ? invoices    : [],
+    products:   Array.isArray(products)    ? products    : [],
+    inventory:  (typeof inventory==='object' && inventory) ? inventory : {},
+    invCtr:     invCtr || 1,
+    // مخاطبین — هر دو فرمت برای سازگاری
+    pb:         Array.isArray(pb)          ? pb          : [],
+    phonebook:  Array.isArray(phonebook)   ? phonebook   : [],
+    // بخش‌های جدید
+    parts:      Array.isArray(parts)       ? parts       : [],
+    services:   Array.isArray(services)    ? services    : [],
+    svcs:       Array.isArray(services)    ? services    : [], // alias
+    warranties: Array.isArray(warranties)  ? warranties  : [],
+    sales:      Array.isArray(sales)       ? sales       : [],
+    tasks:      Array.isArray(tasks)       ? tasks       : [],
+    defectiveStock: Array.isArray(defectiveStock) ? defectiveStock : [],
+    userAuditLog: Array.isArray(userAuditLog) ? userAuditLog : [],
+    bgAuditLog:   Array.isArray(bgAuditLog)   ? bgAuditLog   : [],
+    // دسترسی کاربران
+    userRoles:  Array.isArray(userRoles)   ? userRoles   : [],
+    loginPw:    loginPw || '',
+    // تنظیمات
+    printSettings: JSON.parse(localStorage.getItem('laegh_printSettings')||'{}'),
+    company:       JSON.parse(localStorage.getItem('laegh_company')||'{}'),
+    senderInfo:    typeof senderInfo!=='undefined' ? senderInfo : {},
+    logoSrc:       localStorage.getItem('ll')||''
+  };
+  var blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Laegh_backup_v7_'+fdate().replace(/\//g,'-')+'.json';
+  a.click();
+  // ثبت زمان آخرین بک‌اپ دستی — برای یادآوری هفتگی
+  localStorage.setItem('laegh_last_backup', String(Date.now()));
+  if(typeof syncBackupReminderTask==='function') syncBackupReminderTask();
+  addDbgEntry('ok','بک‌اپ','','بک‌اپ کامل v7.0 دانلود شد — '+data.invoices.length+' فاکتور، '+data.products.length+' کالا، '+data.pb.length+' مخاطب','');
+  auditUser('بک‌اپ دستی', data.invoices.length+' فاکتور');
+  ntf('فایل پشتیبان v7.0 دانلود شد ✅');
+}
+// ---- SMART MIGRATION: همه نسخه‌های بک‌اپ رو می‌شناسه ----
+function migrateBackup(d) {
+  var log = [];
+  log.push('📦 نسخه بک‌اپ: ' + (d.version||'قدیمی'));
+
+  // === مخاطبین ===
+  // نسخه قدیمی: phonebook با fn/ln
+  // نسخه جدید: pb با name/phone
+  if (!d.pb || d.pb.length === 0) {
+    var src = d.phonebook || d.pb || [];
+    if (src.length > 0) {
+      d.pb = src.map(function(c) {
+        // اگه قدیمیه (fn/ln داره)
+        if (c.fn !== undefined || c.ln !== undefined) {
+          var name = ((c.fn||'') + ' ' + (c.ln||'')).trim() || (c.shop||'نامشخص');
+          var phone = (c.phones && c.phones.length) ? c.phones[0] : (c.phone||'');
+          return { id: c.id||(Date.now()+Math.random()), name:name, phone:phone, address:c.addr||'', note:c.note||'', shop:c.shop||'', ita:c.ita||'', tg:c.tg||'', wa:c.wa||'', ig:c.ig||'' };
+        }
+        // اگه جدیده (name داره)
+        return c;
+      });
+      log.push('👥 مخاطبین: '+d.pb.length+' نفر (تبدیل از فرمت قدیمی)');
+    } else {
+      d.pb = [];
+    }
+  } else {
+    log.push('👥 مخاطبین: '+d.pb.length+' نفر');
+  }
+
+  // === خدمات — services یا svcs ===
+  if (!d.services && d.svcs) d.services = d.svcs;
+  if (!d.svcs && d.services) d.svcs = d.services;
+  if (!d.services) { d.services = []; d.svcs = []; }
+  log.push('🔧 خدمات: '+d.services.length+' مورد');
+
+  // === بخش‌های که ممکنه نباشن (نسخه‌های قدیمی) ===
+  if (!d.parts)      { d.parts = [];      log.push('🔩 قطعات: خالی (نسخه قدیمی)'); }
+  else log.push('🔩 قطعات: '+d.parts.length+' مورد');
+
+  if (!d.warranties) { d.warranties = []; log.push('🛡 گارانتی: خالی (نسخه قدیمی)'); }
+  else log.push('🛡 گارانتی: '+d.warranties.length+' مورد');
+
+  if (!d.sales)      { d.sales = [];      log.push('🛒 فروش: خالی (نسخه قدیمی)'); }
+  else log.push('🛒 فروش: '+d.sales.length+' مورد');
+
+  if (!d.tasks)      { d.tasks = [];      log.push('🗓 وظایف: خالی (نسخه قدیمی)'); }
+  else log.push('🗓 وظایف: '+d.tasks.length+' مورد');
+
+  if (!d.defectiveStock) { d.defectiveStock = []; log.push('⚠️ انبار معیوب: خالی (نسخه قدیمی)'); }
+  else log.push('⚠️ انبار معیوب: '+d.defectiveStock.length+' مورد');
+
+  if (!d.userAuditLog) d.userAuditLog = [];
+  if (!d.bgAuditLog) d.bgAuditLog = [];
+
+  if (!d.inventory)  { d.inventory = {}; }
+  if (!d.products)   { d.products = []; }
+  if (!d.invoices)   { d.invoices = []; }
+
+  // === شماره فاکتور ===
+  if (!d.invCtr && d.invoices.length > 0) {
+    // حدس از روی بزرگترین شماره
+    var maxNum = 0;
+    d.invoices.forEach(function(inv){ var n=parseInt(inv.num)||0; if(n>maxNum)maxNum=n; });
+    d.invCtr = maxNum + 1;
+    log.push('📋 شماره فاکتور بعدی: '+d.invCtr+' (حدس زده شد)');
+  }
+
+  // === ID های missing ===
+  var fixedIds = 0;
+  d.invoices.forEach(function(inv,i){ if(!inv.id){ inv.id='mig_inv_'+i+'_'+Date.now(); fixedIds++; } });
+  d.parts.forEach(function(p,i){ if(!p.id){ p.id='mig_part_'+i+'_'+Date.now(); fixedIds++; } });
+  d.warranties.forEach(function(w,i){ if(!w.id){ w.id='mig_war_'+i+'_'+Date.now(); fixedIds++; } });
+  d.sales.forEach(function(s,i){ if(!s.id){ s.id='mig_sale_'+i+'_'+Date.now(); fixedIds++; } });
+  d.tasks.forEach(function(t,i){ if(!t.id){ t.id='mig_task_'+i+'_'+Date.now(); fixedIds++; } if(!t.kind) t.kind='do'; if(!t.priority) t.priority='normal'; if(!t.status) t.status='open'; });
+  if (fixedIds > 0) log.push('🔧 '+fixedIds+' آیتم بدون ID اصلاح شد');
+
+  // === تنظیمات (اختیاری) ===
+  if (d.company) log.push('🏢 اطلاعات شرکت: موجود');
+  if (d.logoSrc) log.push('🖼 لوگو: موجود');
+
+  log.push('✅ آماده برای بارگذاری');
+  return { data: d, log: log };
+}
+
+function importData(inp) {
+  var f = inp.files[0]; if (!f) return;
+  var modeEl = document.querySelector('input[name="restore-mode"]:checked');
+  var mode = modeEl ? modeEl.value : 'replace';
+  var r = new FileReader();
+  r.onload = function(e) {
+    var raw = e.target.result;
+
+    // مرحله ۱: parse JSON
+    var d;
+    try {
+      d = JSON.parse(raw);
+    } catch(parseErr) {
+      var pos = (parseErr.message.match(/position (\d+)/)||['','نامشخص'])[1];
+      addDbgEntry('err','بازگردانی بک‌اپ',parseErr.message,'فایل JSON خراب است — موقعیت خطا: کاراکتر '+pos,'فایل را با Notepad باز کنید و بررسی کنید کامل و دست‌نخورده است');
+      alert('❌ فایل JSON خراب است\nخطا: '+parseErr.message+'\nموقعیت: کاراکتر '+pos);
+      inp.value=''; return;
+    }
+
+    // مرحله ۲: اعتبارسنجی
+    if (!d || typeof d !== 'object') {
+      addDbgEntry('err','بازگردانی','invalid','فایل خالی یا نامعتبر است','یک فایل JSON معتبر انتخاب کنید');
+      inp.value=''; return;
+    }
+    var hasData = d.invoices||d.products||d.pb||d.phonebook||d.parts||d.warranties;
+    if (!hasData) {
+      addDbgEntry('err','بازگردانی','no known keys','این فایل بک‌اپ لایق نیست — کلیدهای موجود: '+Object.keys(d).join(', '),'فایل بک‌اپ باید با نرم‌افزار لایق ساخته شده باشد');
+      alert('❌ فایل بک‌اپ معتبر نیست\nکلیدهای موجود: '+Object.keys(d).join(', '));
+      inp.value=''; return;
+    }
+
+    // مرحله ۳: migration هوشمند
+    var migResult = migrateBackup(d);
+    d = migResult.data;
+    var migLog = migResult.log;
+
+    // تابع کمکی اعمال ایمن
+    function applyAll() {
+      invoices   = Array.isArray(d.invoices)   ? d.invoices   : [];
+      products   = Array.isArray(d.products)   ? d.products   : [];
+      inventory  = (d.inventory && typeof d.inventory==='object' && !Array.isArray(d.inventory)) ? d.inventory : {};
+      // دفترچه تلفن — متغیری که صفحه واقعاً نشان می‌دهد همان phonebook است
+      if (Array.isArray(d.phonebook) && d.phonebook.length > 0) {
+        phonebook = d.phonebook;
+      } else if (Array.isArray(d.pb) && d.pb.length > 0) {
+        // فرمت جدید pb (name/phone) را به فرمت phonebook (fn/ln/phones[]) تبدیل کن
+        phonebook = d.pb.map(function(c) {
+          if (c.fn !== undefined || c.phones !== undefined) return c; // از قبل فرمت درست دارد
+          var parts2 = (c.name||'').split(' ');
+          return { fn:parts2[0]||'', ln:parts2.slice(1).join(' ')||'', shop:c.shop||'', addr:c.address||c.addr||'', zip:c.zip||'', phones:c.phone?[c.phone]:[], ita:c.ita||'', tg:c.tg||'', wa:c.wa||'', ig:c.ig||'', note:c.note||'', cat:c.cat||'other' };
+        });
+      } else {
+        phonebook = [];
+      }
+      pb = Array.isArray(d.pb) ? d.pb : phonebook; // برای سازگاری با کدهایی که از pb استفاده می‌کنند
+      parts      = Array.isArray(d.parts)      ? d.parts      : [];
+      services   = Array.isArray(d.services)   ? d.services   : (Array.isArray(d.svcs) ? d.svcs : services);
+      svcs       = services; // sync alias
+      warranties = Array.isArray(d.warranties) ? d.warranties : [];
+      sales      = Array.isArray(d.sales)      ? d.sales      : [];
+      tasks      = Array.isArray(d.tasks)      ? d.tasks      : [];
+      defectiveStock = Array.isArray(d.defectiveStock) ? d.defectiveStock : (typeof defectiveStock!=='undefined'?defectiveStock:[]);
+      if (Array.isArray(d.userAuditLog) && typeof userAuditLog!=='undefined') userAuditLog = d.userAuditLog;
+      if (Array.isArray(d.bgAuditLog) && typeof bgAuditLog!=='undefined') bgAuditLog = d.bgAuditLog;
+      if (d.invCtr && d.invCtr > 0) invCtr = d.invCtr;
+      // دسترسی کاربران — اگر بک‌اپ قدیمی بود و نداشت، پروفایل‌های فعلی دست‌نخورده می‌مانند
+      if (Array.isArray(d.userRoles)) { userRoles = d.userRoles; svRoles(); }
+      if (typeof d.loginPw === 'string' && d.loginPw) { loginPw = d.loginPw; localStorage.setItem('laegh_login_pw', d.loginPw); }
+      // تنظیمات اختیاری
+      if (d.company) localStorage.setItem('laegh_company', JSON.stringify(d.company));
+      if (d.printSettings && Object.keys(d.printSettings).length) localStorage.setItem('laegh_printSettings', JSON.stringify(d.printSettings));
+      if (d.logoSrc) { logoSrc = d.logoSrc; localStorage.setItem('ll', d.logoSrc); }
+      // ذخیره
+      sv(); svParts(); svSvcs(); svSales(); svWarr(); svPB(); svTasks();
+      if(typeof svDefective==='function') svDefective();
+      if(typeof userAuditLog!=='undefined') localStorage.setItem('laegh_audit_user', JSON.stringify(userAuditLog));
+      if(typeof bgAuditLog!=='undefined') localStorage.setItem('laegh_audit_bg', JSON.stringify(bgAuditLog));
+      // رندر
+      try { getNum(); } catch(e){}
+      try { renderSaved(); } catch(e){}
+      try { renderProds(); } catch(e){}
+      try { renderInv(); } catch(e){}
+      try { renderPB(); } catch(e){}
+      try { renderParts(); } catch(e){}
+      try { renderSvcs(); } catch(e){}
+      try { renderSales(); } catch(e){}
+      try { renderWarList(); } catch(e){}
+      try { renderDataStats(); } catch(e){}
+      try { renderTasks(); } catch(e){}
+      try { renderDefective(); } catch(e){}
+      try { renderSidebarBadges(); } catch(e){}
+    }
+
+    if (mode === 'replace') {
+      // ── پیش‌نمایش سلامت بک‌اپ: قبل از جایگزینی، محتوای فایل را بشمار و در صورت مشکوک‌بودن هشدار بده ──
+      var _cNew = {
+        inv:(d.invoices||[]).length, prod:(d.products||[]).length,
+        contact:(Array.isArray(d.phonebook)&&d.phonebook.length?d.phonebook.length:(d.pb||[]).length),
+        part:(d.parts||[]).length, warr:(d.warranties||[]).length,
+        sale:(d.sales||[]).length, task:(d.tasks||[]).length
+      };
+      var _newTotal = _cNew.inv+_cNew.prod+_cNew.contact+_cNew.part+_cNew.warr+_cNew.sale+_cNew.task;
+      var _curTotal = (typeof invoices!=='undefined'&&invoices?invoices.length:0)
+        + (typeof products!=='undefined'&&products?products.length:0)
+        + (typeof pb!=='undefined'&&pb?pb.length:0)
+        + (typeof parts!=='undefined'&&parts?parts.length:0)
+        + (typeof warranties!=='undefined'&&warranties?warranties.length:0)
+        + (typeof sales!=='undefined'&&sales?sales.length:0);
+      var _preview = '📋 محتوای این فایل بک‌اپ:\n'
+        + '• فاکتور: '+_cNew.inv+'   • کالا: '+_cNew.prod+'   • مخاطب: '+_cNew.contact+'\n'
+        + '• قطعه: '+_cNew.part+'   • گارانتی: '+_cNew.warr+'   • فروش: '+_cNew.sale+'   • وظیفه: '+_cNew.task+'\n'
+        + (d.version?('نسخه بک‌اپ: '+d.version+'\n'):'');
+      var _warn='';
+      if (_curTotal>0 && _newTotal===0) _warn='\n⛔ هشدار جدی: این فایل کاملاً خالی به‌نظر می‌رسد، ولی شما داده‌ی فعلی دارید!\nبا ادامه، همه‌چیز با یک فایل خالی جایگزین و داده‌هایتان نابود می‌شود.\n';
+      else if (_newTotal>0 && _curTotal > _newTotal*3) _warn='\n⚠️ توجه: داده‌ی فعلی شما خیلی بیشتر از این بک‌اپ است. مطمئنید می‌خواهید با این نسخه‌ی قدیمی‌تر جایگزین شود؟\n';
+      if (!confirm('⚠️ جایگزینی کامل (غیرقابل بازگشت)\n\n'+_preview+_warn+'\nهمه داده‌های فعلی پاک و با این بک‌اپ جایگزین می‌شوند.\n\nادامه؟')) { inp.value=''; return; }
+      try {
+        applyAll();
+        addDbgEntry('ok','بازگردانی','','✅ جایگزینی موفق\n'+migLog.join('\n'),'');
+        ntf('بازگردانی کامل شد ✅','ok');
+        alert('✅ بازگردانی موفق!\n\n'+migLog.join('\n')+'\n\nفاکتور: '+invoices.length+' | کالا: '+products.length+' | مخاطب: '+pb.length+' | قطعه: '+parts.length);
+      } catch(err) {
+        addDbgEntry('err','بازگردانی',err.message,'خطا در اعمال داده‌ها: '+err.message,'صفحه را Refresh کنید و دوباره امتحان کنید');
+        alert('❌ خطا: '+err.message);
+      }
+
+    } else {
+      // ادغام — فقط رکوردهای جدید اضافه میشه
+      var added = {inv:0,prod:0,pb:0,parts:0,svc:0,sale:0,war:0,task:0};
+      var skip  = {inv:0,prod:0,pb:0};
+      try {
+        (d.invoices||[]).forEach(function(x){ if(!invoices.find(function(i){return i.id===x.id||i.num===x.num;})){ invoices.push(x); added.inv++; } else skip.inv++; });
+        (d.products||[]).forEach(function(x){ if(!products.find(function(p){return p.code===x.code;})){ products.push(x); added.prod++; } else skip.prod++; });
+        // ادغام دفترچه تلفن — همان آرایه‌ای که صفحه واقعاً نمایش می‌دهد (phonebook)
+        var pbSource = (Array.isArray(d.phonebook) && d.phonebook.length>0) ? d.phonebook : (d.pb||[]);
+        pbSource.forEach(function(x){
+          // اگر فرمت جدید (name/phone) بود، تبدیل به فرمت phonebook کن
+          var entry = x;
+          if (x.fn === undefined && x.phones === undefined) {
+            var parts3 = (x.name||'').split(' ');
+            entry = { fn:parts3[0]||'', ln:parts3.slice(1).join(' ')||'', shop:x.shop||'', addr:x.address||x.addr||'', zip:x.zip||'', phones:x.phone?[x.phone]:[], ita:x.ita||'', tg:x.tg||'', wa:x.wa||'', ig:x.ig||'', note:x.note||'', cat:x.cat||'other' };
+          }
+          var entryPhone = (entry.phones&&entry.phones[0]) || '';
+          var exists = phonebook.find(function(p){ return entryPhone && (p.phones||[]).indexOf(entryPhone) !== -1; });
+          if (!exists) { phonebook.push(entry); added.pb++; } else skip.pb++;
+        });
+        pb = phonebook; // هماهنگ نگه‌داشتن دو متغیر
+        (d.parts||[]).forEach(function(x){ if(!parts.find(function(p){return p.id===x.id;})){ parts.push(x); added.parts++; } });
+        (d.services||d.svcs||[]).forEach(function(x){ if(!services.find(function(p){return p.id===x.id||p.code===x.code;})){ services.push(x); svcs=services; added.svc++; } });
+        (d.warranties||[]).forEach(function(x){ if(!warranties.find(function(p){return p.id===x.id;})){ warranties.push(x); added.war++; } });
+        (d.sales||[]).forEach(function(x){ if(!sales.find(function(p){return p.id===x.id;})){ sales.push(x); added.sale++; } });
+        (d.tasks||[]).forEach(function(x){ if(!tasks.find(function(p){return p.id===x.id;})){ tasks.push(x); added.task++; } });
+        (d.defectiveStock||[]).forEach(function(x){ if(!defectiveStock.find(function(p){return p.id===x.id;})){ defectiveStock.push(x); } });
+        if (d.inventory) Object.keys(d.inventory).forEach(function(k){ if(!inventory[k]) inventory[k]=d.inventory[k]; });
+        sv(); svParts(); svSvcs(); svSales(); svWarr(); svPB(); svTasks();
+        if(typeof svDefective==='function') svDefective();
+        try{getNum();}catch(e){} try{renderSaved();}catch(e){} try{renderProds();}catch(e){} try{renderInv();}catch(e){} try{renderPB();}catch(e){} try{renderParts();}catch(e){} try{renderSvcs();}catch(e){} try{renderSales();}catch(e){} try{renderWarList();}catch(e){} try{renderDataStats();}catch(e){} try{renderTasks();}catch(e){} try{renderSidebarBadges();}catch(e){}
+        var sum='فاکتور:+'+added.inv+'('+skip.inv+' تکراری) کالا:+'+added.prod+' مخاطب:+'+added.pb+'('+skip.pb+' تکراری) قطعه:+'+added.parts+' خدمت:+'+added.svc+' گارانتی:+'+added.war+' وظیفه:+'+added.task;
+        addDbgEntry('ok','ادغام بک‌اپ','',sum,'');
+        ntf('ادغام انجام شد ✅','ok');
+        alert('✅ ادغام موفق!\n\n'+migLog.join('\n')+'\n\n'+sum);
+      } catch(err) {
+        addDbgEntry('err','ادغام بک‌اپ',err.message,'خطا در ادغام: '+err.message,'');
+        alert('❌ خطا در ادغام: '+err.message);
+      }
+    }
+  };
+  r.onerror = function() {
+    addDbgEntry('err','خواندن فایل','FileReader error','خطا در خواندن فایل از دیسک','فایل را دوباره انتخاب کنید');
+    ntf('خطا در خواندن فایل','err');
+  };
+  r.readAsText(f, 'UTF-8');
+  inp.value = '';
+}
+
+function resetAll(){
+  const pw=localStorage.getItem('laegh_adminpw');
+  let ok=false;

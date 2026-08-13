@@ -1,0 +1,500 @@
+    invCtr: invCtr||1,
+    pb: Array.isArray(pb)?pb:[],
+    phonebook: Array.isArray(phonebook)?phonebook:[],
+    parts: Array.isArray(parts)?parts:[],
+    services: Array.isArray(services)?services:[],
+    svcs: Array.isArray(services)?services:[],
+    warranties: Array.isArray(warranties)?warranties:[],
+    sales: Array.isArray(sales)?sales:[],
+    printSettings: JSON.parse(localStorage.getItem('laegh_printSettings')||'{}'),
+    company: JSON.parse(localStorage.getItem('laegh_company')||'{}'),
+    logoSrc: localStorage.getItem('ll')||''
+  };
+}
+
+// انتخاب پوشه ذخیره (یک بار، با تأیید کاربر)
+async function chooseAutoSaveFolder(){
+  if (!window.showDirectoryPicker) {
+    alert('⚠️ مرورگر شما از انتخاب پوشه پشتیبانی نمی‌کند.\n\nاز Chrome یا Edge جدید استفاده کنید.\nدر این حالت، ذخیره خودکار به‌صورت دانلود فایل انجام می‌شود.');
+    return;
+  }
+  if (!window.isSecureContext) {
+    if (typeof addDbgEntry === 'function') addDbgEntry('warn','ذخیره خودکار — پوشه','isSecureContext=false','مرورگر این صفحه را Secure Context تشخیص نمی‌دهد','از Chrome استفاده کنید و اگر باز هم مشکل بود، آپدیت اخیر مرورگر را چک کنید');
+  }
+  try {
+    autoSaveDirHandle = await window.showDirectoryPicker({ mode:'readwrite' });
+    localStorage.setItem('laegh_autosave_enabled','1');
+    document.getElementById('as-folder-name').textContent = '📁 ' + (autoSaveDirHandle.name||'پوشه انتخاب‌شده');
+    document.getElementById('as-status').textContent = '✅ فعال — هر ' + autoSaveIntervalMin + ' دقیقه';
+    document.getElementById('as-status').style.color = 'var(--green)';
+    ntf('پوشه ذخیره خودکار انتخاب شد ✅');
+    startAutoSave();
+    await doAutoSave(true); // ذخیره فوری برای تست — force=true چون isDirty ممکن است هنوز false باشد
+  } catch(e) {
+    // ثبت دقیق خطا — حتی AbortError — تا بتوان علت واقعی را بعداً از تب عیب‌یابی دید
+    var detail = 'نوع خطا: ' + e.name + ' — پیام: ' + e.message + ' — Protocol: ' + location.protocol + ' — isSecureContext: ' + window.isSecureContext;
+    if (typeof addDbgEntry === 'function') addDbgEntry('warn','ذخیره خودکار — انتخاب پوشه ناموفق', detail,
+      'پوشه انتخاب نشد یا پنجره انتخاب پوشه باز نشد ('+e.name+')',
+      e.name === 'AbortError'
+        ? 'این پیام معمولاً یعنی پنجره انتخاب پوشه اصلاً باز نشده (نه اینکه لغو کرده باشید). اگر فایل را با دوبار کلیک (file://) باز کرده‌اید، این قابلیت مرورگر ممکن است محدود باشد. به‌جای آن، روی «💾 ذخیره فوری همین الان» کلیک کنید تا حداقل یک نسخه دانلود شود، یا منتظر آپدیت بعدی برای رفع این مشکل بمانید.'
+        : 'دوباره تلاش کنید. اگر تکرار شد، از دکمه «ذخیره فوری» به‌عنوان جایگزین استفاده کنید.');
+    // به کاربر هم همین الان و مستقیم خبر بده — نه فقط در لاگ مخفی
+    ntf('⚠️ پوشه انتخاب نشد (' + e.name + ') — برای جزئیات به تب عیب‌یابی مراجعه کنید', 'err');
+    document.getElementById('as-status').textContent = '❌ ناموفق: ' + e.name;
+    document.getElementById('as-status').style.color = '#e74c3c';
+  }
+}
+
+async function doAutoSave(force){
+  if (!isDirty && !force) return; // چیزی تغییر نکرده و درخواست اجباری هم نبوده، لازم نیست ذخیره شود
+  try {
+    var data = buildBackupObject();
+    var json = JSON.stringify(data, null, 2);
+
+    if (autoSaveDirHandle) {
+      // روش ۱: ذخیره مستقیم در پوشه انتخاب‌شده (بدون دانلود مکرر)
+      var fileHandle = await autoSaveDirHandle.getFileHandle('Laegh_AutoSave.json', { create:true });
+      var writable = await fileHandle.createWritable();
+      await writable.write(json);
+      await writable.close();
+      // یک نسخه با تاریخ هم نگه می‌داریم (هر ساعت یکبار، نه هر ۳ دقیقه)
+      var hourKey = new Date().toISOString().slice(0,13);
+      if (localStorage.getItem('laegh_last_hourly_save') !== hourKey) {
+        var dateFileHandle = await autoSaveDirHandle.getFileHandle('Laegh_AutoSave_'+fdate().replace(/\//g,'-')+'.json', { create:true });
+        var dateWritable = await dateFileHandle.createWritable();
+        await dateWritable.write(json);
+        await dateWritable.close();
+        localStorage.setItem('laegh_last_hourly_save', hourKey);
+      }
+    } else {
+      // روش ۲ (fallback): فقط در localStorage یک کپی امن نگه می‌داریم
+      localStorage.setItem('laegh_autosave_snapshot', json);
+    }
+
+    isDirty = false;
+    lastAutoSaveTime = new Date();
+    updateAutoSaveUI(true);
+  } catch(e) {
+    updateAutoSaveUI(false, e.message);
+    if (typeof addDbgEntry === 'function') addDbgEntry('warn','ذخیره خودکار',e.message,'ذخیره خودکار ناموفق بود','دوباره پوشه را انتخاب کنید — ممکن است دسترسی لغو شده باشد');
+  }
+}
+
+function updateAutoSaveUI(success, errMsg){
+  var el = document.getElementById('as-last-time');
+  if (!el) return;
+  if (success) {
+    el.textContent = '🟢 آخرین ذخیره: ' + lastAutoSaveTime.toLocaleTimeString('fa-IR');
+    el.style.color = 'var(--text2)';
+  } else {
+    el.textContent = '🔴 خطا در ذخیره: ' + (errMsg||'نامشخص');
+    el.style.color = '#e74c3c';
+  }
+}
+
+function startAutoSave(){
+  if (autoSaveTimer) clearInterval(autoSaveTimer);
+  autoSaveTimer = setInterval(doAutoSave, autoSaveIntervalMin * 60 * 1000);
+}
+
+function setAutoSaveInterval(min){
+  autoSaveIntervalMin = parseInt(min) || 3;
+  localStorage.setItem('laegh_autosave_interval', autoSaveIntervalMin);
+  startAutoSave();
+  ntf('فاصله ذخیره خودکار: هر '+autoSaveIntervalMin+' دقیقه');
+}
+
+function disableAutoSaveFolder(){
+  autoSaveDirHandle = null;
+  localStorage.removeItem('laegh_autosave_enabled');
+  if (autoSaveTimer) clearInterval(autoSaveTimer);
+  document.getElementById('as-folder-name').textContent = '📁 پوشه‌ای انتخاب نشده';
+  document.getElementById('as-status').textContent = '⏸ غیرفعال';
+  document.getElementById('as-status').style.color = 'var(--text2)';
+  ntf('ذخیره خودکار در پوشه غیرفعال شد');
+}
+
+// هشدار قبل از بسته شدن صفحه اگر تغییر ذخیره‌نشده باشد
+window.addEventListener('beforeunload', function(e){
+  if (isDirty) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+// شروع اولیه — هر ۳ دقیقه به‌صورت پیش‌فرض، حتی بدون پوشه (localStorage snapshot)
+window.addEventListener('load', function(){
+  var savedInterval = localStorage.getItem('laegh_autosave_interval');
+  if (savedInterval) autoSaveIntervalMin = parseInt(savedInterval);
+  startAutoSave();
+});
+
+function ntf(msg, type='ok'){
+  const c=document.getElementById('nc');
+  const d=document.createElement('div'); d.className='notif '+type; d.textContent=msg;
+  c.appendChild(d); setTimeout(()=>d.classList.add('show'),10);
+  setTimeout(()=>{d.classList.remove('show');setTimeout(()=>d.remove(),400);},3000);
+}
+function fmt(n){return Math.round(n||0).toLocaleString('fa-IR');}
+function fm(n){return (n||0).toLocaleString('fa-IR');}
+
+// ─── زمان/تقویم بر مبنای زون تهران ──────────────────────────────────────────────
+// همه‌ی ساعت/تاریخ‌های ثبت‌شده در نرم‌افزار باید با این توابع ساخته شوند، نه new Date().toLocaleString خام،
+// تا مستقل از زون‌زمانی سیستم کاربر، همیشه به‌وقت تهران ذخیره شوند.
+// ─── مرکز تاریخ و زمان ───────────────────────────────────────────────────────────
+// منطقه‌ی زمانی برنامه از همین‌جا تعریف می‌شود و همه‌ی تاریخ/ساعت‌ها (fdate/ftime/fdt و
+// مهرِ زمانِ فاکتور/فروش/گارانتی) از آن مشتق می‌شوند. پیش‌فرض: تهران.
+let TZ = localStorage.getItem('laegh_tz') || 'Asia/Tehran';
+function setTimeZone(tz){
+  TZ = tz || 'Asia/Tehran';
+  localStorage.setItem('laegh_tz', TZ);
+  if(typeof updateLiveClock==='function') updateLiveClock();
+  ntf('مرکز زمان روی «'+TZ+'» تنظیم شد ✅');
+}
+// تبدیل ارقام لاتین به فارسی
+function faNum(s){return String(s).replace(/[0-9]/g,d=>'۰۱۲۳۴۵۶۷۸۹'[+d]);}
+// ساعت زنده (ثانیه‌دار) بر اساس مرکز زمان — هم در سایدبار، هم در تب تنظیمات
+function updateLiveClock(){
+  try{
+    var o={}; new Intl.DateTimeFormat('en-US',{timeZone:TZ,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(new Date()).forEach(function(p){o[p.type]=p.value;});
+    var hms=faNum((o.hour==='24'?'00':o.hour)+':'+o.minute+':'+o.second);
+    var d=fdate();
+    var sb=document.getElementById('sb-clock'); if(sb) sb.textContent=d+'  '+hms;
+    var big=document.getElementById('dt-clock-big'); if(big) big.textContent=d+'  '+hms;
+    var liveBig=document.getElementById('dt-live-big'); if(liveBig) liveBig.textContent=hms;
+    var liveSub=document.getElementById('dt-live-sub'); if(liveSub) liveSub.textContent=d+' — '+TZ;
+    var tz=document.getElementById('dt-clock-tz'); if(tz) tz.textContent='منطقه‌ی زمانی: '+TZ;
+    var sel=document.getElementById('dt-tz'); if(sel && sel.value!==TZ) sel.value=TZ;
+  }catch(e){}
+}
+// همه‌ی تاریخ/ساعت‌های ثبت‌شده از همین «مرکز زمان» (تهران) ساخته می‌شوند تا مستقل از ساعت سیستم کاربر باشند،
+// و دستی ساخته می‌شوند (نه toLocaleString با options) تا هم تاریخ و هم ساعت با ترتیب ثابت «تاریخ سپس ساعت» نمایش داده شوند.
+// LRM (‎) دو طرف رشته اضافه می‌شود تا در متن راست‌به‌چپ، ترتیب اعداد تاریخ و ساعت جابه‌جا دیده نشود.
+function fdate(ts){const p=tehranParts(ts);const [jy,jm,jd]=gregorian_to_jalali(p.y,p.m,p.d);return '‎'+faNum(jy+'/'+String(jm).padStart(2,'0')+'/'+String(jd).padStart(2,'0'))+'‎';}
+function ftime(ts){const p=tehranParts(ts);return '‎'+faNum(String(p.hh).padStart(2,'0')+':'+String(p.mm).padStart(2,'0'))+'‎';}
+function fdt(ts){const p=tehranParts(ts);const [jy,jm,jd]=gregorian_to_jalali(p.y,p.m,p.d);return '‎'+faNum(jy+'/'+String(jm).padStart(2,'0')+'/'+String(jd).padStart(2,'0')+' ساعت '+String(p.hh).padStart(2,'0')+':'+String(p.mm).padStart(2,'0'))+'‎';}
+// بخش‌های تاریخ به‌وقت تهران (برای ساخت/مقایسه‌ی روز جلالی، مستقل از زون سیستم)
+function tehranParts(ts){
+  const p=new Intl.DateTimeFormat('en-US',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date(ts==null?Date.now():ts));
+  const o={};p.forEach(x=>o[x.type]=x.value);
+  let hh=+o.hour; if(hh===24) hh=0; // برخی محیط‌ها نیمه‌شب را 24 می‌دهند
+  return {y:+o.year,m:+o.month,d:+o.day,hh:hh,mm:+o.minute};
+}
+function div_(a,b){return Math.floor(a/b);}
+function gregorian_to_jalali(gy,gm,gd){
+  const g_d_m=[0,31,59,90,120,151,181,212,243,273,304,334];
+  let jy=(gy<=1600)?0:979; gy=(gy<=1600)?gy-621:gy-1600;
+  const gy2=(gm>2)?(gy+1):gy;
+  let days=(365*gy)+div_((gy2+3),4)-div_((gy2+99),100)+div_((gy2+399),400)-80+gd+g_d_m[gm-1];
+  jy+=33*div_(days,12053); days%=12053;
+  jy+=4*div_(days,1461); days%=1461;
+  if(days>365){jy+=div_((days-1),365);days=(days-1)%365;}
+  const jm=(days<186)?1+div_(days,31):7+div_((days-186),30);
+  const jd=(days<186)?1+(days%31):1+((days-186)%30);
+  return [jy,jm,jd];
+}
+function jalali_to_gregorian(jy,jm,jd){
+  jy+=1595;
+  let days=-355668+(365*jy)+(div_(jy,33)*8)+div_(((jy%33)+3),4)+jd+((jm<7)?(jm-1)*31:((jm-7)*30)+186);
+  let gy=400*div_(days,146097); days%=146097;
+  if(days>36524){gy+=100*div_(--days,36524);days%=36524;if(days>=365)days++;}
+  gy+=4*div_(days,1461); days%=1461;
+  if(days>365){gy+=div_((days-1),365);days=(days-1)%365;}
+  let gd=days+1;
+  const sal_a=[0,31,(gy%4===0&&gy%100!==0)||gy%400===0?29:28,31,30,31,30,31,31,30,31,30,31];
+  let gm=0;
+  for(gm=1;gm<=12;gm++){if(gd<=sal_a[gm])break;gd-=sal_a[gm];}
+  return [gy,gm,gd];
+}
+function jalaliToday(){const p=tehranParts();return gregorian_to_jalali(p.y,p.m,p.d);}
+function jalaliStr(jy,jm,jd){return jy+'/'+String(jm).padStart(2,'0')+'/'+String(jd).padStart(2,'0');}
+function jalaliDaysInMonth(jy,jm){return jm<=6?31:(jm<=11?30:((jy%33===1||jy%33===5||jy%33===9||jy%33===13||jy%33===17||jy%33===22||jy%33===26||jy%33===30)?30:29));}
+
+// ─── ویجت تقویم فارسی/میلادی + ساعت (مشترک برای کل نرم‌افزار) ──────────────────
+const J_MONTHS=['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+const J_DOW=['ش','ی','د','س','چ','پ','ج'];
+let _dpState=null;
+function openDatePicker(inp, opts){
+  closeDatePicker();
+  opts=opts||{};
+  const withTime = !!opts.withTime;
+  let ts = inp.dataset.ts ? +inp.dataset.ts : Date.now();
+  let cal = inp.dataset.cal || 'j';
+  let [jy,jm] = (()=>{ const p=tehranParts(ts); return cal==='j'? gregorian_to_jalali(p.y,p.m,p.d).slice(0,2) : [p.y,p.m]; })();
+  let selDay = tehranParts(ts).d;
+  let hh = inp.dataset.hh!=null ? +inp.dataset.hh : tehranParts(ts).hh;
+  let mm = inp.dataset.mm!=null ? +inp.dataset.mm : tehranParts(ts).mm;
+
+  const pop = document.createElement('div'); pop.className='dp-pop';
+  pop.addEventListener('mousedown', e=>e.stopPropagation());
+  pop.addEventListener('click', e=>e.stopPropagation());
+  document.body.appendChild(pop);
+  const r = inp.getBoundingClientRect();
+  pop.style.top = Math.min(r.bottom+6, window.innerHeight-320)+'px';
+  pop.style.right = Math.max(8, window.innerWidth-r.right)+'px';
+
+  function render(){
+    const todayJ = jalaliToday();
+    const isJ = cal==='j';
+    const title = isJ ? (J_MONTHS[jm-1]+' '+jy) : (jm+'/'+jy);
+    const daysInMonth = isJ ? jalaliDaysInMonth(jy,jm) : new Date(jy,jm,0).getDate();
+    let firstDow;
+    if(isJ){ const [gy,gm,gd]=jalali_to_gregorian(jy,jm,1); firstDow=(new Date(gy,gm-1,gd).getDay()+1)%7; }
+    else { firstDow = new Date(jy,jm-1,1).getDay(); }
+    let cells='';
+    for(let i=0;i<firstDow;i++) cells+='<div class="day empty"></div>';
+    for(let d=1;d<=daysInMonth;d++){
+      const isToday = isJ ? (todayJ[0]===jy&&todayJ[1]===jm&&todayJ[2]===d) : false;
+      const isSel = d===selDay;
+      cells+=`<div class="day${isToday?' today':''}${isSel?' sel':''}" onclick="_dpPick(${d})">${d}</div>`;
+    }
+    pop.innerHTML = `
+      <div class="dp-head">
+        <button type="button" onclick="_dpNav(-1)">‹</button>
+        <span class="dp-title" style="cursor:pointer" onclick="_dpNavYear(-1)" title="سال قبل">${title}</span>
+        <button type="button" onclick="_dpNav(1)">›</button>
+      </div>
+      <div style="display:flex;gap:4px;justify-content:center;margin-bottom:6px">
+        <button type="button" class="btn-sm" style="background:#eee;border:none;border-radius:5px;cursor:pointer;padding:2px 8px;font-size:10px" onclick="_dpNavYear(-1)">◀ سال</button>
+        <button type="button" class="btn-sm" style="background:#eee;border:none;border-radius:5px;cursor:pointer;padding:2px 8px;font-size:10px" onclick="_dpNavYear(1)">سال ▶</button>
+      </div>
+      <div class="dp-grid">${J_DOW.map(d=>'<div class="dow">'+d+'</div>').join('')}${cells}</div>
+      <div class="dp-foot">
+        <button class="btn-sm" style="background:#eee;border:none;border-radius:5px;cursor:pointer;padding:4px 8px" onclick="_dpToggleCal()">${isJ?'میلادی':'شمسی'}</button>
+        ${withTime?`<div class="dp-time"><input type="number" min="0" max="23" value="${String(hh).padStart(2,'0')}" onchange="_dpSetTime(this.value,null)"> : <input type="number" min="0" max="59" value="${String(mm).padStart(2,'0')}" onchange="_dpSetTime(null,this.value)"></div>`:''}
+        <button class="btn-sm" style="background:var(--blue2);color:#fff;border:none;border-radius:5px;cursor:pointer;padding:4px 10px" onclick="_dpToday()">امروز</button>
+      </div>`;
+  }
+  window._dpNav=function _dpNav(dir){ jm+=dir; if(jm<1){jm=12;jy--;} if(jm>12){jm=1;jy++;} render(); };
+  window._dpNavYear=function _dpNavYear(dir){ jy+=dir; render(); };
+  window._dpToggleCal=function _dpToggleCal(){
+    if(cal==='j'){ const [gy,gm]=jalali_to_gregorian(jy,jm,1); cal='g'; jy=gy; jm=gm; }
+    else { const [ny,nm]=gregorian_to_jalali(jy,jm,1); cal='j'; jy=ny; jm=nm; }
+    render();
+  };
+  window._dpToday=function _dpToday(){ const p=tehranParts(); const [ty,tm]=cal==='j'?gregorian_to_jalali(p.y,p.m,p.d):[p.y,p.m]; jy=ty;jm=tm;selDay=cal==='j'?gregorian_to_jalali(p.y,p.m,p.d)[2]:p.d; render(); };
+  window._dpSetTime=function _dpSetTime(h,m){ if(h!=null)hh=Math.max(0,Math.min(23,+h||0)); if(m!=null)mm=Math.max(0,Math.min(59,+m||0)); };
+  window._dpPick=function _dpPick(d){
+    selDay=d;
+    let gy,gm,gd;
+    if(cal==='j'){ [gy,gm,gd]=jalali_to_gregorian(jy,jm,d); } else { gy=jy;gm=jm;gd=d; }
+    const dt = new Date(Date.UTC(gy,gm-1,gd,12,0,0)); // ظهر UTC تا جابه‌جایی روز با آفست تهران رخ ندهد
+    const tehOffsetFix = new Date(dt.toLocaleString('en-US',{timeZone:TZ}));
+    const utcFix = new Date(dt.toLocaleString('en-US',{timeZone:'UTC'}));
+    const offsetMs = utcFix - tehOffsetFix;
+    let finalTs = dt.getTime() + offsetMs;
+    if(withTime){ finalTs = finalTs - (12*3600000) + (hh*3600000) + (mm*60000); }
+    const [jjy,jjm,jjd]=gregorian_to_jalali(gy,gm,gd);
+    inp.value = withTime ? (jalaliStr(jjy,jjm,jjd)+' '+String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')) : jalaliStr(jjy,jjm,jjd);
+    inp.dataset.ts = finalTs;
+    inp.dataset.cal = cal;
+    inp.dataset.hh = hh; inp.dataset.mm = mm;
+    inp.dispatchEvent(new Event('change',{bubbles:true}));
+    closeDatePicker();
+  };
+  render();
+  setTimeout(()=>document.addEventListener('click', _dpOutside),0);
+}
+function _dpOutside(e){ if(_dpState && !_dpState.contains(e.target)) closeDatePicker(); }
+function closeDatePicker(){
+  document.querySelectorAll('.dp-pop').forEach(p=>p.remove());
+  document.removeEventListener('click', _dpOutside);
+}
+// نگه‌داری مرجع پاپ‌آپ فعلی برای تشخیص کلیک بیرون
+(function(){
+  const origOpen = openDatePicker;
+  openDatePicker = function(inp,opts){ origOpen(inp,opts); _dpState = document.querySelector('.dp-pop'); };
+})();
+
+// ─── سایدبار: گروه‌های قابل جمع‌شدن + بج شمارنده ────────────────────────────────
+function toggleSbGroup(sectionEl){
+  const grp = sectionEl.closest('.sb-group');
+  grp.classList.toggle('collapsed');
+  sectionEl.classList.toggle('collapsed');
+  const st = JSON.parse(localStorage.getItem('laegh_sb_collapse')||'{}');
+  st[grp.dataset.grp] = grp.classList.contains('collapsed');
+  localStorage.setItem('laegh_sb_collapse', JSON.stringify(st));
+}
+function restoreSbCollapse(){
+  const st = JSON.parse(localStorage.getItem('laegh_sb_collapse')||'{}');
+  document.querySelectorAll('.sb-group').forEach(grp=>{
+    if(st[grp.dataset.grp]){
+      grp.classList.add('collapsed');
+      grp.querySelector('.sb-section').classList.add('collapsed');
+    }
+  });
+}
+function renderSidebarBadges(){
+  const openInv = (typeof invoices!=='undefined'?invoices:[]).filter(d=>d.status!=='closed').length;
+  const b1=document.getElementById('nb-open-inv');
+  if(b1){ b1.style.display = openInv?'inline-flex':'none'; b1.textContent = openInv; }
+  const ts = (typeof tasks!=='undefined'?tasks:[]);
+  const now=Date.now();
+  const urgentCnt = ts.filter(t=>t.status==='open' && (t.priority==='urgent' || (t.deadlineTS && t.deadlineTS<now))).length;
+  const b2=document.getElementById('nb-tasks');
+  if(b2){ b2.style.display = urgentCnt?'inline-flex':'none'; b2.textContent = urgentCnt; b2.className='nav-badge'+(urgentCnt?' urgent':''); }
+}
+
+// ─── PAGES ─────────────────────────────────────────────────────────────────────
+function showPage(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-it').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  if(id==='saved') renderSaved();
+  if(id==='phonebook') renderPB();
+  if(id==='products') renderProds();
+  if(id==='inventory') renderInv();
+  if(id==='defective') renderDefective();
+  if(id==='datetime') renderCalPage();
+  if(id==='audit') renderAuditLog();
+  if(id==='dataio') renderDataStats();
+  if(id==='parts') renderParts();
+  if(id==='sales') renderSales();
+  if(id==='services') renderSvcs();
+  if(id==='warranty') renderWar();
+  if(id==='settings'){ loadPrintSettingsUI(); loadCompanyInfo(); loadAutoSaveUI(); loadAppearanceUI(); }
+  if(id==='tasks') renderTasks();
+}
+function setFont(cls,btn){
+  document.body.classList.remove('fv','fc','ffa');
+  if(cls) document.body.classList.add(cls);
+  document.querySelectorAll('.btn[onclick^="setFont"]').forEach(b=>b.classList.remove('btn-p'));
+  btn.classList.add('btn-p');
+}
+function changeLogo(inp){
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=e=>{logoSrc=e.target.result; document.getElementById('sb-logo').src=logoSrc; localStorage.setItem('ll',logoSrc); ntf('لوگو تغییر کرد');};
+  r.readAsDataURL(f);
+}
+function closeMod(id){document.getElementById(id).classList.remove('open');}
+
+// ─── راهنمای آکاردئونی + جستجو ──────────────────────────────────────────────────
+function toggleHelpCard(t){ const c=t.closest('.help-card'); if(c) c.classList.toggle('help-collapsed'); }
+function helpSearch(){
+  const inp=document.getElementById('help-search'); if(!inp) return;
+  const q=(inp.value||'').trim().toLowerCase();
+  const cards=document.querySelectorAll('#page-help .help-card');
+  let any=false;
+  cards.forEach(c=>{
+    const match = !q || (c.textContent||'').toLowerCase().includes(q);
+    c.style.display = match ? '' : 'none';
+    if(match){ any=true; if(q) c.classList.remove('help-collapsed'); else c.classList.add('help-collapsed'); }
+  });
+  // سرتیترهای دسته هنگام جستجو پنهان می‌شوند (چون نتایج ممکن است پراکنده باشند)
+  document.querySelectorAll('#page-help .help-cat-header').forEach(h=>{ h.style.display = q ? 'none' : ''; });
+  const nr=document.getElementById('help-noresult'); if(nr) nr.style.display = (q && !any) ? 'block' : 'none';
+}
+
+// ─── مرتب‌سازی مشترک لیست‌ها ─────────────────────────────────────────────────────
+// sortVal به شکل "field:dir" است (مثل "tF:desc" یا "_idx:desc" برای جدیدترین بر اساس ترتیب ثبت)
+function _listSort(arr, sortVal, origArr){
+  if(!sortVal) return arr;
+  const i=sortVal.lastIndexOf(':'); if(i<0) return arr;
+  const field=sortVal.slice(0,i), dir=sortVal.slice(i+1), m=(dir==='asc'?1:-1);
+  return arr.slice().sort(function(x,y){
+    if(field==='_idx'){ return m*(origArr.indexOf(x)-origArr.indexOf(y)); }
+    var a=x[field], b=y[field];
+    a=(a==null?'':a); b=(b==null?'':b);
+    if(typeof a==='number' && typeof b==='number') return m*(a-b);
+    return m*String(a).localeCompare(String(b),'fa',{numeric:true});
+  });
+}
+function _sortVal(id){ var el=document.getElementById(id); return el?el.value:''; }
+
+// ─── چاپ «لیست» (جدول خلاصه) — مشترک همه‌ی بخش‌ها ───────────────────────────────
+// توجه: چاپِ «خودِ موارد» (مثل فاکتور کامل) جداست؛ این فقط لیست خلاصه را چاپ می‌کند.
+function _printTable(title, headers, rows){
+  if(!rows || !rows.length){ ntf('موردی برای چاپ نیست','err'); return; }
+  var sig='<div class="print-sig-row"><div><div class="print-sig-box">امضاء کارشناس خدمات</div></div><div><div class="print-sig-box">امضاء انباردار</div></div></div>';
+  var th=headers.map(function(h){return '<th>'+h+'</th>';}).join('');
+  var body=rows.map(function(r){ return '<tr>'+r.map(function(c){return '<td>'+(c==null?'':String(c))+'</td>';}).join('')+'</tr>'; }).join('');
+  var w=window.open('','_blank');
+  w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>'+title+'</title>'
+    +'<style>body{font-family:Tahoma;direction:rtl;padding:10px}h3{margin:0 0 6px}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:.5px solid #888;padding:4px 6px;text-align:right}th{background:#eee}tr:nth-child(even) td{background:#fafafa}@page{size:A4 landscape;margin:8mm}.meta{font-size:10px;color:#666;margin-bottom:8px}.print-sig-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:16px;padding-top:10px;border-top:1px solid #ccc;text-align:center;font-size:10px}.print-sig-box{min-height:52px;border-top:1px dashed #888;padding-top:6px;margin-top:28px}</style></head><body>'
+    +'<h3>'+title+' — Laegh Electronic Parsian</h3><div class="meta">تعداد: '+rows.length+' — تاریخ چاپ: '+fdt()+'</div>'
+    +'<table><thead><tr>'+th+'</tr></thead><tbody>'+body+'</tbody></table>'+sig+'</body></html>');
+  w.document.close(); w.focus(); w.print();
+}
+function printSavedList(){
+  var sel=(typeof getSelIdx==='function')?getSelIdx():[];
+  var list = sel.length ? sel.map(function(i){return invoices[i];}) : (window._savedView||invoices);
+  var rows=list.map(function(d){ return [d.num, d.seller||'', d.phone||'', d.savedAt||d.date||'', (d.items?d.items.length:0), (d.tF||0).toLocaleString(), d.status==='closed'?'تکمیل':'باز']; });
+  _printTable('لیست فاکتورها'+(sel.length?' (انتخاب‌شده)':''), ['شماره','فروشنده','تلفن','تاریخ','تعداد','مبلغ (ریال)','وضعیت'], rows);
+}
+function printProdsList(){
+  var list=window._prodsView||products;
+  var rows=list.map(function(p){ var inv=inventory[p.code]||{qty:0}; return [p.code,p.name,p.cat||'',p.brand||'',(p.price||0).toLocaleString(),inv.qty]; });
+  _printTable('لیست کالاها', ['کد','نام','دسته','برند','قیمت (ریال)','موجودی'], rows);
+}
+function printSalesList(){
+  var list=window._salesView||sales;
+  var rows=list.map(function(s){ return [s.id,s.date||'',s.partName||s.part||'',s.qty||0,(s.price||0).toLocaleString(),(s.disc||0)+'%',(s.total||0).toLocaleString(),s.name||s.customer||'',s.phone||'']; });
+  _printTable('لیست فروش قطعات', ['شماره','تاریخ','قطعه','تعداد','قیمت واحد','تخفیف','جمع کل','خریدار','تلفن'], rows);
+}
+function printWarrantyList(){
+  var list=window._warView||warranties;
+  var rows=list.map(function(w){ return [w.id||'',w.name||w.customer||'',w.phone||'',w.model||w.product||'',w.date||'',w.status==='closed'?'بسته':'باز']; });
+  _printTable('لیست پرونده‌های گارانتی', ['شماره','نام مشتری','تلفن','مدل','تاریخ مراجعه','وضعیت'], rows);
+}
+function printPartsList(){
+  var rows=parts.map(function(p){ return [p.code||'',p.name||'',p.cat||'',p.prodCode||'',(p.qty!=null?p.qty:0),(p.price||0).toLocaleString()]; });
+  _printTable('لیست قطعات', ['کد','نام','دسته','کالای مرتبط','موجودی','قیمت (ریال)'], rows);
+}
+function printServicesList(){
+  var rows=services.map(function(s){ return [s.code||'',s.name||'',s.cat||'',(s.warr==='yes'?'رایگان':(s.price||0).toLocaleString()),(s.warr==='yes'?'دارد':'ندارد')]; });
+  _printTable('لیست خدمات', ['کد','نام خدمت','دسته','قیمت (ریال)','گارانتی'], rows);
+}
+function printPhonebookList(){
+  var catL={shop:'فروشگاه',agency:'نمایندگی',company:'شرکت',customer:'مشتری',other:'سایر'};
+  var rows=phonebook.map(function(c){ return [((c.fn||'')+' '+(c.ln||'')).trim(),c.shop||'',(c.phones||[])[0]||'',catL[c.cat||'other']||'',c.addr||'']; });
+  _printTable('لیست دفترچه تلفن', ['نام','فروشگاه','تلفن','دسته','آدرس'], rows);
+}
+
+// ─── ارسال پیام به مشتری (پیامک / واتساپ / کپی برای روبیکا/ایتا/تلگرام) ──────────
+function faToEnDigits(s){ return (s||'').replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c)); }
+// شماره‌ی موبایل ایرانی را به فرمت بین‌المللی (989xxxxxxxxx) برای واتساپ تبدیل می‌کند
+function normIranPhone(p){
+  let d=faToEnDigits(p).replace(/\D/g,'');
+  if(d.indexOf('0098')===0) d=d.slice(2);   // 0098… → 98…
+  if(d.indexOf('0')===0) d=d.slice(1);        // 09… → 9…
+  if(d.indexOf('98')!==0) d='98'+d;           // 9… → 989…
+  return d;
+}
+let _msgPdfFn=null;
+function openMsgModal(phone, text, opts){
+  opts = opts || {};
+  document.getElementById('msg-phone').value = faToEnDigits(phone||'');
+  document.getElementById('msg-text').value = text||'';
+  document.getElementById('msg-to').textContent = phone ? ('گیرنده: '+phone) : '';
+  _msgPdfFn = (typeof opts.pdfFn==='function') ? opts.pdfFn : null;
+  const pb=document.getElementById('msg-pdf-btn');
+  if(pb){ if(_msgPdfFn){ pb.style.display=''; pb.textContent=opts.pdfLabel||'📄 تهیه PDF'; } else { pb.style.display='none'; } }
+  document.getElementById('msg-modal').classList.add('open');
+}
+function msgMakePdf(){ if(_msgPdfFn){ try{ _msgPdfFn(); ntf('در پنجره‌ی چاپ، «Save as PDF» را انتخاب کنید'); }catch(e){ ntf('ساخت PDF ناموفق بود','err'); } } }
+// اشتراک‌گذاری متن با همه‌ی پیام‌رسان‌ها (روبیکا/ایتا/تلگرام/...) از طریق Web Share؛ اگر نبود، کپی می‌کند
+function msgShare(){
+  const tx=document.getElementById('msg-text').value||'';
+  if(navigator.share){ navigator.share({text:tx}).catch(()=>{}); }
+  else msgCopyText();
+}
+// ساخت پیام آماده برای مشتریِ فاکتور + امکان تهیه‌ی PDF فاکتور برای پیوست
+function notifyInvoiceCustomer(){
+  const num=(document.getElementById('inv-num')||{}).textContent||'';
+  const phone=document.getElementById('inv-phone').value||'';
+  const name=(document.getElementById('inv-seller').value||'').trim();
+  const date=document.getElementById('inv-date').value||fdate();
+  let totalStr='';
+  try{ const d=getData(); if(d && d.tF!=null && d.tF!=='') totalStr=faNum(Number(d.tF).toLocaleString('en-US')); }catch(e){}
+  const text='سلام'+(name?(' '+name):'')+' عزیز،\n'+
+    'فاکتور شماره '+num+' به تاریخ '+date+' آماده شد'+(totalStr?('، جمع کل: '+totalStr+' ریال'):'')+'.\n'+
+    'فایل PDF فاکتور پیوست می‌شود.\nبا تشکر — لایق الکترونیک پارسیان';
+  openMsgModal(phone, text, {pdfFn:printInv, pdfLabel:'📄 تهیه PDF فاکتور'});
+}
+// ساخت پیام آماده برای مشتریِ فروش قطعه
+function notifySaleCustomer(){
+  const name=(document.getElementById('sale-name').value||'').trim();
+  const phone=document.getElementById('sale-phone').value||'';
+  const sel=document.getElementById('sale-part-sel');
+  let partName=(sel && sel.selectedIndex>=0) ? sel.options[sel.selectedIndex].text : '';

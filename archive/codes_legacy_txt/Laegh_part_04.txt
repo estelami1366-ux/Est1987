@@ -1,0 +1,500 @@
+  </div>
+</div>
+
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>📱 ارسال خودکار پیامک (پنل اینترنتی — سطح ۲)</span><span class="help-chev">▾</span></div>
+  <p style="font-size:13px;line-height:2;color:var(--text2)">
+    اگر یک <b>پنل پیامک اینترنتی</b> تهیه کردید، می‌توانید کاری کنید دکمه‌ی «پیامک» به‌جای باز کردن گوشی،
+    <b>خودکار</b> از طریق اینترنت پیامک بفرستد:
+  </p>
+  <ol style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li>به <b>تنظیمات → 📱 پیامک (پنل اینترنتی)</b> بروید.</li>
+    <li><b>آدرس ارسال پنل</b> خود را وارد کنید و جای شماره را <code style="direction:ltr">{to}</code> و جای متن را <code style="direction:ltr">{text}</code> بگذارید. مثال:
+      <div style="background:#1e1e1e;color:#4ec9b0;padding:8px 12px;border-radius:8px;font-family:monospace;font-size:11px;direction:ltr;text-align:left;margin:6px 0;overflow:auto">https://panel.example.com/send?user=USER&pass=PASS&from=3000XXXX&to={to}&text={text}</div>
+    </li>
+    <li>تیک <b>«ارسال خودکار فعال باشد»</b> را بزنید و <b>ذخیره</b> کنید. با دکمه‌ی «ارسال پیامک تست» امتحان کنید.</li>
+  </ol>
+  <div style="background:var(--amber-l);color:var(--amber);padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.9;margin-top:8px">
+    ℹ️ پنل باید <b>«آدرس ارسال GET»</b> داشته باشد (اکثر پنل‌های ایرانی دارند). پنل‌هایی که فقط API از نوع POST/JSON دارند (مثل کاوه‌نگار/SMS.ir) از داخل مرورگر کار نمی‌کنند و به یک واسط سرور نیاز دارند.<br>
+    ⚠️ آدرس پنل (شامل رمز) فقط روی همین کامپیوتر ذخیره می‌شود؛ روی دستگاه مشترک استفاده نکنید.
+  </div>
+</div>
+
+<div class="help-cat-header">🖥 انتقال و راه‌اندازی روی دستگاه دیگر</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>🖥 انتقال برنامه به کامپیوتر دیگر</span><span class="help-chev">▾</span></div>
+  <div style="background:#FFF5F5;color:var(--red);padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.9;margin-bottom:10px">
+    ⚠️ <b>نکته‌ی حیاتی:</b> داده‌های شما (فاکتور، مخاطب، وظایف و...) داخل فایل HTML نیست؛ در حافظه‌ی همین مرورگر ذخیره می‌شود.
+    پس اگر فقط فایل را کپی کنید، برنامه روی کامپیوتر جدید <b>خالی</b> باز می‌شود. حتماً اول بک‌اپ بگیرید.
+  </div>
+  <!-- تصویر: مسیر انتقال داده -->
+  <svg viewBox="0 0 460 110" style="width:100%;max-width:460px;display:block;margin:6px auto">
+    <rect x="6" y="30" width="120" height="50" rx="8" fill="var(--blue-l)" stroke="var(--blue)"/>
+    <text x="66" y="52" text-anchor="middle" font-size="12" font-weight="700" fill="var(--blue2)">کامپیوتر فعلی</text>
+    <text x="66" y="70" text-anchor="middle" font-size="11" fill="#666">بک‌اپ بگیر</text>
+    <text x="150" y="60" text-anchor="middle" font-size="22" fill="var(--blue)">←</text>
+    <rect x="172" y="30" width="116" height="50" rx="8" fill="var(--amber-l)" stroke="var(--amber)"/>
+    <text x="230" y="52" text-anchor="middle" font-size="12" font-weight="700" fill="var(--amber)">فلش / فایل</text>
+    <text x="230" y="70" text-anchor="middle" font-size="11" fill="#777">پوشه + بک‌اپ</text>
+    <text x="312" y="60" text-anchor="middle" font-size="22" fill="var(--blue)">←</text>
+    <rect x="334" y="30" width="120" height="50" rx="8" fill="var(--green-l)" stroke="var(--green)"/>
+    <text x="394" y="52" text-anchor="middle" font-size="12" font-weight="700" fill="var(--green)">کامپیوتر جدید</text>
+    <text x="394" y="70" text-anchor="middle" font-size="11" fill="#666">بازگردانی کن</text>
+  </svg>
+  <ol style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li>روی کامپیوتر فعلی، از <b>«ورود/خروج داده»</b> یک فایل بک‌اپ <code>Laegh_backup_….json</code> بگیرید.</li>
+    <li>کل پوشه را کپی کنید (شامل <b>index.html</b> ، <b>sw.js</b> ، <b>اجرای لایق.bat</b>) — به‌علاوه‌ی فایل بک‌اپ.</li>
+    <li>روی کامپیوتر جدید <b>Python</b> را نصب کنید (از python.org، با تیک «Add Python to PATH») — برای فعال‌شدن پیغام‌ها لازم است.</li>
+    <li><b>اجرای لایق.bat</b> را دابل‌کلیک کنید تا برنامه باز شود.</li>
+    <li>از <b>«ورود/خروج داده»</b> فایل بک‌اپ را با حالت <b>«جایگزینی»</b> بازگردانی کنید.</li>
+    <li>دکمه‌ی <b>«🔔 فعال‌سازی اعلان دسکتاپ»</b> را بزنید و Allow کنید.</li>
+  </ol>
+  <div style="background:var(--amber-l);color:var(--amber);padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.9;margin-top:8px">
+    💡 اگر کامپیوتر جدید Python ندارد و نمی‌خواهید نصب کنید: برنامه با دابل‌کلیک مستقیم روی فایل HTML هم باز می‌شود و همه‌چیزش کار می‌کند —
+    فقط <b>پیغام پس‌زمینه‌ی ویندوز</b> فعال نمی‌شود (اعلان‌های داخل خودِ برنامه نمایش داده می‌شوند).
+  </div>
+</div>
+
+<div class="help-cat-header">📊 اکسل و فهرست‌ها</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>📊 کار با اکسل در همه‌ی فهرست‌ها (کالا، دفترچه، قطعات، خدمات)</span><span class="help-chev">▾</span></div>
+  <p style="font-size:13px;line-height:2;color:var(--text2)">
+    حالا چهار بخش <b>مدیریت کالا</b>، <b>دفترچه تلفن</b>، <b>انبار قطعات</b> و <b>لیست خدمات</b> هر کدام سه دکمه‌ی اکسل دارند:
+    <b>📥 ورود از اکسل</b>، <b>📤 خروجی اکسل</b>، و <b>📄 نمونه اکسل</b>. روش هر سه یکسان است.
+  </p>
+  <p style="font-size:13px;line-height:2;color:var(--text2)">
+    نمونه‌ی صفحه‌ی <b>مدیریت کالاها</b>:
+  </p>
+  <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>📄 نمونه اکسل:</b> اول این را بزنید تا یک فایل با ستون‌های درست (کد، نام، دسته، برند، تأمین‌کننده، قیمت، توضیحات، موجودی، حداقل) و یک ردیف مثال بگیرید.</li>
+    <li><b>📥 افزودن از اکسل:</b> فایل پرشده را انتخاب کنید؛ کالاهای جدید اضافه می‌شوند (کدهای تکراری رد می‌شوند تا داده‌ی فعلی خراب نشود).</li>
+    <li><b>📤 خروجی اکسل:</b> همه‌ی کالاها را در یک فایل اکسل ذخیره کنید (با همان ستون‌ها — قابل ویرایش و وارد کردن دوباره).</li>
+  </ul>
+  <div style="background:var(--blue-l);color:var(--blue2);padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.9;margin-top:8px">
+    💡 ستون اول حتماً <b>کد کالا</b> و ستون دوم <b>نام</b> باشد؛ همین دو اجباری‌اند. ردیف اول فایل، سرستون‌هاست و خوانده نمی‌شود.
+  </div>
+</div>
+
+<div class="help-cat-header">🕐 تاریخ و زمان</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>مرکز تاریخ و زمان + ساعت زنده</span><span class="help-chev">▾</span></div>
+  <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li>یک <b>ساعت زنده</b> (تاریخ شمسی + ساعت) همیشه بالای سایدبار نمایش داده می‌شود.</li>
+    <li>منطقه‌ی زمانی برنامه از <b>تنظیمات → 🕐 تاریخ و زمان</b> تعیین می‌شود (پیش‌فرض: تهران).</li>
+    <li>همه‌ی تاریخ‌ها و ساعت‌های ثبت‌شده (مهرِ زمانِ <b>فاکتور، فروش، گارانتی، وظایف</b>) از همین مرکز گرفته می‌شوند، نه از ساعت سیستم کاربر.</li>
+  </ul>
+</div>
+
+<div class="help-cat-header">🛡 بک‌اپ و امنیت داده</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>🛡 استراتژی حفاظت از داده‌ها (قانون ۳-۲-۱)</span><span class="help-chev">▾</span></div>
+  <p style="font-size:13px;line-height:2;color:var(--text2)">
+    داده‌های شما در حافظه‌ی مرورگر است؛ برای امنیت کامل، روش حرفه‌ای «۳-۲-۱» را به‌کار ببرید:
+    <b>۳ نسخه</b> از داده، روی <b>۲ جای مختلف</b>، که <b>۱ نسخه</b> در جای دور (ابر) باشد.
+  </p>
+  <!-- تصویر: قانون ۳-۲-۱ -->
+  <svg viewBox="0 0 460 96" style="width:100%;max-width:460px;display:block;margin:8px auto">
+    <rect x="6" y="26" width="138" height="52" rx="8" fill="var(--blue-l)" stroke="var(--blue)"/>
+    <text x="75" y="48" text-anchor="middle" font-size="12" font-weight="700" fill="var(--blue2)">۱) ذخیره خودکار</text>
+    <text x="75" y="66" text-anchor="middle" font-size="10" fill="#666">هر ۳ دقیقه در پوشه</text>
+    <rect x="160" y="26" width="138" height="52" rx="8" fill="var(--green-l)" stroke="var(--green)"/>
+    <text x="229" y="48" text-anchor="middle" font-size="12" font-weight="700" fill="var(--green)">۲) پوشه‌ی OneDrive</text>
+    <text x="229" y="66" text-anchor="middle" font-size="10" fill="#666">کپی خودکار در ابر</text>
+    <rect x="314" y="26" width="140" height="52" rx="8" fill="var(--amber-l)" stroke="var(--amber)"/>
+    <text x="384" y="48" text-anchor="middle" font-size="12" font-weight="700" fill="var(--amber)">۳) export هفتگی</text>
+    <text x="384" y="66" text-anchor="middle" font-size="10" fill="#666">فلش / ایمیل به خود</text>
+  </svg>
+  <ol style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>ذخیره خودکار را روشن کنید</b> (تنظیمات → 💾 ذخیره خودکار) و پوشه‌اش را <b>داخل پوشه‌ی OneDrive</b> انتخاب کنید — این‌طور هم خودکار ذخیره می‌شود، هم خودکار در ابر کپی می‌شود.</li>
+    <li><b>هفته‌ای یک‌بار</b> از «ورود/خروج داده» یک export دستی بگیرید و روی فلش/ایمیل نگه دارید. (برنامه خودش یادآوری می‌کند 💾)</li>
+    <li>هنگام <b>بازگردانی</b>، برنامه اول <b>تعداد رکوردهای فایل</b> را نشان می‌دهد؛ اگر خالی/مشکوک بود هشدار می‌دهد تا اشتباهی داده‌هایتان را پاک نکنید.</li>
+  </ol>
+  <div style="background:var(--green-l);color:var(--green);padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.9;margin-top:8px">
+    ✅ <b>بک‌اپ‌ها بین نسخه‌ها کار می‌کنند:</b> هر فایل پشتیبان نسخه‌اش را همراه دارد و موقع بازگردانی خودکار به فرمت جدید تبدیل می‌شود (Migration). پس بک‌اپِ امروز در همه‌ی نسخه‌های آینده باز می‌شود.
+  </div>
+</div>
+
+<div class="card" style="text-align:center;color:var(--text2);font-size:12px">
+  Laegh Electronic Parsian — سیستم خدمات پس از فروش — نسخه ۱۰.۴.۶
+</div>
+</div>
+
+</div><!-- /main -->
+
+<!-- MODAL: ROLE / ACCESS PROFILE -->
+<div class="ov" id="role-modal">
+<div class="modal modal-lg">
+  <button class="modal-x" onclick="closeMod('role-modal')">×</button>
+  <div class="modal-title" id="role-m-title">پروفایل دسترسی جدید</div>
+  <input type="hidden" id="role-idx" value="-1">
+  <div class="g2" style="margin-bottom:10px">
+    <div class="f"><label>نام کارمند / پروفایل</label><input id="role-name" placeholder="مثلاً: علی محمدی"></div>
+    <div class="f"><label>رمز ورود</label><input type="password" id="role-pw" placeholder="رمز این پروفایل"></div>
+  </div>
+  <div style="margin-bottom:10px">
+    <label style="font-size:12px;font-weight:700;display:block;margin-bottom:8px">دسترسی به بخش‌ها</label>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <button class="btn btn-sm btn-o" onclick="selectAllRolePages(true)">✓ انتخاب همه</button>
+      <button class="btn btn-sm btn-o" onclick="selectAllRolePages(false)">✗ پاک کردن همه</button>
+    </div>
+    <div id="role-pages-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"></div>
+  </div>
+  <div class="btn-bar">
+    <button class="btn btn-p" onclick="saveRole()">💾 ذخیره پروفایل</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: PRODUCT -->
+<div class="ov" id="prod-modal">
+<div class="modal modal-lg">
+  <button class="modal-x" onclick="closeMod('prod-modal')">×</button>
+  <div class="modal-title" id="pm-title">کالای جدید</div>
+  <input type="hidden" id="pm-idx" value="-1">
+  <div class="g3" style="margin-bottom:10px">
+    <div class="f"><label>کد کالا *</label><input id="pm-code" placeholder="مثلاً 101001"></div>
+    <div class="f"><label>نام کالا *</label><input id="pm-name" placeholder="نام کامل کالا"></div>
+    <div class="f"><label>دسته‌بندی</label><input id="pm-cat" placeholder="مثلاً پنکه، جاروبرقی"></div>
+  </div>
+  <div class="g3" style="margin-bottom:10px">
+    <div class="f"><label>برند / سازنده</label><input id="pm-brand" placeholder="نام برند"></div>
+    <div class="f"><label>شرکت تأمین‌کننده</label><input id="pm-supplier" placeholder="نام شرکت"></div>
+    <div class="f"><label>قیمت پایه (ریال)</label><input id="pm-price" type="number" placeholder="0" min="0"></div>
+  </div>
+  <div class="g2" style="margin-bottom:10px">
+    <div class="f"><label>توضیحات</label><textarea id="pm-desc" rows="3" placeholder="مشخصات فنی، ویژگی‌ها..."></textarea></div>
+    <div class="f"><label>عکس کالا</label>
+      <div id="pm-img-preview" style="width:100%;height:80px;border:1px dashed #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:#f9f9f9" onclick="document.getElementById('pm-img-inp').click()">
+        <span style="font-size:11px;color:#aaa">کلیک برای انتخاب عکس</span>
+      </div>
+      <input type="file" id="pm-img-inp" accept="image/*" style="display:none" onchange="setProdImg(this)">
+      <input type="hidden" id="pm-img-data">
+    </div>
+  </div>
+  <div class="btn-bar">
+    <button class="btn btn-p" onclick="saveProd()">💾 ذخیره</button>
+    <button class="btn" onclick="closeMod('prod-modal')">انصراف</button>
+  </div>
+</div></div>
+
+<!-- MODAL: INVENTORY EDIT -->
+<div class="ov" id="inv-modal">
+<div class="modal">
+  <button class="modal-x" onclick="closeMod('inv-modal')">×</button>
+  <div class="modal-title">ویرایش موجودی انبار</div>
+  <input type="hidden" id="im-code">
+  <div id="im-name" style="font-size:14px;font-weight:600;color:var(--blue2);margin-bottom:12px"></div>
+  <div class="g2">
+    <div class="f"><label>موجودی فعلی</label><input id="im-qty" type="number" min="0" placeholder="0"></div>
+    <div class="f"><label>حداقل موجودی (هشدار)</label><input id="im-min" type="number" min="0" placeholder="0"></div>
+  </div>
+  <div class="f" style="margin-top:8px"><label>یادداشت انبار</label><textarea id="im-note" rows="2"></textarea></div>
+  <div class="btn-bar">
+    <button class="btn btn-p" onclick="saveInvItem()">💾 ذخیره</button>
+    <button class="btn" onclick="closeMod('inv-modal')">انصراف</button>
+  </div>
+</div></div>
+
+<!-- MODAL: DEFECTIVE INVENTORY -->
+<div class="ov" id="def-modal">
+<div class="modal modal-lg">
+  <button class="modal-x" onclick="closeMod('def-modal')">×</button>
+  <div class="modal-title">ثبت در انبار محصولات معیوب</div>
+  <input type="hidden" id="def-edit-idx" value="-1">
+  <div class="g3" style="margin-bottom:8px">
+    <div class="f"><label>نام/مدل کالا *</label><input id="def-model" placeholder="مدل دستگاه"></div>
+    <div class="f"><label>کد کالا</label><input id="def-code" placeholder="کد (اختیاری)"></div>
+    <div class="f"><label>شماره سریال</label><input id="def-serial" placeholder="سریال"></div>
+  </div>
+  <div class="g3" style="margin-bottom:8px">
+    <div class="f"><label>منبع ورود *</label>
+      <select id="def-source">
+        <option value="store">فروشگاه</option>
+        <option value="digikala">برگشت دیجی‌کالا</option>
+        <option value="customer">برگشت مشتری</option>
+        <option value="other">سایر</option>
+      </select>
+    </div>
+    <div class="f"><label>میزان عیب *</label>
+      <select id="def-level">
+        <option value="low">جزئی</option>
+        <option value="medium">متوسط</option>
+        <option value="high">شدید</option>
+        <option value="critical">غیرقابل استفاده</option>
+      </select>
+    </div>
+    <div class="f"><label>تعداد</label><input id="def-qty" type="number" min="1" value="1"></div>
+  </div>
+  <div class="g3" style="margin-bottom:8px">
+    <div class="f"><label>نام مشتری</label><input id="def-cname" placeholder="نام مشتری"></div>
+    <div class="f"><label>تلفن مشتری</label><input id="def-cphone" placeholder="۰۹۱۲..."></div>
+    <div class="f"><label>شناسه گارانتی</label><input id="def-wid" placeholder="W-0001"></div>
+  </div>
+  <div class="g2" style="margin-bottom:8px">
+    <div class="f"><label>شماره فاکتور</label><input id="def-invnum" placeholder="LEP-0001"></div>
+    <div class="f"><label>یادداشت</label><input id="def-note" placeholder="توضیحات"></div>
+  </div>
+  <div class="btn-bar">
+    <button class="btn btn-p" onclick="saveDefectiveItem()">💾 ذخیره</button>
+    <button class="btn" onclick="closeMod('def-modal')">انصراف</button>
+  </div>
+</div></div>
+
+<!-- MODAL: ارسال پیام به مشتری -->
+<div class="ov" id="msg-modal">
+<div class="modal">
+  <button class="modal-x" onclick="closeMod('msg-modal')">×</button>
+  <div class="modal-title">📩 ارسال پیام به مشتری</div>
+  <div id="msg-to" style="font-size:13px;font-weight:600;color:var(--blue2);margin-bottom:12px"></div>
+  <div class="f"><label>شماره موبایل مشتری</label><input id="msg-phone" placeholder="۰۹۱۲۰۰۰۰۰۰۰"></div>
+  <div class="f" style="margin-top:8px"><label>متن پیام (قابل ویرایش)</label><textarea id="msg-text" rows="5"></textarea></div>
+  <div class="btn-bar" style="flex-wrap:wrap;gap:8px">
+    <button class="btn" id="msg-pdf-btn" type="button" style="display:none;background:#7c3aed;color:#fff" onclick="msgMakePdf()">📄 تهیه PDF</button>
+    <button class="btn btn-p" type="button" onclick="msgSendSMS()">✉️ پیامک</button>
+    <button class="btn" type="button" style="background:#25D366;color:#fff" onclick="msgSendWhatsApp()">واتساپ</button>
+    <button class="btn" type="button" onclick="msgShare()">📤 اشتراک‌گذاری</button>
+    <button class="btn" type="button" onclick="msgCopyText()">📋 کپی متن</button>
+    <button class="btn" type="button" onclick="closeMod('msg-modal')">بستن</button>
+  </div>
+  <div style="font-size:11px;color:var(--text2);margin-top:10px;line-height:1.9;background:var(--blue-l);padding:8px 12px;border-radius:8px">
+    💡 برای <b>روبیکا / ایتا / تلگرام</b>: «📤 اشتراک‌گذاری» را بزنید (اگر دستگاه پشتیبانی کند) یا «📋 کپی متن» را زده و در چت مشتری Paste کنید.<br>
+    📄 برای <b>ارسال فایل فاکتور</b>: دکمه‌ی «تهیه PDF فاکتور» را بزنید، در پنجره‌ی چاپ «Save as PDF» را انتخاب و ذخیره کنید، سپس همان فایل را در واتساپ/تلگرام پیوست کنید.
+  </div>
+</div></div>
+
+
+<!-- MODAL: PART -->
+<div class="ov" id="part-mod">
+<div class="modal">
+  <button class="modal-x" onclick="closeMod('part-mod')">×</button>
+  <div class="modal-title" id="part-mod-title">قطعه جدید</div>
+  <input type="hidden" id="part-idx" value="-1">
+  <div class="g2" style="margin-bottom:8px">
+    <div class="f"><label>کد قطعه *</label><input id="part-code" placeholder="P101-01"></div>
+    <div class="f"><label>نام قطعه *</label><input id="part-name" placeholder="پره پنکه"></div>
+  </div>
+  <div class="g2" style="margin-bottom:8px">
+    <div class="f"><label>کالای مرتبط</label><select id="part-prod"><option value="">-- انتخاب --</option></select></div>
+    <div class="f"><label>دسته</label><input id="part-cat" placeholder="مکانیکی، برقی..."></div>
+  </div>
+  <div class="g3" style="margin-bottom:8px">
+    <div class="f"><label>موجودی</label><input id="part-qty" type="number" min="0" value="0"></div>
+    <div class="f"><label>حداقل موجودی</label><input id="part-min" type="number" min="0" value="0"></div>
+    <div class="f"><label>قیمت (ریال)</label><input id="part-price" type="number" min="0" value="0"></div>
+  </div>
+  <div class="btn-bar">
+    <button class="btn btn-p" onclick="savePart()">💾 ذخیره</button>
+    <button class="btn" onclick="closeMod('part-mod')">انصراف</button>
+  </div>
+</div></div>
+
+<!-- MODAL: SERVICE -->
+<div class="ov" id="svc-mod">
+<div class="modal">
+  <button class="modal-x" onclick="closeMod('svc-mod')">×</button>
+  <div class="modal-title" id="svc-mod-title">خدمت جدید</div>
+  <input type="hidden" id="svc-idx" value="-1">
+  <div class="g2" style="margin-bottom:8px">
+    <div class="f"><label>کد خدمت</label><input id="svc-code" placeholder="S001"></div>
+    <div class="f"><label>نام خدمت *</label><input id="svc-name" placeholder="نام خدمت"></div>
+  </div>
+  <div class="g3" style="margin-bottom:8px">
+    <div class="f"><label>دسته</label><input id="svc-cat" placeholder="مکانیکی..."></div>
+    <div class="f"><label>قیمت (ریال)</label><input id="svc-price" type="number" min="0" value="0"></div>
+    <div class="f"><label>گارانتی؟</label>
+      <select id="svc-warr">
+        <option value="yes">✓ بله — رایگان</option>
+        <option value="no">✗ خیر — هزینه‌دار</option>
+      </select>
+    </div>
+  </div>
+  <div class="f" style="margin-bottom:8px"><label>توضیحات</label><textarea id="svc-desc" rows="2"></textarea></div>
+  <div class="btn-bar">
+    <button class="btn btn-p" onclick="saveSvc()">💾 ذخیره</button>
+    <button class="btn" onclick="closeMod('svc-mod')">انصراف</button>
+  </div>
+</div></div>
+
+
+<!-- MODAL: SORT DEVICES -->
+<div class="ov" id="sort-modal">
+<div class="modal" style="max-width:360px">
+  <button class="modal-x" onclick="closeMod('sort-modal')">×</button>
+  <div class="modal-title">↕ مرتب‌سازی دستگاه‌ها</div>
+  <div class="g2" style="margin-bottom:12px">
+    <div class="f"><label>بر اساس</label>
+      <select id="sort-by">
+        <option value="date">تاریخ دریافت</option>
+        <option value="model">نام مدل</option>
+        <option value="fin">هزینه نهایی</option>
+      </select>
+    </div>
+    <div class="f"><label>ترتیب</label>
+      <select id="sort-dir">
+        <option value="asc">صعودی ↑</option>
+        <option value="desc">نزولی ↓</option>
+      </select>
+    </div>
+  </div>
+  <button class="btn btn-p" onclick="applyDevSort()">✓ اعمال</button>
+</div></div>
+
+<!-- MODAL: DELETE PASSWORD -->
+<div class="ov" id="del-pw-modal">
+<div class="modal" style="max-width:340px">
+  <button class="modal-x" onclick="closeMod('del-pw-modal')">×</button>
+  <div class="modal-title">🔒 تأیید حذف</div>
+  <p style="font-size:12px;color:#777;margin-bottom:10px">برای حذف رمز مدیر را وارد کنید:</p>
+  <input type="hidden" id="del-target">
+  <input type="hidden" id="del-mode">
+  <div class="f" style="margin-bottom:8px">
+    <input type="password" id="del-pw-inp" placeholder="رمز مدیر" style="direction:ltr;text-align:center;letter-spacing:3px" onkeydown="if(event.key==='Enter')confirmDelInv()">
+  </div>
+  <div id="del-pw-err" style="color:var(--red);font-size:12px;margin-bottom:8px;min-height:16px"></div>
+  <div class="btn-bar">
+    <button class="btn btn-r" onclick="confirmDelInv()">تأیید حذف</button>
+    <button class="btn" onclick="closeMod('del-pw-modal')">انصراف</button>
+  </div>
+</div></div>
+
+<!-- MODAL: PAPER SIZE -->
+<div class="ov" id="paper-modal">
+<div class="modal" style="max-width:320px">
+  <button class="modal-x" onclick="closeMod('paper-modal')">×</button>
+  <div class="modal-title">🖨 انتخاب سایز کاغذ</div>
+  <input type="hidden" id="paper-print-type">
+  <input type="hidden" id="paper-print-idx" value="-1">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+    <button class="btn" onclick="doPrint('A5')" style="flex-direction:column;padding:14px;height:80px;justify-content:center">
+      <span style="font-size:22px">📄</span><span style="font-size:12px;font-weight:700;margin-top:4px">A5</span>
+      <span style="font-size:10px;color:#888">148×210mm</span>
+    </button>
+    <button class="btn" onclick="doPrint('A4')" style="flex-direction:column;padding:14px;height:80px;justify-content:center">
+      <span style="font-size:22px">📃</span><span style="font-size:12px;font-weight:700;margin-top:4px">A4</span>
+      <span style="font-size:10px;color:#888">210×297mm</span>
+    </button>
+    <button class="btn" onclick="doPrint('A4 landscape')" style="flex-direction:column;padding:14px;height:80px;justify-content:center">
+      <span style="font-size:22px">📋</span><span style="font-size:12px;font-weight:700;margin-top:4px">A4 افقی</span>
+      <span style="font-size:10px;color:#888">297×210mm</span>
+    </button>
+    <button class="btn" onclick="doPrint('A6')" style="flex-direction:column;padding:14px;height:80px;justify-content:center">
+      <span style="font-size:22px">🗒</span><span style="font-size:12px;font-weight:700;margin-top:4px">A6</span>
+      <span style="font-size:10px;color:#888">105×148mm</span>
+    </button>
+  </div>
+  <button class="btn" onclick="closeMod('paper-modal')" style="width:100%;justify-content:center">انصراف</button>
+</div></div>
+
+<!-- MODAL: PHONEBOOK -->
+<div class="ov" id="pb-modal">
+<div class="modal modal-lg">
+  <button class="modal-x" onclick="closeMod('pb-modal')">×</button>
+  <div class="modal-title" id="pbm-title">مخاطب جدید</div>
+  <input type="hidden" id="pbm-idx" value="-1">
+  <div class="g2" style="margin-bottom:8px">
+    <div class="f"><label>نام</label><input id="pbm-fn" placeholder="نام"></div>
+    <div class="f"><label>نام خانوادگی</label><input id="pbm-ln" placeholder="نام خانوادگی"></div>
+  </div>
+  <div class="f" style="margin-bottom:8px"><label>دسته‌بندی</label>
+    <select id="pbm-cat">
+      <option value="shop">🏪 فروشگاه</option>
+      <option value="agency">🏢 نمایندگی</option>
+      <option value="company">🏭 شرکت</option>
+      <option value="customer">👤 مشتری</option>
+      <option value="other" selected>📌 سایر</option>
+    </select>
+  </div>
+  <div class="f" style="margin-bottom:8px"><label>نام فروشگاه / شرکت</label><input id="pbm-shop" placeholder="نام فروشگاه یا شرکت"></div>
+  <div class="f" style="margin-bottom:8px"><label>آدرس کامل</label><textarea id="pbm-addr" rows="2" placeholder="استان، شهر، خیابان، پلاک..."></textarea></div>
+  <div class="f" style="margin-bottom:8px"><label>کدپستی</label><input id="pbm-zip" placeholder="کدپستی"></div>
+  <div id="pbm-phones" style="margin-bottom:8px"></div>
+  <button class="btn btn-sm" onclick="addPBPhone()" style="margin-bottom:10px">+ افزودن شماره</button>
+  <div class="g2" style="margin-bottom:8px">
+    <div class="f"><label>ایتا</label><input id="pbm-ita" placeholder="@username"></div>
+    <div class="f"><label>تلگرام</label><input id="pbm-tg" placeholder="@username"></div>
+  </div>
+  <div class="g2" style="margin-bottom:8px">
+    <div class="f"><label>واتساپ</label><input id="pbm-wa" placeholder="شماره"></div>
+    <div class="f"><label>اینستاگرام</label><input id="pbm-ig" placeholder="@username"></div>
+  </div>
+  <div class="f" style="margin-bottom:10px"><label>یادداشت</label><textarea id="pbm-note" rows="2"></textarea></div>
+  <div class="btn-bar">
+    <button class="btn btn-p" onclick="savePBContact()">💾 ذخیره</button>
+    <button class="btn btn-p" onclick="printPBLabel()" style="background:var(--purple);border-color:var(--purple)">📮 برچسب پستی</button>
+    <button class="btn" onclick="closeMod('pb-modal')">انصراف</button>
+  </div>
+</div></div>
+
+<!-- MODAL: INVOICE DETAIL -->
+<div class="ov" id="det-modal">
+<div class="modal modal-lg">
+  <button class="modal-x" onclick="closeMod('det-modal')">×</button>
+  <div class="modal-title">جزئیات فاکتور</div>
+  <div id="det-body"></div>
+  <div class="btn-bar" id="det-acts"></div>
+</div></div>
+
+<!-- MODAL: PRODUCT SELECT (for invoice) -->
+<div class="ov" id="psel-modal">
+<div class="modal modal-lg">
+  <button class="modal-x" onclick="closeMod('psel-modal')">×</button>
+  <div class="modal-title">انتخاب کالا</div>
+  <input type="text" id="psel-q" placeholder="جستجو بر اساس کد یا نام..." style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;margin-bottom:10px" oninput="renderPselList()">
+  <div id="psel-list" style="max-height:350px;overflow-y:auto"></div>
+</div></div>
+
+
+<script>
+// بخش اول کد نرم‌افزار لایق (state اولیه + فاکتور + کالا + انبار)
+
+// ─── STATE ─────────────────────────────────────────────────────────────────────
+let invCtr  = parseInt(localStorage.getItem('lc')  || '1');
+let invoices = JSON.parse(localStorage.getItem('li') || '[]');
+let products = JSON.parse(localStorage.getItem('lp') || '[]');
+let inventory= JSON.parse(localStorage.getItem('lv') || '{}');
+let phonebook= JSON.parse(localStorage.getItem('lb') || '[]');
+let acH      = JSON.parse(localStorage.getItem('la') || '{}');
+let senderInfo = JSON.parse(localStorage.getItem('ls') || '{}');
+let logoSrc  = localStorage.getItem('ll') || '';
+let devCnt   = 0;
+let invStatus= 'open';
+let pbPCnt   = 0;
+let curPselDev = 0;
+
+// INIT
+
+if(!logoSrc) logoSrc = 'data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAJHA6gDASIAAhEBAxEB/8QAHAABAAIDAQEBAAAAAAAAAAAAAAUHBAYIAwIB/8QAWRAAAgEDAQMGCAQSCQIEBgMAAAECAwQRBQYSIRMVMUFVkwcUIlFhcYHRFjJ0kRcjNkJSVGZyc4KSlKGksbKz4iQzNDVTYqPB0mXCQ4Oi00RFVmR14cTj8f/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwDjIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD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DzRpfZ1r3SHNGl9nWvdIzgBg80aX2da90hzRpfZ1r3SM4AYPNGl9nWvdIgtt7TT7PSaboWttSrVKyUd2niTik22mvN5PzmyXt1b2VrO5uqqp0odfW31JLrb83+ybK41/Va2rXzrzjydOK3aVNfWx/wB2+t/7YQEcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAydMvK2n39K8oY36bzh9Ek+DT9DTa9pY2kavYapCHi9aMa0uDt5y+mJ8eCX13R0r246CsABb7TTw+DBVlvquqW1JUrfUryjTXRGnXlFL2JjnXVO0rzv5e8C0wVZzpqfaN538veOdNT7RvO/l7wLTBVnOmp9o3nfy94501PtG87+XvAtMFWc6an2jed/L3jnTU+0bzv5e8C0wVZzpqfaN538veOdNT7RvO/l7wLTBVnOmp9o3nfy94501PtG87+XvAtMFWc6an2jed/L3jnTU+0bzv5e8C0wVZzpqfaN538veOdNT7RvO/l7wLTBVnOmp9o3nfy94501PtG87+XvAtMFWc6an2jed/L3jnTU+0bzv5e8C0wVZzpqfaN538veOdNT7RvO/l7wLTBVnOmp9o3nfy94501PtG87+XvAtMFWc6an2jed/L3jnTU+0bzv5e8C0wVZzpqfaN538veOdNT7RvO/l7wLTBVnOmp9o3nfy94501PtG87+XvAtMFWc6an2jed/L3jnTU+0bzv5e8C0wVZzpqfaN538veOdNT7RvO/l7wLTBVnOmp9o3nfy94501PtG87+XvAtMFWc6an2jed/L3jnTU+0bzv5e8C0wVZzpqfaN538veOdNT7RvO/l7wLTBVnOmp9o3nfy94501PtG87+XvAtMFWc6an2jed/L3jnTU+0bzv5e8C0wVZzpqfaN538veOdNT7RvO/l7wLTBVnOmp9o3nfy94501PtG87+XvAtMFWc6an2jed/L3jnTU+0bzv5e8C0wVZzpqfaN538veOdNT7RvO/l7wLTBVnOmp9o3nfy94501PtG87+XvAtMFWc6an2jed/L3jnTU+0bzv5e8C0wVZzpqfaN538veOdNT7RvO/l7wLTBVnOmp9o3nfy94501PtG87+XvAtMFWc6an2jed/L3jnTU+0bzv5e8C0wVZzpqfaN538veOdNT7RvO/l7wLTBVnOmp9o3n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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/2Q==';
+document.getElementById('sb-logo').src = logoSrc;
+
+// sender info restore
+if(senderInfo.name) document.getElementById('snd-name').value = senderInfo.name||'';
+if(senderInfo.addr) document.getElementById('snd-addr').value = senderInfo.addr||'';
+if(senderInfo.zip)  document.getElementById('snd-zip').value  = senderInfo.zip||'';
+if(senderInfo.tel)  document.getElementById('snd-tel').value  = senderInfo.tel||'';
+if(senderInfo.person) document.getElementById('snd-person').value = senderInfo.person||'';
+
+function sv(){
+  localStorage.setItem('li', JSON.stringify(invoices));
+  localStorage.setItem('lp', JSON.stringify(products));
+  localStorage.setItem('lv', JSON.stringify(inventory));
+  localStorage.setItem('lb', JSON.stringify(phonebook));
+  localStorage.setItem('la', JSON.stringify(acH));
+  localStorage.setItem('lc', invCtr);
+  markDirty();
+}
+
+// ===== AUTO-SAVE SYSTEM =====
+var autoSaveDirHandle = null;     // پوشه انتخاب‌شده توسط کاربر (File System Access API)
+var autoSaveTimer = null;
+var autoSaveIntervalMin = 3;      // هر چند دقیقه
+var isDirty = false;
+var lastAutoSaveTime = null;
+
+function markDirty(){ isDirty = true; }
+
+function buildBackupObject(){
+  return {
+    version:'7.0', exportedAt:new Date().toISOString(), autoSave:true,
+    invoices: Array.isArray(invoices)?invoices:[],
+    products: Array.isArray(products)?products:[],
+    inventory: (inventory&&typeof inventory==='object')?inventory:{},
