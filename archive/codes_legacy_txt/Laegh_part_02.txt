@@ -1,0 +1,500 @@
+    <div class="f"><label>نتیجه تعمیر</label>
+      <select id="cr-repair-result">
+        <option value="fixed">✅ تعمیر کامل شد</option>
+        <option value="partial">⚠️ تعمیر جزئی</option>
+        <option value="irreparable">❌ غیرقابل تعمیر</option>
+        <option value="replaced">🔄 تعویض دستگاه</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="cr-sign-grid">
+    <div class="cr-sign-box">
+      <div class="cr-sign-box-title">🔧 کارشناس خدمات / تعمیر</div>
+      <div class="f" style="margin-bottom:6px"><label style="font-size:10px">نام و نام‌خانوادگی</label><input id="cr-tech-name" placeholder="نام کارشناس تعمیر" style="font-size:12px"></div>
+      <div class="f" style="margin-bottom:6px"><label style="font-size:10px">کد پرسنلی</label><input id="cr-tech-code" placeholder="کد پرسنلی" style="font-size:12px"></div>
+      <div class="f" style="margin-bottom:4px"><label style="font-size:10px">تأیید انجام تعمیر</label>
+        <select id="cr-tech-confirm" style="font-size:12px"><option value="yes">✅ تأیید می‌کنم</option><option value="no">در انتظار</option></select>
+      </div>
+      <div class="cr-sign-line"></div><div class="cr-sign-label">امضاء کارشناس تعمیر</div>
+    </div>
+
+    <div class="cr-sign-box">
+      <div class="cr-sign-box-title">✅ کارشناس کنترل کیفیت (QC)</div>
+      <div class="f" style="margin-bottom:6px"><label style="font-size:10px">نام و نام‌خانوادگی</label><input id="cr-qc-name" placeholder="نام کارشناس QC" style="font-size:12px"></div>
+      <div class="f" style="margin-bottom:6px"><label style="font-size:10px">نتیجه بازرسی</label>
+        <select id="cr-qc-result" style="font-size:12px"><option value="pass">✅ تأیید کیفیت</option><option value="fail">❌ رد شد — نیاز به اصلاح</option><option value="pending">در حال بررسی</option></select>
+      </div>
+      <div class="f" style="margin-bottom:4px"><label style="font-size:10px">یادداشت QC</label><input id="cr-qc-note" placeholder="یادداشت اختیاری" style="font-size:12px"></div>
+      <div class="cr-sign-line"></div><div class="cr-sign-label">امضاء کارشناس کنترل کیفیت</div>
+    </div>
+
+    <div class="cr-sign-box">
+      <div class="cr-sign-box-title">📦 نماینده ارسال / لجستیک</div>
+      <div class="f" style="margin-bottom:6px"><label style="font-size:10px">نام نماینده ارسال</label><input id="cr-ship-name" placeholder="نام نماینده ارسال" style="font-size:12px"></div>
+      <div class="f" style="margin-bottom:6px"><label style="font-size:10px">کد رهگیری / بارنامه</label><input id="cr-ship-tracking" placeholder="کد رهگیری پستی" style="font-size:12px"></div>
+      <div class="f" style="margin-bottom:4px"><label style="font-size:10px">تاریخ ارسال</label><input id="cr-ship-date" placeholder="تاریخ ارسال" style="font-size:12px"></div>
+      <div class="cr-sign-line"></div><div class="cr-sign-label">امضاء نماینده ارسال</div>
+    </div>
+
+    <div class="cr-sign-box">
+      <div class="cr-sign-box-title">👔 مدیر خدمات پس از فروش</div>
+      <div class="f" style="margin-bottom:6px"><label style="font-size:10px">نام مدیر خدمات</label><input id="cr-mgr-name" placeholder="نام مدیر" style="font-size:12px"></div>
+      <div class="f" style="margin-bottom:6px"><label style="font-size:10px">وضعیت تأیید نهایی</label>
+        <select id="cr-mgr-approve" style="font-size:12px"><option value="approved">✅ تأیید نهایی</option><option value="pending">در انتظار بررسی</option><option value="rejected">❌ رد شد</option></select>
+      </div>
+      <div class="f" style="margin-bottom:4px"><label style="font-size:10px">یادداشت مدیر</label><input id="cr-mgr-note" placeholder="یادداشت اختیاری" style="font-size:12px"></div>
+      <div class="cr-sign-line"></div><div class="cr-sign-label">امضاء مدیر خدمات پس از فروش</div>
+    </div>
+  </div>
+
+  <div style="margin-top:14px;padding:10px;background:#fff3cd;border-radius:8px;font-size:11px;color:#856404;border:1px solid #ffc107">
+    ⚠️ این فرم فقط جهت استفاده داخلی شرکت است و به مشتری ارائه نمی‌شود.
+  </div>
+</div>
+</div><!-- /company-report-section -->
+</div><!-- /war-ext-sections -->
+
+<div class="btn-bar">
+  <button class="btn btn-p" onclick="saveWar()">💾 ثبت پرونده</button>
+  <button class="btn btn-o" onclick="showPrintDlg('war')">🖨 چاپ</button>
+  <button class="btn" onclick="showWarList()">انصراف</button>
+</div>
+</div><!-- /war-form -->
+
+<!-- لیست -->
+<div id="war-list">
+<div class="card">
+  <div class="s-bar">
+    <input class="s-in" id="wq" placeholder="جستجو: نام، تلفن، مدل..." oninput="renderWar()">
+    <select id="wsf" onchange="renderWar()" style="padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font)">
+      <option value="">همه</option><option value="open">باز</option><option value="closed">بسته</option>
+    </select>
+    <select id="w-sort" onchange="renderWar()" style="padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font)" title="مرتب‌سازی">
+      <option value="_idx:desc">جدیدترین</option>
+      <option value="_idx:asc">قدیمی‌ترین</option>
+      <option value="name:asc">نام مشتری</option>
+      <option value="model:asc">مدل دستگاه</option>
+      <option value="status:asc">وضعیت</option>
+    </select>
+  </div>
+  <div id="war-tbl"></div>
+</div>
+</div><!-- /war-list -->
+
+</div></div>
+
+<!-- ===== DATA I/O PAGE ===== -->
+<div class="page" id="page-dataio">
+<div class="topbar"><div class="topbar-title">🔄 ورود / خروج داده‌ها</div></div>
+<div style="padding:16px">
+<div class="g2">
+  <div class="card">
+    <div class="card-title">📤 خروجی (پشتیبان‌گیری)</div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:12px">همه داده‌ها شامل فاکتورها، کالاها، انبار و دفترچه تلفن را به فایل JSON ذخیره کنید.</p>
+    <button class="btn btn-g" onclick="exportData()">⬇ دانلود فایل پشتیبان</button>
+    <div style="margin-top:10px">
+      <button class="btn btn-o btn-sm" onclick="expAllExcel()">📊 خروجی Excel کامل</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📥 ورود داده (بازگردانی از بک‌اپ)</div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:10px">فایل پشتیبان JSON را انتخاب کنید، سپس نوع بازگردانی را مشخص کنید.</p>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+        <input type="radio" name="restore-mode" value="merge" checked> 🔄 بروزرسانی (ادغام با داده‌های فعلی)
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+        <input type="radio" name="restore-mode" value="replace"> 🔁 جایگزینی (حذف داده‌های فعلی)
+      </label>
+    </div>
+    <div style="padding:8px;background:var(--bg2);border-radius:6px;font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.7">
+      <b>بروزرسانی:</b> رکوردهای جدید اضافه می‌شوند، رکوردهای موجود تغییر نمی‌کنند<br>
+      <b>جایگزینی:</b> همه داده‌های فعلی پاک شده و با فایل بک‌اپ جایگزین می‌شوند
+    </div>
+    <div class="import-zone" onclick="document.getElementById('imp-file').click()">
+      🗂 کلیک کنید یا فایل را اینجا بکشید<br>
+      <span style="font-size:11px">(فایل .json پشتیبان)</span>
+    </div>
+    <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importData(this)">
+    <div style="margin-top:10px">
+      <div class="import-zone" onclick="document.getElementById('imp-excel').click()" style="padding:10px">
+        📊 وارد کردن کالاها از Excel
+      </div>
+      <input type="file" id="imp-excel" accept=".xlsx,.xls" style="display:none" onchange="importProducts(this)">
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-title">📋 فایل‌های نمونه Excel برای ورود اطلاعات</div>
+  <p style="font-size:12px;color:var(--text2);margin-bottom:14px">فایل نمونه مناسب را دانلود کنید، اطلاعات خود را طبق همان فرمت وارد کنید، سپس از دکمه «ورود از Excel» در هر بخش فایل را بارگذاری کنید.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">
+    <button class="btn btn-o" onclick="downloadSampleExcel('phonebook')">📥 نمونه مخاطبین</button>
+    <button class="btn btn-o" onclick="downloadSampleExcel('parts')">📥 نمونه انبار قطعات</button>
+    <button class="btn btn-o" onclick="downloadSampleExcel('services')">📥 نمونه خدمات</button>
+    <button class="btn btn-o" onclick="downloadSampleExcel('warranty')">📥 نمونه گارانتی</button>
+    <button class="btn btn-o" onclick="downloadSampleExcel('sales')">📥 نمونه فروش</button>
+  </div>
+  <div style="margin-top:12px;padding:10px;background:var(--bg2);border-radius:8px;font-size:11px;color:var(--text2);line-height:1.8">
+    ⚠️ <b>نکات مهم:</b><br>
+    • ستون‌های فایل نمونه را حذف یا تغییر نام ندهید<br>
+    • ردیف اول (سرستون) را دست نزنید<br>
+    • قیمت‌ها را بدون کاما وارد کنید (مثال: 250000)<br>
+    • تاریخ‌ها را به فرمت 1403/01/15 وارد کنید<br>
+    • اطلاعات تکراری (بر اساس کد یا تلفن) نادیده گرفته می‌شوند
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">📊 آمار داده‌ها</div>
+  <div id="data-stats" class="g4"></div>
+</div>
+
+<div class="card" style="max-width:440px;margin-top:12px;background:var(--bg2);border:1px dashed var(--border)">
+  <div style="font-size:13px;color:var(--text2)">⚙️ تنظیمات امنیتی، رمز مدیر و ریست نرم‌افزار به بخش <b>تنظیمات</b> منتقل شده‌اند.</div>
+  <button class="btn btn-sm btn-o" style="margin-top:10px" onclick="document.querySelector('[onclick*=settings]').click()">رفتن به تنظیمات ←</button>
+</div>
+</div>
+</div><!-- /page-dataio -->
+
+<!-- ===== SETTINGS PAGE ===== -->
+<div class="page" id="page-settings">
+<div class="topbar"><div class="topbar-title">⚙️ تنظیمات</div></div>
+<div style="padding:16px">
+
+  <!-- TABS -->
+  <div class="stg-tabs">
+    <div class="stg-tab active" onclick="showStgTab('printer',this)">🖨 پرینتر و چاپ</div>
+    <div class="stg-tab" onclick="showStgTab('appearance',this)">🎨 ظاهر</div>
+    <div class="stg-tab" onclick="showStgTab('company',this)">🏢 اطلاعات شرکت</div>
+    <div class="stg-tab" onclick="showStgTab('security',this)">🔒 امنیت</div>
+    <div class="stg-tab" onclick="showStgTab('access',this)">👥 دسترسی کاربران</div>
+    <div class="stg-tab" onclick="showStgTab('autosave',this)">💾 ذخیره خودکار</div>
+    <div class="stg-tab" onclick="showStgTab('debug',this)">🔍 عیب‌یابی</div>
+    <div class="stg-tab" onclick="showStgTab('ai',this)">🤖 دستیار هوش مصنوعی</div>
+    <div class="stg-tab" onclick="showStgTab('sms',this)">📱 پیامک (پنل اینترنتی)</div>
+    <div class="stg-tab" onclick="showStgTab('datetime',this)">🕐 تاریخ و زمان</div>
+  </div>
+
+  <!-- TAB: PRINTER -->
+  <div class="stg-panel active" id="stg-printer">
+    <p style="font-size:12px;color:var(--text2);margin-bottom:16px">برای هر بخش، قالب و تنظیمات چاپ را جداگانه مشخص کنید. این تنظیمات هنگام پرینت گرفتن اعمال می‌شوند.</p>
+
+    <!-- INVOICE PRINT -->
+    <div class="print-section-card">
+      <div class="print-section-title">📋 فاکتور / پیش‌فاکتور</div>
+      <div class="g3">
+        <div class="f">
+          <label>اندازه کاغذ</label>
+          <select id="ps-invoice-paper" onchange="savePrintSettings()">
+            <option value="A4 landscape">A4 افقی (پیش‌فرض)</option>
+            <option value="A4">A4 عمودی</option>
+            <option value="A5">A5</option>
+            <option value="A5 landscape">A5 افقی</option>
+          </select>
+        </div>
+        <div class="f">
+          <label>فونت</label>
+          <select id="ps-invoice-font" onchange="savePrintSettings()">
+            <option value="Tahoma">Tahoma</option>
+            <option value="Vazir">Vazir</option>
+            <option value="Arial">Arial</option>
+          </select>
+        </div>
+        <div class="f">
+          <label>اندازه فونت</label>
+          <select id="ps-invoice-fontsize" onchange="savePrintSettings()">
+            <option value="9px">کوچک (9px)</option>
+            <option value="11px" selected>متوسط (11px)</option>
+            <option value="13px">بزرگ (13px)</option>
+          </select>
+        </div>
+      </div>
+      <div class="g3" style="margin-top:10px">
+        <div class="f">
+          <label>حاشیه صفحه</label>
+          <select id="ps-invoice-margin" onchange="savePrintSettings()">
+            <option value="5mm">کم (5mm)</option>
+            <option value="8mm" selected>متوسط (8mm)</option>
+            <option value="15mm">زیاد (15mm)</option>
+          </select>
+        </div>
+        <div class="f">
+          <label>رنگ هدر</label>
+          <input type="color" id="ps-invoice-headercolor" value="#2563eb" onchange="savePrintSettings()" style="height:36px;width:100%">
+        </div>
+        <div class="f">
+          <label>نمایش لوگو در چاپ</label>
+          <select id="ps-invoice-logo" onchange="savePrintSettings()">
+            <option value="1">بله</option>
+            <option value="0">خیر</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label style="font-size:12px;font-weight:600">پس‌زمینه چاپ</label>
+        <div class="print-bg-select" id="ps-invoice-bg-opts">
+          <div class="print-bg-opt selected" style="background:#fff;border:1px solid #ccc" data-val="none" onclick="selectBg('invoice','none',this)" title="بدون پس‌زمینه"></div>
+          <div class="print-bg-opt" style="background:linear-gradient(135deg,#e8f0fe,#f0f4ff)" data-val="blue" onclick="selectBg('invoice','blue',this)" title="آبی ملایم"></div>
+          <div class="print-bg-opt" style="background:linear-gradient(135deg,#e8f5e9,#f1f8e9)" data-val="green" onclick="selectBg('invoice','green',this)" title="سبز ملایم"></div>
+          <div class="print-bg-opt" style="background:linear-gradient(135deg,#fff3e0,#fce4ec)" data-val="warm" onclick="selectBg('invoice','warm',this)" title="گرم"></div>
+          <div class="print-bg-opt" style="background:linear-gradient(135deg,#f3e5f5,#ede7f6)" data-val="purple" onclick="selectBg('invoice','purple',this)" title="بنفش ملایم"></div>
+          <div class="print-bg-opt" style="background:repeating-linear-gradient(45deg,#f5f5f5,#f5f5f5 5px,#fff 5px,#fff 10px)" data-val="lines" onclick="selectBg('invoice','lines',this)" title="خطوط"></div>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+          <input type="checkbox" id="ps-invoice-border" onchange="savePrintSettings()"> کادر دور فاکتور
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+          <input type="checkbox" id="ps-invoice-watermark" onchange="savePrintSettings()"> واترمارک «رسمی»
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+          <input type="checkbox" id="ps-invoice-pagenum" onchange="savePrintSettings()"> شماره صفحه
+        </label>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn btn-p btn-sm" onclick="previewPrintSettings('invoice')">👁 پیش‌نمایش</button>
+        <button class="btn btn-sm btn-o" onclick="resetPrintSection('invoice')">↺ بازنشانی</button>
+      </div>
+    </div>
+
+    <!-- WARRANTY PRINT -->
+    <div class="print-section-card">
+      <div class="print-section-title">🛡 گارانتی</div>
+      <div class="g3">
+        <div class="f">
+          <label>اندازه کاغذ</label>
+          <select id="ps-warranty-paper" onchange="savePrintSettings()">
+            <option value="A5" selected>A5 (پیش‌فرض)</option>
+            <option value="A4">A4 عمودی</option>
+            <option value="A4 landscape">A4 افقی</option>
+          </select>
+        </div>
+        <div class="f">
+          <label>رنگ هدر</label>
+          <input type="color" id="ps-warranty-headercolor" value="#1e3a5f" onchange="savePrintSettings()" style="height:36px;width:100%">
+        </div>
+        <div class="f">
+          <label>نمایش لوگو</label>
+          <select id="ps-warranty-logo" onchange="savePrintSettings()">
+            <option value="1">بله</option>
+            <option value="0">خیر</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label style="font-size:12px;font-weight:600">پس‌زمینه چاپ</label>
+        <div class="print-bg-select" id="ps-warranty-bg-opts">
+          <div class="print-bg-opt selected" style="background:#fff;border:1px solid #ccc" data-val="none" onclick="selectBg('warranty','none',this)"></div>
+          <div class="print-bg-opt" style="background:linear-gradient(135deg,#e8f0fe,#f0f4ff)" data-val="blue" onclick="selectBg('warranty','blue',this)"></div>
+          <div class="print-bg-opt" style="background:linear-gradient(135deg,#e8f5e9,#f1f8e9)" data-val="green" onclick="selectBg('warranty','green',this)"></div>
+          <div class="print-bg-opt" style="background:linear-gradient(135deg,#fff3e0,#fce4ec)" data-val="warm" onclick="selectBg('warranty','warm',this)"></div>
+          <div class="print-bg-opt" style="background:linear-gradient(135deg,#f3e5f5,#ede7f6)" data-val="purple" onclick="selectBg('warranty','purple',this)"></div>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+          <input type="checkbox" id="ps-warranty-border" onchange="savePrintSettings()"> کادر دور
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+          <input type="checkbox" id="ps-warranty-qr" onchange="savePrintSettings()"> نمایش QR کد
+        </label>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn btn-p btn-sm" onclick="previewPrintSettings('warranty')">👁 پیش‌نمایش</button>
+        <button class="btn btn-sm btn-o" onclick="resetPrintSection('warranty')">↺ بازنشانی</button>
+      </div>
+    </div>
+
+    <!-- POSTAL PRINT -->
+    <div class="print-section-card">
+      <div class="print-section-title">📮 برچسب پستی</div>
+      <div class="g3">
+        <div class="f">
+          <label>اندازه کاغذ</label>
+          <select id="ps-postal-paper" onchange="savePrintSettings()">
+            <option value="A5" selected>A5 (پیش‌فرض)</option>
+            <option value="A4">A4</option>
+          </select>
+        </div>
+        <div class="f">
+          <label>تعداد برچسب در صفحه</label>
+          <select id="ps-postal-count" onchange="savePrintSettings()">
+            <option value="1" selected>۱ برچسب</option>
+            <option value="2">۲ برچسب</option>
+            <option value="4">۴ برچسب</option>
+          </select>
+        </div>
+        <div class="f">
+          <label>نمایش لوگو</label>
+          <select id="ps-postal-logo" onchange="savePrintSettings()">
+            <option value="1">بله</option>
+            <option value="0">خیر</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+          <input type="checkbox" id="ps-postal-fragile" checked onchange="savePrintSettings()"> نمایش «شکستنی»
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+          <input type="checkbox" id="ps-postal-border" checked onchange="savePrintSettings()"> کادر دور برچسب
+        </label>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn btn-sm btn-o" onclick="resetPrintSection('postal')">↺ بازنشانی</button>
+      </div>
+    </div>
+
+    <!-- PARTS/SERVICES PRINT -->
+    <div class="print-section-card">
+      <div class="print-section-title">🔩 قطعات / 🔧 خدمات / 🛒 فروش</div>
+      <div class="g3">
+        <div class="f">
+          <label>اندازه کاغذ</label>
+          <select id="ps-list-paper" onchange="savePrintSettings()">
+            <option value="A4" selected>A4 عمودی</option>
+            <option value="A4 landscape">A4 افقی</option>
+            <option value="A5">A5</option>
+          </select>
+        </div>
+        <div class="f">
+          <label>رنگ هدر جدول</label>
+          <input type="color" id="ps-list-headercolor" value="#2563eb" onchange="savePrintSettings()" style="height:36px;width:100%">
+        </div>
+        <div class="f">
+          <label>اندازه فونت</label>
+          <select id="ps-list-fontsize" onchange="savePrintSettings()">
+            <option value="9px">کوچک</option>
+            <option value="11px" selected>متوسط</option>
+            <option value="13px">بزرگ</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+          <input type="checkbox" id="ps-list-zebra" checked onchange="savePrintSettings()"> ردیف‌های راه‌راه
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+          <input type="checkbox" id="ps-list-logo" onchange="savePrintSettings()"> نمایش لوگو
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+          <input type="checkbox" id="ps-list-date" checked onchange="savePrintSettings()"> تاریخ چاپ
+        </label>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn btn-sm btn-o" onclick="resetPrintSection('list')">↺ بازنشانی</button>
+      </div>
+    </div>
+
+    <div style="padding:10px;background:var(--bg2);border-radius:8px;font-size:11px;color:var(--text2);margin-top:4px;line-height:1.8">
+      💡 تنظیمات پرینت به‌صورت خودکار ذخیره می‌شوند و در تمام پرینت‌های نرم‌افزار اعمال می‌گردند.
+    </div>
+  </div><!-- /stg-printer -->
+
+  <!-- TAB: APPEARANCE -->
+  <div class="stg-panel" id="stg-appearance">
+
+    <div class="card">
+      <div class="card-title">🌗 حالت نمایش</div>
+      <div class="f" style="margin-bottom:4px">
+        <label>روشن / تاریک</label>
+        <select onchange="setTheme(this.value)" id="theme-select">
+          <option value="light">☀️ روشن</option>
+          <option value="dark">🌙 تاریک</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎨 تم رنگی برنامه</div>
+      <p style="font-size:11px;color:var(--text2);margin-bottom:8px">رنگ اصلی نوار کناری، دکمه‌ها و هدرها را انتخاب کنید.</p>
+      <div id="color-theme-swatches" style="display:flex;gap:12px;flex-wrap:wrap"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔤 فونت و اندازه متن</div>
+      <div class="g2">
+        <div class="f">
+          <label>فونت نرم‌افزار</label>
+          <select id="app-font-select" onchange="setAppFont(this.value)">
+            <option value="Tahoma">Tahoma (پیش‌فرض)</option>
+            <option value="Vazir">Vazirmatn (مدرن)</option>
+            <option value="Arial">Arial</option>
+            <option value="Calibri">Calibri</option>
+          </select>
+        </div>
+        <div class="f">
+          <label>اندازه متن</label>
+          <select id="text-size-select" onchange="setTextSize(this.value)">
+            <option value="sm">کوچک</option>
+            <option value="normal" selected>استاندارد</option>
+            <option value="lg">بزرگ</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📐 تراکم چیدمان</div>
+      <p style="font-size:11px;color:var(--text2);margin-bottom:8px">فضای بین کارت‌ها و فیلدها را فشرده یا دلباز کنید.</p>
+      <div class="g2">
+        <div class="f">
+          <label>تراکم</label>
+          <select id="density-select" onchange="setDensity(this.value)">
+            <option value="compact">فشرده</option>
+            <option value="normal" selected>استاندارد</option>
+            <option value="spacious">دلباز</option>
+          </select>
+        </div>
+        <div class="f">
+          <label>گردی گوشه‌ها</label>
+          <select id="radius-select" onchange="setRadiusStyle(this.value)">
+            <option value="sharp">تیز</option>
+            <option value="normal" selected>استاندارد</option>
+            <option value="round">گرد (مدرن)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🖼 تصویر پس‌زمینه برنامه</div>
+      <p style="font-size:11px;color:var(--text2);margin-bottom:8px">یک تصویر برای پس‌زمینه‌ی فضای پشت کارت‌ها انتخاب کنید. خود کارت‌ها همیشه سفید/خوانا باقی می‌مانند.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+        <button class="btn btn-sm btn-p" onclick="document.getElementById('app-bg-inp').click()">🖼 انتخاب عکس</button>
+        <input type="file" id="app-bg-inp" accept="image/*" style="display:none" onchange="setAppBgImage(this)">
+        <button class="btn btn-sm btn-r" onclick="clearAppBgImage()">🗑 حذف پس‌زمینه</button>
+      </div>
+      <div class="f">
+        <label>شفافیت روکش سفید (برای حفظ خوانایی متن)</label>
+        <input type="range" id="app-bg-overlay" min="0" max="0.9" step="0.05" value="0.55" oninput="setAppBgOverlay(this.value)">
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- TAB: COMPANY -->
+  <div class="stg-panel" id="stg-company">
+    <div class="card">
+      <div class="card-title">🏢 اطلاعات شرکت / فروشگاه</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:12px">این اطلاعات در سربرگ فاکتورها و پرینت‌ها نمایش داده می‌شود.</p>
+      <div class="g2" style="margin-bottom:10px">
+        <div class="f"><label>نام شرکت/فروشگاه</label><input id="co-name" placeholder="نام شرکت"></div>
+        <div class="f"><label>تلفن</label><input id="co-phone" placeholder="021-XXXXXXXX"></div>
+      </div>
+      <div class="g2" style="margin-bottom:10px">
+        <div class="f"><label>ایمیل</label><input id="co-email" placeholder="info@example.com"></div>
+        <div class="f"><label>وب‌سایت</label><input id="co-web" placeholder="www.example.com"></div>
+      </div>
+      <div class="f" style="margin-bottom:10px"><label>آدرس</label><input id="co-addr" placeholder="آدرس کامل شرکت"></div>
+      <div class="f" style="margin-bottom:14px"><label>شناسه ملی / کد اقتصادی</label><input id="co-tax" placeholder="کد اقتصادی"></div>
+      <button class="btn btn-p btn-sm" onclick="saveCompanyInfo()">💾 ذخیره اطلاعات شرکت</button>
+    </div>
+  </div>
+
+  <!-- TAB: SECURITY -->
+  <div class="stg-panel" id="stg-security">
+    <div class="card" style="max-width:440px">
