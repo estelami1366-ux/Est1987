@@ -3959,14 +3959,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱ψ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱ω باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21ψ', 'نسخه meta باید 1405.5.21ψ باشد');
+  assertEqual(metaVer, '1405.5.21ω', 'نسخه meta باید 1405.5.21ω باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ψ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ψ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ω', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ω را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21ψ'", 'فیلد version بک‌آپ باید 1405.5.21ψ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21ω'", 'فیلد version بک‌آپ باید 1405.5.21ω باشد');
 });
 
 
@@ -5347,11 +5347,28 @@ test('توابع چندپنجره باید تعریف شده باشند', () => 
   assertContainsString(contextSrc, 'بزرگ‌نمایی', 'منوی راست‌کلیک باید بزرگ‌نمایی داشته باشد');
   assertContainsString(contextSrc, 'کوچک‌سازی', 'منوی راست‌کلیک باید کوچک‌سازی داشته باشد');
   assertContainsString(html, '@media (max-width:640px)', 'پنجره‌ها نباید در عرض معمول ویندوز زیر ۹۰۰ پیکسل روی هم بیفتند');
+  assertContainsString(html, 'minmax(0,1fr)', 'ستون پنجره‌ها باید جمع شوند تا کنار هم بمانند');
+  assertContainsString(html, 'body.win-mode .main', 'میزکار باید ارتفاع پنجره را پر کند');
+  assertContainsString(extractFunctionSource(html, 'winActivate'), 'winMarkActivePane', 'کلیک پنجره نباید کل میزکار را از نو بسازد');
+  const actSrc = extractFunctionSource(html, 'winActivate');
+  assertTrue(actSrc.indexOf("window._winActive === wid") >= 0, 'کلیک داخل همان پنجره باید بی‌اثر باشد');
+  assertTrue(extractFunctionSource(html, 'winMarkActivePane') !== null, 'winMarkActivePane لازم است');
   const closeSrc = extractFunctionSource(html, 'winClose');
   assertContainsString(closeSrc, "window._winActive = null", 'بستن آخرین پنجره باید میزکار را خالی کند، نه داشبورد را نگه دارد');
   assertContainsString(html, 'id="win-chrome"', 'نوار پنجره باید باشد');
   assertContainsString(html, 'id="win-workspace"', 'میزکار باید باشد');
   assertContainsString(html, 'چندپنجره', 'راهنمای چندپنجره باید باشد');
+});
+
+test('داشبورد باید گزینه پنهان کردن اطلاعات برای دیدن پس‌زمینه داشته باشد', () => {
+  assertContainsString(html, 'id="dash-calm-btn"', 'دکمه پنهان کردن اطلاعات داشبورد');
+  assertContainsString(html, 'id="dash-widgets"', 'باکس ویجت‌های داشبورد');
+  assertContainsString(html, 'dash-calm', 'حالت آرام داشبورد');
+  ['toggleDashWidgets','applyDashWidgets','isDashWidgetsHidden'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  assertContainsString(html, 'laegh_dash_hide_widgets', 'وضعیت پنهان بودن باید ذخیره شود');
+  assertContainsString(html, 'پنهان کردن اطلاعات داشبورد', 'راهنمای پنهان کردن داشبورد');
 });
 
 test('اجرای واقعی: تاریخچه پنجره و برگشت باید کار کند', () => {
