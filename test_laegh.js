@@ -997,7 +997,7 @@ test('openSaleForm هنگام ویرایش یک فروش قبلی باید docs 
 });
 
 test('شبیه‌سازی واقعی کامل: یک چرخه کامل ثبت فروش با عکس ضمیمه باید عکس را در رکورد نهایی sales[] ذخیره کند', async () => {
-  // از ۱۴۰۵.۵.۲۱μ ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
+  // از ۱۴۰۵.۵.۲۱ν ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
   const addSrc = extractFunctionSource(html, 'addSaleDocs');
   assertTrue(addSrc !== null, 'تابع addSaleDocs پیدا نشد');
   assertContainsString(addSrc, 'storeDocFileOnDisk', 'addSaleDocs باید روی دیسک بنویسد');
@@ -3875,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱μ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱ν باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21μ', 'نسخه meta باید 1405.5.21μ باشد');
+  assertEqual(metaVer, '1405.5.21ν', 'نسخه meta باید 1405.5.21ν باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱μ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱μ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ν', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ν را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21μ'", 'فیلد version بک‌آپ باید 1405.5.21μ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21ν'", 'فیلد version بک‌آپ باید 1405.5.21ν باشد');
 });
 
 
@@ -3951,7 +3951,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
       good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.20ε', minBaseVersion:'1405.5.20ε'}),
-      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21μ'}),
+      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21ν'}),
       cmp: compareSirmanVersions('1405.5.20ε','1405.5.18ε')
     };
   `);
@@ -4084,7 +4084,7 @@ test('شبیه‌سازی واقعی: summarizeBackupInventory باید بخش�
   assertTrue(!!extractFunctionSource(html, 'summarizeBackupInventory'), 'summarizeBackupInventory پیدا نشد');
   const runner = new Function(src + `;
     return summarizeBackupInventory({
-      version:'1405.5.21μ',
+      version:'1405.5.21ν',
       invoices:[{id:1},{id:2}],
       phonebook:[{fn:'علی',phones:['0912']}],
       pb:[],
@@ -5259,6 +5259,20 @@ test('ظاهر جمع‌وجور باید گروه‌بندی و کنترل بز
   assertContainsString(headingSrc, 'laegh_sb_heading_size', 'اندازه سرتیتر باید ماندگار باشد');
   assertContainsString(html, '--sb-section-size', 'CSS اندازه مستقل سرتیتر منو باید باشد');
   assertContainsString(groupSrc, 'laegh_appearance_group', 'آخرین دسته ظاهر باید ماندگار باشد');
+});
+
+test('کنترل‌های پس‌زمینه داشبورد باید از خود داشبورد به ظاهر و راست‌کلیک منتقل شوند', () => {
+  const dashHtml = (html.match(/<div class="page" id="page-dashboard">([\s\S]*?)<!-- ===== INVOICE PAGE ===== -->/) || [])[1] || '';
+  assertTrue(dashHtml.indexOf('dash-wallpaper-bar') === -1, 'نوار کنترل پس‌زمینه نباید داخل داشبورد بماند');
+  const appPanel = (html.match(/<div class="stg-panel" id="stg-appearance">([\s\S]*?)<!-- TAB: COMPANY -->/) || [])[1] || '';
+  assertContainsString(appPanel, 'انتخاب عکس داشبورد', 'انتخاب عکس داشبورد باید در تنظیمات ظاهر باشد');
+  assertContainsString(appPanel, 'id="dash-bg-inp"', 'ورودی تصویر داشبورد باید در تنظیمات ظاهر باشد');
+  assertContainsString(appPanel, 'dash-bg-overlay', 'شفافیت عکس داشبورد باید در تنظیمات ظاهر باشد');
+  const actions = extractFunctionSource(html, 'winContextPageActions');
+  const run = extractFunctionSource(html, 'winRunPageAction');
+  assertContainsString(actions, 'dashboard-bg', 'راست‌کلیک داشبورد باید انتخاب تصویر داشته باشد');
+  assertContainsString(actions, 'dashboard-bg-clear', 'راست‌کلیک داشبورد باید حذف تصویر داشته باشد');
+  assertContainsString(run, "getElementById('dash-bg-inp')", 'عمل راست‌کلیک باید input تصویر داشبورد را باز کند');
 });
 
 
