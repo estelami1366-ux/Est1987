@@ -3723,10 +3723,14 @@ test('شبیه‌سازی واقعی: migration inventory قدیمی + انتق�
     throw new Error('اجرای اسکریپت با خطا متوقف شد: ' + e.message);
   }
 
-  // ═══ بررسی ۱: warehouses باید سه انبار پیش‌فرض ساخته باشد ═══
+  // ═══ بررسی ۱: warehouses باید شش نوع انبار سیستمی بسازد ═══
   var ws = JSON.parse(sb._ls.getItem('laegh_warehouses') || '[]');
-  assertArrayLength(ws, 3, 'باید سه انبار پیش‌فرض ساخته شود (مرکزی/دیجی‌کالا/باسلام)');
-  assertTrue(ws.some(function (w) { return w.name === 'انبار مرکزی' && w.isDefault; }), 'انبار مرکزی باید پیش‌فرض باشد');
+  assertTrue(ws.length >= 6, 'باید شش انبار سیستمی ساخته شود (قطعات/کالا/معیوب/خدمات/مرجوعی/اسقاط) — دریافت شد '+ws.length);
+  var types = ws.map(function (w) { return w.type; });
+  ['parts','goods','defective','service','return','scrap'].forEach(function (k) {
+    assertTrue(types.indexOf(k) >= 0, 'نوع انبار سیستمی '+k+' باید ساخته شود');
+  });
+  assertTrue(ws.some(function (w) { return w.isDefault; }), 'یکی از انبارها باید پیش‌فرض باشد');
 
   // ═══ بررسی ۲: migration inventory قدیمی → byWh ═══
   // بعد از اجرای _ensureByWh، inventory['P-1001'].byWh باید وجود داشته باشد
@@ -3959,14 +3963,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۲γ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۲δ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.22γ', 'نسخه meta باید 1405.5.22γ باشد');
+  assertEqual(metaVer, '1405.5.22δ', 'نسخه meta باید 1405.5.22δ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/22', 'app-date باید 1405/05/22 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲γ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲γ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲δ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲δ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.22γ'", 'فیلد version بک‌آپ باید 1405.5.22γ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.22δ'", 'فیلد version بک‌آپ باید 1405.5.22δ باشد');
 });
 
 
@@ -5851,6 +5855,130 @@ test('میزبان دات‌نت باید فهرست چاپگر و چاپ HTML �
   assertContainsString(host, 'PrinterSettings.InstalledPrinters', 'باید چاپگرهای ویندوز را بخواند');
   assertContainsString(html, 'host.GetPrinters', 'HTML باید فهرست چاپگر میزبان را بخواند');
   assertContainsString(html, 'host.PrintHtml', 'HTML باید PrintHtml میزبان را صدا بزند');
+});
+
+
+console.log('');
+console.log('📋 گروه: موتور مشترک انبار (Inventory Engine)');
+
+test('UI انبار ارتقا‌یافته: رزرو، برگشت، کارتکس، نقطه سفارش و انواع انبار', () => {
+  ['kardex-modal','wr-lowstock','wr-value-dead','st-reason','st-confirm','wh-entity-code','wh-entity-manager','wh-entity-status','pm-barcode','pm-model','pm-unit','part-reorder','part-barcode','im-reserved','im-reorder','def-status'].forEach(id=>{
+    assertContainsString(html, 'id="'+id+'"', 'عنصر '+id+' لازم است');
+  });
+  ['openWarehouseModal(\'return\')','openWarehouseModal(\'reserve\')','openWarehouseModal(\'adjust\')','openKardexModal()'].forEach(fn=>{
+    assertContainsString(html, fn, 'دکمه '+fn+' لازم است');
+  });
+  ['value="parts"','value="goods"','value="defective"','value="service"','value="return"','value="scrap"'].forEach(v=>{
+    assertContainsString(html, v, 'نوع انبار '+v+' لازم است');
+  });
+  ['value="inspect"','value="wait_part"','value="repair"','value="ready"'].forEach(v=>{
+    assertContainsString(html, v, 'وضعیت معیوب '+v+' لازم است');
+  });
+  ['id:\'wh-receipt\'','id:\'wh-voucher\'','id:\'wh-kardex\'','id:\'wh-report\''].forEach(id=>{
+    assertContainsString(html, id, 'کاتالوگ چاپ باید '+id+' داشته باشد');
+  });
+  assertContainsString(html, 'تأیید مسئول انبار', 'انبارگردانی باید تأیید مسئول داشته باشد');
+  assertContainsString(html, 'رزرو موجودی', 'راهنما باید رزرو را توضیح دهد');
+  assertContainsString(html, 'کارتکس', 'راهنما باید کارتکس را توضیح دهد');
+});
+
+test('توابع موتور Inventory باید تعریف شده باشند', () => {
+  ['registerWarehouseKind','invNormalizeWarehouse','invStockSnapshot','invReserveOnItem','invReleaseReserveOnItem','invKardexFromMoves','invLowStockFromLists','invSearchCatalog','invStockValueFromLists','invDeadStockFromMoves','invConsumedInService','defIsInWarehouse','openKardexModal'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  assertContainsString(html, 'var InventoryEngine = {', 'شیء InventoryEngine پیدا نشد');
+  const adj = extractFunctionSource(html, 'applyStocktakeAdjustments');
+  assertContainsString(adj, 'st-reason', 'انبارگردانی باید علت بخواهد');
+  assertContainsString(adj, 'st-confirm', 'انبارگردانی باید تأیید مسئول را چک کند');
+  const snap = extractFunctionSource(html, 'applyStockByWarehouse');
+  assertContainsString(snap, 'available', 'خروج باید موجودی قابل‌استفاده را چک کند');
+});
+
+test('شبیه‌سازی: موجودی/رزرو/کارتکس/کم‌موجودی/جستجو/ارزش/قطعه مصرفی (execution-based)', () => {
+  const src = [
+    extractFunctionSource(html, '_sumByWh'),
+    extractFunctionSource(html, 'registerWarehouseKind'),
+    extractFunctionSource(html, 'invNormalizeWarehouse'),
+    extractFunctionSource(html, 'invStockSnapshot'),
+    extractFunctionSource(html, 'invReserveOnItem'),
+    extractFunctionSource(html, 'invReleaseReserveOnItem'),
+    extractFunctionSource(html, 'invKardexFromMoves'),
+    extractFunctionSource(html, 'invLowStockFromLists'),
+    extractFunctionSource(html, 'invSearchCatalog'),
+    extractFunctionSource(html, 'invStockValueFromLists'),
+    extractFunctionSource(html, 'invDeadStockFromMoves'),
+    extractFunctionSource(html, 'invConsumedInService'),
+    extractFunctionSource(html, 'defStatusOf'),
+    extractFunctionSource(html, 'defIsInWarehouse')
+  ].join('\n');
+  assertTrue(src.indexOf('function invStockSnapshot')>=0, 'منبع موتور استخراج نشد');
+  const runner = new Function('var WH_TYPE_LBL = {parts:"قطعات"}; var WH_TYPE_ICO = {};\n' + src + `;
+    var item = {qty:10, min:2, reorder:3, reserved:0, byWh:{'WH-A':10}, reservedByWh:{}, price:1000};
+    var s0 = invStockSnapshot(item, 'WH-A');
+    var r1 = invReserveOnItem(item, 4, 'WH-A');
+    var s1 = r1.stock;
+    var over = invReserveOnItem(item, 20, 'WH-A');
+    var rel = invReleaseReserveOnItem(item, 1, 'WH-A');
+    var kinds = registerWarehouseKind('custom', 'سفارشی', '★');
+    var nw = invNormalizeWarehouse({id:'WH-X', name:'تست'});
+    var moves = [
+      {itemCode:'P1', whId:'WH-A', date:'1405/05/01', qty:5},
+      {itemCode:'P2', whId:'WH-A', date:'1405/05/02', qty:1},
+      {itemCode:'P1', whId:'WH-B', date:'1405/05/03', qty:2}
+    ];
+    var kx = invKardexFromMoves(moves, 'P1', 'WH-A');
+    var low = invLowStockFromLists(
+      [{code:'A', name:'قطعه کم', qty:1, min:5}],
+      [{code:'B', name:'کالای کافی'}],
+      {B:{qty:20, min:2}}
+    );
+    var hits = invSearchCatalog('QR-99', [{code:'A', name:'موتور', barcode:'QR-99'}], []);
+    var val = invStockValueFromLists([{code:'A', qty:2, price:500}], [{code:'B', price:1000}], {B:{qty:3}});
+    var dead = invDeadStockFromMoves(
+      [{code:'OLD', name:'راکد', qty:4},{code:'NEW', name:'فعال', qty:2}],
+      [{itemCode:'NEW', date: new Date(Date.now()-2*24*60*60*1000).toISOString()}],
+      90,
+      Date.now()
+    );
+    var cons = invConsumedInService([{id:'W1', agencyWork:{partReqs:[{partCode:'P9', partName:'بلبرینگ', qty:2}]}}]);
+    var inWh = defIsInWarehouse({status:'inspect'});
+    var outWh = defIsInWarehouse({status:'scrap'});
+    var mapped = defStatusOf({status:'in_stock'});
+    return {
+      avail0: s0.available, qty0:s0.qty, reserved0:s0.reserved,
+      ok1: r1.ok, avail1:s1.available, reserved1:s1.reserved,
+      overOk: over.ok, relReserved: rel.stock.reserved,
+      custom: kinds.custom, nwStatus: nw.status, nwCode: nw.code,
+      kxLen: kx.length, kxCode: kx[0] && kx[0].itemCode,
+      lowCodes: low.map(function(x){return x.code;}).join(','),
+      hitCode: hits[0] && hits[0].code,
+      val: val,
+      deadCodes: dead.map(function(x){return x.code;}).join(','),
+      consCode: cons[0] && cons[0].code, consQty: cons[0] && cons[0].qty,
+      inWh: inWh, outWh: outWh, mapped: mapped
+    };
+  `);
+  const r = runner();
+  assertEqual(r.qty0, 10, 'موجودی فعلی باید ۱۰ باشد');
+  assertEqual(r.avail0, 10, 'قبل از رزرو، قابل‌استفاده باید ۱۰ باشد');
+  assertTrue(r.ok1, 'رزرو ۴ عدد باید موفق باشد');
+  assertEqual(r.reserved1, 4, 'رزرو باید ۴ شود');
+  assertEqual(r.avail1, 6, 'قابل‌استفاده بعد از رزرو باید ۶ باشد (۱۰-۴)');
+  assertEqual(r.overOk, false, 'رزرو بیش از موجودی قابل‌استفاده باید رد شود');
+  assertEqual(r.relReserved, 3, 'آزاد کردن ۱ رزرو باید مانده ۳ بگذارد');
+  assertEqual(r.custom, 'سفارشی', 'registerWarehouseKind باید نوع جدید اضافه کند بدون تغییر هسته');
+  assertEqual(r.nwStatus, 'active', 'انبار بدون وضعیت باید active شود');
+  assertEqual(r.nwCode, 'WH-X', 'کد انبار از id پر شود');
+  assertEqual(r.kxLen, 1, 'کارتکس باید فقط حرکت همان کالا/انبار را بدهد');
+  assertEqual(r.lowCodes, 'A', 'فقط قلم کم‌موجودی باید در هشدار باشد');
+  assertEqual(r.hitCode, 'A', 'جستجو با بارکد باید کالا را پیدا کند');
+  assertEqual(r.val, 4000, 'ارزش موجودی باید ۲×۵۰۰ + ۳×۱۰۰۰ = ۴۰۰۰ باشد');
+  assertEqual(r.deadCodes, 'OLD', 'کالای بدون گردش باید راکد تشخیص داده شود');
+  assertEqual(r.consCode, 'P9', 'قطعه مصرفی گارانتی باید از partReqs خوانده شود');
+  assertEqual(r.consQty, 2, 'تعداد قطعه مصرفی باید ۲ باشد');
+  assertTrue(r.inWh, 'وضعیت کارشناسی باید داخل انبار معیوب باشد');
+  assertTrue(!r.outWh, 'اسقاط نباید داخل انبار فعال باشد');
+  assertEqual(r.mapped, 'received', 'in_stock قدیمی باید به دریافت نگاشته شود');
 });
 
 

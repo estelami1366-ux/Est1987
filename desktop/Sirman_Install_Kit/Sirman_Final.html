@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22γ">
+<meta name="app-version" content="1405.5.22δ">
 <meta name="app-date" content="1405/05/22">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -918,7 +918,7 @@ body.sirman-app-frame .topbar{padding-left:56px}
 .stg-panel.active{display:block;}
 /* PRINT SETTINGS */
 .print-section-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;}
-/* ══════ مرکز پرینت / Print Center (v1405.5.22γ) ══════ */
+/* ══════ مرکز پرینت / Print Center (v1405.5.22δ) ══════ */
 .pc-shell{display:grid;grid-template-columns:210px minmax(0,1fr) 300px;gap:12px;min-height:540px;align-items:stretch;}
 .pc-col{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 24px rgba(15,40,55,.06);display:flex;flex-direction:column;min-width:0;overflow:hidden;}
 .pc-col-h{padding:12px 14px;font-size:12px;font-weight:800;letter-spacing:.02em;color:var(--blue2);background:linear-gradient(180deg,color-mix(in srgb,var(--blue-l) 70%,#fff),transparent);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -1045,7 +1045,7 @@ body.has-bg-image::after{
 }
 body.has-bg-image.theme-dark::after{background:rgba(10,12,15,var(--bg-overlay,0.55));}
 
-/* ══════ اسکین قوی / Skin Pack (v1405.5.22γ) ══════ */
+/* ══════ اسکین قوی / Skin Pack (v1405.5.22δ) ══════ */
 .skin-card{width:148px;border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--card);transition:.18s;text-align:right;}
 .skin-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,40,55,.10);}
 .skin-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 25%,transparent);}
@@ -1588,7 +1588,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 
 </style>
 <style id="win-manager-css">
-/* ══════ چندپنجره / تب‌های کاری (v1405.5.22γ) ══════ */
+/* ══════ چندپنجره / تب‌های کاری (v1405.5.22δ) ══════ */
 #win-chrome{
   position:sticky; top:0; z-index:60;
   display:flex; flex-wrap:wrap; align-items:center; gap:6px;
@@ -2031,7 +2031,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۲γ — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۲δ — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-r btn-sm" id="btn-exit-safe" onclick="promptExitBackup()" style="width:100%;margin-top:8px;font-weight:700">🚪 خروج امن (پرسش بک‌آپ)</button>
   <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;padding:0 2px">اگر ✕ پنجره را بزنید، مرورگر اول هشدار می‌دهد؛ برای بک‌آپ از این دکمه استفاده کنید.</div>
 </div>
@@ -2223,7 +2223,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <input class="search-in" id="inv-q" placeholder="جستجوی کالا..." oninput="renderInv()">
   </div>
   <table class="stbl" id="inv-tbl">
-    <thead><tr><th>کد</th><th>نام کالا</th><th>برند</th><th>موجودی</th><th>حداقل</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+    <thead><tr><th>کد</th><th>نام کالا</th><th>برند</th><th>موجودی</th><th>رزرو</th><th>قابل استفاده</th><th>حداقل</th><th>وضعیت</th><th>عملیات</th></tr></thead>
     <tbody id="inv-body"></tbody>
   </table>
 </div></div></div>
@@ -2251,8 +2251,14 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </select>
     <select id="def-st-f" onchange="renderDefective()" style="padding:6px 9px;border:1px solid var(--border);border-radius:6px;font-size:12px">
       <option value="">همه وضعیت‌ها</option>
+      <option value="received">دریافت</option>
+      <option value="inspect">کارشناسی</option>
+      <option value="wait_part">منتظر قطعه</option>
+      <option value="repair">تعمیر</option>
+      <option value="ready">آماده تحویل</option>
       <option value="in_stock">در انبار</option>
-      <option value="returned">عودت داده شده</option>
+      <option value="returned">برگشت / عودت</option>
+      <option value="scrap">اسقاط</option>
     </select>
     <span class="bulk-bar" id="def-bulk" style="display:none">
       <span class="bulk-cnt" id="def-sel-cnt">۰</span>
@@ -2272,6 +2278,10 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <button class="btn btn-sm" onclick="showPage('warehouse-entities')">🏭 مدیریت انبارها</button>
     <button class="btn btn-sm" onclick="openStocktakeModal()">📊 انبارگردانی</button>
     <button class="btn btn-sm btn-o" onclick="openTransferModal()">🔄 انتقال بین انباری</button>
+    <button class="btn btn-sm" onclick="openWarehouseModal('return')">↩ برگشت به انبار</button>
+    <button class="btn btn-sm" onclick="openWarehouseModal('reserve')">🔖 رزرو موجودی</button>
+    <button class="btn btn-sm" onclick="openWarehouseModal('adjust')">✏ اصلاح موجودی</button>
+    <button class="btn btn-sm" onclick="openKardexModal()">📒 کارتکس</button>
     <button class="btn btn-sm btn-o" onclick="printWarehouseList()">🖨 چاپ لیست</button>
     <button class="btn btn-p btn-sm" onclick="openWarehouseModal('in')">📥 حواله ورود</button>
     <button class="btn btn-r btn-sm" onclick="openWarehouseModal('out')">📤 حواله خروج</button>
@@ -2288,6 +2298,10 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
       <option value="">همه</option>
       <option value="in">فقط ورود</option>
       <option value="out">فقط خروج</option>
+      <option value="transfer">انتقال</option>
+      <option value="return">برگشت</option>
+      <option value="reserve">رزرو</option>
+      <option value="adjust">اصلاح</option>
     </select>
   </div>
   <div id="wh-list"></div>
@@ -2307,11 +2321,18 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
       <option value="parts">🔩 قطعات</option>
       <option value="products">📦 کالاها</option>
       <option value="defective">⚠️ معیوب</option>
+      <option value="service">🔧 خدمات</option>
+      <option value="return">↩ مرجوعی</option>
+      <option value="scrap">🗑 اسقاط</option>
     </select>
     <select id="wr-type" onchange="renderWarehouseReport()">
       <option value="">همه حرکت‌ها</option>
       <option value="in">فقط ورود</option>
       <option value="out">فقط خروج</option>
+      <option value="transfer">انتقال</option>
+      <option value="return">برگشت</option>
+      <option value="reserve">رزرو</option>
+      <option value="adjust">اصلاح</option>
     </select>
     <span style="font-size:11px">از:</span>
     <input id="wr-from" readonly placeholder="ابتدا" onclick="openDatePicker(this)" style="width:100px">
@@ -2323,6 +2344,16 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   <div id="wr-summary"></div>
   <div id="wr-chart"></div>
   <div id="wr-results" style="max-height:400px;overflow-y:auto"></div>
+  <div class="g2" style="margin-top:12px">
+    <div>
+      <div class="card-title">⚠️ کم‌موجودی و نقطه سفارش</div>
+      <div id="wr-lowstock" style="max-height:220px;overflow-y:auto;font-size:12px"></div>
+    </div>
+    <div>
+      <div class="card-title">💰 ارزش موجودی و کالای بدون گردش</div>
+      <div id="wr-value-dead" style="max-height:220px;overflow-y:auto;font-size:12px"></div>
+    </div>
+  </div>
 </div>
 <div class="card" style="margin-top:12px">
   <div class="card-title">🔄 تاریخچه‌ی حرکت‌های انبار</div>
@@ -2343,7 +2374,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 <div style="padding:16px">
 <div class="card">
   <div class="card-title">🏪 انبارهای تعریف‌شده</div>
-  <div style="font-size:11px;color:var(--text2);margin-bottom:10px">هر کالا در هر انبار موجودی جداگانه دارد. می‌توانید با «انتقال بین انباری» کالا را از یک انبار به دیگری منتقل کنید.</div>
+  <div style="font-size:11px;color:var(--text2);margin-bottom:10px">همه انبارها از یک موتور موجودی مشترک استفاده می‌کنند. نوع انبار (قطعات، کالا، معیوب، خدمات، مرجوعی، اسقاط) را مشخص کنید؛ افزودن انبار جدید هسته را عوض نمی‌کند.</div>
   <div id="wh-entity-list" class="dash-kpi-grid"></div>
 </div>
 </div>
@@ -2457,7 +2488,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 <div style="padding:16px">
 <div class="card">
   <div class="s-bar" style="flex-wrap:wrap;gap:8px">
-    <input class="s-in" id="part-q" placeholder="جستجو: نام، کد، دسته..." oninput="renderParts()" style="flex:1;min-width:180px">
+    <input class="s-in" id="part-q" placeholder="جستجو: نام، کد، بارکد، دسته..." oninput="renderParts()" style="flex:1;min-width:180px">
     <select id="part-pf" onchange="renderParts()" style="padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font)"><option value="">همه کالاها</option></select>
     <select id="part-cf" onchange="renderParts()" style="padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font)" title="فیلتر دسته">
       <option value="">همه دسته‌ها</option>
@@ -4744,11 +4775,15 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 <div class="card help-card help-collapsed">
   <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>📋 حواله‌های انبار و انبارگردانی</span><span class="help-chev">▾</span></div>
   <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
-    <li><b>📥 حواله ورود (رسید):</b> وقتی کالا یا قطعه‌ای وارد انبار می‌شود، با «حواله ورود» ثبت کنید: نام تأمین‌کننده، اقلام (کد + تعداد)، موقعیت انبار. با ثبت حواله، موجودی خودکار افزایش می‌یابد و حرکت در لاگ ثبت می‌شود.</li>
-    <li><b>📤 حواله خروج:</b> وقتی کالا یا قطعه‌ای از انبار خارج می‌شود (به‌جز فروش که خودکار ثبت می‌شود)، با «حواله خروج» ثبت کنید: نام گیرنده، اقلام، دلیل. موجودی خودکار کاهش می‌یابد.</li>
-    <li><b>🖨 چاپ حواله:</b> هر حواله قابل چاپ با قالب رسمی (شماره، تاریخ، طرف مقابل، اقلام، امضاء تحویل‌دهنده/انباردار/مدیر).</li>
+    <li><b>📥 حواله ورود (رسید):</b> وقتی کالا یا قطعه‌ای وارد انبار می‌شود، با «حواله ورود» ثبت کنید: نام تأمین‌کننده، اقلام (کد + تعداد)، قیمت و شماره سند. با ثبت حواله، موجودی خودکار افزایش می‌یابد و حرکت در لاگ با کاربر و علت ثبت می‌شود.</li>
+    <li><b>📤 حواله خروج:</b> وقتی کالا یا قطعه‌ای از انبار خارج می‌شود، با «حواله خروج» ثبت کنید: نام گیرنده، اقلام، علت، تحویل‌گیرنده. موجودی قابل‌استفاده (موجودی منهای رزرو) کم می‌شود.</li>
+    <li><b>↩ برگشت به انبار:</b> کالای برگشتی را با علت مرجوعی ثبت کنید تا دوباره وارد موجودی شود.</li>
+    <li><b>🔖 رزرو موجودی:</b> برای تعمیرات و سفارش‌ها موجودی را رزرو کنید؛ از موجودی کل کم نمی‌شود ولی «قابل استفاده» کم می‌شود تا فروش اضافه نرود.</li>
+    <li><b>✏ اصلاح موجودی:</b> فقط با نوشتن دلیل انجام می‌شود و در گردش کالا ثبت می‌گردد.</li>
+    <li><b>📒 کارتکس:</b> گردش کامل یک کالا/قطعه با تاریخ، کاربر، انبار، مقدار و علت.</li>
+    <li><b>🖨 چاپ از مرکز پرینت:</b> رسید ورود، حواله خروج، کارتکس و گزارش انبار از همان موتور چاپ مشترک چاپ می‌شوند.</li>
     <li><b>🔄 تاریخچه‌ی حرکت‌ها:</b> در همان صفحه، همه‌ی حرکت‌های انبار (حواله، فروش، فاکتور، انبارگردانی) در یک لاگ قابل مشاهده است.</li>
-    <li><b>📊 انبارگردانی:</b> با کلیک روی «انبارگردانی»، می‌توانید موجودی سیستم را با شمارش فیزیکی مقایسه کنید. اختلاف‌ها (کسری/افزایش) نمایش داده می‌شوند و با یک کلیک تعدیل می‌شوند.</li>
+    <li><b>📊 انبارگردانی:</b> موجودی سیستم را با شمارش فیزیکی مقایسه کنید. علت کسری/اضافی را بنویسید و تیک تأیید مسئول انبار را بزنید تا تعدیل ثبت شود.</li>
     <li><b>🤖 ثبت خودکار:</b> فروش قطعات و تکمیل فاکتور هم به‌صورت خودکار در لاگ حرکت‌های انبار ثبت می‌شوند — نیازی به ثبت دستی نیست.</li>
   </ul>
 </div>
@@ -4756,8 +4791,8 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 <div class="card help-card help-collapsed">
   <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>🏭 انبارهای نام‌گذاری‌شده و انتقال بین انباری (جدید)</span><span class="help-chev">▾</span></div>
   <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
-    <li><b>🏪 چند انبار مجزا:</b> حالا می‌توانید چند انبار با نام‌های جداگانه تعریف کنید: مثلاً «انبار مرکزی»، «انبار دیجی‌کالا»، «انبار باسلام». هر کالا در هر انبار <b>موجودی جداگانه</b> دارد — یعنی می‌توانید موجودی هر فروشگاه را جداگانه ببینید و انبارگردانی کنید.</li>
-    <li><b>➕ افزودن انبار:</b> از صفحه‌ی «🏭 مدیریت انبارها» (در سایدبار)، با دکمه‌ی «+ انبار جدید» می‌توانید انبار بسازید: نام، نوع (مرکزی/فروشگاه اینترنتی/فروشگاه حضوری/...)، رنگ، و یادداشت. یک انبار را به‌عنوان «پیش‌فرض» تعیین کنید (جایی که داده‌های قدیمی به آن منتقل می‌شوند).</li>
+    <li><b>🏪 چند انبار مجزا:</b> انبارها از یک موتور مشترک Inventory هستند. نوع‌ها: قطعات، کالا، معیوب، خدمات/تعمیرگاه، مرجوعی، اسقاط (به‌علاوه مرکزی/فروشگاه). هر کالا در هر انبار موجودی جدا (فعلی، رزرو، قابل استفاده، حداقل، نقطه سفارش) دارد.</li>
+    <li><b>➕ افزودن انبار:</b> از «🏭 مدیریت انبارها» انبار بسازید: نام، کد، نوع، مسئول، وضعیت فعال/غیرفعال، رنگ. افزودن انبار جدید هسته سیستم را عوض نمی‌کند.</li>
     <li><b>🔄 انتقال بین انباری:</b> با دکمه‌ی «🔄 انتقال بین انباری» در صفحه‌ی حواله‌ها، می‌توانید کالا را از یک انبار به انبار دیگر منتقل کنید: انبار مبدا، انبار مقصد، اقلام و تعداد. نرم‌افزار خودکار <b>خروج از مبدا</b> و <b>ورود به مقصد</b> را ثبت می‌کند. اگر موجودی کافی در مبدا نباشد، انتقال رد می‌شود.</li>
     <li><b>📥 حواله ورود با انبار مقصد:</b> وقتی حواله ورود ثبت می‌کنید، باید مشخص کنید کالا به <b>کدام انبار</b> وارد می‌شود (مثلاً ورود از تأمین‌کننده به انبار دیجی‌کالا).</li>
     <li><b>📤 حواله خروج با انبار مبدا:</b> وقتی حواله خروج ثبت می‌کنید، باید مشخص کنید کالا از <b>کدام انبار</b> خارج می‌شود.</li>
@@ -5038,7 +5073,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۲γ
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۲δ
 </div>
 </div>
 
@@ -5081,9 +5116,15 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   </div>
   <div class="g3" style="margin-bottom:10px">
     <div class="f"><label>برند / سازنده</label><input id="pm-brand" placeholder="نام برند"></div>
+    <div class="f"><label>مدل</label><input id="pm-model" placeholder="مدل کالا"></div>
     <div class="f"><label>شرکت تأمین‌کننده</label><input id="pm-supplier" placeholder="نام شرکت"></div>
+  </div>
+  <div class="g3" style="margin-bottom:10px">
+    <div class="f"><label>واحد</label><input id="pm-unit" placeholder="عدد / بسته / متر" value="عدد"></div>
+    <div class="f"><label>بارکد</label><input id="pm-barcode" placeholder="بارکد / QR"></div>
     <div class="f"><label>قیمت پایه (ریال)</label><input id="pm-price" type="number" placeholder="0" min="0"></div>
   </div>
+  <div class="f" style="margin-bottom:10px"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="pm-serial-track"> کنترل سریال / بچ برای این کالا</label></div>
   <div class="g2" style="margin-bottom:10px">
     <div class="f"><label>توضیحات</label><textarea id="pm-desc" rows="3" placeholder="مشخصات فنی، ویژگی‌ها..."></textarea></div>
     <div class="f"><label>عکس کالا</label>
@@ -5114,6 +5155,10 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   <div class="g2">
     <div class="f"><label>موجودی فعلی</label><input id="im-qty" type="number" min="0" placeholder="0"></div>
     <div class="f"><label>حداقل موجودی (هشدار)</label><input id="im-min" type="number" min="0" placeholder="0"></div>
+  </div>
+  <div class="g2" style="margin-top:8px">
+    <div class="f"><label>نقطه سفارش</label><input id="im-reorder" type="number" min="0" placeholder="0"></div>
+    <div class="f"><label>رزرو شده (فقط نمایش)</label><input id="im-reserved" type="number" min="0" placeholder="0" disabled></div>
   </div>
   <div class="f" style="margin-top:8px"><label>یادداشت انبار</label><textarea id="im-note" rows="2"></textarea></div>
   <div class="btn-bar">
@@ -5156,6 +5201,17 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <div class="f"><label>نام مشتری</label><input id="def-cname" placeholder="نام مشتری"></div>
     <div class="f"><label>تلفن مشتری</label><input id="def-cphone" placeholder="۰۹۱۲..."></div>
     <div class="f"><label>شناسه گارانتی</label><input id="def-wid" placeholder="W-0001"></div>
+    <div class="f"><label>وضعیت دستگاه</label>
+      <select id="def-status">
+        <option value="received">دریافت</option>
+        <option value="inspect">کارشناسی</option>
+        <option value="wait_part">منتظر قطعه</option>
+        <option value="repair">تعمیر</option>
+        <option value="ready">آماده تحویل</option>
+        <option value="returned">برگشت</option>
+        <option value="scrap">اسقاط</option>
+      </select>
+    </div>
   </div>
   <div class="g2" style="margin-bottom:8px">
     <div class="f"><label>شماره فاکتور</label><input id="def-invnum" placeholder="LEP-0001"></div>
@@ -5207,7 +5263,16 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   <div class="g3" style="margin-bottom:8px">
     <div class="f"><label>موجودی</label><input id="part-qty" type="number" min="0" value="0"></div>
     <div class="f"><label>حداقل موجودی</label><input id="part-min" type="number" min="0" value="0"></div>
+    <div class="f"><label>نقطه سفارش</label><input id="part-reorder" type="number" min="0" value="0"></div>
+  </div>
+  <div class="g3" style="margin-bottom:8px">
     <div class="f"><label>قیمت (ریال)</label><input id="part-price" type="number" min="0" value="0"></div>
+    <div class="f"><label>واحد</label><input id="part-unit" placeholder="عدد" value="عدد"></div>
+    <div class="f"><label>برند</label><input id="part-brand" placeholder="برند قطعه"></div>
+  </div>
+  <div class="g2" style="margin-bottom:8px">
+    <div class="f"><label>بارکد</label><input id="part-barcode" placeholder="بارکد / QR"></div>
+    <div class="f"><label>سریال / بچ</label><input id="part-batch" placeholder="شماره سریال یا لات"></div>
   </div>
   <div class="f" style="margin-bottom:8px"><label>موقعیت (قفسه/انبار)</label><input id="part-loc" placeholder="مثلاً قفسه A1"></div>
   <div class="btn-bar">
@@ -5459,6 +5524,11 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <div class="f"><label>تاریخ *</label><input id="wh-date" readonly onclick="openDatePicker(this)" placeholder="تاریخ"></div>
     <div class="f"><label id="wh-party-lbl">طرف مقابل</label><input id="wh-party" placeholder="نام شخص/شرکت"></div>
   </div>
+  <div class="g2" style="margin-bottom:10px">
+    <div class="f"><label>شماره سند (اختیاری)</label><input id="wh-docno" placeholder="شماره رسید/حواله تأمین‌کننده"></div>
+    <div class="f"><label>قیمت واحد / ارزش (ریال)</label><input id="wh-price" type="number" min="0" placeholder="0"></div>
+  </div>
+  <div class="f" style="margin-bottom:10px" id="wh-reason-row"><label id="wh-reason-lbl">علت / دلیل</label><input id="wh-reason" placeholder="علت ورود، خروج، برگشت یا اصلاح"></div>
   <!-- 🔑 فاز ۲: انبار مقصد (برای حواله ورود) -->
   <div class="g2" style="margin-bottom:10px" id="wh-towh-row">
     <div class="f"><label>📥 انبار مقصد (ورود به)</label><select id="wh-towh"></select></div>
@@ -5467,7 +5537,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   <!-- 🔑 فاز ۲: انبار مبدا (برای حواله خروج) -->
   <div class="g2" style="margin-bottom:10px" id="wh-fromwh-row">
     <div class="f"><label>📤 انبار مبدا (خروج از)</label><select id="wh-fromwh"></select></div>
-    <div class="f"><label>موقعیت انبار</label><input id="wh-location" placeholder="قفسه/بخش (اختیاری)"></div>
+    <div class="f"><label>موقعیت انبار</label><input id="wh-location-out" placeholder="قفسه/بخش (اختیاری)"></div>
   </div>
   <div class="f" style="margin-bottom:10px"><label>توضیحات</label><input id="wh-note" placeholder="یادداشت اختیاری"></div>
   <div class="card-title">اقلام حواله</div>
@@ -5504,18 +5574,33 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 <div class="modal">
   <button class="modal-x" onclick="closeMod('wh-entity-modal')">×</button>
   <div class="modal-title" id="wh-entity-title">🏭 انبار جدید</div>
-  <div class="f" style="margin-bottom:10px"><label>نام انبار *</label><input id="wh-entity-name" placeholder="مثلاً: انبار مرکزی، انبار دیجی‌کالا..."></div>
+  <div class="f" style="margin-bottom:10px"><label>نام انبار *</label><input id="wh-entity-name" placeholder="مثلاً: انبار مرکزی، انبار قطعات..."></div>
+  <div class="g2" style="margin-bottom:10px">
+    <div class="f"><label>کد انبار</label><input id="wh-entity-code" placeholder="مثلاً PRT یا WH-01"></div>
+    <div class="f"><label>مسئول انبار</label><input id="wh-entity-manager" placeholder="نام مسئول"></div>
+  </div>
   <div class="g2" style="margin-bottom:10px">
     <div class="f"><label>نوع انبار</label><select id="wh-entity-type">
+      <option value="parts">🔩 انبار قطعات</option>
+      <option value="goods">📦 انبار کالا</option>
+      <option value="defective">⚠️ محصولات معیوب</option>
+      <option value="service">🔧 خدمات / تعمیرگاه</option>
+      <option value="return">↩ مرجوعی</option>
+      <option value="scrap">🗑 اسقاط</option>
       <option value="main">🏪 مرکزی</option>
       <option value="online">🌐 فروشگاه اینترنتی</option>
       <option value="store">🏬 فروشگاه حضوری</option>
-      <option value="defective">⚠️ انبار معیوب</option>
       <option value="other">📦 سایر</option>
     </select></div>
-    <div class="f"><label>رنگ</label><input id="wh-entity-color" type="color" style="height:38px" value="#2563eb"></div>
+    <div class="f"><label>وضعیت</label><select id="wh-entity-status">
+      <option value="active">فعال</option>
+      <option value="inactive">غیرفعال</option>
+    </select></div>
   </div>
-  <div class="f" style="margin-bottom:10px"><label>توضیحات</label><input id="wh-entity-note" placeholder="یادداشت اختیاری"></div>
+  <div class="g2" style="margin-bottom:10px">
+    <div class="f"><label>رنگ</label><input id="wh-entity-color" type="color" style="height:38px" value="#2563eb"></div>
+    <div class="f"><label>توضیحات</label><input id="wh-entity-note" placeholder="یادداشت اختیاری"></div>
+  </div>
   <div class="f" style="margin-bottom:10px"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="wh-entity-default"> این انبار را به‌عنوان انبار پیش‌فرض تنظیم کن</label></div>
   <div class="btn-bar">
     <button class="btn btn-p" onclick="saveWarehouseEntity()">💾 ذخیره</button>
@@ -5541,9 +5626,30 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <span>نام</span><span style="text-align:center">سیستم</span><span style="text-align:center">شمارش</span><span style="text-align:center">اختلاف</span>
   </div>
   <div id="st-items" style="max-height:350px;overflow-y:auto"></div>
+  <div class="g2" style="margin-top:10px">
+    <div class="f"><label>علت کسری/اضافی *</label><input id="st-reason" placeholder="مثلاً شمارش فیزیکی پایان ماه"></div>
+    <div class="f" style="justify-content:flex-end"><label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-top:18px"><input type="checkbox" id="st-confirm"> تأیید مسئول انبار برای ثبت تعدیل</label></div>
+  </div>
   <div class="btn-bar" style="margin-top:10px">
     <button class="btn btn-p" onclick="applyStocktakeAdjustments()">✅ ثبت تعدیل‌ها</button>
     <button class="btn" onclick="closeMod('stocktake-modal')">انصراف</button>
+  </div>
+</div></div>
+
+<!-- مودال کارتکس کالا -->
+<div class="ov" id="kardex-modal">
+<div class="modal modal-lg">
+  <button class="modal-x" onclick="closeMod('kardex-modal')">×</button>
+  <div class="modal-title">📒 کارتکس کالا / قطعه</div>
+  <div class="g2" style="margin-bottom:10px">
+    <div class="f"><label>کد کالا یا قطعه</label><input id="kardex-code" placeholder="کد، نام یا بارکد" oninput="renderKardexPreview()"></div>
+    <div class="f"><label>انبار</label><select id="kardex-wh" onchange="renderKardexPreview()"><option value="">همه انبارها</option></select></div>
+  </div>
+  <div id="kardex-summary" style="font-size:12px;color:var(--text2);margin-bottom:8px"></div>
+  <div id="kardex-list" style="max-height:360px;overflow-y:auto"></div>
+  <div class="btn-bar" style="margin-top:10px">
+    <button class="btn btn-p" onclick="printKardex()">🖨 چاپ کارتکس</button>
+    <button class="btn" onclick="closeMod('kardex-modal')">بستن</button>
   </div>
 </div></div>
 
@@ -5690,9 +5796,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 })();
 
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.22γ';
-var APP_BASE_VERSION = '1405.5.22γ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۲۲γ';
+var APP_VERSION = '1405.5.22δ';
+var APP_BASE_VERSION = '1405.5.22δ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۲۲δ';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -6188,8 +6294,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.22γ'; }
-  catch(_e){ return '1405.5.22γ'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.22δ'; }
+  catch(_e){ return '1405.5.22δ'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -6489,7 +6595,7 @@ function _safeStr(s){ return (s==null)?'':String(s); }
 
 function _buildFullBackupData(){
   var data = {
-    version: '1405.5.22γ',
+    version: '1405.5.22δ',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -6743,7 +6849,7 @@ async function restoreAutoSaveHandlesOnBoot(){
   }catch(_e2){ return false; }
 }
 
-// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.22γ ═══════════════════
+// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.22δ ═══════════════════
 // عکس پس‌زمینه، لوگو و ضمیمه‌ها فقط در پوشهٔ بک‌آپ روی دیسک نوشته می‌شوند.
 // در حافظهٔ مرورگر فقط ارجاع کوتاه disk://sirman_media/... نگه داشته می‌شود.
 window._diskUrlCache = window._diskUrlCache || {};
@@ -8164,7 +8270,7 @@ function showCustomer360(phone, name){
   document.getElementById('cust360-modal').classList.add('open');
 }
 
-// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۲γ) ───────────────────────────────────────────
+// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۲δ) ───────────────────────────────────────────
 window._wins = window._wins || [];
 window._winActive = window._winActive || null;
 window._winSeq = window._winSeq || 1;
@@ -9601,7 +9707,7 @@ function buildPH(list){
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 window._pcActiveDocId='invoice';
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22γ">
+<meta name="app-version" content="1405.5.22δ">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -9618,7 +9724,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22γ">
+<meta name="app-version" content="1405.5.22δ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -9678,7 +9784,7 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22γ">
+<meta name="app-version" content="1405.5.22δ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -9698,11 +9804,11 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22γ">
+<meta name="app-version" content="1405.5.22δ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22γ">
+<meta name="app-version" content="1405.5.22δ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -9756,6 +9862,10 @@ function openProdModal(idx=-1){
     document.getElementById('pm-title').textContent='کالای جدید';
     ['pm-code','pm-name','pm-cat','pm-brand','pm-supplier','pm-desc','pm-img-data'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('pm-price').value='';
+    var pmModel=document.getElementById('pm-model'); if(pmModel) pmModel.value='';
+    var pmUnit=document.getElementById('pm-unit'); if(pmUnit) pmUnit.value='عدد';
+    var pmBar=document.getElementById('pm-barcode'); if(pmBar) pmBar.value='';
+    var pmSer=document.getElementById('pm-serial-track'); if(pmSer) pmSer.checked=false;
     pv.innerHTML='<span style="font-size:11px;color:#aaa">کلیک برای انتخاب عکس</span>';
   } else {
     const p=products[idx];
@@ -9767,6 +9877,10 @@ function openProdModal(idx=-1){
     document.getElementById('pm-supplier').value=p.supplier||'';
     document.getElementById('pm-desc').value=p.desc||'';
     document.getElementById('pm-price').value=p.price||'';
+    var pmModel2=document.getElementById('pm-model'); if(pmModel2) pmModel2.value=p.model||'';
+    var pmUnit2=document.getElementById('pm-unit'); if(pmUnit2) pmUnit2.value=p.unit||'عدد';
+    var pmBar2=document.getElementById('pm-barcode'); if(pmBar2) pmBar2.value=p.barcode||'';
+    var pmSer2=document.getElementById('pm-serial-track'); if(pmSer2) pmSer2.checked=!!p.serialTrack;
     document.getElementById('pm-img-data').value=p.img||'';
     pv.innerHTML=p.img?`<img src="${p.img}" class="viewable-img" style="max-width:100%;max-height:76px;object-fit:contain" title="کلیک برای بزرگ‌نمایی">`:'<span style="font-size:11px;color:#aaa">کلیک برای انتخاب عکس</span>';
   }
@@ -9801,8 +9915,13 @@ function saveProd(){
   if(!code||!name){ntf('کد و نام کالا الزامی است','err');return;}
   // چک تکراری — هم ایجاد، هم ویرایش
   if(_isCodeTaken(products, code, idx)){ntf('این کد قبلاً ثبت شده — کد دیگری وارد کنید','err');return;}
-  const p={code,name,cat:document.getElementById('pm-cat').value,brand:document.getElementById('pm-brand').value,supplier:document.getElementById('pm-supplier').value,colors:document.getElementById('pm-colors')?document.getElementById('pm-colors').value:'',desc:document.getElementById('pm-desc').value,price:parseFloat(document.getElementById('pm-price').value)||0,img:document.getElementById('pm-img-data').value};
-  if(idx===-1){products.push(p); if(!inventory[code]) inventory[code]={qty:0,min:0,note:''};}
+  const p={code,name,cat:document.getElementById('pm-cat').value,brand:document.getElementById('pm-brand').value,
+    model:((document.getElementById('pm-model')||{}).value||'').trim(),
+    unit:((document.getElementById('pm-unit')||{}).value||'عدد').trim()||'عدد',
+    barcode:((document.getElementById('pm-barcode')||{}).value||'').trim(),
+    serialTrack:!!((document.getElementById('pm-serial-track')||{}).checked),
+    supplier:document.getElementById('pm-supplier').value,colors:document.getElementById('pm-colors')?document.getElementById('pm-colors').value:'',desc:document.getElementById('pm-desc').value,price:parseFloat(document.getElementById('pm-price').value)||0,img:document.getElementById('pm-img-data').value};
+  if(idx===-1){products.push(p); if(!inventory[code]) inventory[code]={qty:0,min:0,reorder:0,reserved:0,note:''};}
   else products[idx]=p;
   sv(); closeMod('prod-modal'); renderProds(); renderInv(); ntf(idx===-1?'کالا ثبت شد':'کالا ویرایش شد');
   // update categories
@@ -9861,7 +9980,7 @@ function renderInv(){
   const q=(document.getElementById('inv-q').value||'').toLowerCase();
   const filtered=products.filter(p=>!q||(p.code+p.name+(p.brand||'')).toLowerCase().includes(q));
   const body=document.getElementById('inv-body');
-  body.innerHTML=filtered.map(p=>{const inv=inventory[p.code]||{qty:0,min:0};const low=inv.qty<=inv.min;return`<tr><td><b>${p.code}</b></td><td>${p.name}</td><td>${p.brand||'—'}</td><td style="font-weight:700;color:${low?'var(--red)':'var(--green)'}">${inv.qty}</td><td>${inv.min}</td><td>${low?'<span class="badge" style="background:var(--red-l);color:var(--red)">⚠ کم</span>':'<span class="badge" style="background:var(--green-l);color:var(--green)">✓ موجود</span>'}</td><td><button class="btn btn-sm btn-p" onclick="openInvModal('${p.code}')">ویرایش موجودی</button></td></tr>`;}).join('');
+  body.innerHTML=filtered.map(p=>{const inv=inventory[p.code]||{qty:0,min:0};const snap=typeof invStockSnapshot==='function'?invStockSnapshot(inv):{qty:inv.qty||0,reserved:inv.reserved||0,available:Math.max(0,(inv.qty||0)-(inv.reserved||0)),min:inv.min||0};const low=snap.qty<=snap.min;return`<tr><td><b>${p.code}</b></td><td>${p.name}</td><td>${p.brand||'—'}</td><td style="font-weight:700;color:${low?'var(--red)':'var(--green)'}">${snap.qty}</td><td>${snap.reserved}</td><td>${snap.available}</td><td>${snap.min}</td><td>${low?'<span class="badge" style="background:var(--red-l);color:var(--red)">⚠ کم</span>':'<span class="badge" style="background:var(--green-l);color:var(--green)">✓ موجود</span>'}</td><td><button class="btn btn-sm btn-p" onclick="openInvModal('${p.code}')">ویرایش موجودی</button></td></tr>`;}).join('');
   // stats
   const total=products.length, low=products.filter(p=>{const inv=inventory[p.code]||{qty:0,min:0};return inv.qty<=inv.min;}).length;
   document.getElementById('inv-stats-bar').innerHTML=`<div class="inv-stat"><div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">کل کالاها</div></div><div class="stat-card"><div class="stat-val" style="color:var(--red)">${low}</div><div class="stat-lbl">کمبود موجودی</div></div><div class="stat-card"><div class="stat-val" style="color:var(--green)">${total-low}</div><div class="stat-lbl">موجود</div></div></div>`;
@@ -9873,12 +9992,20 @@ function openInvModal(code){
   const inv=inventory[code]||{qty:0,min:0,note:''};
   document.getElementById('im-qty').value=inv.qty;
   document.getElementById('im-min').value=inv.min;
+  var imRe=document.getElementById('im-reorder'); if(imRe) imRe.value = (inv.reorder!=null?inv.reorder:inv.min)||0;
+  var imRs=document.getElementById('im-reserved'); if(imRs) imRs.value = invStockSnapshot(inv).reserved;
   document.getElementById('im-note').value=inv.note||'';
   document.getElementById('inv-modal').classList.add('open');
 }
 function saveInvItem(){
   const code=document.getElementById('im-code').value;
-  inventory[code]={qty:parseInt(document.getElementById('im-qty').value)||0,min:parseInt(document.getElementById('im-min').value)||0,note:document.getElementById('im-note').value};
+  const prev=inventory[code]||{};
+  const qty=parseInt(document.getElementById('im-qty').value)||0;
+  const min=parseInt(document.getElementById('im-min').value)||0;
+  const reorderEl=document.getElementById('im-reorder');
+  const reorder=reorderEl?(parseInt(reorderEl.value)||min):((parseInt(prev.reorder)||min));
+  inventory[code]=Object.assign({}, prev, {qty:qty, min:min, reorder:reorder, note:document.getElementById('im-note').value});
+  if(!inventory[code].byWh) inventory[code].byWh={};
   sv();closeMod('inv-modal');renderInv();renderProds();ntf('موجودی ذخیره شد');
 }
 
@@ -10313,7 +10440,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22γ">
+<meta name="app-version" content="1405.5.22δ">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -11741,7 +11868,7 @@ function enableTaskNotifications(){
 }
 function registerLaeghSW(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('sw.js?v=1405.5.22γ').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=1405.5.22δ').then(reg=>{
     _swReg=reg;
     // Check for SW updates
     reg.addEventListener('updatefound', ()=>{
@@ -12073,6 +12200,11 @@ function openPartMod(idx){
     document.getElementById('part-mod-title').textContent='قطعه جدید';
     ['part-code','part-name','part-cat','part-loc'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('part-qty').value=0;document.getElementById('part-min').value=0;document.getElementById('part-price').value=0;sel.value='';
+    var pr=document.getElementById('part-reorder'); if(pr) pr.value=0;
+    var pu=document.getElementById('part-unit'); if(pu) pu.value='عدد';
+    var pb=document.getElementById('part-brand'); if(pb) pb.value='';
+    var pbar=document.getElementById('part-barcode'); if(pbar) pbar.value='';
+    var pbt=document.getElementById('part-batch'); if(pbt) pbt.value='';
     window._lastPartSuggestion=''; // ریست پیشنهاد قبلی
   }else{
     const p=parts[idx];document.getElementById('part-mod-title').textContent='ویرایش قطعه';
@@ -12080,6 +12212,11 @@ function openPartMod(idx){
     document.getElementById('part-cat').value=p.cat||'';document.getElementById('part-qty').value=p.qty||0;
     document.getElementById('part-min').value=p.min||0;document.getElementById('part-price').value=p.price||0;sel.value=p.prodCode||'';
     document.getElementById('part-loc').value=p.location||'';
+    var pr2=document.getElementById('part-reorder'); if(pr2) pr2.value=p.reorder!=null?p.reorder:(p.min||0);
+    var pu2=document.getElementById('part-unit'); if(pu2) pu2.value=p.unit||'عدد';
+    var pb2=document.getElementById('part-brand'); if(pb2) pb2.value=p.brand||'';
+    var pbar2=document.getElementById('part-barcode'); if(pbar2) pbar2.value=p.barcode||'';
+    var pbt2=document.getElementById('part-batch'); if(pbt2) pbt2.value=p.batch||'';
     window._lastPartSuggestion=''; // ویرایش: پیشنهاد نده
   }
   document.getElementById('part-mod').classList.add('open');
@@ -12090,9 +12227,15 @@ function savePart(){
   if(!code||!name){ntf('کد و نام الزامی است','err');return;}
   // چک تکراری — هم ایجاد، هم ویرایش
   if(_isCodeTaken(parts, code, idx)){ntf('این کد قطعه قبلاً ثبت شده — کد دیگری وارد کنید','err');return;}
-  const p={code,name,cat:document.getElementById('part-cat').value,prodCode:document.getElementById('part-prod').value,
+  const prev = idx>=0 ? (parts[idx]||{}) : {};
+  const p=Object.assign({}, prev, {code,name,cat:document.getElementById('part-cat').value,prodCode:document.getElementById('part-prod').value,
     qty:parseInt(document.getElementById('part-qty').value)||0,min:parseInt(document.getElementById('part-min').value)||0,
-    price:parseFloat(document.getElementById('part-price').value)||0,location:document.getElementById('part-loc').value.trim()};
+    reorder:parseInt((document.getElementById('part-reorder')||{}).value)||parseInt(document.getElementById('part-min').value)||0,
+    price:parseFloat(document.getElementById('part-price').value)||0,location:document.getElementById('part-loc').value.trim(),
+    unit:((document.getElementById('part-unit')||{}).value||'عدد').trim()||'عدد',
+    brand:((document.getElementById('part-brand')||{}).value||'').trim(),
+    barcode:((document.getElementById('part-barcode')||{}).value||'').trim(),
+    batch:((document.getElementById('part-batch')||{}).value||'').trim()});
   if(idx===-1)parts.push(p);else parts[idx]=p;
   svParts();closeMod('part-mod');renderParts();ntf(idx===-1?'قطعه ثبت شد':'ویرایش شد'); auditUser(idx===-1?'ثبت قطعه':'ویرایش قطعه', code+' — '+name);
   // اگر کاربر از فرم فروش آمده (پیش‌نویس فعلی موجود)، برگردان و قطعه‌ی جدید را انتخاب کن
@@ -12500,6 +12643,16 @@ function updateAuditStats(){
 // ─── انبار محصولات معیوب ────────────────────────────────────────────────────────
 const DEF_SRC_LBL={store:'فروشگاه',digikala:'برگشت دیجی‌کالا',customer:'برگشت مشتری',other:'سایر'};
 const DEF_LVL_LBL={low:'جزئی',medium:'متوسط',high:'شدید',critical:'غیرقابل استفاده'};
+const DEF_ST_LBL={received:'دریافت',inspect:'کارشناسی',wait_part:'منتظر قطعه',repair:'تعمیر',ready:'آماده تحویل',in_stock:'در انبار',returned:'برگشت',scrap:'اسقاط'};
+function defStatusOf(d){
+  var s = (d && d.status) || 'received';
+  if(s==='in_stock') return 'received';
+  return s;
+}
+function defIsInWarehouse(d){
+  var s = defStatusOf(d);
+  return s!=='returned' && s!=='scrap';
+}
 function svDefective(){ localStorage.setItem('laegh_defective', JSON.stringify(defectiveStock)); markDirty(); }
 function openDefectiveModal(idx){
   document.getElementById('def-edit-idx').value=idx==null?-1:idx;
@@ -12508,6 +12661,7 @@ function openDefectiveModal(idx){
     document.getElementById('def-source').value='customer';
     document.getElementById('def-level').value='medium';
     document.getElementById('def-qty').value='1';
+    var ds0=document.getElementById('def-status'); if(ds0) ds0.value='received';
   }else{
     const d=defectiveStock[idx];
     document.getElementById('def-model').value=d.model||'';
@@ -12521,6 +12675,7 @@ function openDefectiveModal(idx){
     document.getElementById('def-wid').value=d.warrantyId||'';
     document.getElementById('def-invnum').value=d.invoiceNum||'';
     document.getElementById('def-note').value=d.note||'';
+    var ds=document.getElementById('def-status'); if(ds) ds.value=defStatusOf(d);
   }
   document.getElementById('def-modal').classList.add('open');
 }
@@ -12540,7 +12695,7 @@ function saveDefectiveItem(){
     warrantyId:document.getElementById('def-wid').value.trim(),
     invoiceNum:document.getElementById('def-invnum').value.trim(),
     note:document.getElementById('def-note').value.trim(),
-    status: idx>=0?(defectiveStock[idx].status||'in_stock'):'in_stock',
+    status: (document.getElementById('def-status')?document.getElementById('def-status').value:(idx>=0?(defectiveStock[idx].status||'received'):'received')) || 'received',
     enteredAt: idx>=0?(defectiveStock[idx].enteredAt||fdt()):fdt(),
     returnedAt: idx>=0?defectiveStock[idx].returnedAt:null
   };
@@ -12580,7 +12735,7 @@ function delSelDefective(){
   ntf(idx.length+' مورد حذف شد');
 }
 function addDefectiveFromWarranty(w, dev){
-  const ex=defectiveStock.find(x=>x.warrantyId===w.id && x.serial===(dev.serial||'') && x.status==='in_stock');
+  const ex=defectiveStock.find(x=>x.warrantyId===w.id && x.serial===(dev.serial||'') && defIsInWarehouse(x));
   if(ex) return;
   defectiveStock.push({
     id:'DEF-'+String(defectiveStock.length+1).padStart(4,'0'),
@@ -12599,7 +12754,7 @@ function addDefectiveFromWarranty(w, dev){
 function addDefectiveFromInvoice(inv, item){
   if(!inv || !item) return;
   // پشتیبان از تکرار: اگر همین دستگاه قبلاً از همین فاکتور ثبت شده، رد شو
-  const ex=defectiveStock.find(x=>x.invoiceNum===inv.num && x.model===(item.model||'') && x.status==='in_stock');
+  const ex=defectiveStock.find(x=>x.invoiceNum===inv.num && x.model===(item.model||'') && defIsInWarehouse(x));
   if(ex) return;
   defectiveStock.push({
     id:'DEF-'+String(defectiveStock.length+1).padStart(4,'0'),
@@ -12619,17 +12774,19 @@ function renderDefective(){
   const st=document.getElementById('def-st-f').value;
   const filtered=defectiveStock.filter(d=>{
     const blob=(d.id+d.model+d.productCode+d.serial+d.customerName+d.customerPhone+d.warrantyId+d.invoiceNum+d.note+(DEF_SRC_LBL[d.source]||'')).toLowerCase();
-    return (!q||blob.includes(q)) && (!sf||d.source===sf) && (!st||d.status===st);
+    var stOk = !st || d.status===st || (st==='received' && d.status==='in_stock') || (st==='in_stock' && (d.status==='received'||d.status==='inspect'||d.status==='wait_part'||d.status==='repair'||d.status==='ready'||d.status==='in_stock'));
+    return (!q||blob.includes(q)) && (!sf||d.source===sf) && stOk;
   });
-  const inStock=defectiveStock.filter(d=>d.status==='in_stock').reduce((s,d)=>s+(d.qty||1),0);
-  document.getElementById('def-stats-bar').innerHTML='<div class="inv-stat"><div class="stat-card"><div class="stat-val">'+inStock+'</div><div class="stat-lbl">موجودی در انبار معیوب</div></div><div class="stat-card"><div class="stat-val" style="color:var(--green)">'+defectiveStock.filter(d=>d.status==='returned').length+'</div><div class="stat-lbl">عودت‌شده</div></div><div class="stat-card"><div class="stat-val">'+defectiveStock.length+'</div><div class="stat-lbl">کل ردیف‌ها</div></div></div>';
+  const inStock=defectiveStock.filter(defIsInWarehouse).reduce((s,d)=>s+(d.qty||1),0);
+  document.getElementById('def-stats-bar').innerHTML='<div class="inv-stat"><div class="stat-card"><div class="stat-val">'+inStock+'</div><div class="stat-lbl">موجودی در انبار معیوب</div></div><div class="stat-card"><div class="stat-val" style="color:var(--green)">'+defectiveStock.filter(d=>d.status==='returned').length+'</div><div class="stat-lbl">برگشت‌شده</div></div><div class="stat-card"><div class="stat-val">'+defectiveStock.filter(d=>d.status==='scrap').length+'</div><div class="stat-lbl">اسقاط</div></div><div class="stat-card"><div class="stat-val">'+defectiveStock.length+'</div><div class="stat-lbl">کل ردیف‌ها</div></div></div>';
   document.getElementById('def-body').innerHTML=filtered.map(d=>{
     const ri=defectiveStock.indexOf(d);
-    return '<tr><td style="text-align:center"><input type="checkbox" class="def-rchk" data-i="'+ri+'" onchange="updateDefSel()"></td><td><b>'+d.id+'</b></td><td>'+d.model+(d.serial?'<br><span style="font-size:10px;color:#888">'+d.serial+'</span>':'')+'</td><td>'+(DEF_SRC_LBL[d.source]||'—')+'</td><td>'+(DEF_LVL_LBL[d.defectLevel]||'—')+'</td><td>'+(d.customerName||'—')+'</td><td>'+(d.customerPhone||'—')+'</td><td>'+(d.warrantyId||'—')+(d.invoiceNum?' / '+d.invoiceNum:'')+'</td><td style="font-size:11px">'+(d.enteredAt||'—')+'</td><td>'+(d.status==='returned'?'<span class="badge badge-closed">عودت</span>':'<span class="badge badge-open">در انبار</span>')+'</td><td style="display:flex;gap:3px;flex-wrap:wrap"><button class="btn btn-sm btn-p" onclick="openDefectiveModal('+ri+')">✏</button>'+(d.status!=='returned'?'<button class="btn btn-sm btn-g" onclick="returnDefectiveItem('+ri+')" style="font-size:10px">↩ عودت</button>':'')+'<button class="btn btn-sm btn-r" onclick="delDefectiveItem('+ri+')">✕</button></td></tr>';
+    var stKey=defStatusOf(d);
+    return '<tr><td style="text-align:center"><input type="checkbox" class="def-rchk" data-i="'+ri+'" onchange="updateDefSel()"></td><td><b>'+d.id+'</b></td><td>'+d.model+(d.serial?'<br><span style="font-size:10px;color:#888">'+d.serial+'</span>':'')+'</td><td>'+(DEF_SRC_LBL[d.source]||'—')+'</td><td>'+(DEF_LVL_LBL[d.defectLevel]||'—')+'</td><td>'+(d.customerName||'—')+'</td><td>'+(d.customerPhone||'—')+'</td><td>'+(d.warrantyId||'—')+(d.invoiceNum?' / '+d.invoiceNum:'')+'</td><td style="font-size:11px">'+(d.enteredAt||'—')+'</td><td>'+(stKey==='returned'||stKey==='scrap'?'<span class="badge badge-closed">'+(DEF_ST_LBL[stKey]||stKey)+'</span>':'<span class="badge badge-open">'+(DEF_ST_LBL[stKey]||'دریافت')+'</span>')+'</td><td style="display:flex;gap:3px;flex-wrap:wrap"><button class="btn btn-sm btn-p" onclick="openDefectiveModal('+ri+')">✏</button>'+(d.status!=='returned' && d.status!=='scrap'?'<button class="btn btn-sm btn-g" onclick="returnDefectiveItem('+ri+')" style="font-size:10px">↩ عودت</button>':'')+'<button class="btn btn-sm btn-r" onclick="delDefectiveItem('+ri+')">✕</button></td></tr>';
   }).join('') || '<tr><td colspan="11" style="text-align:center;color:#aaa;padding:20px">موردی ثبت نشده</td></tr>';
 }
 function printDefectiveList(){
-  const rows=defectiveStock.filter(d=>d.status==='in_stock').map(d=>[d.id,d.model,d.serial||'',DEF_SRC_LBL[d.source]||'',DEF_LVL_LBL[d.defectLevel]||'',d.qty||1,d.customerName||'',d.customerPhone||'',d.warrantyId||'',d.enteredAt||'']);
+  const rows=defectiveStock.filter(defIsInWarehouse).map(d=>[d.id,d.model,d.serial||'',DEF_SRC_LBL[d.source]||'',DEF_LVL_LBL[d.defectLevel]||'',d.qty||1,d.customerName||'',d.customerPhone||'',d.warrantyId||'',d.enteredAt||'']);
   _printTable('لیست انبار محصولات معیوب', ['شناسه','مدل','سریال','منبع','میزان عیب','تعداد','مشتری','تلفن','گارانتی','تاریخ ورود'], rows);
 }
 function printInvList(){
@@ -12722,7 +12879,7 @@ function renderWhItems(){
   var allItems = [];
   if(typeof parts!=='undefined') parts.forEach(function(p){ allItems.push({code:p.code, name:p.name+' 🔩', qty:p.qty}); });
   if(typeof products!=='undefined') products.forEach(function(p){ var inv=(typeof inventory!=='undefined'?inventory[p.code]:null)||{qty:0}; allItems.push({code:p.code, name:p.name+' 📦', qty:inv.qty}); });
-  if(typeof defectiveStock!=='undefined') defectiveStock.filter(function(d){return d.status==='in_stock';}).forEach(function(d){ allItems.push({code:d.id, name:(d.model||'معیوب')+' ⚠️ معیوب', qty:d.qty||1}); });
+  if(typeof defectiveStock!=='undefined') defectiveStock.filter(defIsInWarehouse).forEach(function(d){ allItems.push({code:d.id, name:(d.model||'معیوب')+' ⚠️ معیوب', qty:d.qty||1}); });
   c.innerHTML = _whItems.map(function(it, i){
     var opts = '<option value="">— انتخاب —</option>' + allItems.map(function(a){return '<option value="'+a.code+'" data-name="'+a.name+'" '+(a.code===it.code?'selected':'')+'>'+a.code+' — '+a.name+' (موجودی: '+a.qty+')</option>';}).join('');
     return '<div class="wh-item-row">' +
@@ -12741,22 +12898,32 @@ function onWhItemChange(i, sel){
 // باز کردن مودال حواله
 function openWarehouseModal(type){
   var isIn = type === 'in';
+  var isRet = type === 'return';
+  var isAdj = type === 'adjust';
+  var isRes = type === 'reserve';
   document.getElementById('wh-doc-type').value = type;
-  document.getElementById('wh-modal-title').textContent = isIn ? '📥 حواله ورود (رسید)' : '📤 حواله خروج';
-  document.getElementById('wh-party-lbl').textContent = isIn ? 'تأمین‌کننده / تحویل‌دهنده' : 'گیرنده / تحویل‌گیرنده';
+  var titles = {in:'📥 حواله ورود (رسید)', out:'📤 حواله خروج', return:'↩ برگشت به انبار', adjust:'✏ اصلاح موجودی', reserve:'🔖 رزرو موجودی'};
+  document.getElementById('wh-modal-title').textContent = titles[type] || '📋 حواله انبار';
+  document.getElementById('wh-party-lbl').textContent = isIn || isRet ? 'تأمین‌کننده / تحویل‌دهنده' : (isAdj ? 'مسئول اصلاح' : (isRes ? 'مرجع رزرو (تعمیر/سفارش)' : 'گیرنده / تحویل‌گیرنده'));
   document.getElementById('wh-date').value = fdate();
   document.getElementById('wh-party').value = '';
-  document.getElementById('wh-location').value = '';
+  var loc = document.getElementById('wh-location'); if(loc) loc.value = '';
+  var locOut = document.getElementById('wh-location-out'); if(locOut) locOut.value = '';
   document.getElementById('wh-note').value = '';
-  // 🔑 فاز ۲: نمایش فیلد انبار مناسب و پر کردن dropdown
+  var reasonEl = document.getElementById('wh-reason'); if(reasonEl) reasonEl.value = '';
+  var docNo = document.getElementById('wh-docno'); if(docNo) docNo.value = '';
+  var priceEl = document.getElementById('wh-price'); if(priceEl) priceEl.value = '';
+  var reasonLbl = document.getElementById('wh-reason-lbl');
+  if(reasonLbl) reasonLbl.textContent = isRet ? 'علت برگشت *' : (isAdj ? 'دلیل اصلاح *' : (isRes ? 'علت رزرو *' : 'علت / دلیل'));
   var whRowIn = document.getElementById('wh-towh-row');
   var whRowOut = document.getElementById('wh-fromwh-row');
-  if(whRowIn) whRowIn.style.display = isIn ? '' : 'none';
-  if(whRowOut) whRowOut.style.display = isIn ? 'none' : '';
-  if(isIn){
+  if(whRowIn) whRowIn.style.display = (isIn || isRet || isAdj || isRes) ? '' : 'none';
+  if(whRowOut) whRowOut.style.display = (isIn || isRet) ? 'none' : '';
+  if(isIn || isRet || isAdj || isRes){
     var selIn = document.getElementById('wh-towh');
     if(selIn && typeof getWhOptions === 'function') selIn.innerHTML = getWhOptions((typeof getDefaultWhId==='function'?getDefaultWhId():''), false);
-  } else {
+  }
+  if(!isIn && !isRet){
     var selOut = document.getElementById('wh-fromwh');
     if(selOut && typeof getWhOptions === 'function') selOut.innerHTML = getWhOptions((typeof getDefaultWhId==='function'?getDefaultWhId():''), false);
   }
@@ -12770,14 +12937,22 @@ function saveWarehouseDoc(){
   var type = document.getElementById('wh-doc-type').value;
   var party = document.getElementById('wh-party').value.trim();
   var date = document.getElementById('wh-date').value;
-  var location = document.getElementById('wh-location').value.trim();
+  var locInEl = document.getElementById('wh-location');
+  var locOutEl = document.getElementById('wh-location-out');
+  var location = String((locInEl && locInEl.value) || (locOutEl && locOutEl.value) || '').trim();
   var note = document.getElementById('wh-note').value.trim();
+  var reason = ((document.getElementById('wh-reason')||{}).value||'').trim();
+  var extDoc = ((document.getElementById('wh-docno')||{}).value||'').trim();
+  var price = parseFloat((document.getElementById('wh-price')||{}).value)||0;
   if(!party){ ntf('نام طرف مقابل الزامی است','err'); return; }
+  if((type==='return' || type==='adjust' || type==='reserve') && !reason){ ntf('علت این سند الزامی است','err'); return; }
+  if(type==='adjust' && typeof currentRole!=='undefined' && currentRole && currentRole.pages && currentRole.pages.indexOf('warehouse')<0){
+    /* پروفایل محدود: اصلاح فقط با دسترسی انبار — مدیر کل currentRole=null مجاز است */
+  }
   var validItems = _whItems.filter(function(it){ return it.code && it.qty > 0; });
   if(!validItems.length){ ntf('حداقل یک قلم اضافه کنید','err'); return; }
-  // 🔑 فاز ۲: خواندن انبار مبدا/مقصد
   var fromWh = '', toWh = '';
-  if(type === 'out'){
+  if(type === 'out' || type === 'reserve'){
     var selOut = document.getElementById('wh-fromwh');
     fromWh = selOut ? selOut.value : '';
     if(!fromWh && typeof getDefaultWhId === 'function') fromWh = getDefaultWhId();
@@ -12785,26 +12960,57 @@ function saveWarehouseDoc(){
     var selIn = document.getElementById('wh-towh');
     toWh = selIn ? selIn.value : '';
     if(!toWh && typeof getDefaultWhId === 'function') toWh = getDefaultWhId();
+    if(type==='adjust') fromWh = toWh;
   }
-  var prefix = type==='in' ? 'WH-IN' : 'WH-OUT';
+  var prefixMap = {in:'WH-IN', out:'WH-OUT', return:'WH-RET', adjust:'WH-ADJ', reserve:'WH-RSV'};
+  var prefix = prefixMap[type] || 'WH';
   var doc = {
     id: prefix + '-' + String(warehouseDocs.length+1).padStart(4,'0'),
     type: type, date: date, party: party,
-    location: location, note: note,
+    location: location, note: note, reason: reason, extDoc: extDoc, price: price,
     fromWh: fromWh, toWh: toWh,
-    items: validItems.map(function(it){ return {code:it.code, name:it.name, qty:it.qty}; }),
-    status:'confirmed', createdAt: fdt()
+    items: validItems.map(function(it){ return {code:it.code, name:it.name, qty:it.qty, price:price}; }),
+    status:'confirmed', createdAt: fdt(), user: (typeof invCurrentUser==='function'?invCurrentUser():'')
   };
-  // اعمال حرکت‌ها روی موجودی (با انبار مشخص)
-  validItems.forEach(function(it){
-    var whId = type === 'out' ? fromWh : toWh;
-    _applyStockMovement(type, it.code, it.name, it.qty, 'warehouse', doc.id, whId);
-  });
+  var meta = {reason:reason, user:doc.user, price:price};
+  for(var i=0;i<validItems.length;i++){
+    var it = validItems[i];
+    var whId = (type === 'out' || type === 'reserve') ? fromWh : toWh;
+    if(type==='reserve'){
+      var found = invFindStockItem(it.code);
+      if(!found){ ntf('قلم «'+(it.name||it.code)+'» پیدا نشد','err'); return; }
+      var r = invReserveOnItem(found.item, it.qty, whId);
+      if(!r.ok){ ntf(r.err,'err'); return; }
+      if(found.kind==='part' && typeof svParts==='function') svParts();
+      if(found.kind==='product' && typeof sv==='function') sv();
+      stockMoves.push({
+        id:'SM-'+String(stockMoves.length+1).padStart(4,'0'),
+        date:fdt(), type:'reserve', itemCode:it.code, itemName:it.name||'',
+        qty:0, reserved:it.qty, source:'reserve', refDoc:doc.id, whId:whId,
+        warehouse:_whTag(it.code, whId), user:doc.user, reason:reason
+      });
+      if(typeof svStockMoves==='function') svStockMoves();
+    } else {
+      var mvType = (type==='out') ? 'out' : 'in';
+      if(type==='adjust'){
+        var cur = invFindStockItem(it.code);
+        var snap = cur ? invStockSnapshot(cur.item, whId) : {qty:0};
+        var diff = it.qty - snap.qty;
+        if(diff===0) continue;
+        mvType = diff>0 ? 'in' : 'out';
+        var resAdj = applyStockByWarehouse(mvType, it.code, it.name, Math.abs(diff), whId, 'adjust', doc.id, meta);
+        if(resAdj && resAdj.ok===false){ ntf(resAdj.err,'err'); return; }
+      } else {
+        var res = applyStockByWarehouse(mvType, it.code, it.name, it.qty, whId, type==='return'?'return':'warehouse', doc.id, meta);
+        if(res && res.ok===false){ ntf(res.err,'err'); return; }
+      }
+    }
+  }
   warehouseDocs.push(doc);
   svWarehouse();
   closeMod('wh-modal');
-  ntf('حواله '+doc.id+' ثبت شد — موجودی انبار به‌روز شد ✅');
-  auditUser(type==='in'?'ثبت حواله ورود':'ثبت حواله خروج', doc.id+' — '+party);
+  ntf('سند '+doc.id+' ثبت شد — موجودی انبار به‌روز شد ✅');
+  auditUser(type==='in'?'ثبت حواله ورود':(type==='out'?'ثبت حواله خروج':(type==='return'?'برگشت به انبار':(type==='reserve'?'رزرو موجودی':'اصلاح موجودی'))), doc.id+' — '+party+' — '+(reason||''));
   if(typeof emit==='function') emit('warehouse:saved', {id:doc.id, type:type});
   if(typeof renderWarehouseDocs==='function') renderWarehouseDocs();
 }
@@ -12827,7 +13033,7 @@ function renderWarehouseDocs(){
   if(!list.length){ c.innerHTML = '<div style="text-align:center;color:#aaa;padding:20px">حواله‌ای ثبت نشده</div>'; }
   else {
     c.innerHTML = list.map(function(d){
-      var badge = d.type==='in' ? '<span class="wh-badge in">ورود</span>' : (d.type==='transfer' ? '<span class="wh-badge tr">انتقال</span>' : '<span class="wh-badge out">خروج</span>');
+      var badge = d.type==='in' ? '<span class="wh-badge in">ورود</span>' : (d.type==='transfer' ? '<span class="wh-badge tr">انتقال</span>' : (d.type==='return' ? '<span class="wh-badge in">برگشت</span>' : (d.type==='reserve' ? '<span class="wh-badge tr">رزرو</span>' : (d.type==='adjust' ? '<span class="wh-badge out">اصلاح</span>' : '<span class="wh-badge out">خروج</span>'))));
       var itemsTxt = (d.items||[]).map(function(it){return it.name+' × '+it.qty;}).join('، ');
       // 🔑 فاز ۲: نمایش انبار مبدا/مقصد
       var whTxt = '';
@@ -12885,8 +13091,9 @@ function delWarehouseDoc(id){
 function printWarehouseDoc(id){
   var d = warehouseDocs.find(function(w){return w.id===id;});
   if(!d){ ntf('حواله پیدا نشد','err'); return; }
-  var isIn = d.type==='in';
-  var title = isIn ? 'حواله ورود به انبار (رسید)' : 'حواله خروج از انبار';
+  var isIn = (d.type==='in' || d.type==='return');
+  var titles = {in:'حواله ورود به انبار (رسید)', out:'حواله خروج از انبار', return:'برگشت به انبار', adjust:'اصلاح موجودی', reserve:'رزرو موجودی', transfer:'انتقال بین انباری'};
+  var title = titles[d.type] || (isIn ? 'حواله ورود به انبار (رسید)' : 'حواله خروج از انبار');
   var partyLbl = isIn ? 'تحویل‌دهنده (تأمین‌کننده)' : 'تحویل‌گیرنده';
   var totalQty = (d.items||[]).reduce(function(s,it){return s+(it.qty||0);},0);
   var logoHtml = (typeof logoSrc!=='undefined' && logoSrc) ? '<img src="'+logoSrc+'" style="height:40px;max-width:100px;object-fit:contain">' : '';
@@ -12901,7 +13108,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22γ">'+
+    '<meta name="app-version" content="1405.5.22δ">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -12930,6 +13137,8 @@ function printWarehouseDoc(id){
       '<div><b>موقعیت انبار:</b><br>'+(d.location||'—')+'</div>'+
       '<div><b>تاریخ صدور:</b><br>'+(d.date||'—')+'</div>'+
       '<div><b>وضعیت:</b><br>'+(d.status==='confirmed'?'✓ تأیید‌شده':'⏳ در انتظار')+'</div>'+
+      (d.reason?'<div><b>علت:</b><br>'+d.reason+'</div>':'')+
+      (d.user?'<div><b>کاربر:</b><br>'+d.user+'</div>':'')+
     '</div>'+
     (d.note?'<div class="note-box"><b>توضیحات:</b> '+d.note+'</div>':'')+
     '<table><thead><tr>'+
@@ -12958,7 +13167,7 @@ function printWarehouseList(){
   var rows = warehouseDocs.map(function(d){
     var totalQty = (d.items||[]).reduce(function(s,it){return s+(it.qty||0);},0);
     var itemsTxt = (d.items||[]).map(function(it){return it.name+'×'+it.qty;}).join('، ');
-    return [d.id, d.type==='in'?'ورود':'خروج', d.date||'', d.party||'', itemsTxt, totalQty];
+    return [d.id, d.type==='in'?'ورود':(d.type==='return'?'برگشت':(d.type==='reserve'?'رزرو':(d.type==='adjust'?'اصلاح':(d.type==='transfer'?'انتقال':'خروج')))), d.date||'', d.party||'', itemsTxt, totalQty];
   });
   _printTable('📋 لیست حواله‌های انبار', headers, rows);
 }
@@ -12973,7 +13182,7 @@ function renderWarehouseDash(){
   var prCount=0, prQty=0, prLow=0;
   if(typeof products!=='undefined' && typeof inventory!=='undefined'){ prCount=products.length; products.forEach(function(p){var inv=inventory[p.code]||{qty:0,min:0};prQty+=inv.qty||0;if((inv.qty||0)<=(inv.min||0))prLow++;}); }
   var dIn=0, dOut=0, dTotal=0;
-  if(typeof defectiveStock!=='undefined'){ dTotal=defectiveStock.length; dIn=defectiveStock.filter(function(d){return d.status==='in_stock';}).length; dOut=defectiveStock.filter(function(d){return d.status==='returned';}).length; }
+  if(typeof defectiveStock!=='undefined'){ dTotal=defectiveStock.length; dIn=defectiveStock.filter(defIsInWarehouse).length; dOut=defectiveStock.filter(function(d){return d.status==='returned'||d.status==='scrap';}).length; }
   el.innerHTML =
     '<div class="dash-kpi" onclick="showPage(\'parts\',document.querySelector(\'[data-page=parts]\'))" style="cursor:pointer"><div style="font-size:22px">🔩</div><div class="dash-kpi-val" style="color:var(--blue2)">'+pQty+'</div><div class="dash-kpi-lbl">موجودی قطعات ('+pCount+' قلم'+(pLow?' — '+pLow+' کم':'')+')</div></div>'+
     '<div class="dash-kpi" onclick="showPage(\'inventory\',document.querySelector(\'[data-page=inventory]\'))" style="cursor:pointer"><div style="font-size:22px">📦</div><div class="dash-kpi-val" style="color:var(--green)">'+prQty+'</div><div class="dash-kpi-lbl">موجودی کالاها ('+prCount+' قلم'+(prLow?' — '+prLow+' کم':'')+')</div></div>'+
@@ -13016,7 +13225,8 @@ function renderWarehouseReport(){
   // جدول
   var resEl = document.getElementById('wr-results');
   if(!resEl) return;
-  if(!filtered.length){ resEl.innerHTML='<div style="text-align:center;color:#aaa;padding:20px">حرکتی در این بازه یافت نشد</div>'; window._wrFiltered=[]; return; }
+  if(!filtered.length){ resEl.innerHTML='<div style="text-align:center;color:#aaa;padding:20px">حرکتی در این بازه یافت نشد</div>'; window._wrFiltered=[]; }
+  else {
   var whLbl = {parts:'🔩 قطعات',products:'📦 کالا',defective:'⚠️ معیوب',unknown:'—'};
   var srcLbl = {warehouse:'حواله',sale:'فروش',invoice:'فاکتور',manual:'دستی',stocktake:'انبارگردانی'};
   filtered.sort(function(a,b){ return _normDate(b.date)-_normDate(a.date); });
@@ -13036,6 +13246,26 @@ function renderWarehouseReport(){
       '</tr>';
     }).join('')+'</tbody></table>';
   window._wrFiltered = filtered;
+  }
+  var lowEl = document.getElementById('wr-lowstock');
+  if(lowEl){
+    var lows = invLowStockFromLists(typeof parts!=='undefined'?parts:[], typeof products!=='undefined'?products:[], typeof inventory!=='undefined'?inventory:{});
+    lowEl.innerHTML = lows.length ? lows.map(function(x){
+      return '<div style="padding:6px 0;border-bottom:1px solid var(--border)">'+(x.kind==='part'?'🔩':'📦')+' <b>'+x.code+'</b> '+(x.name||'')+' — موجودی '+x.stock.qty+' / حداقل '+x.stock.min+(x.stock.reorder?' / سفارش '+x.stock.reorder:'')+'</div>';
+    }).join('') : '<div style="color:#aaa;padding:8px">کالای کم‌موجودی نیست</div>';
+  }
+  var vd = document.getElementById('wr-value-dead');
+  if(vd){
+    var val = invStockValueFromLists(typeof parts!=='undefined'?parts:[], typeof products!=='undefined'?products:[], typeof inventory!=='undefined'?inventory:{});
+    var items = [];
+    if(typeof parts!=='undefined') parts.forEach(function(p){ items.push({code:p.code, name:p.name, qty:p.qty||0}); });
+    if(typeof products!=='undefined') products.forEach(function(p){ var inv=(typeof inventory!=='undefined'&&inventory[p.code])||{}; items.push({code:p.code, name:p.name, qty:inv.qty||0}); });
+    var dead = invDeadStockFromMoves(items, typeof stockMoves!=='undefined'?stockMoves:[], 90);
+    var consumed = invConsumedInService(typeof warranties!=='undefined'?warranties:[]);
+    vd.innerHTML = '<div style="margin-bottom:8px">ارزش موجودی: <b>'+val.toLocaleString('fa-IR')+'</b> ریال</div>'+
+      '<div style="margin-bottom:6px">بدون گردش ۹۰ روز: '+(dead.length?dead.map(function(x){return (x.code||'')+' '+(x.name||'');}).join('، '):'—')+'</div>'+
+      '<div>قطعات مصرف‌شده در خدمات: '+(consumed.length?consumed.length+' ردیف':'—')+'</div>';
+  }
 }
 
 // چاپ گزارش جامع انبار
@@ -13051,7 +13281,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.22γ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.22δ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -13097,7 +13327,7 @@ function renderStocktake(){
       return {code:p.code, name:p.name, systemQty:inv.qty||0};
     });
   } else if(section === 'defective' && typeof defectiveStock!=='undefined'){
-    items = defectiveStock.filter(function(d){return d.status==='in_stock' && (!q || (d.id+' '+d.model+' '+(d.productCode||'')).toLowerCase().includes(q));}).map(function(d){
+    items = defectiveStock.filter(function(d){return defIsInWarehouse(d) && (!q || (d.id+' '+d.model+' '+(d.productCode||'')).toLowerCase().includes(q));}).map(function(d){
       return {code:d.id, name:(d.model||'معیوب')+' — '+(d.serial||''), systemQty:d.qty||1};
     });
   }
@@ -13121,10 +13351,14 @@ var _stNames = {};
 function applyStocktakeAdjustments(){
   var adjustments = Object.keys(_stCounts).filter(function(code){return _stCounts[code] !== undefined && _stCounts[code] !== null;});
   if(!adjustments.length){ ntf('هیچ شمارشی وارد نشده','err'); return; }
+  var reason = ((document.getElementById('st-reason')||{}).value||'').trim();
+  if(!reason){ ntf('علت کسری/اضافی را بنویسید','err'); return; }
+  var conf = document.getElementById('st-confirm');
+  if(conf && !conf.checked){ ntf('تأیید مسئول انبار برای ثبت تعدیل لازم است','err'); return; }
   var count = 0;
+  var meta = {reason:reason, user:(typeof invCurrentUser==='function'?invCurrentUser():'')};
   adjustments.forEach(function(code){
     var counted = parseInt(_stCounts[code]);
-    // پیدا کردن موجودی فعلی
     var sysQty = 0;
     var partIdx = (typeof parts!=='undefined') ? parts.findIndex(function(p){return p.code===code;}) : -1;
     if(partIdx !== -1){ sysQty = parts[partIdx].qty||0; }
@@ -13133,12 +13367,19 @@ function applyStocktakeAdjustments(){
     if(diff === 0) return;
     var type = diff > 0 ? 'in' : 'out';
     _applyStockMovement(type, code, _stNames[code]||code, Math.abs(diff), 'stocktake', 'انبارگردانی');
+    if(stockMoves.length){
+      stockMoves[stockMoves.length-1].reason = reason;
+      stockMoves[stockMoves.length-1].user = meta.user;
+      if(typeof svStockMoves==='function') svStockMoves();
+    }
     count++;
   });
   _stCounts = {}; _stNames = {};
+  var confEl = document.getElementById('st-confirm'); if(confEl) confEl.checked = false;
+  var rs = document.getElementById('st-reason'); if(rs) rs.value = '';
   closeMod('stocktake-modal');
   ntf(count+' آیتم تعدیل شد ✅');
-  auditUser('انبارگردانی', count+' تعدیل');
+  auditUser('انبارگردانی', count+' تعدیل — '+reason);
   if(typeof renderWarehouseDocs==='function') renderWarehouseDocs();
 }
 
@@ -13156,8 +13397,8 @@ function applyStocktakeAdjustments(){
 // ═══════════════════════════════════════════════════════════════════════════
 
 const WAREHOUSES_KEY = 'laegh_warehouses';
-const WH_TYPE_LBL = {main:'مرکزی', online:'فروشگاه اینترنتی', store:'فروشگاه حضوری', defective:'معیوب', other:'سایر'};
-const WH_TYPE_ICO = {main:'🏪', online:'🌐', store:'🏬', defective:'⚠️', other:'📦'};
+const WH_TYPE_LBL = {parts:'قطعات', goods:'کالا', defective:'معیوب', service:'خدمات/تعمیرگاه', return:'مرجوعی', scrap:'اسقاط', main:'مرکزی', online:'فروشگاه اینترنتی', store:'فروشگاه حضوری', other:'سایر'};
+const WH_TYPE_ICO = {parts:'🔩', goods:'📦', defective:'⚠️', service:'🔧', return:'↩', scrap:'🗑', main:'🏪', online:'🌐', store:'🏬', other:'📦'};
 const WH_COLORS = ['#2563eb','#e65100','#00bcd4','#4caf50','#9c27b0','#ff5722','#795548','#607d8b'];
 
 // ─── State: انبارها ───
@@ -13170,9 +13411,12 @@ let warehouses;
   // migration: اگر خالی است، انبارهای پیش‌فرض بساز
   if(!Array.isArray(warehouses) || !warehouses.length){
     warehouses = [
-      { id:'WH-1', name:'انبار مرکزی', type:'main', isDefault:true, color:'#2563eb', note:'', createdAt:fdt() },
-      { id:'WH-2', name:'انبار دیجی‌کالا', type:'online', color:'#e65100', note:'', createdAt:fdt() },
-      { id:'WH-3', name:'انبار باسلام', type:'online', color:'#00bcd4', note:'', createdAt:fdt() }
+      { id:'WH-PARTS', code:'PRT', name:'انبار قطعات', type:'parts', manager:'', status:'active', isDefault:true, color:'#2563eb', note:'قطعات مصرفی تعمیرات', createdAt:fdt() },
+      { id:'WH-GOODS', code:'GDS', name:'انبار کالا', type:'goods', manager:'', status:'active', color:'#4caf50', note:'محصولات سالم آماده فروش/تحویل', createdAt:fdt() },
+      { id:'WH-DEF', code:'DEF', name:'انبار محصولات معیوب', type:'defective', manager:'', status:'active', color:'#e65100', note:'دستگاه‌های دریافتی برای بررسی و تعمیر', createdAt:fdt() },
+      { id:'WH-SVC', code:'SVC', name:'انبار خدمات/تعمیرگاه', type:'service', manager:'', status:'active', color:'#9c27b0', note:'قطعات تحویل‌شده برای مصرف در تعمیرات', createdAt:fdt() },
+      { id:'WH-RET', code:'RET', name:'انبار مرجوعی', type:'return', manager:'', status:'active', color:'#00bcd4', note:'کالاهای برگشتی با علت مرجوعی', createdAt:fdt() },
+      { id:'WH-SCRAP', code:'SCP', name:'انبار اسقاط', type:'scrap', manager:'', status:'active', color:'#607d8b', note:'کالا و قطعات غیرقابل استفاده', createdAt:fdt() }
     ];
     localStorage.setItem(WAREHOUSES_KEY, JSON.stringify(warehouses));
   }
@@ -13253,37 +13497,34 @@ function _whQtyPartsAt(code, whId){
   if(!p || !p.byWh) return 0;
   return parseInt(p.byWh[whId]) || 0;
 }
-// dropdown options برای انتخاب انبار
-function getWhOptions(selectedId, includeAll){
-  var opts = includeAll ? '<option value="">همه انبارها</option>' : '';
-  warehouses.forEach(function(w){
-    opts += '<option value="'+w.id+'" '+(w.id===selectedId?'selected':'')+'>'+(WH_TYPE_ICO[w.type]||'📦')+' '+w.name+'</option>';
-  });
-  return opts;
-}
+// dropdown options در موتور Inventory (getWhOptions) تعریف شده است
+
 
 // ═══ موتور جدید: اعمال حرکت انبار با انبار مشخص ═══
 // این تابع _applyStockMovement را گسترش می‌دهد تا byWh[whId] را به‌روز کند.
 // type: 'in'|'out'؛ qty: عدد مثبت؛ whId: انبار هدف (اگه ست نشود، انبار پیش‌فرض)
 // برمی‌گرداند: {ok:true} یا {ok:false, err:'موجودی ناکافی'}
-function applyStockByWarehouse(type, code, name, qty, whId, source, refDoc){
+function applyStockByWarehouse(type, code, name, qty, whId, source, refDoc, meta){
   qty = parseInt(qty) || 0;
   if(!qty) return {ok:true};
   if(!whId) whId = getDefaultWhId();
+  meta = meta || {};
   var delta = (type === 'in') ? qty : -qty;
 
-  // بررسی موجودی کافی در انبار مبدا (فقط برای خروج)
+  // بررسی موجودی کافی در انبار مبدا (فقط برای خروج) — قابل‌استفاده = موجودی − رزرو
   if(type === 'out'){
     var avail = 0;
+    var target = null;
     if(typeof parts !== 'undefined'){
       var pIdx = parts.findIndex(function(p){return p.code === code;});
-      if(pIdx !== -1){ avail = _whQtyPartsAt(code, whId); }
+      if(pIdx !== -1){ target = parts[pIdx]; avail = invStockSnapshot(target, whId).available; }
     }
-    if(typeof inventory !== 'undefined' && inventory[code] && avail === 0){
-      avail = _whQtyAt(code, whId);
+    if(!target && typeof inventory !== 'undefined' && inventory[code]){
+      target = inventory[code];
+      avail = invStockSnapshot(target, whId).available;
     }
-    if(avail < qty){
-      return {ok:false, err:'موجودی «'+(name||code)+'» در '+getWhName(whId)+' کافی نیست (موجودی: '+avail+'، درخواست: '+qty+')'};
+    if(target && avail < qty){
+      return {ok:false, err:'موجودی قابل‌استفاده «'+(name||code)+'» در '+getWhName(whId)+' کافی نیست (قابل استفاده: '+avail+'، درخواست: '+qty+')'};
     }
   }
 
@@ -13330,7 +13571,12 @@ function applyStockByWarehouse(type, code, name, qty, whId, source, refDoc){
     date: fdt(), type: type, itemCode: code, itemName: name || '',
     qty: delta, source: source || 'warehouse', refDoc: refDoc || '',
     whId: whId,
-    warehouse: _whTag(code, whId)
+    warehouse: _whTag(code, whId),
+    user: meta.user || (typeof invCurrentUser==='function'?invCurrentUser():''),
+    reason: meta.reason || '',
+    serial: meta.serial || '',
+    batch: meta.batch || '',
+    price: meta.price || 0
   });
   if(typeof svStockMoves === 'function') svStockMoves();
   return {ok:true};
@@ -13344,6 +13590,228 @@ function _whTag(code, whId){
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// موتور مشترک Inventory — همه انبارها از همین هسته استفاده می‌کنند
+// ساختار: کالا/قطعه + انبار + موجودی (فعلی/رزرو/قابل‌استفاده) + سند گردش
+// افزودن نوع انبار جدید با registerWarehouseKind بدون تغییر هسته
+// ═══════════════════════════════════════════════════════════════════════════
+function registerWarehouseKind(id, label, icon){
+  if(!id) return WH_TYPE_LBL;
+  WH_TYPE_LBL[id] = label || id;
+  if(icon) WH_TYPE_ICO[id] = icon;
+  return WH_TYPE_LBL;
+}
+function invNormalizeWarehouse(w){
+  w = w || {};
+  if(!w.status) w.status = 'active';
+  if(!w.manager) w.manager = '';
+  if(!w.code) w.code = w.id || '';
+  if(!w.type) w.type = 'other';
+  return w;
+}
+function invCurrentUser(){
+  try{
+    if(typeof currentRole!=='undefined' && currentRole && currentRole.name) return currentRole.name;
+    var n = localStorage.getItem('laegh_current_user');
+    if(n) return n;
+  }catch(_e){}
+  return 'کاربر';
+}
+function invStockSnapshot(item, whId){
+  item = item || {};
+  var qty = 0, reserved = 0;
+  if(whId){
+    qty = parseInt((item.byWh && item.byWh[whId]) || 0) || 0;
+    reserved = parseInt((item.reservedByWh && item.reservedByWh[whId]) || 0) || 0;
+  } else {
+    if(item.byWh && typeof _sumByWh==='function') qty = _sumByWh(item.byWh);
+    else qty = parseInt(item.qty||0)||0;
+    if(item.reservedByWh && typeof _sumByWh==='function') reserved = _sumByWh(item.reservedByWh);
+    else reserved = parseInt(item.reserved||0)||0;
+  }
+  var min = parseInt(item.min||0)||0;
+  var reorder = (item.reorder!=null && item.reorder!=='') ? (parseInt(item.reorder)||0) : min;
+  return {qty:qty, reserved:reserved, available:Math.max(0, qty-reserved), min:min, reorder:reorder, price:parseFloat(item.price)||0};
+}
+function invFindStockItem(code){
+  if(typeof parts!=='undefined' && Array.isArray(parts)){
+    var p = parts.find(function(x){return x.code===code;});
+    if(p) return {kind:'part', item:p};
+  }
+  if(typeof inventory!=='undefined' && inventory && inventory[code]) return {kind:'product', item:inventory[code]};
+  return null;
+}
+function invReserveOnItem(item, qty, whId){
+  qty = parseInt(qty)||0;
+  if(!item || qty<=0) return {ok:false, err:'مقدار نامعتبر'};
+  var snap = invStockSnapshot(item, whId);
+  if(snap.available < qty) return {ok:false, err:'موجودی قابل‌استفاده کافی نیست (قابل استفاده: '+snap.available+')'};
+  if(!item.reservedByWh || typeof item.reservedByWh!=='object') item.reservedByWh = {};
+  if(whId){
+    item.reservedByWh[whId] = (parseInt(item.reservedByWh[whId])||0) + qty;
+    item.reserved = (typeof _sumByWh==='function') ? _sumByWh(item.reservedByWh) : ((parseInt(item.reserved)||0)+qty);
+  } else {
+    item.reserved = (parseInt(item.reserved)||0) + qty;
+  }
+  return {ok:true, stock:invStockSnapshot(item, whId)};
+}
+function invReleaseReserveOnItem(item, qty, whId){
+  qty = parseInt(qty)||0;
+  if(!item || qty<=0) return {ok:false, err:'مقدار نامعتبر'};
+  if(!item.reservedByWh) item.reservedByWh = {};
+  if(whId){
+    item.reservedByWh[whId] = Math.max(0, (parseInt(item.reservedByWh[whId])||0) - qty);
+    item.reserved = (typeof _sumByWh==='function') ? _sumByWh(item.reservedByWh) : Math.max(0,(parseInt(item.reserved)||0)-qty);
+  } else {
+    item.reserved = Math.max(0, (parseInt(item.reserved)||0) - qty);
+  }
+  return {ok:true, stock:invStockSnapshot(item, whId)};
+}
+function invKardexFromMoves(moves, code, whId){
+  moves = Array.isArray(moves) ? moves : [];
+  return moves.filter(function(m){
+    if(String(m.itemCode||'') !== String(code||'')) return false;
+    if(whId && String(m.whId||'') !== String(whId)) return false;
+    return true;
+  }).slice().sort(function(a,b){ return String(a.date||'').localeCompare(String(b.date||'')); });
+}
+function invLowStockFromLists(partsArr, productsArr, inventoryObj){
+  var out = [];
+  (partsArr||[]).forEach(function(p){
+    var s = invStockSnapshot(p);
+    if(s.qty <= s.min || (s.reorder && s.qty <= s.reorder)) out.push({code:p.code, name:p.name, kind:'part', stock:s});
+  });
+  (productsArr||[]).forEach(function(p){
+    var inv = (inventoryObj && inventoryObj[p.code]) || {qty:0, min:0};
+    var s = invStockSnapshot(inv);
+    if(s.qty <= s.min || (s.reorder && s.qty <= s.reorder)) out.push({code:p.code, name:p.name, kind:'product', stock:s});
+  });
+  return out;
+}
+function invSearchCatalog(q, partsArr, productsArr){
+  q = String(q||'').toLowerCase().trim();
+  if(!q) return [];
+  var hits = [];
+  function match(p, kind){
+    var blob = ((p.code||'')+' '+(p.name||'')+' '+(p.barcode||'')+' '+(p.brand||'')+' '+(p.cat||'')+' '+(p.model||'')+' '+(p.batch||'')).toLowerCase();
+    if(blob.indexOf(q)>=0) hits.push({kind:kind, code:p.code, name:p.name, barcode:p.barcode||'', qty:p.qty||0});
+  }
+  (partsArr||[]).forEach(function(p){ match(p,'part'); });
+  (productsArr||[]).forEach(function(p){ match(p,'product'); });
+  return hits;
+}
+function invStockValueFromLists(partsArr, productsArr, inventoryObj){
+  var total = 0;
+  (partsArr||[]).forEach(function(p){ total += (parseInt(p.qty)||0) * (parseFloat(p.price)||0); });
+  (productsArr||[]).forEach(function(p){
+    var inv = (inventoryObj && inventoryObj[p.code]) || {};
+    var qty = parseInt(inv.qty)||0;
+    total += qty * (parseFloat(p.price)||0);
+  });
+  return total;
+}
+function invDeadStockFromMoves(items, moves, days, nowMs){
+  days = parseInt(days)||90;
+  nowMs = nowMs || Date.now();
+  var cutoff = nowMs - days*24*60*60*1000;
+  var last = {};
+  (moves||[]).forEach(function(m){
+    var c = m.itemCode; if(!c) return;
+    var t = Date.parse(m.date) || 0;
+    if(!last[c] || t > last[c]) last[c] = t;
+  });
+  return (items||[]).filter(function(it){
+    if((parseInt(it.qty)||0) <= 0) return false;
+    var t = last[it.code] || 0;
+    return t < cutoff;
+  });
+}
+function invConsumedInService(warrantiesArr){
+  var rows = [];
+  function pushList(w, partsUsed){
+    if(!Array.isArray(partsUsed)) return;
+    partsUsed.forEach(function(p){
+      if(!p) return;
+      rows.push({warId:w.id||'', code:p.code||p.partCode||'', name:p.name||p.partName||'', qty:parseInt(p.qty||p.q||1)||1});
+    });
+  }
+  (warrantiesArr||[]).forEach(function(w){
+    pushList(w, w.partsUsed);
+    pushList(w, w.usedParts);
+    pushList(w, w.partRows);
+    pushList(w, w.waParts);
+    if(w.agencyWork) pushList(w, w.agencyWork.partReqs);
+    if(w.companyWork) pushList(w, w.companyWork.partReqs);
+  });
+  return rows;
+}
+var InventoryEngine = {
+  registerKind: registerWarehouseKind,
+  normalizeWarehouse: invNormalizeWarehouse,
+  stock: invStockSnapshot,
+  reserve: invReserveOnItem,
+  release: invReleaseReserveOnItem,
+  kardex: invKardexFromMoves,
+  lowStock: invLowStockFromLists,
+  search: invSearchCatalog,
+  value: invStockValueFromLists,
+  deadStock: invDeadStockFromMoves,
+  consumed: invConsumedInService
+};
+
+function openKardexModal(){
+  var m = document.getElementById('kardex-modal'); if(!m) return;
+  var sel = document.getElementById('kardex-wh');
+  if(sel && typeof getWhOptions==='function') sel.innerHTML = getWhOptions('', true);
+  renderKardexPreview();
+  m.classList.add('open');
+}
+function renderKardexPreview(){
+  var code = ((document.getElementById('kardex-code')||{}).value||'').trim();
+  var whId = ((document.getElementById('kardex-wh')||{}).value||'');
+  var listEl = document.getElementById('kardex-list');
+  var sumEl = document.getElementById('kardex-summary');
+  if(!listEl) return;
+  if(!code){
+    if(sumEl) sumEl.textContent = 'کد کالا یا قطعه را وارد کنید.';
+    listEl.innerHTML = '';
+    return;
+  }
+  var hits = invSearchCatalog(code, typeof parts!=='undefined'?parts:[], typeof products!=='undefined'?products:[]);
+  var useCode = (hits[0] && hits[0].code) || code;
+  var found = invFindStockItem(useCode);
+  var snap = found ? invStockSnapshot(found.item, whId||'') : {qty:0,reserved:0,available:0,min:0,reorder:0};
+  if(sumEl) sumEl.textContent = 'کد '+useCode+' — موجودی '+snap.qty+' | رزرو '+snap.reserved+' | قابل استفاده '+snap.available+(snap.min?(' | حداقل '+snap.min):'');
+  var rows = invKardexFromMoves(typeof stockMoves!=='undefined'?stockMoves:[], useCode, whId||'');
+  if(!rows.length){ listEl.innerHTML = '<div style="text-align:center;color:#aaa;padding:16px">گردشی ثبت نشده</div>'; return; }
+  var bal = 0;
+  listEl.innerHTML = '<table class="stbl"><thead><tr><th>تاریخ</th><th>نوع</th><th>سند</th><th>علت</th><th>کاربر</th><th>تغییر</th><th>مانده</th></tr></thead><tbody>'+rows.map(function(m){
+    bal += parseInt(m.qty)||0;
+    return '<tr><td>'+(m.date||'')+'</td><td>'+(m.type||'')+'</td><td>'+(m.refDoc||'')+'</td><td>'+(m.reason||m.source||'')+'</td><td>'+(m.user||'')+'</td><td style="color:'+((m.qty||0)>=0?'var(--green)':'var(--red)')+'">'+((m.qty||0)>0?'+':'')+(m.qty||0)+'</td><td>'+bal+'</td></tr>';
+  }).join('')+'</tbody></table>';
+}
+function printKardex(){
+  var code = ((document.getElementById('kardex-code')||{}).value||'').trim();
+  var hits = invSearchCatalog(code, typeof parts!=='undefined'?parts:[], typeof products!=='undefined'?products:[]);
+  var useCode = (hits[0] && hits[0].code) || code;
+  var rows = invKardexFromMoves(typeof stockMoves!=='undefined'?stockMoves:[], useCode, ((document.getElementById('kardex-wh')||{}).value||''));
+  var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>کارتکس '+useCode+'</title></head><body>'+
+    '<h2>کارتکس کالا — '+useCode+'</h2><table border="1" cellpadding="6" style="border-collapse:collapse;width:100%"><tr><th>تاریخ</th><th>نوع</th><th>سند</th><th>علت</th><th>کاربر</th><th>مقدار</th></tr>'+
+    rows.map(function(m){ return '<tr><td>'+(m.date||'')+'</td><td>'+(m.type||'')+'</td><td>'+(m.refDoc||'')+'</td><td>'+(m.reason||'')+'</td><td>'+(m.user||'')+'</td><td>'+(m.qty||0)+'</td></tr>'; }).join('')+
+    '</table></body></html>';
+  if(typeof openFreshPrintWindow==='function') openFreshPrintWindow(html, 'کارتکس '+useCode);
+  else { var w=window.open('','_blank'); if(w){ w.document.write(html); w.document.close(); } }
+}
+
+function getWhOptions(selectedId, includeAll){
+  var opts = includeAll ? '<option value="">همه انبارها</option>' : '';
+  (warehouses||[]).forEach(function(w){
+    if(w.status==='inactive' && w.id!==selectedId) return;
+    opts += '<option value="'+w.id+'" '+(w.id===selectedId?'selected':'')+'>'+(WH_TYPE_ICO[w.type]||'📦')+' '+w.name+(w.code?(' ('+w.code+')'):'')+'</option>';
+  });
+  return opts;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // مدیریت انبارها (موجودیت): افزودن/ویرایش/حذف
 // ═══════════════════════════════════════════════════════════════════════════
 var _whEditIdx = -1;
@@ -13354,18 +13822,24 @@ function openWarehouseEntityModal(idx){
   if(_whEditIdx < 0){
     document.getElementById('wh-entity-title').textContent = '🏭 انبار جدید';
     document.getElementById('wh-entity-name').value = '';
-    document.getElementById('wh-entity-type').value = 'main';
+    document.getElementById('wh-entity-type').value = 'parts';
     document.getElementById('wh-entity-note').value = '';
     document.getElementById('wh-entity-color').value = WH_COLORS[warehouses.length % WH_COLORS.length];
     document.getElementById('wh-entity-default').checked = (warehouses.length === 0);
+    var codeEl = document.getElementById('wh-entity-code'); if(codeEl) codeEl.value = '';
+    var manEl = document.getElementById('wh-entity-manager'); if(manEl) manEl.value = '';
+    var stEl = document.getElementById('wh-entity-status'); if(stEl) stEl.value = 'active';
   } else {
-    var w = warehouses[_whEditIdx];
+    var w = invNormalizeWarehouse(warehouses[_whEditIdx]);
     document.getElementById('wh-entity-title').textContent = '✏ ویرایش انبار';
     document.getElementById('wh-entity-name').value = w.name || '';
     document.getElementById('wh-entity-type').value = w.type || 'other';
     document.getElementById('wh-entity-note').value = w.note || '';
     document.getElementById('wh-entity-color').value = w.color || WH_COLORS[0];
     document.getElementById('wh-entity-default').checked = !!w.isDefault;
+    var codeEl2 = document.getElementById('wh-entity-code'); if(codeEl2) codeEl2.value = w.code || '';
+    var manEl2 = document.getElementById('wh-entity-manager'); if(manEl2) manEl2.value = w.manager || '';
+    var stEl2 = document.getElementById('wh-entity-status'); if(stEl2) stEl2.value = w.status || 'active';
   }
   m.classList.add('open');
 }
@@ -13376,16 +13850,19 @@ function saveWarehouseEntity(){
   var note = document.getElementById('wh-entity-note').value.trim();
   var color = document.getElementById('wh-entity-color').value || WH_COLORS[0];
   var isDefault = document.getElementById('wh-entity-default').checked;
+  var code = ((document.getElementById('wh-entity-code')||{}).value||'').trim();
+  var manager = ((document.getElementById('wh-entity-manager')||{}).value||'').trim();
+  var status = ((document.getElementById('wh-entity-status')||{}).value||'active');
 
   if(_whEditIdx < 0){
-    // انبار جدید
     var newId = 'WH-' + (warehouses.length + 1);
-    warehouses.push({ id:newId, name:name, type:type, isDefault:isDefault, color:color, note:note, createdAt:fdt() });
+    warehouses.push({ id:newId, code:code||newId, name:name, type:type, manager:manager, status:status, isDefault:isDefault, color:color, note:note, createdAt:fdt() });
     auditUser('افزودن انبار', newId+' — '+name);
   } else {
     var w = warehouses[_whEditIdx];
     var oldName = w.name;
     w.name = name; w.type = type; w.note = note; w.color = color;
+    w.code = code || w.code || w.id; w.manager = manager; w.status = status;
     auditUser('ویرایش انبار', w.id+' — '+oldName+' → '+name);
   }
   // اگه این انبار پیش‌فرض شد، بقیه را غیرپیش‌فرض کن
@@ -13459,8 +13936,8 @@ function renderWarehouseEntities(){
       '<div style="position:absolute;top:8px;left:8px"><input type="checkbox" style="display:none"></div>' +
       '<div style="display:flex;align-items:center;justify-content:space-between">' +
         '<div>' +
-          '<div style="font-weight:700;font-size:14px;color:'+(w.color||'var(--blue2)')+'">'+(WH_TYPE_ICO[w.type]||'📦')+' '+w.name+defBadge+'</div>' +
-          '<div style="font-size:11px;color:var(--text2)">'+(WH_TYPE_LBL[w.type]||'سایر')+(w.note?(' — '+w.note):'')+'</div>' +
+          '<div style="font-weight:700;font-size:14px;color:'+(w.color||'var(--blue2)')+'">'+(WH_TYPE_ICO[w.type]||'📦')+' '+w.name+defBadge+(w.status==='inactive'?' <span class="badge">غیرفعال</span>':'')+'</div>' +
+          '<div style="font-size:11px;color:var(--text2)">'+(WH_TYPE_LBL[w.type]||'سایر')+(w.code?(' — کد '+w.code):'')+(w.manager?(' — مسئول '+w.manager):'')+(w.note?(' — '+w.note):'')+'</div>' +
         '</div>' +
         '<div style="text-align:left">' +
           '<div style="font-weight:700;color:var(--blue2)">'+itemCnt.toLocaleString('fa-IR')+'</div>' +
@@ -14642,7 +15119,7 @@ function closeWar(idx){
     ntf('پرونده تا تکمیل فرم داخلی بسته نمی‌شود','err');
     return;
   }
-  const inDef=defectiveStock.filter(x=>x.warrantyId===w.id && x.status==='in_stock');
+  const inDef=defectiveStock.filter(x=>x.warrantyId===w.id && defIsInWarehouse(x));
   if(inDef.length && !confirm('این پرونده '+inDef.length+' کالا در انبار معیوب دارد. با بستن پرونده، همه به‌عنوان «عودت به مشتری» از انبار کم می‌شوند. ادامه؟')) return;
   inDef.forEach(d=>{ d.status='returned'; d.returnedAt=fdt(); d.qty=0; });
   if(inDef.length) svDefective();
@@ -15091,7 +15568,7 @@ function doPrint(paperSize){
   const wbg=bgMap[pw.bg||'none']||'#fff';
   const effPaper = pw.paper || paperSize;
   var htmlDoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22γ">
+<meta name="app-version" content="1405.5.22δ">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -15187,7 +15664,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22γ"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.22δ"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -15216,7 +15693,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22γ"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.22δ"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -15253,7 +15730,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22γ">'+
+    '<meta name="app-version" content="1405.5.22δ">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -15337,7 +15814,7 @@ function printCompanyReport(idx){
   var qcResultLbl = {'pass':'✅ تأیید کیفیت','fail':'❌ رد شد — نیاز به اصلاح','pending':'در حال بررسی'};
   var mgrApproveLbl = {'approved':'✅ تأیید نهایی','pending':'در انتظار بررسی','rejected':'❌ رد شد'};
 
-  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.22γ';
+  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.22δ';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
     '<title>گزارش داخلی شرکت — '+wHdr.id+'</title>'+
     '<style>'+
@@ -15968,7 +16445,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22γ">'+
+    '<meta name="app-version" content="1405.5.22δ">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -16188,7 +16665,7 @@ function expSalesExcel(){
 // ══════ حسابداری ══════
 // ═══════════════════════════════════════════════════════════════════════════
 // ماژول داغی (پیگیری رسید امضا‌شده‌ی نمایندگی‌های خدمات)
-// نسخه ۱۴۰۵.۵.۲۲γ — فاز داغی
+// نسخه ۱۴۰۵.۵.۲۲δ — فاز داغی
 //
 // «داغی» یعنی وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستیم، آن‌ها باید رسید امضا‌شده
 // (داغی) را به ما برگردانند. این ماژول پیگیری می‌کند که چه کسانی داغی معوقه دارند.
@@ -17492,7 +17969,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22γ">'+
+    '<meta name="app-version" content="1405.5.22δ">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
@@ -17826,7 +18303,11 @@ var PRINT_DOC_CATALOG = [
   {id:'repair', title:'برگه تعمیرات', icon:'🔧', section:'warranty', hint:'شرح تعمیر و قطعات'},
   {id:'report', title:'گزارش‌ها', icon:'📊', section:'list', hint:'گزارش‌ها و جدول‌ها'},
   {id:'postal', title:'برچسب پستی', icon:'📮', section:'postal', hint:'لیبل ارسال'},
-  {id:'list', title:'لیست‌ها', icon:'📑', section:'list', hint:'فهرست کالا / قطعات'}
+  {id:'list', title:'لیست‌ها', icon:'📑', section:'list', hint:'فهرست کالا / قطعات'},
+  {id:'wh-receipt', title:'رسید ورود انبار', icon:'📥', section:'warehouse', hint:'حواله ورود'},
+  {id:'wh-voucher', title:'حواله خروج انبار', icon:'📤', section:'warehouse', hint:'حواله خروج'},
+  {id:'wh-kardex', title:'کارتکس کالا', icon:'📒', section:'warehouse', hint:'گردش کالا'},
+  {id:'wh-report', title:'گزارش انبار', icon:'📊', section:'warehouse', hint:'موجودی، کسری و ارزش'}
 ];
 var PRINT_PROFILE_DEFAULTS = {
   'a4-office': {id:'a4-office', title:'A4 Office', printer:'', paper:'A4', orientation:'portrait', margin:'8mm', copies:1, pageRange:'all', color:true, scale:100, duplex:false},
@@ -17902,6 +18383,10 @@ function printDocById(id){
 }
 function printEngineGuessDocId(html, title){
   var t = String(title||'') + ' ' + String(html||'').slice(0,800);
+  if(/کارتکس/.test(t)) return 'wh-kardex';
+  if(/حواله ورود|رسید ورود انبار/.test(t)) return 'wh-receipt';
+  if(/حواله خروج/.test(t)) return 'wh-voucher';
+  if(/گزارش انبار|انبارگردانی/.test(t)) return 'wh-report';
   if(/پذیرش/.test(t)) return 'reception';
   if(/تحویل/.test(t)) return 'delivery';
   if(/ضمانت|گارانتی/.test(t) && !/پذیرش/.test(t)) return 'warranty';
