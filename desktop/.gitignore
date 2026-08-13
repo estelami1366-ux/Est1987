@@ -1,0 +1,8 @@
+bin/
+obj/
+publish/
+*.user
+*.suo
+.vs/
+Sirman.Desktop/bin/
+Sirman.Desktop/obj/
