@@ -42,7 +42,10 @@ public static class SeasonalGlassTheme
 .war-browse-mode.active{background:rgba(255,255,255,.72);box-shadow:0 4px 14px rgba(15,40,55,.12);color:var(--blue2)}
 .war-browse-crumb{font-size:12px;color:var(--text2);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .war-browse-crumb button{border:0;background:transparent;color:var(--blue2);font-weight:800;cursor:pointer;font-family:var(--font);font-size:12px}
-#war-browse-year{padding:7px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.45);backdrop-filter:blur(12px);font-family:var(--font);font-size:12px}
+.war-browse-years{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:980px}
+.war-year-chip{border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.42);border-radius:999px;padding:6px 12px;font-family:var(--font);font-size:12px;font-weight:800;cursor:pointer;color:var(--text)}
+.war-year-chip.active{background:rgba(255,255,255,.88);box-shadow:0 4px 14px rgba(15,40,55,.12);color:var(--blue2)}
+#war-browse-year{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 #war-browse-gallery{display:none;gap:18px;justify-content:center;align-items:stretch;margin:18px auto 8px;max-width:980px;padding:8px 4px 24px}
 #war-browse-gallery.war-gallery-season{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr))}
 #war-browse-gallery.war-gallery-month{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr))}

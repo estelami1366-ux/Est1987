@@ -3875,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱τ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱υ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21τ', 'نسخه meta باید 1405.5.21τ باشد');
+  assertEqual(metaVer, '1405.5.21υ', 'نسخه meta باید 1405.5.21υ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱τ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱τ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱υ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱υ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21τ'", 'فیلد version بک‌آپ باید 1405.5.21τ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21υ'", 'فیلد version بک‌آپ باید 1405.5.21υ باشد');
 });
 
 
@@ -5351,10 +5351,12 @@ test('داشبورد باید فهرست وظایف سررسیدگذشته را 
 });
 
 test('مرور گارانتی باید سه نمای فصلی/ماهیانه/لیستی و کارت شیشه‌ای داشته باشد', () => {
-  ['warLatinDigits','warJalaliParts','warSeasonOfMonth','warBrowseMatches','defaultWarBrowseCatalog','setWarBrowseMode','renderWarBrowseGallery','openWarBrowseSeason','openWarBrowseMonth'].forEach(fn=>{
+  ['warLatinDigits','warJalaliParts','warSeasonOfMonth','warBrowseMatches','defaultWarBrowseCatalog','setWarBrowseMode','setWarBrowseYear','renderWarBrowseGallery','openWarBrowseSeason','openWarBrowseMonth'].forEach(fn=>{
     assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
   });
   assertContainsString(html, 'id="war-browse-gallery"', 'گالری فصل/ماه لازم است');
+  assertContainsString(html, 'id="war-browse-years"', 'لیست سال‌ها باید دکمه باشد نه فقط select');
+  assertContainsString(html, "setWarBrowseYear(0)", 'دکمه همه سال‌ها باید لیست را باز کند');
   assertContainsString(html, "setWarBrowseMode('season')", 'دکمه نمای فصلی لازم است');
   assertContainsString(html, "setWarBrowseMode('month')", 'دکمه نمای ماهیانه لازم است');
   assertContainsString(html, "setWarBrowseMode('list')", 'دکمه نمای لیستی لازم است');
@@ -5370,6 +5372,7 @@ test('مرور گارانتی باید سه نمای فصلی/ماهیانه/ل�
   assertContainsString(actions, 'warranty-season', 'راست‌کلیک باید نمای فصلی داشته باشد');
   assertContainsString(actions, 'warranty-month', 'راست‌کلیک باید نمای ماهیانه داشته باشد');
   assertContainsString(run, "setWarBrowseMode('season')", 'عمل راست‌کلیک فصلی باید نما را عوض کند');
+  assertContainsString(run, 'setWarBrowseYear(0)', 'راست‌کلیک باید همه سال‌ها را به لیست کامل ببرد');
   assertContainsString(back, 'warBrowseClearDrill', 'برگشت از داخل فصل/ماه باید به کارت‌ها برگردد');
 });
 
@@ -5396,6 +5399,7 @@ test('فیلتر فصل و ماه گارانتی باید تاریخ شمسی ف
     var springHits = wars.filter(function(w){ return warBrowseMatches(w, {year:1405, season:'spring', month:0}); }).map(function(w){ return w.id; });
     var monthHits = wars.filter(function(w){ return warBrowseMatches(w, {year:0, season:'', month:5}); }).map(function(w){ return w.id; });
     var allYear = wars.filter(function(w){ return warBrowseMatches(w, {year:1405, season:'', month:0}); }).map(function(w){ return w.id; });
+    var allYears = wars.filter(function(w){ return warBrowseMatches(w, {year:0, season:'', month:0}); }).map(function(w){ return w.id; });
     return {
       spring: spring,
       summer: summer,
@@ -5405,7 +5409,8 @@ test('فیلتر فصل و ماه گارانتی باید تاریخ شمسی ف
       springOf: [warSeasonOfMonth(1), warSeasonOfMonth(4), warSeasonOfMonth(7), warSeasonOfMonth(11)],
       springHits: springHits,
       monthHits: monthHits,
-      allYear: allYear
+      allYear: allYear,
+      allYears: allYears
     };
   `);
   const r = runner();
@@ -5420,6 +5425,28 @@ test('فیلتر فصل و ماه گارانتی باید تاریخ شمسی ف
   assertEqual(r.springHits.join(','), 'A', 'فقط پرونده بهار ۱۴۰۵ باید بماند');
   assertEqual(r.monthHits.join(','), 'B', 'فقط پرونده مرداد باید بماند');
   assertEqual(r.allYear.join(','), 'A,B,C', 'سال ۱۴۰۵ نباید پرونده ۱۴۰۴ را بیاورد');
+  assertEqual(r.allYears.join(','), 'A,B,C,D', 'همه سال‌ها باید همه پرونده‌ها را نشان دهد');
+});
+
+test('دکمه همه سال‌ها باید از نمای فصلی به لیست کامل برگردد', () => {
+  const src = [
+    extractFunctionSource(html, 'ensureWarBrowseState'),
+    extractFunctionSource(html, 'setWarBrowseYear')
+  ].join('\n');
+  const runner = new Function('window', 'localStorage', src + `;
+    var rendered = 0;
+    function renderWar(){ rendered++; }
+    window._warBrowseMode = 'season';
+    window._warBrowseDrill = {season:'spring', month:0};
+    window._warBrowseYear = 1405;
+    setWarBrowseYear(0);
+    return {year: window._warBrowseYear, mode: window._warBrowseMode, drill: window._warBrowseDrill, rendered: rendered};
+  `);
+  const r = runner({}, {getItem: function(){ return null; }, setItem: function(){}});
+  assertEqual(r.year, 0, 'سال باید ۰ شود');
+  assertEqual(r.mode, 'list', 'همه سال‌ها باید نمای لیستی را باز کند');
+  assertEqual(r.drill, null, 'فیلتر فصل نباید روی لیست همه سال‌ها بماند');
+  assertEqual(r.rendered, 1, 'باید لیست دوباره رندر شود');
 });
 
 test('پوسته دات‌نت باید همان کاتالوگ شیشه‌ای فصل/ماه را به میزبان بدهد', () => {
@@ -5430,7 +5457,7 @@ test('پوسته دات‌نت باید همان کاتالوگ شیشه‌ای 
   const host = fs.readFileSync(hostPath, 'utf8');
   assertContainsString(host, 'GetWarrantyBrowseCatalog', 'میزبان باید کاتالوگ فصل را بدهد');
   assertContainsString(host, 'GetWarrantyBrowseCss', 'میزبان باید CSS شیشه‌ای را بدهد');
-  ['بهار','تابستان','پاییز','زمستان','فروردین','اسفند','backdrop-filter','war-glass-card'].forEach(tok=>{
+  ['بهار','تابستان','پاییز','زمستان','فروردین','اسفند','backdrop-filter','war-glass-card','war-year-chip'].forEach(tok=>{
     assertContainsString(cs, tok, 'پوسته دات‌نت باید '+tok+' داشته باشد');
   });
   const catSrc = extractFunctionSource(html, 'defaultWarBrowseCatalog');

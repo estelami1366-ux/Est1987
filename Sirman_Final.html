@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.21τ">
+<meta name="app-version" content="1405.5.21υ">
 <meta name="app-date" content="1405/05/21">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -976,7 +976,7 @@ body.has-bg-image::after{
 }
 body.has-bg-image.theme-dark::after{background:rgba(10,12,15,var(--bg-overlay,0.55));}
 
-/* ══════ اسکین قوی / Skin Pack (v1405.5.21τ) ══════ */
+/* ══════ اسکین قوی / Skin Pack (v1405.5.21υ) ══════ */
 .skin-card{width:148px;border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--card);transition:.18s;text-align:right;}
 .skin-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,40,55,.10);}
 .skin-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 25%,transparent);}
@@ -1418,7 +1418,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 
 </style>
 <style id="win-manager-css">
-/* ══════ چندپنجره / تب‌های کاری (v1405.5.21τ) ══════ */
+/* ══════ چندپنجره / تب‌های کاری (v1405.5.21υ) ══════ */
 #win-chrome{
   position:sticky; top:0; z-index:60;
   display:flex; flex-wrap:wrap; align-items:center; gap:6px;
@@ -1517,7 +1517,10 @@ body.win-mode .main > .page{ display:none !important; }
 .war-browse-mode.active{background:rgba(255,255,255,.72);box-shadow:0 4px 14px rgba(15,40,55,.12);color:var(--blue2)}
 .war-browse-crumb{font-size:12px;color:var(--text2);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .war-browse-crumb button{border:0;background:transparent;color:var(--blue2);font-weight:800;cursor:pointer;font-family:var(--font);font-size:12px}
-#war-browse-year{padding:7px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.45);backdrop-filter:blur(12px);font-family:var(--font);font-size:12px}
+.war-browse-years{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:980px}
+.war-year-chip{border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.42);border-radius:999px;padding:6px 12px;font-family:var(--font);font-size:12px;font-weight:800;cursor:pointer;color:var(--text)}
+.war-year-chip.active{background:rgba(255,255,255,.88);box-shadow:0 4px 14px rgba(15,40,55,.12);color:var(--blue2)}
+#war-browse-year{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 #war-browse-gallery{display:none;gap:18px;justify-content:center;align-items:stretch;margin:18px auto 8px;max-width:980px;padding:8px 4px 24px}
 #war-browse-gallery.war-gallery-season{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr))}
 #war-browse-gallery.war-gallery-month{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr))}
@@ -1806,7 +1809,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۱τ — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۱υ — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-r btn-sm" id="btn-exit-safe" onclick="promptExitBackup()" style="width:100%;margin-top:8px;font-weight:700">🚪 خروج امن (پرسش بک‌آپ)</button>
   <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;padding:0 2px">اگر ✕ پنجره را بزنید، مرورگر اول هشدار می‌دهد؛ برای بک‌آپ از این دکمه استفاده کنید.</div>
 </div>
@@ -2943,7 +2946,8 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <button type="button" class="war-browse-mode" data-mode="month" onclick="setWarBrowseMode('month')">🗓 ماهیانه</button>
     <button type="button" class="war-browse-mode active" data-mode="list" onclick="setWarBrowseMode('list')">📋 لیستی</button>
   </div>
-  <select id="war-browse-year" onchange="onWarBrowseYearChange()" title="سال شمسی"></select>
+  <div id="war-browse-years" class="war-browse-years" role="listbox" aria-label="سال پرونده‌ها"></div>
+  <select id="war-browse-year" onchange="onWarBrowseYearChange()" title="سال شمسی" aria-hidden="true" tabindex="-1"></select>
   <div id="war-browse-crumb" class="war-browse-crumb"></div>
 </div>
 <div id="war-browse-gallery" aria-live="polite"></div>
@@ -4325,7 +4329,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <li><b>فصلی:</b> چهار کارت بزرگ وسط صفحه برای بهار (شکوفه)، تابستان (آفتاب)، پاییز (برگ طلایی) و زمستان (برف). هر کارت تعداد پرونده همان فصل را نشان می‌دهد. با کلیک، همان پرونده‌ها به‌صورت لیست باز می‌شوند.</li>
     <li><b>ماهیانه:</b> دوازده کلید شیشه‌ای با نماد و نام ماه شمسی. کلیک روی هر ماه لیست همان ماه را می‌آورد.</li>
     <li><b>لیستی:</b> همان جدول قبلی با جستجو، وضعیت باز/بسته و مرتب‌سازی.</li>
-    <li><b>سال:</b> از منوی سال می‌توانید فقط یک سال شمسی را ببینید یا «همه سال‌ها» را نگه دارید.</li>
+    <li><b>سال:</b> دکمه‌های سال زیر نماها همیشه باز هستند. «همه سال‌ها» لیست کامل همه پرونده‌ها را باز می‌کند؛ هر سال جداگانه همان سال را فیلتر می‌کند.</li>
     <li><b>برگشت:</b> از داخل یک فصل یا ماه، دکمه بازگشت بالای صفحه یا کلید برگشت پنجره شما را به کارت‌های شیشه‌ای برمی‌گرداند.</li>
   </ul>
 </div>
@@ -4669,7 +4673,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۱τ
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۱υ
 </div>
 </div>
 
@@ -5320,9 +5324,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 })();
 
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.21τ';
-var APP_BASE_VERSION = '1405.5.21τ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۲۱τ';
+var APP_VERSION = '1405.5.21υ';
+var APP_BASE_VERSION = '1405.5.21υ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۲۱υ';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -5818,8 +5822,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.21τ'; }
-  catch(_e){ return '1405.5.21τ'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.21υ'; }
+  catch(_e){ return '1405.5.21υ'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -6119,7 +6123,7 @@ function _safeStr(s){ return (s==null)?'':String(s); }
 
 function _buildFullBackupData(){
   var data = {
-    version: '1405.5.21τ',
+    version: '1405.5.21υ',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -6370,7 +6374,7 @@ async function restoreAutoSaveHandlesOnBoot(){
   }catch(_e2){ return false; }
 }
 
-// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.21τ ═══════════════════
+// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.21υ ═══════════════════
 // عکس پس‌زمینه، لوگو و ضمیمه‌ها فقط در پوشهٔ بک‌آپ روی دیسک نوشته می‌شوند.
 // در حافظهٔ مرورگر فقط ارجاع کوتاه disk://sirman_media/... نگه داشته می‌شود.
 window._diskUrlCache = window._diskUrlCache || {};
@@ -7773,7 +7777,7 @@ function showCustomer360(phone, name){
   document.getElementById('cust360-modal').classList.add('open');
 }
 
-// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۱τ) ───────────────────────────────────────────
+// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۱υ) ───────────────────────────────────────────
 window._wins = window._wins || [];
 window._winActive = window._winActive || null;
 window._winSeq = window._winSeq || 1;
@@ -8140,7 +8144,7 @@ function winContextPageActions(pageId){
     daqi:[{id:'daqi-new', icon:'＋', label:'ثبت داغی جدید'}],
     sales:[{id:'sale-new', icon:'＋', label:'فروش جدید'}],
     accounts:[{id:'account-new', icon:'＋', label:'حساب جدید'}],
-    warranty:[{id:'warranty-new', icon:'＋', label:'پرونده گارانتی جدید'},{id:'warranty-season', icon:'🌸', label:'نمای فصلی پرونده‌ها'},{id:'warranty-month', icon:'🗓', label:'نمای ماهیانه پرونده‌ها'},{id:'warranty-list', icon:'📋', label:'نمای لیستی پرونده‌ها'}],
+    warranty:[{id:'warranty-new', icon:'＋', label:'پرونده گارانتی جدید'},{id:'warranty-season', icon:'🌸', label:'نمای فصلی پرونده‌ها'},{id:'warranty-month', icon:'🗓', label:'نمای ماهیانه پرونده‌ها'},{id:'warranty-list', icon:'📋', label:'نمای لیستی پرونده‌ها'},{id:'warranty-all-years', icon:'📅', label:'همه سال‌ها — لیست کامل'}],
     dataio:[{id:'backup-now', icon:'💾', label:'دانلود بک‌آپ کامل'}],
     datetime:[{id:'refresh', icon:'↻', label:'بروزرسانی تقویم'}],
     audit:[{id:'refresh', icon:'↻', label:'بروزرسانی گزارش فعالیت'}],
@@ -8177,6 +8181,7 @@ function winRunPageAction(wid, action){
     if(action==='warranty-season') return setWarBrowseMode('season');
     if(action==='warranty-month') return setWarBrowseMode('month');
     if(action==='warranty-list') return setWarBrowseMode('list');
+    if(action==='warranty-all-years') return setWarBrowseYear(0);
     if(action==='backup-now') return exportData();
     if(action==='autosave-tab') return showStgTab('autosave');
     if(action==='help-focus'){ var q=document.getElementById('help-search'); if(q) q.focus(); return; }
@@ -9168,7 +9173,7 @@ function buildPH(list){
 
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.21τ">
+<meta name="app-version" content="1405.5.21υ">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -9185,7 +9190,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.21τ">
+<meta name="app-version" content="1405.5.21υ">
 <meta name="app-date" content="1405/05/21"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -9245,7 +9250,7 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.21τ">
+<meta name="app-version" content="1405.5.21υ">
 <meta name="app-date" content="1405/05/21"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -9265,11 +9270,11 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.21τ">
+<meta name="app-version" content="1405.5.21υ">
 <meta name="app-date" content="1405/05/21"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.21τ">
+<meta name="app-version" content="1405.5.21υ">
 <meta name="app-date" content="1405/05/21"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -9710,7 +9715,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.21τ">
+<meta name="app-version" content="1405.5.21υ">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -11135,7 +11140,7 @@ function enableTaskNotifications(){
 }
 function registerLaeghSW(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('sw.js?v=1405.5.21τ').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=1405.5.21υ').then(reg=>{
     _swReg=reg;
     // Check for SW updates
     reg.addEventListener('updatefound', ()=>{
@@ -12295,7 +12300,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.21τ">'+
+    '<meta name="app-version" content="1405.5.21υ">'+
     '<meta name="app-date" content="1405/05/21">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -12446,7 +12451,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.21τ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.21υ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -14089,10 +14094,23 @@ function warLatinDigits(s){
 }
 function warJalaliParts(value){
   var s = warLatinDigits(value);
+  var iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(iso && +iso[1] >= 1600 && typeof gregorian_to_jalali==='function'){
+    try{
+      var j = gregorian_to_jalali(+iso[1], +iso[2], +iso[3]);
+      if(j && j[0]) return {y:j[0], m:j[1], d:j[2]};
+    }catch(_g){}
+  }
   var m = s.match(/(\d{3,4})\D+(\d{1,2})\D+(\d{1,2})/);
   if(!m) return null;
   var y=+m[1], mo=+m[2], d=+m[3];
   if(!y || mo<1 || mo>12 || d<1 || d>31) return null;
+  if(y>=1600 && y<=2200 && typeof gregorian_to_jalali==='function'){
+    try{
+      var gj = gregorian_to_jalali(y, mo, d);
+      if(gj && gj[0]) return {y:gj[0], m:gj[1], d:gj[2]};
+    }catch(_g2){}
+  }
   return {y:y, m:mo, d:d};
 }
 function warSeasonOfMonth(month){
@@ -14225,11 +14243,21 @@ function setWarBrowseMode(mode){
   try{ localStorage.setItem('laegh_war_browse_mode', mode); }catch(_e){}
   renderWar();
 }
+function setWarBrowseYear(year){
+  ensureWarBrowseState();
+  year = parseInt(year,10)||0;
+  window._warBrowseYear = year;
+  try{ localStorage.setItem('laegh_war_browse_year', String(year)); }catch(_e){}
+  if(!year){
+    window._warBrowseDrill = null;
+    window._warBrowseMode = 'list';
+    try{ localStorage.setItem('laegh_war_browse_mode', 'list'); }catch(_e2){}
+  }
+  renderWar();
+}
 function onWarBrowseYearChange(){
   var sel=document.getElementById('war-browse-year');
-  window._warBrowseYear = sel ? (parseInt(sel.value,10)||0) : 0;
-  try{ localStorage.setItem('laegh_war_browse_year', String(window._warBrowseYear||0)); }catch(_e){}
-  renderWar();
+  setWarBrowseYear(sel ? sel.value : 0);
 }
 function warBrowseClearDrill(){
   window._warBrowseDrill=null;
@@ -14253,13 +14281,20 @@ function renderWarBrowseBar(){
     }
   });
   var yearSel=document.getElementById('war-browse-year');
+  var yearHost=document.getElementById('war-browse-years');
+  var years=warBrowseYears();
+  var cur=window._warBrowseYear||0;
   if(yearSel){
-    var years=warBrowseYears();
-    var cur=window._warBrowseYear||0;
     yearSel.innerHTML='<option value="0">همه سال‌ها</option>'+years.map(function(y){
       return '<option value="'+y+'"'+(y===cur?' selected':'')+'>'+y+'</option>';
     }).join('');
     yearSel.value=String(cur||0);
+  }
+  if(yearHost){
+    yearHost.innerHTML='<button type="button" class="war-year-chip'+(cur===0?' active':'')+'" data-year="0" onclick="setWarBrowseYear(0)">همه سال‌ها</button>'
+      +years.map(function(y){
+        return '<button type="button" class="war-year-chip'+(y===cur?' active':'')+'" data-year="'+y+'" onclick="setWarBrowseYear('+y+')">'+y+'</button>';
+      }).join('');
   }
   var crumb=document.getElementById('war-browse-crumb');
   if(crumb){
@@ -14307,8 +14342,10 @@ function renderWarBrowseGallery(){
 function renderWar(){
 // رندر لیست گارانتی — با نام مستعار renderWarList برای سازگاری با کدهای قدیمی
 if(!window.renderWarList) window.renderWarList=renderWar;
-  const q=(document.getElementById('wq').value||'').toLowerCase();
-  const sf=document.getElementById('wsf').value;
+  const qEl=document.getElementById('wq');
+  const sfEl=document.getElementById('wsf');
+  const q=(qEl && qEl.value ? String(qEl.value) : '').toLowerCase();
+  const sf=sfEl ? (sfEl.value||'') : '';
   ensureWarBrowseState();
   renderWarBrowseBar();
   const drilled=!!window._warBrowseDrill;
@@ -14323,16 +14360,18 @@ if(!window.renderWarList) window.renderWarList=renderWar;
   }
   if(gallery){ gallery.style.display='none'; gallery.className=''; }
   if(tableCard) tableCard.style.display='block';
-  let f=warranties.filter(w=>{
-    const devs=warDevices(w);
+  let listSrc=(typeof warranties!=='undefined' && Array.isArray(warranties))?warranties:[];
+  let f=listSrc.filter(w=>{
+    const devs=(typeof warDevices==='function')?warDevices(w):[];
     const models=devs.map(d=>d.model).join(' ');
-    const m=!q||(w.name||'').includes(q)||(w.phone||'').includes(q)||models.includes(q)||(w.id||'').includes(q);
+    const m=!q||String(w.name||'').includes(q)||String(w.phone||'').includes(q)||models.includes(q)||String(w.id||'').includes(q);
     const sm=!sf||(sf==='open'&&w.status!=='closed')||(sf==='closed'&&w.status==='closed');
     return m&&sm&&warBrowseMatches(w);
   });
-  f=_listSort(f, _sortVal('w-sort')||'_idx:desc', warranties);
+  if(typeof _listSort==='function') f=_listSort(f, (typeof _sortVal==='function' && _sortVal('w-sort'))||'_idx:desc', listSrc);
   window._warView=f;
   const c=document.getElementById('war-tbl');
+  if(!c) return;
   if(!f.length){c.innerHTML='<div style="text-align:center;color:#aaa;padding:24px">پرونده‌ای یافت نشد</div>';return;}
   const wlbl={'card':'✓ کارت','inv':'✓ فاکتور','no':'✗ بدون گارانتی'};
   const wcol={'card':'var(--green)','inv':'var(--green)','no':'var(--red)'};
@@ -14381,7 +14420,7 @@ function doPrint(paperSize){
   const effPaper = pw.paper || paperSize;
   const w = window.open('','_blank');
   w.document.open(); w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.21τ">
+<meta name="app-version" content="1405.5.21υ">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -14479,7 +14518,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.21τ"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.21υ"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -14508,7 +14547,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.21τ"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.21υ"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -14545,7 +14584,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.21τ">'+
+    '<meta name="app-version" content="1405.5.21υ">'+
     '<meta name="app-date" content="1405/05/21">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -14629,7 +14668,7 @@ function printCompanyReport(idx){
   var qcResultLbl = {'pass':'✅ تأیید کیفیت','fail':'❌ رد شد — نیاز به اصلاح','pending':'در حال بررسی'};
   var mgrApproveLbl = {'approved':'✅ تأیید نهایی','pending':'در انتظار بررسی','rejected':'❌ رد شد'};
 
-  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.21τ';
+  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.21υ';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
     '<title>گزارش داخلی شرکت — '+wHdr.id+'</title>'+
     '<style>'+
@@ -15260,7 +15299,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.21τ">'+
+    '<meta name="app-version" content="1405.5.21υ">'+
     '<meta name="app-date" content="1405/05/21">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -15480,7 +15519,7 @@ function expSalesExcel(){
 // ══════ حسابداری ══════
 // ═══════════════════════════════════════════════════════════════════════════
 // ماژول داغی (پیگیری رسید امضا‌شده‌ی نمایندگی‌های خدمات)
-// نسخه ۱۴۰۵.۵.۲۱τ — فاز داغی
+// نسخه ۱۴۰۵.۵.۲۱υ — فاز داغی
 //
 // «داغی» یعنی وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستیم، آن‌ها باید رسید امضا‌شده
 // (داغی) را به ما برگردانند. این ماژول پیگیری می‌کند که چه کسانی داغی معوقه دارند.
@@ -16784,7 +16823,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.21τ">'+
+    '<meta name="app-version" content="1405.5.21υ">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
