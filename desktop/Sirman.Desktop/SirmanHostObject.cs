@@ -20,4 +20,10 @@ public class SirmanHostObject
     public void Notify(string title, string body) => _form.RequestNotify(title, body);
 
     public string Ping() => "sirman-host-ok";
+
+    /// <summary>کاتالوگ پوستهٔ شیشه‌ای فصل/ماه برای مرور گارانتی.</summary>
+    public string GetWarrantyBrowseCatalog() => SeasonalGlassTheme.CatalogJson();
+
+    /// <summary>CSS شیشه‌ای فصل/ماه که از پوستهٔ دات‌نت تزریق می‌شود.</summary>
+    public string GetWarrantyBrowseCss() => SeasonalGlassTheme.Css();
 }

@@ -3875,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱σ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱τ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21σ', 'نسخه meta باید 1405.5.21σ باشد');
+  assertEqual(metaVer, '1405.5.21τ', 'نسخه meta باید 1405.5.21τ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱σ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱σ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱τ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱τ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21σ'", 'فیلد version بک‌آپ باید 1405.5.21σ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21τ'", 'فیلد version بک‌آپ باید 1405.5.21τ باشد');
 });
 
 
@@ -5348,6 +5348,94 @@ test('داشبورد باید فهرست وظایف سررسیدگذشته را 
   assertContainsString(dash, 'var overdueTaskList', 'فهرست overdueTaskList لازم است');
   assertContainsString(dash, 'var overdueTasks = overdueTaskList.length', 'KPI باید تعداد را از فهرست بگیرد');
   assertContainsString(dash, 'overdueTaskList.forEach', 'هشدارها باید روی آرایه اجرا شوند نه عدد');
+});
+
+test('مرور گارانتی باید سه نمای فصلی/ماهیانه/لیستی و کارت شیشه‌ای داشته باشد', () => {
+  ['warLatinDigits','warJalaliParts','warSeasonOfMonth','warBrowseMatches','defaultWarBrowseCatalog','setWarBrowseMode','renderWarBrowseGallery','openWarBrowseSeason','openWarBrowseMonth'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  assertContainsString(html, 'id="war-browse-gallery"', 'گالری فصل/ماه لازم است');
+  assertContainsString(html, "setWarBrowseMode('season')", 'دکمه نمای فصلی لازم است');
+  assertContainsString(html, "setWarBrowseMode('month')", 'دکمه نمای ماهیانه لازم است');
+  assertContainsString(html, "setWarBrowseMode('list')", 'دکمه نمای لیستی لازم است');
+  assertContainsString(html, 'war-glass-card', 'کارت شیشه‌ای لازم است');
+  assertContainsString(html, 'season-spring', 'تم بهار لازم است');
+  assertContainsString(html, 'season-summer', 'تم تابستان لازم است');
+  assertContainsString(html, 'season-autumn', 'تم پاییز لازم است');
+  assertContainsString(html, 'season-winter', 'تم زمستان لازم است');
+  assertContainsString(html, 'نمای فصلی، ماهیانه و لیستی پرونده‌ها', 'راهنمای نمای فصلی لازم است');
+  const actions = extractFunctionSource(html, 'winContextPageActions');
+  const run = extractFunctionSource(html, 'winRunPageAction');
+  const back = extractFunctionSource(html, 'winBack');
+  assertContainsString(actions, 'warranty-season', 'راست‌کلیک باید نمای فصلی داشته باشد');
+  assertContainsString(actions, 'warranty-month', 'راست‌کلیک باید نمای ماهیانه داشته باشد');
+  assertContainsString(run, "setWarBrowseMode('season')", 'عمل راست‌کلیک فصلی باید نما را عوض کند');
+  assertContainsString(back, 'warBrowseClearDrill', 'برگشت از داخل فصل/ماه باید به کارت‌ها برگردد');
+});
+
+test('فیلتر فصل و ماه گارانتی باید تاریخ شمسی فارسی را درست دسته کند', () => {
+  const src = [
+    extractFunctionSource(html, 'warLatinDigits'),
+    extractFunctionSource(html, 'warJalaliParts'),
+    extractFunctionSource(html, 'warSeasonOfMonth'),
+    extractFunctionSource(html, 'getWarBrowseState'),
+    extractFunctionSource(html, 'warBrowseMatches'),
+    extractFunctionSource(html, 'defaultWarBrowseCatalog')
+  ].join('\n');
+  const runner = new Function(src + `;
+    var spring = warJalaliParts('‎۱۴۰۵/۰۲/۱۰‎');
+    var summer = warJalaliParts('1405/05/21');
+    var winter = warJalaliParts('1404-11-03');
+    var cat = defaultWarBrowseCatalog();
+    var wars = [
+      {id:'A', date:'1405/02/10'},
+      {id:'B', date:'۱۴۰۵/۰۵/۰۱'},
+      {id:'C', date:'1405/08/12'},
+      {id:'D', date:'1404/11/20'}
+    ];
+    var springHits = wars.filter(function(w){ return warBrowseMatches(w, {year:1405, season:'spring', month:0}); }).map(function(w){ return w.id; });
+    var monthHits = wars.filter(function(w){ return warBrowseMatches(w, {year:0, season:'', month:5}); }).map(function(w){ return w.id; });
+    var allYear = wars.filter(function(w){ return warBrowseMatches(w, {year:1405, season:'', month:0}); }).map(function(w){ return w.id; });
+    return {
+      spring: spring,
+      summer: summer,
+      winter: winter,
+      seasons: cat.seasons.map(function(s){ return s.id; }),
+      months: cat.months.map(function(m){ return m.nameFa; }),
+      springOf: [warSeasonOfMonth(1), warSeasonOfMonth(4), warSeasonOfMonth(7), warSeasonOfMonth(11)],
+      springHits: springHits,
+      monthHits: monthHits,
+      allYear: allYear
+    };
+  `);
+  const r = runner();
+  assertEqual(r.spring && r.spring.m, 2, 'اردیبهشت باید ماه ۲ باشد');
+  assertEqual(r.summer && r.summer.m, 5, 'مرداد باید ماه ۵ باشد');
+  assertEqual(r.winter && r.winter.y, 1404, 'سال دی باید ۱۴۰۴ باشد');
+  assertEqual(r.seasons.join(','), 'spring,summer,autumn,winter', 'چهار فصل باید کامل باشد');
+  assertEqual(r.months.length, 12, 'باید ۱۲ ماه شمسی باشد');
+  assertEqual(r.months[0], 'فروردین', 'ماه اول فروردین است');
+  assertEqual(r.months[11], 'اسفند', 'ماه آخر اسفند است');
+  assertEqual(r.springOf.join(','), 'spring,summer,autumn,winter', 'نگاشت فصل ماه‌ها نادرست است');
+  assertEqual(r.springHits.join(','), 'A', 'فقط پرونده بهار ۱۴۰۵ باید بماند');
+  assertEqual(r.monthHits.join(','), 'B', 'فقط پرونده مرداد باید بماند');
+  assertEqual(r.allYear.join(','), 'A,B,C', 'سال ۱۴۰۵ نباید پرونده ۱۴۰۴ را بیاورد');
+});
+
+test('پوسته دات‌نت باید همان کاتالوگ شیشه‌ای فصل/ماه را به میزبان بدهد', () => {
+  const csPath = path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SeasonalGlassTheme.cs');
+  const hostPath = path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs');
+  assertTrue(fs.existsSync(csPath), 'SeasonalGlassTheme.cs باید وجود داشته باشد');
+  const cs = fs.readFileSync(csPath, 'utf8');
+  const host = fs.readFileSync(hostPath, 'utf8');
+  assertContainsString(host, 'GetWarrantyBrowseCatalog', 'میزبان باید کاتالوگ فصل را بدهد');
+  assertContainsString(host, 'GetWarrantyBrowseCss', 'میزبان باید CSS شیشه‌ای را بدهد');
+  ['بهار','تابستان','پاییز','زمستان','فروردین','اسفند','backdrop-filter','war-glass-card'].forEach(tok=>{
+    assertContainsString(cs, tok, 'پوسته دات‌نت باید '+tok+' داشته باشد');
+  });
+  const catSrc = extractFunctionSource(html, 'defaultWarBrowseCatalog');
+  assertContainsString(catSrc, "id:'spring'", 'کاتالوگ HTML باید با دات‌نت هم‌نام باشد');
+  assertContainsString(html, 'GetWarrantyBrowseCss', 'پل دسکتاپ باید CSS دات‌نت را تزریق کند');
 });
 
 

@@ -816,6 +816,26 @@ public sealed class MainForm : Form
                   if(typeof autoEnableDesktopNotifyOnBoot==='function') autoEnableDesktopNotifyOnBoot();
                 }catch(_e4){}
                 try{
+                  var hSkin = _sirmanHost();
+                  if(hSkin){
+                    if(hSkin.GetWarrantyBrowseCss){
+                      var css = String(hSkin.GetWarrantyBrowseCss() || '');
+                      var st = document.getElementById('war-browse-skin-css');
+                      if(!st){ st=document.createElement('style'); st.id='war-browse-skin-css'; document.head.appendChild(st); }
+                      if(css) st.textContent = css;
+                      window.SIRMAN_WARRANTY_BROWSE_FROM_DOTNET = true;
+                    }
+                    if(hSkin.GetWarrantyBrowseCatalog){
+                      var cat = String(hSkin.GetWarrantyBrowseCatalog() || '');
+                      if(cat){
+                        try{ window.SIRMAN_WARRANTY_BROWSE_CATALOG = JSON.parse(cat); }
+                        catch(_pj){ window.SIRMAN_WARRANTY_BROWSE_CATALOG = cat; }
+                      }
+                    }
+                    if(typeof applyWarBrowseSkinFromHost==='function') applyWarBrowseSkinFromHost();
+                  }
+                }catch(_skin){}
+                try{
                   var x=document.getElementById('sirman-win-close');
                   if(x) x.style.display='none';
                   var hint=document.getElementById('exit-close-hint');
