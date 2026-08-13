@@ -798,6 +798,90 @@ test('فیلد cat باید در فرم ذخیره مخاطب (savePBContact) ذ
   assertContainsString(saveSrc, 'cat:', 'savePBContact باید فیلد cat را در آبجکت مخاطب ذخیره کند');
 });
 
+test('دفترچه باید نمای شرکت، الفبا و لیست داشته باشد', () => {
+  ['pbNormChar','pbSortName','pbAlphaLetter','pbCompanyKey','setPBBrowseMode','openPBCompany','openPBLetter','pbBrowseClearDrill','pbFilteredRows','pbRenderGroupedList','renderPBCompanyGallery','renderPBAlphaGallery'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  assertContainsString(html, 'id="pb-browse-gallery"', 'گالری شرکت/الفبا لازم است');
+  assertContainsString(html, "setPBBrowseMode('company')", 'دکمه نمای شرکت');
+  assertContainsString(html, "setPBBrowseMode('alpha')", 'دکمه نمای الفبا');
+  assertContainsString(html, "setPBBrowseMode('list')", 'دکمه نمای لیستی');
+  assertContainsString(html, 'PB_ALPHA_LETTERS', 'حروف الفبای فارسی باید تعریف شده باشند');
+  assertContainsString(html, 'نمای شرکت', 'راهنمای نمای شرکت');
+  assertContainsString(html, 'نمای الفبا', 'راهنمای نمای الفبا');
+  const actions = extractFunctionSource(html, 'winContextPageActions');
+  const run = extractFunctionSource(html, 'winRunPageAction');
+  const back = extractFunctionSource(html, 'winBack');
+  assertContainsString(actions, 'phonebook-company', 'راست‌کلیک باید نمای شرکت داشته باشد');
+  assertContainsString(actions, 'phonebook-alpha', 'راست‌کلیک باید نمای الفبا داشته باشد');
+  assertContainsString(run, "setPBBrowseMode('company')", 'عمل راست‌کلیک شرکت باید نما را عوض کند');
+  assertContainsString(back, 'pbBrowseClearDrill', 'برگشت از داخل شرکت/حرف باید به کارت‌ها برگردد');
+});
+
+test('اجرای واقعی: حرف الفبا و کلید شرکت دفترچه باید درست محاسبه شوند', () => {
+  const src = [
+    extractFunctionSource(html, 'pbNormChar'),
+    extractFunctionSource(html, 'pbSortName'),
+    extractFunctionSource(html, 'pbAlphaLetter'),
+    extractFunctionSource(html, 'pbCompanyKey'),
+    extractFunctionSource(html, 'pbCompanyLabel')
+  ].join('\n');
+  const fn = new Function(src + `;
+    var PB_NONE_COMPANY = '__none__';
+    var a = {fn:'علی', ln:'احمدی', shop:' پارس  '};
+    var b = {fn:'مینا', ln:'', shop:''};
+    var c = {fn:'', ln:'', shop:'آسمان'};
+    var d = {fn:'John', ln:'Smith', shop:'Acme'};
+    return {
+      aL: pbAlphaLetter(a), aC: pbCompanyKey(a), aLbl: pbCompanyLabel(pbCompanyKey(a)),
+      bL: pbAlphaLetter(b), bC: pbCompanyKey(b), bLbl: pbCompanyLabel(pbCompanyKey(b)),
+      cL: pbAlphaLetter(c),
+      dL: pbAlphaLetter(d),
+      ye: pbNormChar('ي'), kaf: pbNormChar('ك'), alef: pbNormChar('آ')
+    };
+  `);
+  const r = fn();
+  assertEqual(r.aL, 'ا', 'احمدی باید زیر حرف ا برود');
+  assertEqual(r.aC, 'پارس', 'فاصله اضافه نام شرکت باید حذف شود');
+  assertEqual(r.aLbl, 'پارس', 'برچسب شرکت باید خود نام باشد');
+  assertEqual(r.bL, 'م', 'مینا بدون نام خانوادگی باید با حرف م باشد');
+  assertEqual(r.bC, '__none__', 'بدون شرکت باید کلید خالی باشد');
+  assertEqual(r.bLbl, 'بدون شرکت / فروشگاه', 'برچسب بدون شرکت');
+  assertEqual(r.cL, 'ا', 'آسمان باید با آ→ا زیر ا برود');
+  assertEqual(r.dL, 'S', 'نام لاتین از نام خانوادگی');
+  assertEqual(r.ye, 'ی', 'ي عربی باید ی شود');
+  assertEqual(r.kaf, 'ک', 'ك عربی باید ک شود');
+  assertEqual(r.alef, 'ا', 'آ باید با ا یکی شود');
+});
+
+test('اجرای واقعی: مخاطب‌های یک شرکت باید در یک گروه جمع شوند', () => {
+  const src = [
+    extractFunctionSource(html, 'pbNormChar'),
+    extractFunctionSource(html, 'pbSortName'),
+    extractFunctionSource(html, 'pbAlphaLetter'),
+    extractFunctionSource(html, 'pbCompanyKey')
+  ].join('\n');
+  const fn = new Function(src + `;
+    var PB_NONE_COMPANY = '__none__';
+    var list = [
+      {fn:'علی', ln:'احمدی', shop:'پارس'},
+      {fn:'رضا', ln:'محمدی', shop:' پارس'},
+      {fn:'مینا', ln:'کاظمی', shop:'آسمان'},
+      {fn:'سارا', ln:'نوری', shop:''}
+    ];
+    var map = {};
+    list.forEach(function(c){
+      var k = pbCompanyKey(c);
+      map[k] = (map[k]||0)+1;
+    });
+    return map;
+  `);
+  const map = fn();
+  assertEqual(map['پارس'], 2, 'دو مخاطب پارس باید یک شرکت شوند');
+  assertEqual(map['آسمان'], 1, 'آسمان جدا باشد');
+  assertEqual(map['__none__'], 1, 'بدون شرکت جدا باشد');
+});
+
 console.log('');
 console.log('📋 گروه ۷: ذخیره خودکار (Auto-save)');
 
@@ -3875,14 +3959,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱χ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱ψ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21χ', 'نسخه meta باید 1405.5.21χ باشد');
+  assertEqual(metaVer, '1405.5.21ψ', 'نسخه meta باید 1405.5.21ψ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱χ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱χ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ψ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ψ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21χ'", 'فیلد version بک‌آپ باید 1405.5.21χ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21ψ'", 'فیلد version بک‌آپ باید 1405.5.21ψ باشد');
 });
 
 
