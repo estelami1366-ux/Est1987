@@ -3959,14 +3959,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۲α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۲β باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.22α', 'نسخه meta باید 1405.5.22α باشد');
+  assertEqual(metaVer, '1405.5.22β', 'نسخه meta باید 1405.5.22β باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/22', 'app-date باید 1405/05/22 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲α', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲α را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲β', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲β را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.22α'", 'فیلد version بک‌آپ باید 1405.5.22α باشد');
+  assertContainsString(buildSrc, "version: '1405.5.22β'", 'فیلد version بک‌آپ باید 1405.5.22β باشد');
 });
 
 
@@ -4342,6 +4342,17 @@ test('ریل فقط‌شکل باید نام را کشویی از راست به 
   assertContainsString(html, "classic:", 'اسکین کلاسیک باید حفظ شود');
   assertContainsString(html, 'ریل فقط‌شکل', 'برچسب UI ریل فقط‌شکل پیدا نشد');
   assertContainsString(html, 'content:none!important', 'تولتیپ سراسری روی منو در ریل باید خاموش باشد');
+});
+
+test('عکس پس‌زمینه ستون/وسط نباید position پنجره‌ها را عوض کند یا clip-path روی میزکار بگذارد', () => {
+  assertTrue(html.indexOf('.main.has-custom-bg > *{position:relative;z-index:1;}') === -1, 'قانون عمومی > * روی .main نباید position همه فرزندان را عوض کند');
+  assertContainsString(html, '.main.has-custom-bg > #win-workspace', 'نوار/میزکار پنجره باید جدا از عکس پس‌زمینه بالا بماند');
+  assertContainsString(html, '.main.has-custom-bg > .fab{position:fixed!important', 'دکمه شناور باید fixed بماند');
+  assertContainsString(html, 'body.win-mode .main.has-custom-bg', 'حالت چندپنجره باید clip-path پس‌زمینه را خنثی کند');
+  assertContainsString(html, 'clip-path:none!important', 'clip-path نباید روی میزکار پنجره‌ها بماند');
+  const applySrc = extractFunctionSource(html, 'applyLayerBackgrounds');
+  assertContainsString(applySrc, 'catch(_bgErr)', 'اعمال پس‌زمینه نباید با خطا کل برنامه را بخواباند');
+  assertContainsString(html, "pointer-events:none!important", 'لایه عکس نباید کلیک پنجره‌ها را بگیرد');
 });
 
 test('پس‌زمینه‌های مجزا (ستون/وسط/داشبورد) با cover و کنترل UI باید موجود باشد', () => {
