@@ -3050,7 +3050,9 @@ test('انبارگردانی باید شامل انبار معیوب باشد', 
 test('renderWhItems باید آیتم‌های معیوب را در dropdown نمایش دهد', () => {
   const src = extractFunctionSource(html, 'renderWhItems');
   assertTrue(src !== null, 'تابع renderWhItems پیدا نشد');
-  assertContainsString(src, 'defectiveStock', 'renderWhItems باید آیتم‌های معیوب را نمایش دهد');
+  const catIdx = html.indexOf('function whCatalogItems');
+  assertTrue(catIdx >= 0, 'whCatalogItems پیدا نشد');
+  assertTrue(html.indexOf('defectiveStock', catIdx) > catIdx, 'فهرست حواله باید آیتم‌های معیوب را نمایش دهد');
 });
 
 // -------------------------------------------------------------------
@@ -3963,14 +3965,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۲λ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۲μ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.22λ', 'نسخه meta باید 1405.5.22λ باشد');
+  assertEqual(metaVer, '1405.5.22μ', 'نسخه meta باید 1405.5.22μ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/22', 'app-date باید 1405/05/22 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲λ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲λ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲μ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲μ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.22λ'", 'فیلد version بک‌آپ باید 1405.5.22λ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.22μ'", 'فیلد version بک‌آپ باید 1405.5.22μ باشد');
 });
 
 
@@ -6837,6 +6839,181 @@ test('تنظیمات اعلان و ذخیره خودکار باید در بست�
   assertEqual(r.a, '1', 'ذخیره خودکار باید در بسته تنظیمات بماند');
   assertContainsString(html, 'WriteBackupText', 'HTML باید بک‌آپ پایدار میزبان را صدا بزند');
   assertContainsString(html, 'ماندن تنظیمات', 'راهنما باید ماندن تنظیمات را توضیح دهد');
+});
+
+console.log('');
+console.log('📋 گروه: مرکز خدمات، حواله ورود، دستیار شناور و بخش ستاره‌دار');
+
+test('وضعیت اولیه دستگاه باید گزینه‌های نامشخص و ارسال‌نشده داشته باشد', () => {
+  assertContainsString(html, 'id="wc-cond-carton"', 'فیلد وضع کارتن لازم است');
+  const carton = (html.match(/id="wc-cond-carton">([\s\S]*?)<\/select>/) || [])[1] || '';
+  const body = (html.match(/id="wc-cond-body">([\s\S]*?)<\/select>/) || [])[1] || '';
+  const acc = (html.match(/id="wc-cond-acc">([\s\S]*?)<\/select>/) || [])[1] || '';
+  assertContainsString(carton, 'نامشخص', 'کارتن باید گزینه نامشخص داشته باشد');
+  assertContainsString(carton, 'مشتری هنوز چیزی ارسال نکرده است', 'کارتن باید گزینه ارسال‌نشده داشته باشد');
+  assertContainsString(body, 'نامشخص', 'بدنه باید گزینه نامشخص داشته باشد');
+  assertContainsString(acc, 'نامشخص', 'لوازم باید گزینه نامشخص داشته باشد');
+});
+
+test('تب بخش خدمات باید زیر اطلاعات شرکت باشد و اسامی امسال را به‌صورت پیش‌فرض بدهد', () => {
+  assertContainsString(html, "showStgTab('service'", 'تب بخش خدمات در تنظیمات لازم است');
+  assertContainsString(html, 'id="stg-service"', 'پنل بخش خدمات لازم است');
+  const iCo = html.indexOf("showStgTab('company'");
+  const iSvc = html.indexOf("showStgTab('service'");
+  assertTrue(iCo >= 0 && iSvc > iCo, 'تب بخش خدمات باید بلافاصله بعد از اطلاعات شرکت باشد');
+  const src = extractFunctionSource(html, 'defaultServiceCenter');
+  assertTrue(!!src, 'defaultServiceCenter پیدا نشد');
+  const runner = new Function(src + '\nreturn defaultServiceCenter();');
+  const d = runner();
+  assertEqual(d.techName, 'محمد مهدی اصطلامی', 'کارشناس خدمات امسال باید محمد مهدی اصطلامی باشد');
+  assertEqual(d.qcName, 'فاطمه زهرا معنوی', 'کنترل کیفیت باید فاطمه زهرا معنوی باشد');
+  assertEqual(d.shipName, 'عباس کساییان', 'مسئول لجستیک باید عباس کساییان باشد');
+  assertEqual(d.mgrName, 'محمد علی اصطلامی', 'مدیر خدمات باید محمد علی اصطلامی باشد');
+  assertContainsString(html, 'id="svc-logo-inp"', 'عکس/لوگوی خدمات لازم است');
+});
+
+test('گزارش داخلی باید اسامی را از مرکز خدمات پر کند', () => {
+  const getSrc = extractFunctionSource(html, 'getServiceCenter');
+  const fillSrc = extractFunctionSource(html, 'fillCompanyReportFromServiceCenter');
+  const defSrc = extractFunctionSource(html, 'defaultServiceCenter');
+  assertTrue(!!getSrc && !!fillSrc && !!defSrc, 'توابع مرکز خدمات/گزارش داخلی پیدا نشد');
+  const runner = new Function(defSrc + '\n' + getSrc + '\n' + fillSrc + '\n' +
+    `var store = {};
+     var localStorage = { getItem:function(){ return null; }, setItem:function(k,v){ store[k]=v; } };
+     var els = {
+       'cr-tech-name':{value:''}, 'cr-qc-name':{value:''},
+       'cr-ship-name':{value:''}, 'cr-mgr-name':{value:''},
+       'wc-expert-name':{value:''}
+     };
+     var document = { getElementById:function(id){ return els[id]||null; } };
+     fillCompanyReportFromServiceCenter(true);
+     return {t:els['cr-tech-name'].value, q:els['cr-qc-name'].value, s:els['cr-ship-name'].value, m:els['cr-mgr-name'].value, e:els['wc-expert-name'].value};`
+  );
+  const r = runner();
+  assertEqual(r.t, 'محمد مهدی اصطلامی', 'نام کارشناس خدمات باید خودکار پر شود');
+  assertEqual(r.q, 'فاطمه زهرا معنوی', 'نام کنترل کیفیت باید خودکار پر شود');
+  assertEqual(r.s, 'عباس کساییان', 'نام مسئول لجستیک باید خودکار پر شود');
+  assertEqual(r.m, 'محمد علی اصطلامی', 'نام مدیر خدمات باید خودکار پر شود');
+  assertContainsString(html, 'fillCompanyReportFromServiceCenter', 'فرم گارانتی باید از مرکز خدمات پر شود');
+  assertContainsString(html, 'serviceCenter', 'بک‌آپ باید مرکز خدمات را نگه دارد');
+});
+
+test('دکمه دستیار باید قابل جابجایی باشد و موقعیتش ذخیره شود', () => {
+  assertContainsString(html, 'function initAiFloatDrag(', 'initAiFloatDrag لازم است');
+  assertContainsString(html, 'function applyAiFloatPos(', 'applyAiFloatPos لازم است');
+  assertContainsString(html, 'laegh_ai_float_x', 'موقعیت دستیار باید در localStorage بماند');
+  const src = extractFunctionSource(html, 'applyAiFloatPos');
+  assertTrue(!!src, 'بدنه applyAiFloatPos پیدا نشد');
+  const runner = new Function(src + `
+    var style = {left:'', top:'', right:'', bottom:''};
+    var btn = {style:style};
+    var document = { getElementById:function(){ return btn; } };
+    var window = { innerWidth:800, innerHeight:600 };
+    applyAiFloatPos(40, 80);
+    return {l:style.left, t:style.top, b:style.bottom};
+  `);
+  const r = runner();
+  assertEqual(r.l, '40px', 'دستیار باید با left جابجا شود نه transform سایدبار');
+  assertEqual(r.t, '80px', 'دستیار باید با top جابجا شود');
+  assertEqual(r.b, 'auto', 'با جابجایی نباید به پایین قفل بماند');
+});
+
+test('کارت‌های مدیریت انبارها باید با فاصله استاندارد و بدون تو در تو بودن تنگ باشند', () => {
+  assertContainsString(html, 'wh-entity-grid', 'شبکه مدیریت انبارها لازم است');
+  assertContainsString(html, 'minmax(300px', 'حداقل عرض کارت انبار باید حدود ۳۰۰ پیکسل باشد نه ۱۳۰');
+  const renderSrc = extractFunctionSource(html, 'renderWarehouseEntities');
+  assertTrue(!!renderSrc, 'renderWarehouseEntities پیدا نشد');
+  assertTrue(renderSrc.indexOf('dash-kpi-grid') === -1, 'لیست انبارها نباید داخل dash-kpi-grid تنگ باشد');
+  assertContainsString(html, 'wh-toolbar', 'نوار دکمه‌های انبار باید فاصله و شکست خط استاندارد داشته باشد');
+});
+
+test('حواله ورود باید اول فهرست را انتخاب کند و هر فیلد قابل جستجو و نوشتن دستی باشد', () => {
+  assertContainsString(html, 'id="wh-catalog"', 'انتخاب فهرست قبل از اقلام لازم است');
+  const catSrc = extractFunctionSource(html, 'whCatalogForWarehouseType');
+  assertTrue(!!catSrc, 'whCatalogForWarehouseType پیدا نشد');
+  const runner = new Function(catSrc + `
+    return {
+      def: whCatalogForWarehouseType('defective'),
+      parts: whCatalogForWarehouseType('parts'),
+      goods: whCatalogForWarehouseType('goods')
+    };
+  `);
+  const r = runner();
+  assertEqual(r.def, 'defective', 'انبار معیوب نباید فهرست قطعات را باز کند');
+  assertEqual(r.parts, 'parts', 'انبار قطعات باید فهرست قطعات را باز کند');
+  assertEqual(r.goods, 'products', 'انبار کالا باید فهرست محصولات را باز کند');
+  const itemsSrc = extractFunctionSource(html, 'whCatalogItems');
+  assertTrue(!!itemsSrc, 'whCatalogItems پیدا نشد');
+  const pick = new Function(itemsSrc + `
+    var parts = [{code:'P1', name:'پروانه'}];
+    var products = [{code:'G1', name:'پنکه', model:'S12', colors:'سفید', brand:'سیرمان'}];
+    var defectiveStock = [{id:'DEF-0001', model:'پنکه معیوب', status:'in_stock'}];
+    function defIsInWarehouse(d){ return d.status==='in_stock'; }
+    var defItems = whCatalogItems('defective','');
+    var qItems = whCatalogItems('products','پنکه');
+    return {
+      hasPartInDef: defItems.some(function(x){ return x.code==='P1'; }),
+      hasProdInDef: defItems.some(function(x){ return x.code==='G1' || (x.name||'').indexOf('پنکه')>=0; }),
+      qOk: qItems.length>=1
+    };
+  `);
+  const p = pick();
+  assertEqual(p.hasPartInDef, false, 'فهرست معیوب نباید قطعات تعمیر را قاطی کند');
+  assertEqual(p.hasProdInDef, true, 'فهرست معیوب باید کالا/محصول را نشان دهد');
+  assertEqual(p.qOk, true, 'فهرست باید قابل جستجو باشد');
+  assertContainsString(html, 'id="wh-same-company"', 'گزینه یک شرکت برای کل حواله لازم است');
+  const renderSrc = extractFunctionSource(html, 'renderWhItems');
+  assertTrue(!!renderSrc, 'renderWhItems پیدا نشد');
+  assertContainsString(renderSrc, 'manufacturer', 'هر قلم باید تولیدکننده/تأمین‌کننده جدا داشته باشد');
+  assertContainsString(renderSrc, 'wh-combo', 'فیلد قلم باید جستجو و نوشتن دستی داشته باشد نه فقط select مرده');
+});
+
+test('حواله ورود باید رنگ، کد، مدل، نام، تعداد، توضیح و دو موجودی فیزیکی/سپیدار داشته باشد', () => {
+  const renderSrc = extractFunctionSource(html, 'renderWhItems');
+  ['color','model','qtyPhy','qtySepidar','note'].forEach(function(k){
+    assertContainsString(renderSrc, k, 'فیلد '+k+' در اقلام حواله لازم است');
+  });
+  const misSrc = extractFunctionSource(html, 'collectSepidarPhyMismatches');
+  assertTrue(!!misSrc, 'collectSepidarPhyMismatches پیدا نشد');
+  const runner = new Function(misSrc + `
+    var docs = [{id:'WH-IN-0001', items:[
+      {code:'A', name:'پنکه', qty:2, qtyPhy:2, qtySepidar:5},
+      {code:'B', name:'سالم', qty:1, qtyPhy:1, qtySepidar:1}
+    ]}];
+    return collectSepidarPhyMismatches(docs);
+  `);
+  const rows = runner();
+  assertEqual(rows.length, 1, 'فقط ردیف مغایر باید برگردد');
+  assertEqual(rows[0].phy, 2, 'تعداد فیزیکی مغایر باید ۲ باشد');
+  assertEqual(rows[0].sep, 5, 'تعداد سپیدار مغایر باید ۵ باشد');
+});
+
+test('بخش ستاره‌دار باید اهمیت، فاصله زمانی و روشن/خاموش هر الارم را نگه دارد', () => {
+  assertContainsString(html, "showStgTab('starred'", 'تب بخش ستاره‌دار لازم است');
+  assertContainsString(html, 'id="stg-starred"', 'پنل بخش ستاره‌دار لازم است');
+  const catSrc = extractFunctionSource(html, 'starredAlarmCatalog');
+  const dueSrc = extractFunctionSource(html, 'starredAlarmDue');
+  const normSrc = extractFunctionSource(html, 'normalizeStarredAlarms');
+  assertTrue(!!catSrc && !!dueSrc && !!normSrc, 'توابع الارم ستاره‌دار پیدا نشد');
+  const runner = new Function(catSrc + '\n' + dueSrc + '\n' + normSrc + `
+    var cat = starredAlarmCatalog();
+    var list = normalizeStarredAlarms([]);
+    var sepidar = list.find(function(a){ return a.id==='wh_sepidar_phy'; });
+    var due = starredAlarmDue({on:true, days:3, lastFired: 0}, 4*86400000);
+    var notDue = starredAlarmDue({on:true, days:3, lastFired: 3.5*86400000}, 4*86400000);
+    var off = starredAlarmDue({on:false, days:3, lastFired:0}, 10*86400000);
+    return {has:!!sepidar, pri:sepidar&&sepidar.priority, days:sepidar&&sepidar.days, due:due, notDue:notDue, off:off, titles:cat.map(function(c){return c.id;})};
+  `);
+  const r = runner();
+  assertEqual(r.has, true, 'الارم اختلاف سپیدار و فیزیکی باید در کاتالوگ باشد');
+  assertEqual(r.pri, 'high', 'اولویت پیش‌فرض اختلاف سپیدار باید بالا باشد');
+  assertEqual(r.days, 3, 'فاصله پیش‌فرض باید هر سه روز باشد');
+  assertEqual(r.due, true, 'بعد از سه روز باید الارم نشان داده شود');
+  assertEqual(r.notDue, false, 'قبل از فاصله زمانی نباید الارم تکرار شود');
+  assertEqual(r.off, false, 'الارم خاموش نباید نشان داده شود');
+  assertContainsString(html, 'starredAlarms', 'بک‌آپ باید بخش ستاره‌دار را نگه دارد');
+  assertContainsString(html, 'بخش ستاره‌دار', 'راهنما باید بخش ستاره‌دار را توضیح دهد');
+  assertContainsString(html, 'بخش خدمات', 'راهنما باید بخش خدمات را توضیح دهد');
 });
 
 
