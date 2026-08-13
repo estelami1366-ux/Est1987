@@ -1,0 +1,500 @@
+function onSalePartChange(){
+  const sel = document.getElementById('sale-part-sel');
+  const opt = sel.options[sel.selectedIndex];
+  if(opt && opt.dataset.price){
+    document.getElementById('sale-price').value = opt.dataset.price;
+    calcSaleTotal();
+  }
+}
+
+function calcSaleTotal(){
+  const qty = parseFloat(document.getElementById('sale-qty').value)||0;
+  const price = parseFloat(document.getElementById('sale-price').value)||0;
+  const disc = parseFloat(document.getElementById('sale-disc').value)||0;
+  const discAmt = Math.round(price * disc / 100);
+  const total = Math.round(qty * (price - discAmt));
+  document.getElementById('sale-total-lbl').textContent = total.toLocaleString('fa-IR') + ' ریال';
+  return total;
+}
+
+function getSaleData(){
+  const sel = document.getElementById('sale-part-sel');
+  const opt = sel.options[sel.selectedIndex];
+  const qty = parseFloat(document.getElementById('sale-qty').value)||0;
+  const price = parseFloat(document.getElementById('sale-price').value)||0;
+  const disc = parseFloat(document.getElementById('sale-disc').value)||0;
+  const discAmt = Math.round(price * disc / 100);
+  const total = Math.round(qty * (price - discAmt));
+  const shipLabels = {post:'پست پیشتاز',tipax:'تیپاکس',snap:'اسنپ‌باکس',inperson:'حضوری',other:'سایر'};
+  return {
+    id: window._saleEditIdx===-1 ? 'SL-'+String(sales.length+1).padStart(4,'0') : sales[window._saleEditIdx].id,
+    partCode: sel.value,
+    partName: opt ? opt.dataset.name||'' : '',
+    qty, price, disc, discAmt, total,
+    date: document.getElementById('sale-date').value,
+    note: document.getElementById('sale-note').value,
+    name: document.getElementById('sale-name').value,
+    phone: document.getElementById('sale-phone').value,
+    msg: document.getElementById('sale-msg').value,
+    addr: document.getElementById('sale-addr').value,
+    zip: document.getElementById('sale-zip').value,
+    ship: document.getElementById('sale-ship').value,
+    shipLabel: shipLabels[document.getElementById('sale-ship').value]||'سایر',
+    docs: saleDocs,
+    savedAt: fdt()
+  };
+}
+
+function saveSale(){
+  const d = getSaleData();
+  if(!d.partCode){ ntf('قطعه را انتخاب کنید','err'); return; }
+  if(!d.qty || d.qty < 1){ ntf('تعداد باید حداقل ۱ باشد','err'); return; }
+  if(!d.name){ ntf('نام خریدار الزامی است','err'); return; }
+  if(!d.phone){ ntf('شماره تماس الزامی است','err'); return; }
+
+  // کسر از انبار
+  const partIdx = parts.findIndex(p => p.code === d.partCode);
+  if(partIdx !== -1){
+    const available = parts[partIdx].qty || 0;
+    if(window._saleEditIdx === -1){
+      // فروش جدید
+      if(available < d.qty){
+        if(!confirm('موجودی انبار ('+available+') کمتر از تعداد درخواست ('+d.qty+') است. ادامه می‌دهید?')) return;
+      }
+      parts[partIdx].qty = Math.max(0, available - d.qty);
+    } else {
+      // ویرایش - تفاوت رو اعمال کن
+      const oldQty = sales[window._saleEditIdx].qty || 0;
+      const diff = d.qty - oldQty;
+      parts[partIdx].qty = Math.max(0, (parts[partIdx].qty||0) - diff);
+    }
+    svParts();
+  }
+
+  if(window._saleEditIdx === -1) sales.push(d);
+  else sales[window._saleEditIdx] = d;
+
+  svSales();
+  ntf(window._saleEditIdx===-1 ? 'فروش '+d.id+' ثبت شد — موجودی انبار به‌روز شد' : 'فروش ویرایش شد');
+  closeSaleForm();
+}
+
+function delSale(idx){
+  if(!confirm('حذف این فروش؟ موجودی انبار برگردانده می‌شود.')) return;
+  const s = sales[idx];
+  // برگرداندن به انبار
+  const partIdx = parts.findIndex(p => p.code === s.partCode);
+  if(partIdx !== -1){
+    parts[partIdx].qty = (parts[partIdx].qty||0) + (s.qty||0);
+    svParts();
+  }
+  sales.splice(idx, 1);
+  svSales();
+  renderSales();
+  ntf('فروش حذف شد — موجودی به انبار برگشت');
+}
+
+function saleToPostal(){
+  const d = getSaleData();
+  if(!d.addr && !d.name){ ntf('آدرس یا نام خریدار وارد کنید','err'); return; }
+  // انتقال اطلاعات به برچسب پستی
+  const rcvName = document.getElementById('rcv-name');
+  const rcvAddr = document.getElementById('rcv-addr');
+  const rcvZip  = document.getElementById('rcv-zip');
+  const rcvTel  = document.getElementById('rcv-tel');
+  const rcvNote = document.getElementById('rcv-note');
+  if(rcvName) rcvName.value = d.name;
+  if(rcvAddr) rcvAddr.value = d.addr;
+  if(rcvZip)  rcvZip.value  = d.zip;
+  if(rcvTel)  rcvTel.value  = d.phone;
+  if(rcvNote) rcvNote.value = d.partName + (d.qty>1?' ('+d.qty+' عدد)':'');
+  // رفتن به صفحه پستی
+  const postalNav = document.querySelector('.nit[onclick*="postal"]');
+  if(postalNav) postalNav.click();
+  else {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-postal').classList.add('active');
+    document.querySelectorAll('.nit').forEach(n=>n.classList.remove('active'));
+  }
+  if(typeof updatePostalPreview === 'function') updatePostalPreview();
+  ntf('اطلاعات به برچسب پستی منتقل شد');
+}
+
+function renderSales(){
+  const q = (document.getElementById('sale-q').value||'').toLowerCase();
+  const mf = document.getElementById('sale-month-f').value; // e.g. "1403-08"
+
+  let f = sales.filter(s => {
+    const m = !q || (s.name||'').includes(q) || (s.phone||'').includes(q) ||
+              (s.partName||'').includes(q) || (s.id||'').includes(q);
+    // فیلتر ماه - مقایسه تاریخ شمسی ساده
+    let dateOk = true;
+    if(mf && s.date){
+      const [yr,mo] = mf.split('-');
+      dateOk = s.date.startsWith(yr+'/'+mo) || s.date.startsWith(yr+'/0'+mo);
+    }
+    return m && dateOk;
+  });
+  f=_listSort(f, _sortVal('sale-sort')||'_idx:desc', sales);
+  window._salesView=f;
+
+  // آمار
+  const totalQty = f.reduce((a,s)=>a+(s.qty||0),0);
+  const totalRev = f.reduce((a,s)=>a+(s.total||0),0);
+  document.getElementById('sale-stats-bar').innerHTML =
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">' +
+    '<div class="stat-card" style="flex:1;min-width:100px"><div class="stat-val" style="font-size:18px">'+f.length+'</div><div class="stat-lbl">فروش</div></div>' +
+    '<div class="stat-card" style="flex:1;min-width:100px"><div class="stat-val" style="font-size:18px">'+totalQty+'</div><div class="stat-lbl">تعداد قطعه</div></div>' +
+    '<div class="stat-card" style="flex:1;min-width:100px"><div class="stat-val" style="font-size:14px;color:var(--green)">'+totalRev.toLocaleString('fa-IR')+'</div><div class="stat-lbl">جمع فروش (ریال)</div></div>' +
+    '</div>';
+
+  const c = document.getElementById('sales-tbl');
+  if(!f.length){ c.innerHTML='<div style="text-align:center;color:#aaa;padding:24px">فروشی یافت نشد</div>'; return; }
+
+  c.innerHTML = '<table class="stbl">' +
+    '<thead><tr><th>شماره</th><th>تاریخ</th><th>قطعه</th><th>تعداد</th><th>قیمت واحد</th><th>تخفیف</th><th>جمع کل</th><th>خریدار</th><th>تلفن</th><th>ارسال</th><th>عملیات</th></tr></thead>' +
+    '<tbody>' +
+    f.map((s,fi) => {
+      const ri = sales.indexOf(s);
+      return '<tr>' +
+        '<td><b style="color:var(--blue2)">'+s.id+'</b></td>' +
+        '<td style="font-size:11px">'+( s.date||'—')+'</td>' +
+        '<td style="font-weight:500">'+( s.partName||s.partCode||'—')+( (s.docs&&s.docs.length) ? ' <span style="font-size:10px;color:var(--blue2)" title="'+s.docs.length+' سند ضمیمه">📎'+s.docs.length+'</span>' : '')+'</td>' +
+        '<td style="text-align:center;font-weight:700">'+( s.qty||0)+'</td>' +
+        '<td>'+( s.price||0).toLocaleString('fa-IR')+'</td>' +
+        '<td>'+( s.disc||0)+'%</td>' +
+        '<td style="font-weight:700;color:var(--green)">'+( s.total||0).toLocaleString('fa-IR')+' ریال</td>' +
+        '<td>'+( s.name||'—')+'</td>' +
+        '<td>'+( s.phone||'—')+'</td>' +
+        '<td style="font-size:11px">'+( s.shipLabel||'—')+'</td>' +
+        '<td style="display:flex;gap:3px">' +
+          '<button class="btn btn-sm btn-p" onclick="openSaleForm('+ri+')">✏</button>' +
+          '<button class="btn btn-sm" onclick="saleSendToPostal('+ri+')">📮</button>' +
+          '<button class="btn btn-sm btn-r" onclick="delSale('+ri+')">✕</button>' +
+        '</td></tr>';
+    }).join('') +
+    '</tbody></table>';
+}
+
+// انتقال از لیست به برچسب
+function saleSendToPostal(idx){
+  const s = sales[idx];
+  const rcvName = document.getElementById('rcv-name');
+  const rcvAddr = document.getElementById('rcv-addr');
+  const rcvZip  = document.getElementById('rcv-zip');
+  const rcvTel  = document.getElementById('rcv-tel');
+  const rcvNote = document.getElementById('rcv-note');
+  if(rcvName) rcvName.value = s.name||'';
+  if(rcvAddr) rcvAddr.value = s.addr||'';
+  if(rcvZip)  rcvZip.value  = s.zip||'';
+  if(rcvTel)  rcvTel.value  = s.phone||'';
+  if(rcvNote) rcvNote.value = (s.partName||s.partCode||'') + (s.qty>1?' ('+s.qty+' عدد)':'');
+  const postalNav = document.querySelector('.nit[onclick*="postal"]');
+  if(postalNav) postalNav.click();
+  if(typeof updatePostalPreview === 'function') updatePostalPreview();
+  ntf('اطلاعات پستی منتقل شد');
+}
+
+// خروجی Excel
+function expSalesExcel(){
+  if(!sales.length){ ntf('فروشی ثبت نشده','err'); return; }
+  const wb = XLSX.utils.book_new();
+  const rows = [['شماره','تاریخ','کد قطعه','نام قطعه','تعداد','قیمت واحد','تخفیف%','جمع کل','نام خریدار','تلفن','پیام‌رسان','آدرس','کدپستی','نحوه ارسال']];
+  sales.forEach(s => rows.push([
+    s.id, s.date||'', s.partCode||'', s.partName||'',
+    s.qty||0, s.price||0, s.disc||0, s.total||0,
+    s.name||'', s.phone||'', s.msg||'', s.addr||'', s.zip||'', s.shipLabel||''
+  ]));
+  // جمع‌بندی
+  rows.push([]);
+  rows.push(['جمع کل','','','',
+    sales.reduce((a,s)=>a+(s.qty||0),0), '', '',
+    sales.reduce((a,s)=>a+(s.total||0),0)
+  ]);
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), 'فروش قطعات');
+  XLSX.writeFile(wb, 'Laegh_Sales_'+fdate().replace(/\//g,'-')+'.xlsx');
+  ntf('Excel دانلود شد');
+}
+
+
+// ===== SETTINGS PAGE =====
+function showStgTab(id, el) {
+  document.querySelectorAll('.stg-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.stg-panel').forEach(p => p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const panel = document.getElementById('stg-' + id);
+  if(panel) panel.classList.add('active');
+  if(id === 'access') renderRolesList();
+}
+
+// ===== PRINT SETTINGS =====
+const PS_KEY = 'laegh_printSettings';
+const PS_DEFAULTS = {
+  invoice: { paper:'A4 landscape', font:'Tahoma', fontsize:'11px', margin:'8mm', headercolor:'#2563eb', logo:'1', bg:'none', border:false, watermark:false, pagenum:false },
+  warranty: { paper:'A5', headercolor:'#1e3a5f', logo:'1', bg:'none', border:false, qr:false },
+  postal:   { paper:'A5', count:'1', logo:'1', fragile:true, border:true },
+  list:     { paper:'A4', headercolor:'#2563eb', fontsize:'11px', zebra:true, logo:false, date:true }
+};
+
+function getPrintSettings() {
+  try { return JSON.parse(localStorage.getItem(PS_KEY)) || JSON.parse(JSON.stringify(PS_DEFAULTS)); }
+  catch(e) { return JSON.parse(JSON.stringify(PS_DEFAULTS)); }
+}
+
+function savePrintSettings() {
+  const ps = getPrintSettings();
+  const read = (id, type='val') => {
+    const el = document.getElementById(id);
+    if(!el) return null;
+    if(type==='chk') return el.checked;
+    return el.value;
+  };
+  ps.invoice = {
+    paper: read('ps-invoice-paper') || ps.invoice.paper,
+    font: read('ps-invoice-font') || ps.invoice.font,
+    fontsize: read('ps-invoice-fontsize') || ps.invoice.fontsize,
+    margin: read('ps-invoice-margin') || ps.invoice.margin,
+    headercolor: read('ps-invoice-headercolor') || ps.invoice.headercolor,
+    logo: read('ps-invoice-logo') || ps.invoice.logo,
+    bg: ps.invoice.bg,
+    border: read('ps-invoice-border','chk'),
+    watermark: read('ps-invoice-watermark','chk'),
+    pagenum: read('ps-invoice-pagenum','chk')
+  };
+  ps.warranty = {
+    paper: read('ps-warranty-paper') || ps.warranty.paper,
+    headercolor: read('ps-warranty-headercolor') || ps.warranty.headercolor,
+    logo: read('ps-warranty-logo') || ps.warranty.logo,
+    bg: ps.warranty.bg,
+    border: read('ps-warranty-border','chk'),
+    qr: read('ps-warranty-qr','chk')
+  };
+  ps.postal = {
+    paper: read('ps-postal-paper') || ps.postal.paper,
+    count: read('ps-postal-count') || ps.postal.count,
+    logo: read('ps-postal-logo') || ps.postal.logo,
+    fragile: read('ps-postal-fragile','chk'),
+    border: read('ps-postal-border','chk')
+  };
+  ps.list = {
+    paper: read('ps-list-paper') || ps.list.paper,
+    headercolor: read('ps-list-headercolor') || ps.list.headercolor,
+    fontsize: read('ps-list-fontsize') || ps.list.fontsize,
+    zebra: read('ps-list-zebra','chk'),
+    logo: read('ps-list-logo','chk'),
+    date: read('ps-list-date','chk')
+  };
+  localStorage.setItem(PS_KEY, JSON.stringify(ps));
+  ntf('تنظیمات ذخیره شد');
+}
+
+function loadPrintSettingsUI() {
+  const ps = getPrintSettings();
+  const set = (id, val, type='val') => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(type==='chk') el.checked = !!val;
+    else el.value = val || '';
+  };
+  const inv = ps.invoice || PS_DEFAULTS.invoice;
+  set('ps-invoice-paper', inv.paper);
+  set('ps-invoice-font', inv.font);
+  set('ps-invoice-fontsize', inv.fontsize);
+  set('ps-invoice-margin', inv.margin);
+  set('ps-invoice-headercolor', inv.headercolor);
+  set('ps-invoice-logo', inv.logo);
+  set('ps-invoice-border', inv.border, 'chk');
+  set('ps-invoice-watermark', inv.watermark, 'chk');
+  set('ps-invoice-pagenum', inv.pagenum, 'chk');
+  // mark bg
+  document.querySelectorAll('#ps-invoice-bg-opts .print-bg-opt').forEach(o => {
+    o.classList.toggle('selected', o.dataset.val === (inv.bg || 'none'));
+  });
+
+  const war = ps.warranty || PS_DEFAULTS.warranty;
+  set('ps-warranty-paper', war.paper);
+  set('ps-warranty-headercolor', war.headercolor);
+  set('ps-warranty-logo', war.logo);
+  set('ps-warranty-border', war.border, 'chk');
+  set('ps-warranty-qr', war.qr, 'chk');
+  document.querySelectorAll('#ps-warranty-bg-opts .print-bg-opt').forEach(o => {
+    o.classList.toggle('selected', o.dataset.val === (war.bg || 'none'));
+  });
+
+  const pos = ps.postal || PS_DEFAULTS.postal;
+  set('ps-postal-paper', pos.paper);
+  set('ps-postal-count', pos.count);
+  set('ps-postal-logo', pos.logo);
+  set('ps-postal-fragile', pos.fragile, 'chk');
+  set('ps-postal-border', pos.border, 'chk');
+
+  const lst = ps.list || PS_DEFAULTS.list;
+  set('ps-list-paper', lst.paper);
+  set('ps-list-headercolor', lst.headercolor);
+  set('ps-list-fontsize', lst.fontsize);
+  set('ps-list-zebra', lst.zebra, 'chk');
+  set('ps-list-logo', lst.logo, 'chk');
+  set('ps-list-date', lst.date, 'chk');
+}
+
+function selectBg(section, val, el) {
+  const ps = getPrintSettings();
+  if(!ps[section]) ps[section] = {};
+  ps[section].bg = val;
+  localStorage.setItem(PS_KEY, JSON.stringify(ps));
+  const container = document.getElementById('ps-' + section + '-bg-opts');
+  if(container) container.querySelectorAll('.print-bg-opt').forEach(o => o.classList.toggle('selected', o.dataset.val === val));
+  ntf('پس‌زمینه انتخاب شد');
+}
+
+function resetPrintSection(section) {
+  if(!confirm('تنظیمات این بخش به حالت پیش‌فرض برگردد؟')) return;
+  const ps = getPrintSettings();
+  ps[section] = JSON.parse(JSON.stringify(PS_DEFAULTS[section]));
+  localStorage.setItem(PS_KEY, JSON.stringify(ps));
+  loadPrintSettingsUI();
+  ntf('بازنشانی شد');
+}
+
+function previewPrintSettings(section) {
+  var ps = getPrintSettings();
+  var s = ps[section] || PS_DEFAULTS[section];
+  var bgMap = {none:'#ffffff',blue:'linear-gradient(135deg,#e8f0fe,#f0f4ff)',green:'linear-gradient(135deg,#e8f5e9,#f1f8e9)',warm:'linear-gradient(135deg,#fff3e0,#fce4ec)',purple:'linear-gradient(135deg,#f3e5f5,#ede7f6)',lines:'repeating-linear-gradient(45deg,#f5f5f5,#f5f5f5 5px,#fff 5px,#fff 10px)'};
+  var bg = bgMap[s.bg||'none']||'#fff';
+  var logoSrc = localStorage.getItem('laegh_logo')||'';
+  var coName = '';
+  try{ coName=(JSON.parse(localStorage.getItem('laegh_company')||'{}')).name||'نام شرکت'; }catch(e){ coName='نام شرکت'; }
+  var sectionName = section==='invoice'?'فاکتور':section==='warranty'?'گارانتی':section==='postal'?'برچسب پستی':'لیست';
+  var font = s.font||'Tahoma';
+  var fsize = s.fontsize||'11px';
+  var paper = s.paper||'A4';
+  var margin = s.margin||'8mm';
+  var hcolor = s.headercolor||'#2563eb';
+  var borderStyle = s.border ? 'body{border:3px solid #333;border-radius:8px;}' : '';
+  var watermarkHtml = s.watermark ? '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:80px;opacity:0.05;font-weight:900;pointer-events:none;">رسمی</div>' : '';
+  var logoHtml = (logoSrc&&s.logo=='1') ? '<img src="'+logoSrc+'" style="height:36px;object-fit:contain">' : '';
+  var pagenumHtml = s.pagenum ? '<div style="position:fixed;bottom:8px;width:100%;text-align:center;font-size:9px;color:#999">صفحه ۱</div>' : '';
+  var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'
+    + '<style>'
+    + 'body{font-family:'+font+';font-size:'+fsize+';background:'+bg+';margin:0;padding:20px;direction:rtl;}'
+    + '@page{size:'+paper+';margin:'+margin+';}'
+    + '.hdr{background:'+hcolor+';color:#fff;padding:10px 16px;border-radius:6px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}'
+    + 'table{width:100%;border-collapse:collapse;font-size:inherit;}'
+    + 'th{background:'+hcolor+';color:#fff;padding:5px;text-align:right;}'
+    + 'td{border:1px solid #ddd;padding:5px;text-align:right;}'
+    + borderStyle
+    + '</style></head><body>'
+    + watermarkHtml
+    + '<div class="hdr">'
+    + logoHtml
+    + '<div><div style="font-size:14px;font-weight:700">'+coName+'</div><div style="font-size:10px;opacity:.8">پیش\u200cنمایش — '+sectionName+'</div></div>'
+    + '<div style="text-align:left;font-size:11px">شماره: ۱۰۰۱<br>تاریخ: ۱۴۰۳/۰۱/۱۵</div>'
+    + '</div>'
+    + '<table><tr><th>ردیف</th><th>شرح</th><th>تعداد</th><th>قیمت واحد</th><th>جمع</th></tr>'
+    + '<tr><td>۱</td><td>نمونه قطعه / کالا</td><td>۲</td><td>۵۰۰,۰۰۰</td><td>۱,۰۰۰,۰۰۰</td></tr>'
+    + '<tr><td>۲</td><td>خدمت تعمیر</td><td>۱</td><td>۲۰۰,۰۰۰</td><td>۲۰۰,۰۰۰</td></tr>'
+    + '</table>'
+    + '<div style="text-align:left;margin-top:14px;font-weight:700">جمع کل: ۱,۲۰۰,۰۰۰ تومان</div>'
+    + pagenumHtml
+    + '<scr'+'ipt>window.onload=function(){window.print();}<\/scr'+'ipt>'
+    + '</body></html>';
+  var w = window.open('','_blank','width=750,height=550');
+  w.document.write(html);
+  w.document.close();
+}
+
+// company info
+function saveCompanyInfo() {
+  const data = {
+    name: document.getElementById('co-name')?.value||'',
+    phone: document.getElementById('co-phone')?.value||'',
+    email: document.getElementById('co-email')?.value||'',
+    web: document.getElementById('co-web')?.value||'',
+    addr: document.getElementById('co-addr')?.value||'',
+    tax: document.getElementById('co-tax')?.value||''
+  };
+  localStorage.setItem('laegh_company', JSON.stringify(data));
+  ntf('اطلاعات شرکت ذخیره شد','ok');
+}
+
+function loadCompanyInfo() {
+  try {
+    const d = JSON.parse(localStorage.getItem('laegh_company')||'{}');
+    if(document.getElementById('co-name')) {
+      document.getElementById('co-name').value = d.name||'';
+      document.getElementById('co-phone').value = d.phone||'';
+      document.getElementById('co-email').value = d.email||'';
+      document.getElementById('co-web').value = d.web||'';
+      document.getElementById('co-addr').value = d.addr||'';
+      document.getElementById('co-tax').value = d.tax||'';
+    }
+  } catch(e){}
+}
+
+// ===== APPEARANCE / THEME SYSTEM =====
+const COLOR_THEMES = {
+  blue:    { label:'آبی کلاسیک',  blue:'#185FA5', blue2:'#0C447C', blueL:'#E6F1FB' },
+  emerald: { label:'سبز زمردی',   blue:'#0F9D58', blue2:'#0B7A43', blueL:'#E3F7EC' },
+  violet:  { label:'بنفش یاقوتی', blue:'#7C3AED', blue2:'#5B21B6', blueL:'#F1E9FE' },
+  amber:   { label:'نارنجی گرم',  blue:'#D97706', blue2:'#9A5B05', blueL:'#FEF3E2' },
+  rose:    { label:'گلبهی',       blue:'#E11D48', blue2:'#9F1239', blueL:'#FDE8ED' },
+  slate:   { label:'خاکستری مدرن', blue:'#475569', blue2:'#334155', blueL:'#EEF2F6' }
+};
+
+function applyColorThemeVars(key){
+  const t = COLOR_THEMES[key] || COLOR_THEMES.blue;
+  document.documentElement.style.setProperty('--blue', t.blue);
+  document.documentElement.style.setProperty('--blue2', t.blue2);
+  document.documentElement.style.setProperty('--blue-l', t.blueL);
+}
+function setColorTheme(key){
+  applyColorThemeVars(key);
+  localStorage.setItem('laegh_color_theme', key);
+  document.querySelectorAll('.theme-swatch').forEach(s=>s.classList.toggle('selected', s.dataset.theme===key));
+  ntf('تم رنگی تغییر کرد');
+}
+function renderColorThemeSwatches(){
+  const box = document.getElementById('color-theme-swatches');
+  if(!box) return;
+  const cur = localStorage.getItem('laegh_color_theme') || 'blue';
+  box.innerHTML = Object.keys(COLOR_THEMES).map(key=>{
+    const t = COLOR_THEMES[key];
+    return '<div class="theme-swatch'+(key===cur?' selected':'')+'" data-theme="'+key+'" title="'+t.label+'" style="background:'+t.blue+'" onclick="setColorTheme(\''+key+'\')">'+(key===cur?'✓':'')+'</div>';
+  }).join('');
+}
+
+function setTheme(val){
+  document.body.classList.toggle('theme-dark', val==='dark');
+  localStorage.setItem('laegh_theme', val);
+  ntf(val==='dark' ? 'حالت تاریک فعال شد' : 'حالت روشن فعال شد');
+}
+
+function setAppFont(val){
+  document.body.classList.remove('fv','fc','ffa');
+  if(val==='Vazir') document.body.classList.add('fv');
+  else if(val==='Arial') document.body.classList.add('ffa');
+  else if(val==='Calibri') document.body.classList.add('fc');
+  localStorage.setItem('laegh_app_font', val);
+  ntf('فونت نرم‌افزار تغییر کرد');
+}
+
+function setTextSize(val){
+  document.body.classList.remove('text-sm','text-lg');
+  if(val==='sm') document.body.classList.add('text-sm');
+  if(val==='lg') document.body.classList.add('text-lg');
+  localStorage.setItem('laegh_text_size', val);
+  ntf('اندازه متن تغییر کرد');
+}
+
+function setDensity(val){
+  document.body.classList.remove('density-compact','density-spacious');
+  if(val==='compact') document.body.classList.add('density-compact');
+  if(val==='spacious') document.body.classList.add('density-spacious');
+  localStorage.setItem('laegh_density', val);
+  ntf('تراکم چیدمان تغییر کرد — محیط '+(val==='spacious'?'دلباز':val==='compact'?'فشرده':'استاندارد')+' شد');
+}
+
+function setRadiusStyle(val){
+  document.body.classList.remove('radius-sharp','radius-round');
+  if(val==='sharp') document.body.classList.add('radius-sharp');
+  if(val==='round') document.body.classList.add('radius-round');
