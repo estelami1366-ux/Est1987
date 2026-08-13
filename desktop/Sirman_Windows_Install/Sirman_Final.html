@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ε">
+<meta name="app-version" content="1405.5.22ζ">
 <meta name="app-date" content="1405/05/22">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -836,6 +836,8 @@ body.sirman-app-frame .topbar{padding-left:56px}
 .notif{background:#222;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:auto;box-shadow:0 4px 12px rgba(0,0,0,.2);}
 .notif.show{opacity:1;}
 .notif.err{background:var(--red);}
+.notif.warn{background:#b45309;}
+.notif.critical{background:#7f1d1d;}
 .notif.ok{background:var(--green);}
 /* POSTAL PRINT */
 .fab{position:fixed;bottom:22px;left:22px;z-index:500;background:var(--blue);color:#fff;border:none;border-radius:50px;padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(24,95,165,.4);font-family:var(--font);display:none;align-items:center;gap:5px;}
@@ -886,6 +888,7 @@ body.sirman-app-frame .topbar{padding-left:56px}
 .dbg-log{background:#0d1117;color:#e6edf3;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;max-height:320px;overflow-y:auto;direction:ltr;line-height:1.7;}
 .dbg-entry{padding:5px 8px;border-radius:4px;margin-bottom:4px;border-right:3px solid transparent;}
 .dbg-entry.err{background:#2d1b1b;border-color:#f85149;color:#ffa198;}
+.dbg-entry.critical{background:#3f1010;border-color:#ff7b72;color:#ffa198;}
 .dbg-entry.warn{background:#2b2200;border-color:#d29922;color:#e3b341;}
 .dbg-entry.info{background:#0d2137;border-color:#388bfd;color:#79c0ff;}
 .dbg-entry.ok{background:#0d2b1a;border-color:#3fb950;color:#56d364;}
@@ -918,7 +921,7 @@ body.sirman-app-frame .topbar{padding-left:56px}
 .stg-panel.active{display:block;}
 /* PRINT SETTINGS */
 .print-section-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;}
-/* ══════ مرکز پرینت / Print Center (v1405.5.22ε) ══════ */
+/* ══════ مرکز پرینت / Print Center (v1405.5.22ζ) ══════ */
 .pc-shell{display:grid;grid-template-columns:210px minmax(0,1fr) 300px;gap:12px;min-height:540px;align-items:stretch;}
 .pc-col{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 24px rgba(15,40,55,.06);display:flex;flex-direction:column;min-width:0;overflow:hidden;}
 .pc-col-h{padding:12px 14px;font-size:12px;font-weight:800;letter-spacing:.02em;color:var(--blue2);background:linear-gradient(180deg,color-mix(in srgb,var(--blue-l) 70%,#fff),transparent);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -1045,7 +1048,7 @@ body.has-bg-image::after{
 }
 body.has-bg-image.theme-dark::after{background:rgba(10,12,15,var(--bg-overlay,0.55));}
 
-/* ══════ اسکین قوی / Skin Pack (v1405.5.22ε) ══════ */
+/* ══════ اسکین قوی / Skin Pack (v1405.5.22ζ) ══════ */
 .skin-card{width:148px;border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--card);transition:.18s;text-align:right;}
 .skin-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,40,55,.10);}
 .skin-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 25%,transparent);}
@@ -1588,7 +1591,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 
 </style>
 <style id="win-manager-css">
-/* ══════ چندپنجره / تب‌های کاری (v1405.5.22ε) ══════ */
+/* ══════ چندپنجره / تب‌های کاری (v1405.5.22ζ) ══════ */
 #win-chrome{
   position:sticky; top:0; z-index:60;
   display:flex; flex-wrap:wrap; align-items:center; gap:6px;
@@ -2031,7 +2034,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۲ε — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۲ζ — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-r btn-sm" id="btn-exit-safe" onclick="promptExitBackup()" style="width:100%;margin-top:8px;font-weight:700">🚪 خروج امن (پرسش بک‌آپ)</button>
   <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;padding:0 2px">اگر ✕ پنجره را بزنید، مرورگر اول هشدار می‌دهد؛ برای بک‌آپ از این دکمه استفاده کنید.</div>
 </div>
@@ -3273,6 +3276,23 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 </div>
 
+<div class="ov" id="app-error-modal">
+<div class="modal" style="max-width:440px">
+  <button class="modal-x" onclick="closeAppErrorModal()">×</button>
+  <div class="modal-title">خطای مهم سیستم</div>
+  <p id="app-error-user" style="font-size:14px;line-height:1.9;margin:8px 0 12px"></p>
+  <div style="font-size:12px;background:var(--bg2);border-radius:8px;padding:10px;line-height:1.8">
+    <div>کد خطا: <b id="app-error-code" style="font-family:monospace"></b></div>
+    <div>کد پیگیری: <b id="app-error-corr" style="font-family:monospace;direction:ltr;display:inline-block"></b></div>
+  </div>
+  <p style="font-size:11px;color:var(--text2);margin:10px 0">این کد را یادداشت کنید و به پشتیبانی بدهید. جزئیات فنی به کاربر نشان داده نمی‌شود.</p>
+  <div class="btn-bar">
+    <button class="btn btn-p" type="button" onclick="copyAppErrorCorr()">📋 کپی کد پیگیری</button>
+    <button class="btn btn-o" type="button" onclick="closeAppErrorModal()">باشه</button>
+  </div>
+</div>
+</div>
+
 <!-- ===== DATA I/O PAGE ===== -->
 <div class="page" id="page-dataio">
 <div class="topbar"><div class="topbar-title">🔄 ورود / خروج داده‌ها</div></div>
@@ -4228,6 +4248,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 
   <!-- TAB: DEBUG -->
   <div class="stg-panel" id="stg-debug">
+    <p style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:10px">هر خطا یک <b>کد ثابت</b> دارد. پیام فارسی برای شماست؛ جزئیات فنی فقط در لاگ می‌ماند. برای خطای مهم، <b>کد پیگیری</b> را یادداشت کنید.</p>
     <div class="dbg-stat-bar" id="dbg-stats-bar">
       <div class="dbg-stat"><div class="val" id="dbg-err-count" style="color:#f85149">0</div><div class="lbl">خطا</div></div>
       <div class="dbg-stat"><div class="val" id="dbg-warn-count" style="color:#d29922">0</div><div class="lbl">اخطار</div></div>
@@ -4240,10 +4261,15 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
       <button class="btn btn-sm btn-pu" onclick="runCodeAnalysis()" data-tip="بررسی خطوط کد و تحلیل اسکریپت">📊 بررسی خطوط کد</button>
       <button class="btn btn-sm btn-o" onclick="clearDbgLog()">🗑 پاک کردن لاگ</button>
       <button class="btn btn-sm" onclick="exportDbgLog()">📋 کپی لاگ</button>
+      <button class="btn btn-sm" onclick="copyLastErrorCorr()">📋 کپی آخرین کد پیگیری</button>
       <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer">
         <input type="checkbox" id="dbg-auto" checked onchange="toggleAutoDbg(this)"> ثبت خودکار خطاها
       </label>
+      <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer">
+        <input type="checkbox" id="dbg-show-tech" onchange="renderDbgLog()"> نمایش جزئیات فنی
+      </label>
     </div>
+    <div id="dbg-last-corr" style="font-size:11px;color:var(--text2);margin-bottom:8px">آخرین کد پیگیری: —</div>
     <div class="dbg-log" id="dbg-log"><div style="color:#555;text-align:center;margin-top:40px">🔍 عیب‌یابی را شروع کنید...</div></div>
   </div>
 
@@ -4895,6 +4921,19 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   </p>
 </div>
 
+<div class="help-cat-header">🔍 عیب‌یابی و خطاها</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>کد خطا، پیام فارسی و کد پیگیری</span><span class="help-chev">▾</span></div>
+  <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>کد ثابت:</b> هر خطا یک کد مثل <code>ERR-AUTH-001</code> دارد. متن پیام ممکن است عوض شود؛ کد عوض نمی‌شود.</li>
+    <li><b>پیام شما:</b> روی صفحه فقط پیام ساده فارسی دیده می‌شود. مسیر فایل، کوئری یا Stack Trace به شما نشان داده نمی‌شود.</li>
+    <li><b>اخطار زرد / خطا قرمز:</b> اخطار سبک به‌صورت نوار زرد پایین صفحه است. خطای معمولی قرمز است. خطای خیلی مهم یک پنجره با <b>کد پیگیری</b> باز می‌کند.</li>
+    <li><b>خطای فرم:</b> اگر رمز ورود اشتباه باشد، پیام زیر همان فیلد می‌آید.</li>
+    <li><b>لاگ:</b> تنظیمات → عیب‌یابی. «عیب‌یابی کامل» سلامت داده و حافظه را چک می‌کند. تیک «نمایش جزئیات فنی» فقط برای خودتان است.</li>
+    <li><b>کد پیگیری:</b> دکمه «کپی آخرین کد پیگیری» را بزنید و به پشتیبانی بدهید.</li>
+  </ul>
+</div>
+
 <div class="help-cat-header">🔔 اعلان و پیغام‌ها</div>
 
 <div class="card help-card help-collapsed">
@@ -5102,7 +5141,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۲ε
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۲ζ
 </div>
 </div>
 
@@ -5825,9 +5864,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 })();
 
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.22ε';
-var APP_BASE_VERSION = '1405.5.22ε'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۲۲ε';
+var APP_VERSION = '1405.5.22ζ';
+var APP_BASE_VERSION = '1405.5.22ζ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۲۲ζ';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -6323,8 +6362,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.22ε'; }
-  catch(_e){ return '1405.5.22ε'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.22ζ'; }
+  catch(_e){ return '1405.5.22ζ'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -6950,8 +6989,8 @@ function _buildFullBackupData(){
   var data = {
     magic: (typeof SIRMAN_BACKUP_MAGIC!=='undefined'?SIRMAN_BACKUP_MAGIC:'SIRMAN_BACKUP'),
     schemaVersion: (typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1),
-    version: '1405.5.22ε',
-    applicationVersion: '1405.5.22ε',
+    version: '1405.5.22ζ',
+    applicationVersion: '1405.5.22ζ',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -7218,7 +7257,7 @@ async function restoreAutoSaveHandlesOnBoot(){
   }catch(_e2){ return false; }
 }
 
-// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.22ε ═══════════════════
+// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.22ζ ═══════════════════
 // عکس پس‌زمینه، لوگو و ضمیمه‌ها فقط در پوشهٔ بک‌آپ روی دیسک نوشته می‌شوند.
 // در حافظهٔ مرورگر فقط ارجاع کوتاه disk://sirman_media/... نگه داشته می‌شود.
 window._diskUrlCache = window._diskUrlCache || {};
@@ -8804,7 +8843,7 @@ function showCustomer360(phone, name){
   document.getElementById('cust360-modal').classList.add('open');
 }
 
-// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۲ε) ───────────────────────────────────────────
+// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۲ζ) ───────────────────────────────────────────
 window._wins = window._wins || [];
 window._winActive = window._winActive || null;
 window._winSeq = window._winSeq || 1;
@@ -10241,7 +10280,7 @@ function buildPH(list){
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 window._pcActiveDocId='invoice';
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ε">
+<meta name="app-version" content="1405.5.22ζ">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -10258,7 +10297,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ε">
+<meta name="app-version" content="1405.5.22ζ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -10318,7 +10357,7 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ε">
+<meta name="app-version" content="1405.5.22ζ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -10338,11 +10377,11 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ε">
+<meta name="app-version" content="1405.5.22ζ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ε">
+<meta name="app-version" content="1405.5.22ζ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -10974,7 +11013,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ε">
+<meta name="app-version" content="1405.5.22ζ">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -12552,7 +12591,7 @@ function enableTaskNotifications(){
 }
 function registerLaeghSW(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('sw.js?v=1405.5.22ε').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=1405.5.22ζ').then(reg=>{
     _swReg=reg;
     // Check for SW updates
     reg.addEventListener('updatefound', ()=>{
@@ -12678,7 +12717,8 @@ function attemptLogin(){
     finishLogin();
     return;
   }
-  errEl.textContent = '❌ رمز اشتباه است';
+  errEl.textContent = '';
+  presentAppError('ERR-AUTH-001', { fieldId:'login-error-msg' });
   document.getElementById('login-pw-input').value = '';
 }
 
@@ -13792,7 +13832,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22ε">'+
+    '<meta name="app-version" content="1405.5.22ζ">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -13965,7 +14005,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.22ε"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.22ζ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -16252,7 +16292,7 @@ function doPrint(paperSize){
   const wbg=bgMap[pw.bg||'none']||'#fff';
   const effPaper = pw.paper || paperSize;
   var htmlDoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ε">
+<meta name="app-version" content="1405.5.22ζ">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -16348,7 +16388,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22ε"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.22ζ"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -16377,7 +16417,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22ε"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.22ζ"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -16414,7 +16454,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22ε">'+
+    '<meta name="app-version" content="1405.5.22ζ">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -16498,7 +16538,7 @@ function printCompanyReport(idx){
   var qcResultLbl = {'pass':'✅ تأیید کیفیت','fail':'❌ رد شد — نیاز به اصلاح','pending':'در حال بررسی'};
   var mgrApproveLbl = {'approved':'✅ تأیید نهایی','pending':'در انتظار بررسی','rejected':'❌ رد شد'};
 
-  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.22ε';
+  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.22ζ';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
     '<title>گزارش داخلی شرکت — '+wHdr.id+'</title>'+
     '<style>'+
@@ -17129,7 +17169,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22ε">'+
+    '<meta name="app-version" content="1405.5.22ζ">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -17349,7 +17389,7 @@ function expSalesExcel(){
 // ══════ حسابداری ══════
 // ═══════════════════════════════════════════════════════════════════════════
 // ماژول داغی (پیگیری رسید امضا‌شده‌ی نمایندگی‌های خدمات)
-// نسخه ۱۴۰۵.۵.۲۲ε — فاز داغی
+// نسخه ۱۴۰۵.۵.۲۲ζ — فاز داغی
 //
 // «داغی» یعنی وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستیم، آن‌ها باید رسید امضا‌شده
 // (داغی) را به ما برگردانند. این ماژول پیگیری می‌کند که چه کسانی داغی معوقه دارند.
@@ -18653,7 +18693,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22ε">'+
+    '<meta name="app-version" content="1405.5.22ζ">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
@@ -20881,44 +20921,207 @@ applyLayerBackgrounds();
 if((localStorage.getItem('laegh_sb_mode')||'')==='dock') ensureDockFlyouts();
 
 
-// ===== DEBUG SYSTEM =====
+// ===== ERROR ENGINE + DEBUG SYSTEM =====
+// مدل AppError + کاتالوگ ثابت. جزئیات فنی فقط در لاگ؛ کاربر پیام فارسی و کد می‌بیند.
 var dbgLog = [];
 var dbgAutoEnabled = true;
 var dbgErrCount = 0, dbgWarnCount = 0, dbgOkCount = 0;
+var _lastAppErrorCorr = '';
 
-// Error dictionary with codes
+var ERROR_CATALOG = {
+  'ERR-AUTH-001': { code:'ERR-AUTH-001', severity:'error', userMessage:'نام کاربری یا رمز عبور اشتباه است', solution:'رمز را دوباره وارد کنید. اگر فراموش کرده‌اید از مدیر بخواهید رمز را عوض کند.' },
+  'ERR-NET-002': { code:'ERR-NET-002', severity:'warning', userMessage:'اتصال به سرور برقرار نشد. لطفاً دوباره تلاش کنید', solution:'اینترنت را چک کنید و دوباره امتحان کنید.' },
+  'ERR-DB-010': { code:'ERR-DB-010', severity:'critical', userMessage:'خطای داخلی سیستم. کد پیگیری را یادداشت کنید', solution:'کد پیگیری را کپی کنید و به پشتیبانی بدهید. داده را پاک نکنید.' },
+  'WRN-QUOTA-01': { code:'WRN-QUOTA-01', severity:'warning', userMessage:'حجم استفاده شما نزدیک به سقف مجاز است', solution:'پوشه بک‌آپ روی هارد را انتخاب کنید و یک فایل پشتیبان بگیرید.' },
+  'ERR-STORE-001': { code:'ERR-STORE-001', severity:'error', userMessage:'حافظه مرورگر در دسترس نیست', solution:'حالت ناشناس را ببندید یا پوشه بک‌آپ روی هارد را انتخاب کنید.' },
+  'ERR-BACKUP-001': { code:'ERR-BACKUP-001', severity:'error', userMessage:'بازگردانی فایل پشتیبان انجام نشد', solution:'سلامت فایل را در تب عیب‌یابی ببینید و در صورت نیاز نسخه ایمنی را برگردانید.' },
+  'ERR-PERM-001': { code:'ERR-PERM-001', severity:'error', userMessage:'به این بخش دسترسی ندارید', solution:'با پروفایل دارای دسترسی وارد شوید.' },
+  'ERR-PRINT-001': { code:'ERR-PRINT-001', severity:'warning', userMessage:'چاپ انجام نشد', solution:'چاپگر ویندوز را در مرکز پرینت انتخاب کنید.' },
+  'ERR-JS-001': { code:'ERR-JS-001', severity:'error', userMessage:'یک خطای داخلی رخ داد. صفحه را نوسازی کنید', solution:'صفحه را Refresh کنید. اگر تکرار شد کد پیگیری را به پشتیبانی بدهید.' },
+  'ERR-SYS-000': { code:'ERR-SYS-000', severity:'error', userMessage:'خطای ناشناخته در نرم‌افزار', solution:'صفحه را Refresh کنید. اگر حل نشد با پشتیبانی تماس بگیرید.' }
+};
+
+function registerError(code, severity, userMessage, solution){
+  ERROR_CATALOG[code] = { code:code, severity:severity||'error', userMessage:userMessage||'', solution:solution||'' };
+  return ERROR_CATALOG[code];
+}
+
 var ERR_DICT = [
-  { code:'E001', match:'Cannot read prop',       fa:'تلاش برای خواندن مقدار از متغیر خالی (null/undefined)',        sol:'احتمالاً داده‌ای بارگذاری نشده. صفحه را Refresh کنید یا بک‌اپ بازگردانی کنید.' },
-  { code:'E002', match:'is not a function',      fa:'تابعی که صدا زده شده تعریف نشده یا وجود ندارد',               sol:'نرم‌افزار را Refresh کنید. اگر ادامه داشت فایل HTML را دوباره باز کنید.' },
-  { code:'E003', match:'JSON.parse',             fa:'داده ذخیره‌شده در مرورگر خراب یا ناقص است',                   sol:'به تنظیمات > امنیت بروید و ریست کامل انجام دهید، سپس بک‌اپ را بارگذاری کنید.' },
-  { code:'E004', match:'QuotaExceeded',          fa:'حافظه مرورگر (localStorage) پر شده است',                      sol:'پوشه بک‌آپ روی هارد را انتخاب کنید؛ عکس و ضمیمه نباید در حافظه مرورگر بماند.' },
-  { code:'E005', match:'NetworkError',           fa:'خطای شبکه — اتصال اینترنت قطع است',                           sol:'اتصال اینترنت را چک کنید. برای import اکسل اینترنت لازم است.' },
-  { code:'E006', match:'Failed to fetch',        fa:'اتصال به سرور ناموفق بود',                                    sol:'اتصال اینترنت را بررسی کنید.' },
-  { code:'E007', match:'Unexpected token',       fa:'فرمت JSON وارد شده اشتباه یا خراب است',                       sol:'مطمئن شوید فایل بک‌اپ دستکاری نشده باشد.' },
-  { code:'E008', match:'Maximum call stack',     fa:'حلقه بی‌نهایت در کد ایجاد شده (stack overflow)',              sol:'نرم‌افزار را ببندید و دوباره باز کنید.' },
-  { code:'E009', match:'undefined is not',       fa:'متغیر یا مقداری که انتظار داشتید تعریف نشده است',             sol:'صفحه را Refresh کنید.' },
-  { code:'E010', match:'SyntaxError',            fa:'خطای نحوی در کد یا داده ورودی',                               sol:'فایل ورودی را بررسی کنید.' },
-  { code:'E011', match:'ReferenceError',         fa:'متغیری که استفاده شده اصلاً تعریف نشده',                      sol:'نرم‌افزار را Refresh کنید.' },
-  { code:'E012', match:'TypeError',              fa:'نوع داده اشتباه است (مثلاً به جای آرایه، عدد دریافت شده)',    sol:'بک‌اپ را بازگردانی کنید.' },
-  { code:'E556', match:'556',                    fa:'خطای HTTP 556 — سرور پاسخ غیرمعتبر داده',                     sol:'این خطا معمولاً از سمت سرور API است. کلید API را چک کنید و دوباره امتحان کنید.' },
-  { code:'E000', match:'',                       fa:'خطای ناشناخته در نرم‌افزار',                                   sol:'صفحه را Refresh کنید. اگر حل نشد با پشتیبانی تماس بگیرید.' }
+  { code:'E001', catalog:'ERR-JS-001', match:'Cannot read prop', fa:'تلاش برای خواندن مقدار از متغیر خالی (null/undefined)', sol:'احتمالاً داده‌ای بارگذاری نشده. صفحه را Refresh کنید یا بک‌اپ بازگردانی کنید.' },
+  { code:'E002', catalog:'ERR-JS-001', match:'is not a function', fa:'تابعی که صدا زده شده تعریف نشده یا وجود ندارد', sol:'نرم‌افزار را Refresh کنید. اگر ادامه داشت فایل HTML را دوباره باز کنید.' },
+  { code:'E003', catalog:'ERR-DB-010', match:'JSON.parse', fa:'داده ذخیره‌شده در مرورگر خراب یا ناقص است', sol:'به تنظیمات > امنیت بروید و ریست کامل انجام دهید، سپس بک‌اپ را بارگذاری کنید.' },
+  { code:'E004', catalog:'WRN-QUOTA-01', match:'QuotaExceeded', fa:'حافظه مرورگر (localStorage) پر شده است', sol:'پوشه بک‌آپ روی هارد را انتخاب کنید؛ عکس و ضمیمه نباید در حافظه مرورگر بماند.' },
+  { code:'E005', catalog:'ERR-NET-002', match:'NetworkError', fa:'خطای شبکه — اتصال اینترنت قطع است', sol:'اتصال اینترنت را چک کنید. برای import اکسل اینترنت لازم است.' },
+  { code:'E006', catalog:'ERR-NET-002', match:'Failed to fetch', fa:'اتصال به سرور ناموفق بود', sol:'اتصال اینترنت را بررسی کنید.' },
+  { code:'E007', catalog:'ERR-BACKUP-001', match:'Unexpected token', fa:'فرمت JSON وارد شده اشتباه یا خراب است', sol:'مطمئن شوید فایل بک‌اپ دستکاری نشده باشد.' },
+  { code:'E008', catalog:'ERR-JS-001', match:'Maximum call stack', fa:'حلقه بی‌نهایت در کد ایجاد شده (stack overflow)', sol:'نرم‌افزار را ببندید و دوباره باز کنید.' },
+  { code:'E009', catalog:'ERR-JS-001', match:'undefined is not', fa:'متغیر یا مقداری که انتظار داشتید تعریف نشده است', sol:'صفحه را Refresh کنید.' },
+  { code:'E010', catalog:'ERR-JS-001', match:'SyntaxError', fa:'خطای نحوی در کد یا داده ورودی', sol:'فایل ورودی را بررسی کنید.' },
+  { code:'E011', catalog:'ERR-JS-001', match:'ReferenceError', fa:'متغیری که استفاده شده اصلاً تعریف نشده', sol:'نرم‌افزار را Refresh کنید.' },
+  { code:'E012', catalog:'ERR-JS-001', match:'TypeError', fa:'نوع داده اشتباه است (مثلاً به جای آرایه، عدد دریافت شده)', sol:'بک‌اپ را بازگردانی کنید.' },
+  { code:'E556', catalog:'ERR-NET-002', match:'556', fa:'خطای HTTP 556 — سرور پاسخ غیرمعتبر داده', sol:'این خطا معمولاً از سمت سرور API است. کلید API را چک کنید و دوباره امتحان کنید.' },
+  { code:'E000', catalog:'ERR-SYS-000', match:'', fa:'خطای ناشناخته در نرم‌افزار', sol:'صفحه را Refresh کنید. اگر حل نشد با پشتیبانی تماس بگیرید.' }
 ];
 
 function translateError(msg) {
+  msg = String(msg || '');
   for (var i = 0; i < ERR_DICT.length - 1; i++) {
     if (msg.indexOf(ERR_DICT[i].match) !== -1) return ERR_DICT[i];
   }
   return ERR_DICT[ERR_DICT.length - 1];
 }
 
-function addDbgEntry(type, title, msgEn, msgFa, solution) {
-  var t = msgEn ? translateError(msgEn) : null;
-  var code = t ? t.code : '';
+function redactSensitive(s){
+  s = String(s == null ? '' : s);
+  s = s.replace(/(password|pass|pwd|token|secret|api[_-]?key|loginPw|laegh_login_pw|laegh_adminpw)\s*[:=]\s*[^,\s&]+/gi, '$1=***');
+  s = s.replace(/Bearer\s+[A-Za-z0-9._-]+/gi, 'Bearer ***');
+  s = s.replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, '***@***');
+  return s;
+}
+
+function newCorrelationId(){
+  return 'TR-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
+}
+
+function createAppError(code, extra){
+  extra = extra || {};
+  var def = ERROR_CATALOG[code] || ERROR_CATALOG['ERR-SYS-000'];
+  return {
+    code: def.code,
+    severity: extra.severity || def.severity || 'error',
+    userMessage: extra.userMessage || def.userMessage || '',
+    technicalMessage: redactSensitive(extra.technicalMessage || extra.technical || ''),
+    correlationId: extra.correlationId || newCorrelationId(),
+    timestamp: extra.timestamp || new Date().toISOString(),
+    solution: extra.solution != null ? extra.solution : (def.solution || '')
+  };
+}
+
+function toAppError(err, fallbackCode){
+  if(err && typeof err === 'object' && err.code && ERROR_CATALOG[err.code] && err.userMessage){
+    return createAppError(err.code, err);
+  }
+  if(typeof err === 'string' && ERROR_CATALOG[err]) return createAppError(err);
+  var msg = '';
+  if(err && typeof err === 'object') msg = err.message || err.technicalMessage || String(err);
+  else msg = String(err == null ? '' : err);
+  var t = translateError(msg);
+  var code = (err && err.code && ERROR_CATALOG[err.code]) ? err.code : ((t && t.catalog) || fallbackCode || 'ERR-SYS-000');
+  return createAppError(code, { technicalMessage: msg, solution: (t && t.sol) || '', correlationId: err && err.correlationId });
+}
+
+function appErrorResponse(err){
+  var a = toAppError(err);
+  return {
+    success: false,
+    error: {
+      code: a.code,
+      message: a.userMessage,
+      severity: a.severity,
+      correlationId: a.correlationId
+    }
+  };
+}
+
+function logAppError(appErr){
+  var a = toAppError(appErr);
+  _lastAppErrorCorr = a.correlationId;
+  var type = a.severity === 'warning' ? 'warn' : (a.severity === 'critical' ? 'critical' : (a.severity === 'info' ? 'info' : 'err'));
+  addDbgEntry(type, a.code, a.technicalMessage, a.userMessage, a.solution, { code:a.code, correlationId:a.correlationId, severity:a.severity });
+  var last = document.getElementById('dbg-last-corr');
+  if(last) last.textContent = 'آخرین کد پیگیری: ' + a.correlationId;
+  return a;
+}
+
+function closeAppErrorModal(){
+  var m = document.getElementById('app-error-modal');
+  if(m) m.classList.remove('open');
+}
+
+function copyAppErrorCorr(){
+  var el = document.getElementById('app-error-corr');
+  var txt = el ? el.textContent : _lastAppErrorCorr;
+  if(!txt){ ntf('کد پیگیری نیست','warn'); return; }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ ntf('کد پیگیری کپی شد'); }).catch(function(){ ntf(txt,'ok'); });
+  } else ntf(txt,'ok');
+}
+
+function copyLastErrorCorr(){
+  if(!_lastAppErrorCorr){ ntf('هنوز خطایی با کد پیگیری ثبت نشده','warn'); return; }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(_lastAppErrorCorr).then(function(){ ntf('کد پیگیری کپی شد'); });
+  } else ntf(_lastAppErrorCorr,'ok');
+}
+
+function showCriticalErrorModal(appErr){
+  var a = toAppError(appErr);
+  var u = document.getElementById('app-error-user');
+  var c = document.getElementById('app-error-code');
+  var r = document.getElementById('app-error-corr');
+  if(u) u.textContent = a.userMessage;
+  if(c) c.textContent = a.code;
+  if(r) r.textContent = a.correlationId;
+  var m = document.getElementById('app-error-modal');
+  if(m) m.classList.add('open');
+}
+
+function showErrorField(fieldId, message){
+  var el = document.getElementById(fieldId);
+  if(!el) return;
+  el.textContent = message;
+  el.style.color = 'var(--red)';
+}
+
+function presentAppError(err, opts){
+  opts = opts || {};
+  var a = logAppError(err);
+  var ui = appErrorResponse(a);
+  if(opts.fieldId){
+    showErrorField(opts.fieldId, ui.error.message);
+    return ui;
+  }
+  if(opts.silent) return ui;
+  if(a.severity === 'critical'){
+    showCriticalErrorModal(a);
+  } else if(a.severity === 'warning'){
+    ntf(ui.error.message, 'warn');
+  } else {
+    ntf(ui.error.message, 'err');
+  }
+  return ui;
+}
+
+var ErrorEngine = {
+  catalog: ERROR_CATALOG,
+  register: registerError,
+  create: createAppError,
+  fromException: toAppError,
+  response: appErrorResponse,
+  present: presentAppError,
+  redact: redactSensitive,
+  log: logAppError
+};
+
+function addDbgEntry(type, title, msgEn, msgFa, solution, extra) {
+  extra = extra || {};
+  var t = msgEn ? translateError(String(msgEn)) : null;
+  var code = extra.code || (t ? (t.catalog || t.code) : '');
   if (!msgFa && t) msgFa = t.fa;
   if (!solution && t) solution = t.sol;
-  var entry = { type:type, code:code, title:title, msgEn:msgEn, msgFa:msgFa, solution:solution, time:ftime() };
+  var entry = {
+    type:type,
+    code:code,
+    title:title,
+    msgEn: redactSensitive(msgEn||''),
+    msgFa:msgFa,
+    solution:solution,
+    time: (typeof ftime==='function' ? ftime() : ''),
+    correlationId: extra.correlationId || '',
+    severity: extra.severity || ''
+  };
   dbgLog.push(entry);
-  if (type==='err') dbgErrCount++;
+  if (type==='err' || type==='critical') dbgErrCount++;
   else if (type==='warn') dbgWarnCount++;
   else if (type==='ok') dbgOkCount++;
   updateDbgUI();
@@ -20948,15 +21151,17 @@ function renderDbgLog() {
   var box = document.getElementById('dbg-log');
   if (!box) return;
   if (dbgLog.length === 0) { box.innerHTML = '<div style="color:#555;text-align:center;margin-top:40px">✅ هیچ خطایی ثبت نشده</div>'; return; }
+  var showTech = !!(document.getElementById('dbg-show-tech') && document.getElementById('dbg-show-tech').checked);
   var html = '';
   var list = dbgLog.slice().reverse();
   list.forEach(function(e) {
-    var icon = e.type==='err'?'❌':e.type==='warn'?'⚠️':e.type==='ok'?'✅':'ℹ️';
+    var icon = e.type==='err'||e.type==='critical'?'❌':e.type==='warn'?'⚠️':e.type==='ok'?'✅':'ℹ️';
     var codeTag = e.code ? '<span style="background:#30363d;padding:1px 5px;border-radius:3px;font-size:10px;margin-right:6px">'+e.code+'</span>' : '';
+    var corr = e.correlationId ? '<span style="opacity:.7;margin-right:6px">'+e.correlationId+'</span>' : '';
     html += '<div class="dbg-entry '+e.type+'">';
-    html += '<div class="dbg-label">'+icon+' '+codeTag+e.title+' &nbsp;—&nbsp; '+e.time+'</div>';
+    html += '<div class="dbg-label">'+icon+' '+codeTag+corr+e.title+' &nbsp;—&nbsp; '+e.time+'</div>';
     if (e.msgFa) html += '<div class="dbg-msg">'+e.msgFa+'</div>';
-    if (e.msgEn) html += '<div style="font-size:10px;opacity:.45;margin-top:2px;direction:ltr;word-break:break-all">'+e.msgEn.substring(0,160)+'</div>';
+    if (showTech && e.msgEn) html += '<div style="font-size:10px;opacity:.45;margin-top:2px;direction:ltr;word-break:break-all">'+String(e.msgEn).substring(0,160)+'</div>';
     if (e.solution) html += '<div class="dbg-solution">💡 راه‌حل: '+e.solution+'</div>';
     html += '</div>';
   });
@@ -20969,24 +21174,30 @@ function clearDbgLog() {
 }
 
 function exportDbgLog() {
-  var txt = dbgLog.map(function(e){ return '['+e.type.toUpperCase()+'] '+e.title+'\n'+e.msgFa+'\nراه‌حل: '+e.solution+'\n---'; }).join('\n');
-  navigator.clipboard.writeText(txt).then(function(){ ntf('لاگ کپی شد'); });
+  var txt = dbgLog.map(function(e){
+    return '['+(e.severity||e.type||'').toUpperCase()+'] '+(e.code||'')+' '+(e.correlationId||'')+'\n'+e.title+'\n'+(e.msgFa||'')+'\nفنی: '+(e.msgEn||'')+'\nراه‌حل: '+(e.solution||'')+'\n---';
+  }).join('\n');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ ntf('لاگ کپی شد'); });
+  } else ntf('کپی در این مرورگر در دسترس نیست','warn');
 }
 
 function toggleAutoDbg(el) { dbgAutoEnabled = el.checked; }
 
-// Auto-catch JS errors
 window.addEventListener('error', function(ev) {
   if (!dbgAutoEnabled) return;
-  var t = translateError(ev.message || '');
-  addDbgEntry('err', 'خطای JavaScript', ev.message, t.fa, t.sol);
+  try{
+    var tech = redactSensitive((ev.message||'') + (ev.filename ? (' @'+ev.filename+':'+ev.lineno) : ''));
+    presentAppError(toAppError({ message: ev.message || tech }, 'ERR-JS-001'), {});
+  }catch(_e){}
 });
 
 window.addEventListener('unhandledrejection', function(ev) {
   if (!dbgAutoEnabled) return;
-  var msg = ev.reason ? (ev.reason.message || String(ev.reason)) : 'Promise rejected';
-  var t = translateError(msg);
-  addDbgEntry('err', 'خطای async/Promise', msg, t.fa, t.sol);
+  try{
+    var msg = ev.reason ? (ev.reason.message || String(ev.reason)) : 'Promise rejected';
+    presentAppError(toAppError({ message: msg }, 'ERR-JS-001'), {});
+  }catch(_e){}
 });
 
 // Full diagnostic
@@ -21000,18 +21211,20 @@ function runFullDiag() {
     localStorage.removeItem('_dbg_test');
     addDbgEntry('ok', 'حافظه محلی', '', 'localStorage سالم و قابل دسترس است', '');
   } catch(e) {
-    addDbgEntry('err', 'حافظه محلی', e.message, 'دسترسی به localStorage ممکن نیست', 'مطمئن شوید در حالت Incognito نیستید');
+    presentAppError(toAppError(e, 'ERR-STORE-001'));
   }
 
   // 2. Data integrity
   var dataChecks = [
     { key: 'invoices', label: 'فاکتورها', arr: typeof invoices !== 'undefined' ? invoices : null },
     { key: 'parts', label: 'قطعات', arr: typeof parts !== 'undefined' ? parts : null },
-    { key: 'svcs', label: 'خدمات', arr: typeof svcs !== 'undefined' ? svcs : null },
+    { key: 'services', label: 'خدمات', arr: typeof services !== 'undefined' ? services : (typeof svcs !== 'undefined' ? svcs : null) },
     { key: 'sales', label: 'فروش', arr: typeof sales !== 'undefined' ? sales : null },
     { key: 'warranties', label: 'گارانتی', arr: typeof warranties !== 'undefined' ? warranties : null },
-    { key: 'pb', label: 'مخاطبین', arr: typeof pb !== 'undefined' ? pb : null },
+    { key: 'phonebook', label: 'مخاطبین', arr: typeof phonebook !== 'undefined' ? phonebook : (typeof pb !== 'undefined' ? pb : null) },
     { key: 'products', label: 'کالاها', arr: typeof products !== 'undefined' ? products : null },
+    { key: 'tasks', label: 'وظایف', arr: typeof tasks !== 'undefined' ? tasks : null },
+    { key: 'accounts', label: 'حساب‌ها', arr: typeof accounts !== 'undefined' ? accounts : null }
   ];
   dataChecks.forEach(function(dc) {
     if (dc.arr === null) {
@@ -21029,7 +21242,7 @@ function runFullDiag() {
     for (var k in localStorage) { if (localStorage.hasOwnProperty(k)) total += (localStorage[k]||'').length * 2; }
     var mb = (total / 1024 / 1024).toFixed(2);
     var pct = Math.round((total / (5*1024*1024)) * 100);
-    if (pct > 80) addDbgEntry('warn', 'فضای ذخیره‌سازی', '', 'فضای localStorage '+mb+'MB ('+pct+'%) پر شده', 'از خروجی Excel پشتیبان بگیرید و داده‌های قدیمی را حذف کنید');
+    if (pct > 80) presentAppError(createAppError('WRN-QUOTA-01', { technicalMessage: mb+'MB ('+pct+'%)' }));
     else addDbgEntry('ok', 'فضای ذخیره‌سازی', '', 'استفاده شده: '+mb+'MB از ۵MB ('+pct+'%)', '');
   } catch(e) {}
 
@@ -21201,7 +21414,7 @@ var AI_KB = {
   'وضعیت': function() {
     var inv = typeof invoices !== 'undefined' ? invoices.length : 0;
     var pr = typeof parts !== 'undefined' ? parts.length : 0;
-    var pb2 = typeof pb !== 'undefined' ? pb.length : 0;
+    var pb2 = typeof phonebook !== 'undefined' ? phonebook.length : (typeof pb !== 'undefined' ? pb.length : 0);
     return 'وضعیت کلی نرم‌افزار:\n📋 فاکتورها: '+inv+' عدد\n🔩 قطعات: '+pr+' عدد\n👥 مخاطبین: '+pb2+' عدد\n\nبرای جزئیات بیشتر عیب‌یابی کامل را اجرا کنید.';
   },
   'default': 'متوجه سوال شما نشدم 😊 می‌توانید از دکمه‌های سریع پایین استفاده کنید یا سوال را واضح‌تر بپرسید. برای عیب‌یابی، تب «عیب‌یابی» را ببینید.'
