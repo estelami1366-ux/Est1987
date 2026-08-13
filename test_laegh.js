@@ -997,7 +997,7 @@ test('openSaleForm هنگام ویرایش یک فروش قبلی باید docs 
 });
 
 test('شبیه‌سازی واقعی کامل: یک چرخه کامل ثبت فروش با عکس ضمیمه باید عکس را در رکورد نهایی sales[] ذخیره کند', async () => {
-  // از ۱۴۰۵.۵.۲۱ο ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
+  // از ۱۴۰۵.۵.۲۱π ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
   const addSrc = extractFunctionSource(html, 'addSaleDocs');
   assertTrue(addSrc !== null, 'تابع addSaleDocs پیدا نشد');
   assertContainsString(addSrc, 'storeDocFileOnDisk', 'addSaleDocs باید روی دیسک بنویسد');
@@ -3875,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱ο باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱π باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21ο', 'نسخه meta باید 1405.5.21ο باشد');
+  assertEqual(metaVer, '1405.5.21π', 'نسخه meta باید 1405.5.21π باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ο', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ο را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱π', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱π را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21ο'", 'فیلد version بک‌آپ باید 1405.5.21ο باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21π'", 'فیلد version بک‌آپ باید 1405.5.21π باشد');
 });
 
 
@@ -3951,7 +3951,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
       good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.20ε', minBaseVersion:'1405.5.20ε'}),
-      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21ο'}),
+      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21π'}),
       cmp: compareSirmanVersions('1405.5.20ε','1405.5.18ε')
     };
   `);
@@ -4100,7 +4100,7 @@ test('شبیه‌سازی واقعی: summarizeBackupInventory باید بخش�
   assertTrue(!!extractFunctionSource(html, 'summarizeBackupInventory'), 'summarizeBackupInventory پیدا نشد');
   const runner = new Function(src + `;
     return summarizeBackupInventory({
-      version:'1405.5.21ο',
+      version:'1405.5.21π',
       invoices:[{id:1},{id:2}],
       phonebook:[{fn:'علی',phones:['0912']}],
       pb:[],
@@ -5320,6 +5320,15 @@ test('داده‌ها باید از منوی راست به تنظیمات منت
   const back = extractFunctionSource(html, 'winBack');
   assertContainsString(back, "w.pageId==='warranty'", 'برگشت پنجره باید فرم گارانتی را بشناسد');
   assertContainsString(back, 'showWarList()', 'برگشت از فرم گارانتی باید به لیست برود');
+});
+
+test('پنجره minimize نباید فعال بماند و برگشت باید میزکار را همگام کند', () => {
+  const min = extractFunctionSource(html, 'winMinimize');
+  const back = extractFunctionSource(html, 'winBack');
+  const workspace = extractFunctionSource(html, 'renderWinWorkspace');
+  assertContainsString(min, 'window._winActive = alt ? alt.id : null', 'پس از minimize آخرین پنجره، active باید null شود');
+  assertContainsString(back, 'renderWinWorkspace()', 'برگشت باید قاب و محتوای پنجره را دوباره همگام کند');
+  assertContainsString(workspace, 'onclick="winActivate', 'کلیک پنجره باید activate کامل انجام دهد');
 });
 
 
