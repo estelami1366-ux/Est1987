@@ -1,0 +1,500 @@
+  localStorage.setItem('laegh_radius', val);
+  ntf('گردی گوشه‌ها تغییر کرد');
+}
+
+function setAppBgImage(inp){
+  const f = inp.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    localStorage.setItem('laegh_app_bg', e.target.result);
+    applyAppBg();
+    ntf('پس‌زمینه برنامه تنظیم شد ✅');
+  };
+  r.readAsDataURL(f);
+}
+function clearAppBgImage(){
+  localStorage.removeItem('laegh_app_bg');
+  applyAppBg();
+  ntf('پس‌زمینه برنامه حذف شد');
+}
+function setAppBgOverlay(val){
+  localStorage.setItem('laegh_app_bg_overlay', val);
+  document.body.style.setProperty('--bg-overlay', val);
+}
+function applyAppBg(){
+  const img = localStorage.getItem('laegh_app_bg') || '';
+  if(img){
+    document.body.classList.add('has-bg-image');
+    document.body.style.setProperty('--bg-img', 'url('+img+')');
+  } else {
+    document.body.classList.remove('has-bg-image');
+    document.body.style.removeProperty('--bg-img');
+  }
+  const ov = localStorage.getItem('laegh_app_bg_overlay') || '0.55';
+  document.body.style.setProperty('--bg-overlay', ov);
+}
+
+// اعمال همه‌ی تنظیمات ظاهری ذخیره‌شده — هم در بارگذاری اولیه صفحه و هم هر بار تب تنظیمات باز می‌شود
+function applyAppearanceSettings(){
+  applyColorThemeVars(localStorage.getItem('laegh_color_theme') || 'blue');
+  document.body.classList.toggle('theme-dark', localStorage.getItem('laegh_theme')==='dark');
+
+  document.body.classList.remove('fv','fc','ffa');
+  const fontVal = localStorage.getItem('laegh_app_font');
+  if(fontVal==='Vazir') document.body.classList.add('fv');
+  else if(fontVal==='Arial') document.body.classList.add('ffa');
+  else if(fontVal==='Calibri') document.body.classList.add('fc');
+
+  document.body.classList.remove('text-sm','text-lg');
+  const sizeVal = localStorage.getItem('laegh_text_size');
+  if(sizeVal==='sm') document.body.classList.add('text-sm');
+  if(sizeVal==='lg') document.body.classList.add('text-lg');
+
+  document.body.classList.remove('density-compact','density-spacious');
+  const densVal = localStorage.getItem('laegh_density');
+  if(densVal==='compact') document.body.classList.add('density-compact');
+  if(densVal==='spacious') document.body.classList.add('density-spacious');
+
+  document.body.classList.remove('radius-sharp','radius-round');
+  const radVal = localStorage.getItem('laegh_radius');
+  if(radVal==='sharp') document.body.classList.add('radius-sharp');
+  if(radVal==='round') document.body.classList.add('radius-round');
+
+  applyAppBg();
+}
+
+function loadAppearanceUI(){
+  const setSel = (id, val) => { const e=document.getElementById(id); if(e && val) e.value = val; };
+  setSel('theme-select', localStorage.getItem('laegh_theme') || 'light');
+  setSel('app-font-select', localStorage.getItem('laegh_app_font') || 'Tahoma');
+  setSel('text-size-select', localStorage.getItem('laegh_text_size') || 'normal');
+  setSel('density-select', localStorage.getItem('laegh_density') || 'normal');
+  setSel('radius-select', localStorage.getItem('laegh_radius') || 'normal');
+  const ovEl = document.getElementById('app-bg-overlay');
+  if(ovEl) ovEl.value = localStorage.getItem('laegh_app_bg_overlay') || '0.55';
+  renderColorThemeSwatches();
+}
+applyAppearanceSettings(); // اعمال فوری تنظیمات ظاهری ذخیره‌شده، همان لحظه بارگذاری اسکریپت
+
+// ===== DEBUG SYSTEM =====
+var dbgLog = [];
+var dbgAutoEnabled = true;
+var dbgErrCount = 0, dbgWarnCount = 0, dbgOkCount = 0;
+
+// Error dictionary with codes
+var ERR_DICT = [
+  { code:'E001', match:'Cannot read prop',       fa:'تلاش برای خواندن مقدار از متغیر خالی (null/undefined)',        sol:'احتمالاً داده‌ای بارگذاری نشده. صفحه را Refresh کنید یا بک‌اپ بازگردانی کنید.' },
+  { code:'E002', match:'is not a function',      fa:'تابعی که صدا زده شده تعریف نشده یا وجود ندارد',               sol:'نرم‌افزار را Refresh کنید. اگر ادامه داشت فایل HTML را دوباره باز کنید.' },
+  { code:'E003', match:'JSON.parse',             fa:'داده ذخیره‌شده در مرورگر خراب یا ناقص است',                   sol:'به تنظیمات > امنیت بروید و ریست کامل انجام دهید، سپس بک‌اپ را بارگذاری کنید.' },
+  { code:'E004', match:'QuotaExceeded',          fa:'حافظه مرورگر (localStorage) پر شده است',                      sol:'از خروجی Excel پشتیبان بگیرید، داده‌های قدیمی را حذف کنید.' },
+  { code:'E005', match:'NetworkError',           fa:'خطای شبکه — اتصال اینترنت قطع است',                           sol:'اتصال اینترنت را چک کنید. برای import اکسل اینترنت لازم است.' },
+  { code:'E006', match:'Failed to fetch',        fa:'اتصال به سرور ناموفق بود',                                    sol:'اتصال اینترنت را بررسی کنید.' },
+  { code:'E007', match:'Unexpected token',       fa:'فرمت JSON وارد شده اشتباه یا خراب است',                       sol:'مطمئن شوید فایل بک‌اپ دستکاری نشده باشد.' },
+  { code:'E008', match:'Maximum call stack',     fa:'حلقه بی‌نهایت در کد ایجاد شده (stack overflow)',              sol:'نرم‌افزار را ببندید و دوباره باز کنید.' },
+  { code:'E009', match:'undefined is not',       fa:'متغیر یا مقداری که انتظار داشتید تعریف نشده است',             sol:'صفحه را Refresh کنید.' },
+  { code:'E010', match:'SyntaxError',            fa:'خطای نحوی در کد یا داده ورودی',                               sol:'فایل ورودی را بررسی کنید.' },
+  { code:'E011', match:'ReferenceError',         fa:'متغیری که استفاده شده اصلاً تعریف نشده',                      sol:'نرم‌افزار را Refresh کنید.' },
+  { code:'E012', match:'TypeError',              fa:'نوع داده اشتباه است (مثلاً به جای آرایه، عدد دریافت شده)',    sol:'بک‌اپ را بازگردانی کنید.' },
+  { code:'E556', match:'556',                    fa:'خطای HTTP 556 — سرور پاسخ غیرمعتبر داده',                     sol:'این خطا معمولاً از سمت سرور API است. کلید API را چک کنید و دوباره امتحان کنید.' },
+  { code:'E000', match:'',                       fa:'خطای ناشناخته در نرم‌افزار',                                   sol:'صفحه را Refresh کنید. اگر حل نشد با پشتیبانی تماس بگیرید.' }
+];
+
+function translateError(msg) {
+  for (var i = 0; i < ERR_DICT.length - 1; i++) {
+    if (msg.indexOf(ERR_DICT[i].match) !== -1) return ERR_DICT[i];
+  }
+  return ERR_DICT[ERR_DICT.length - 1];
+}
+
+function addDbgEntry(type, title, msgEn, msgFa, solution) {
+  var t = msgEn ? translateError(msgEn) : null;
+  var code = t ? t.code : '';
+  if (!msgFa && t) msgFa = t.fa;
+  if (!solution && t) solution = t.sol;
+  var entry = { type:type, code:code, title:title, msgEn:msgEn, msgFa:msgFa, solution:solution, time:ftime() };
+  dbgLog.push(entry);
+  if (type==='err') dbgErrCount++;
+  else if (type==='warn') dbgWarnCount++;
+  else if (type==='ok') dbgOkCount++;
+  updateDbgUI();
+  return entry;
+}
+
+function updateDbgUI() {
+  var errEl = document.getElementById('dbg-err-count');
+  var warnEl = document.getElementById('dbg-warn-count');
+  var okEl = document.getElementById('dbg-ok-count');
+  var healthEl = document.getElementById('dbg-health-val');
+  var healthBar = document.getElementById('dbg-health-bar');
+  if (!errEl) return;
+  errEl.textContent = dbgErrCount;
+  warnEl.textContent = dbgWarnCount;
+  okEl.textContent = dbgOkCount;
+  var total = dbgErrCount + dbgWarnCount + dbgOkCount;
+  var health = total === 0 ? 100 : Math.max(0, Math.round(100 - (dbgErrCount * 20) - (dbgWarnCount * 5)));
+  health = Math.min(100, health);
+  healthEl.textContent = health + '%';
+  healthBar.style.width = health + '%';
+  healthBar.style.background = health > 75 ? '#3fb950' : health > 40 ? '#d29922' : '#f85149';
+  renderDbgLog();
+}
+
+function renderDbgLog() {
+  var box = document.getElementById('dbg-log');
+  if (!box) return;
+  if (dbgLog.length === 0) { box.innerHTML = '<div style="color:#555;text-align:center;margin-top:40px">✅ هیچ خطایی ثبت نشده</div>'; return; }
+  var html = '';
+  var list = dbgLog.slice().reverse();
+  list.forEach(function(e) {
+    var icon = e.type==='err'?'❌':e.type==='warn'?'⚠️':e.type==='ok'?'✅':'ℹ️';
+    var codeTag = e.code ? '<span style="background:#30363d;padding:1px 5px;border-radius:3px;font-size:10px;margin-right:6px">'+e.code+'</span>' : '';
+    html += '<div class="dbg-entry '+e.type+'">';
+    html += '<div class="dbg-label">'+icon+' '+codeTag+e.title+' &nbsp;—&nbsp; '+e.time+'</div>';
+    if (e.msgFa) html += '<div class="dbg-msg">'+e.msgFa+'</div>';
+    if (e.msgEn) html += '<div style="font-size:10px;opacity:.45;margin-top:2px;direction:ltr;word-break:break-all">'+e.msgEn.substring(0,160)+'</div>';
+    if (e.solution) html += '<div class="dbg-solution">💡 راه‌حل: '+e.solution+'</div>';
+    html += '</div>';
+  });
+  box.innerHTML = html;
+}
+
+function clearDbgLog() {
+  dbgLog = []; dbgErrCount = 0; dbgWarnCount = 0; dbgOkCount = 0;
+  updateDbgUI();
+}
+
+function exportDbgLog() {
+  var txt = dbgLog.map(function(e){ return '['+e.type.toUpperCase()+'] '+e.title+'\n'+e.msgFa+'\nراه‌حل: '+e.solution+'\n---'; }).join('\n');
+  navigator.clipboard.writeText(txt).then(function(){ ntf('لاگ کپی شد'); });
+}
+
+function toggleAutoDbg(el) { dbgAutoEnabled = el.checked; }
+
+// Auto-catch JS errors
+window.addEventListener('error', function(ev) {
+  if (!dbgAutoEnabled) return;
+  var t = translateError(ev.message || '');
+  addDbgEntry('err', 'خطای JavaScript', ev.message, t.fa, t.sol);
+});
+
+window.addEventListener('unhandledrejection', function(ev) {
+  if (!dbgAutoEnabled) return;
+  var msg = ev.reason ? (ev.reason.message || String(ev.reason)) : 'Promise rejected';
+  var t = translateError(msg);
+  addDbgEntry('err', 'خطای async/Promise', msg, t.fa, t.sol);
+});
+
+// Full diagnostic
+function runFullDiag() {
+  clearDbgLog();
+  addDbgEntry('info', 'شروع عیب‌یابی', '', 'در حال بررسی اجزای نرم‌افزار...', '');
+
+  // 1. localStorage check
+  try {
+    localStorage.setItem('_dbg_test','1');
+    localStorage.removeItem('_dbg_test');
+    addDbgEntry('ok', 'حافظه محلی', '', 'localStorage سالم و قابل دسترس است', '');
+  } catch(e) {
+    addDbgEntry('err', 'حافظه محلی', e.message, 'دسترسی به localStorage ممکن نیست', 'مطمئن شوید در حالت Incognito نیستید');
+  }
+
+  // 2. Data integrity
+  var dataChecks = [
+    { key: 'invoices', label: 'فاکتورها', arr: typeof invoices !== 'undefined' ? invoices : null },
+    { key: 'parts', label: 'قطعات', arr: typeof parts !== 'undefined' ? parts : null },
+    { key: 'svcs', label: 'خدمات', arr: typeof svcs !== 'undefined' ? svcs : null },
+    { key: 'sales', label: 'فروش', arr: typeof sales !== 'undefined' ? sales : null },
+    { key: 'warranties', label: 'گارانتی', arr: typeof warranties !== 'undefined' ? warranties : null },
+    { key: 'pb', label: 'مخاطبین', arr: typeof pb !== 'undefined' ? pb : null },
+    { key: 'products', label: 'کالاها', arr: typeof products !== 'undefined' ? products : null },
+  ];
+  dataChecks.forEach(function(dc) {
+    if (dc.arr === null) {
+      addDbgEntry('warn', 'داده: '+dc.label, '', 'متغیر تعریف نشده', 'نرم‌افزار را Refresh کنید');
+    } else if (!Array.isArray(dc.arr)) {
+      addDbgEntry('err', 'داده: '+dc.label, '', 'فرمت داده خراب است (باید آرایه باشد)', 'بک‌اپ را بازگردانی کنید');
+    } else {
+      addDbgEntry('ok', 'داده: '+dc.label, '', dc.arr.length+' رکورد — سالم', '');
+    }
+  });
+
+  // 3. localStorage size
+  try {
+    var total = 0;
+    for (var k in localStorage) { if (localStorage.hasOwnProperty(k)) total += (localStorage[k]||'').length * 2; }
+    var mb = (total / 1024 / 1024).toFixed(2);
+    var pct = Math.round((total / (5*1024*1024)) * 100);
+    if (pct > 80) addDbgEntry('warn', 'فضای ذخیره‌سازی', '', 'فضای localStorage '+mb+'MB ('+pct+'%) پر شده', 'از خروجی Excel پشتیبان بگیرید و داده‌های قدیمی را حذف کنید');
+    else addDbgEntry('ok', 'فضای ذخیره‌سازی', '', 'استفاده شده: '+mb+'MB از ۵MB ('+pct+'%)', '');
+  } catch(e) {}
+
+  // 4. Critical functions
+  var fns = ['renderSaved','renderParts','renderSvcs','renderSales','renderWarList','renderPB','exportData','importData'];
+  var missing = fns.filter(function(f){ return typeof window[f] !== 'function'; });
+  if (missing.length > 0) addDbgEntry('err', 'توابع حیاتی', '', 'توابع مفقود: '+missing.join(', '), 'نرم‌افزار را Refresh کنید');
+  else addDbgEntry('ok', 'توابع حیاتی', '', 'همه '+fns.length+' تابع اصلی موجود هستند', '');
+
+  // 5. Print settings
+  try {
+    var ps = getPrintSettings();
+    if (ps && ps.invoice) addDbgEntry('ok', 'تنظیمات پرینت', '', 'تنظیمات پرینت سالم است', '');
+    else addDbgEntry('warn', 'تنظیمات پرینت', '', 'تنظیمات پرینت پیدا نشد، از پیش‌فرض استفاده می‌شود', '');
+  } catch(e) { addDbgEntry('warn', 'تنظیمات پرینت', e.message, 'خطا در خواندن تنظیمات پرینت', 'به تب پرینتر بروید و تنظیمات را ذخیره کنید'); }
+
+  // 6. Invoice numbering
+  if (typeof invCtr !== 'undefined' && invCtr > 0) addDbgEntry('ok', 'شماره‌دهی فاکتور', '', 'شماره فاکتور بعدی: '+invCtr, '');
+  else addDbgEntry('warn', 'شماره‌دهی فاکتور', '', 'شمارنده فاکتور صفر یا نامعتبر است', 'در صفحه فاکتورها یک فاکتور آزمایشی بسازید');
+
+  addDbgEntry('info', 'پایان عیب‌یابی', '', 'بررسی '+(dataChecks.length+6)+' مورد انجام شد', '');
+  ntf('عیب‌یابی کامل شد');
+}
+
+// ===== AI ASSISTANT =====
+var aiModel = 'internal';
+var aiHistory = [];
+var aiKeys = {};
+
+var AI_KB = {
+  'بک': 'برای بک‌اپ گیری: به بخش «ورود/خروج داده» بروید ← دکمه «دانلود فایل پشتیبان» را بزنید. فایل JSON در Downloads ذخیره می‌شود.',
+  'فاکتور': 'برای ساخت فاکتور: از منوی سمت راست «فاکتورها» را انتخاب کنید ← دکمه «+ فاکتور جدید» را بزنید. می‌توانید کالا، خدمت و تخفیف اضافه کنید.',
+  'اکسل': 'برای وارد کردن از اکسل: ابتدا فایل نمونه را از بخش «ورود/خروج داده» دانلود کنید، اطلاعات را طبق آن وارد کنید، سپس از دکمه «📥 ورود از Excel» در هر بخش استفاده کنید.',
+  'ارور': 'برای عیب‌یابی: به تنظیمات ← تب «عیب‌یابی» بروید و «عیب‌یابی کامل» را بزنید. لاگ خطاها با ترجمه فارسی و راه‌حل نمایش داده می‌شود.',
+  'خطا': 'برای عیب‌یابی: به تنظیمات ← تب «عیب‌یابی» بروید و «عیب‌یابی کامل» را بزنید.',
+  'گارانتی': 'بخش گارانتی: می‌توانید پرونده گارانتی مشتریان را ثبت کنید. شامل مشخصات محصول، سریال، تاریخ خرید و انقضا. از اکسل هم می‌توانید وارد کنید.',
+  'انبار': 'بخش انبار قطعات: موجودی قطعات را مدیریت کنید. حداقل موجودی تنظیم کنید تا هشدار کمبود دریافت کنید.',
+  'پرینت': 'تنظیمات پرینت: به تنظیمات ← تب پرینتر بروید. برای هر بخش (فاکتور، گارانتی، برچسب) می‌توانید اندازه کاغذ، رنگ، پس‌زمینه و فونت را جداگانه تنظیم کنید.',
+  'ریست': '⚠️ ریست کامل همه داده‌ها را پاک می‌کند. قبل از ریست حتماً بک‌اپ بگیرید. به تنظیمات ← امنیت بروید.',
+  'وضعیت': function() {
+    var inv = typeof invoices !== 'undefined' ? invoices.length : 0;
+    var pr = typeof parts !== 'undefined' ? parts.length : 0;
+    var pb2 = typeof pb !== 'undefined' ? pb.length : 0;
+    return 'وضعیت کلی نرم‌افزار:\n📋 فاکتورها: '+inv+' عدد\n🔩 قطعات: '+pr+' عدد\n👥 مخاطبین: '+pb2+' عدد\n\nبرای جزئیات بیشتر عیب‌یابی کامل را اجرا کنید.';
+  },
+  'default': 'متوجه سوال شما نشدم 😊 می‌توانید از دکمه‌های سریع پایین استفاده کنید یا سوال را واضح‌تر بپرسید. برای عیب‌یابی، تب «عیب‌یابی» را ببینید.'
+};
+
+function selectAiModel(model, el) {
+  aiModel = model;
+  document.querySelectorAll('.ai-model-btn').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  var keyRow = document.getElementById('ai-api-key-row');
+  var keyLabel = document.getElementById('ai-key-label');
+  if (model === 'internal') {
+    keyRow.style.display = 'none';
+  } else {
+    keyRow.style.display = 'block';
+    keyLabel.textContent = 'کلید API ' + (model==='claude'?'Claude (Anthropic)':model==='gpt'?'OpenAI':'Google Gemini');
+    var saved = localStorage.getItem('laegh_ai_key_'+model)||'';
+    document.getElementById('ai-api-key').value = saved;
+  }
+  addAiMsg('bot', 'مدل تغییر کرد به: '+(model==='internal'?'دستیار داخلی 🧠':model==='claude'?'Claude ✨':model==='gpt'?'GPT 🤖':'Gemini 💎'));
+}
+
+function saveAiKey() {
+  var key = document.getElementById('ai-api-key').value.trim();
+  if (!key) { ntf('کلید API خالی است','err'); return; }
+  localStorage.setItem('laegh_ai_key_'+aiModel, key);
+  ntf('کلید API ذخیره شد');
+}
+
+function addAiMsg(role, text) {
+  var box = document.getElementById('ai-chat-box');
+  if (!box) return;
+  var div = document.createElement('div');
+  div.className = 'ai-msg ' + role;
+  div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+function aiQuickQ(q) {
+  document.getElementById('ai-input').value = q;
+  sendAiMsg();
+}
+
+function sendAiMsg() {
+  var inp = document.getElementById('ai-input');
+  var q = inp.value.trim();
+  if (!q) return;
+  inp.value = '';
+  addAiMsg('user', q);
+  aiHistory.push({ role:'user', content: q });
+
+  if (aiModel === 'internal') {
+    var found = false;
+    for (var key in AI_KB) {
+      if (key !== 'default' && q.indexOf(key) !== -1) {
+        var ans = typeof AI_KB[key] === 'function' ? AI_KB[key]() : AI_KB[key];
+        setTimeout(function(a){ addAiMsg('bot', a); }, 400, ans);
+        found = true; break;
+      }
+    }
+    if (!found) setTimeout(function(){ addAiMsg('bot', AI_KB['default']); }, 400);
+  } else {
+    var key2 = localStorage.getItem('laegh_ai_key_'+aiModel)||'';
+    if (!key2) { addAiMsg('bot', '⚠️ ابتدا کلید API را وارد و ذخیره کنید.'); return; }
+    var typing = addAiMsg('bot', '...');
+    typing.className = 'ai-msg bot typing';
+    callExternalAI(aiModel, key2, q, function(reply) {
+      if (typing.parentNode) typing.remove();
+      addAiMsg('bot', reply);
+    });
+  }
+}
+
+function callExternalAI(model, apiKey, question, cb) {
+  var sysPrompt = 'شما دستیار هوشمند نرم‌افزار مدیریت خدمات پس از فروش لایق الکترونیک پارسیان هستید. به فارسی پاسخ دهید. کوتاه و مفید باشید. اگر سوال درباره خطا یا عیب‌یابی است، راه‌حل عملی بدهید.';
+  var url, headers, body;
+
+  if (model === 'claude') {
+    url = 'https://api.anthropic.com/v1/messages';
+    headers = {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    };
+    body = JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 600,
+      system: sysPrompt,
+      messages: [{ role:'user', content: question }]
+    });
+  } else if (model === 'gpt') {
+    url = 'https://api.openai.com/v1/chat/completions';
+    headers = { 'Content-Type':'application/json', 'Authorization':'Bearer '+apiKey };
+    body = JSON.stringify({ model:'gpt-4o-mini', max_tokens:600, messages:[{role:'system',content:sysPrompt},{role:'user',content:question}] });
+  } else if (model === 'gemini') {
+    url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+apiKey;
+    headers = { 'Content-Type':'application/json' };
+    body = JSON.stringify({ contents:[{parts:[{text:sysPrompt+'\n\nسوال: '+question}]}] });
+  }
+
+  fetch(url, { method:'POST', headers:headers, body:body })
+    .then(function(r) {
+      if (!r.ok) {
+        return r.json().then(function(errData) {
+          var errMsg = (errData.error && errData.error.message) || ('HTTP '+r.status);
+          var t = translateError(String(r.status));
+          addDbgEntry('err', 'AI API خطا', errMsg, 'کد '+r.status+': '+errMsg, t.sol);
+          cb('❌ خطا '+r.status+': '+errMsg+'\n\n💡 '+t.sol);
+        });
+      }
+      return r.json();
+    })
+    .then(function(d) {
+      if (!d) return;
+      var reply = '';
+      if (model==='claude') reply = (d.content&&d.content[0]&&d.content[0].text) || 'پاسخی دریافت نشد';
+      else if (model==='gpt') reply = (d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content) || 'پاسخی دریافت نشد';
+      else if (model==='gemini') reply = (d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts&&d.candidates[0].content.parts[0]&&d.candidates[0].content.parts[0].text) || 'پاسخی دریافت نشد';
+      if (reply) cb(reply);
+    })
+    .catch(function(e) {
+      var t = translateError(e.message||'');
+      addDbgEntry('err','AI اتصال',e.message,'خطا در اتصال به سرویس AI',t.sol);
+      cb('❌ خطا در اتصال: '+e.message+'\n\n💡 '+t.sol);
+    });
+}
+
+function loadAutoSaveUI(){
+  var savedInterval = localStorage.getItem('laegh_autosave_interval')||'3';
+  var sel = document.getElementById('as-interval');
+  if (sel) sel.value = savedInterval;
+  if (autoSaveDirHandle) {
+    document.getElementById('as-folder-name').textContent = '📁 ' + (autoSaveDirHandle.name||'پوشه فعال');
+    document.getElementById('as-status').textContent = '✅ فعال — هر ' + autoSaveIntervalMin + ' دقیقه';
+    document.getElementById('as-status').style.color = 'var(--green)';
+  } else if (localStorage.getItem('laegh_autosave_enabled')) {
+    document.getElementById('as-status').textContent = '⚠️ نیاز به انتخاب مجدد پوشه (پس از بستن مرورگر، دسترسی لغو می‌شود)';
+    document.getElementById('as-status').style.color = 'var(--yellow)';
+  }
+  if (lastAutoSaveTime) updateAutoSaveUI(true);
+}
+
+// Load SheetJS library dynamically
+function loadSheetJS(cb) {
+  if (window.XLSX) { cb(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  s.onload = cb;
+  document.head.appendChild(s);
+}
+
+function readExcel(file, cb) {
+  loadSheetJS(() => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const wb = XLSX.read(e.target.result, {type:'binary'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, {defval:''});
+      cb(data);
+    };
+    reader.readAsBinaryString(file);
+  });
+}
+
+function showImportResult(added, skipped, section) {
+  const msg='ورود '+section+': '+added+' ردیف اضافه شد'+(skipped?(' — '+skipped+' ردیف نادیده گرفته شد (تکراری یا ناقص)'):'');
+  if(skipped) ntf('⚠️ '+msg, skipped && !added?'err':'ok');
+  else ntf('✅ '+msg);
+  auditUser('ورود اکسل '+section, added+' اضافه، '+skipped+' رد');
+}
+
+// ─── خروجی و نمونه‌ی اکسل (ستون‌ها دقیقاً با نام‌ستون‌هایی که importها می‌خوانند، تا round-trip کند) ───
+function _excelExport(filename, sheetName, objRows){
+  loadSheetJS(function(){
+    var ws = XLSX.utils.json_to_sheet(objRows);
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    XLSX.writeFile(wb, filename);
+  });
+}
+// دفترچه تلفن
+function expPhonebookExcel(){
+  if(!phonebook.length){ ntf('مخاطبی برای خروجی نیست','err'); return; }
+  var catL={shop:'فروشگاه',agency:'نمایندگی',company:'شرکت',customer:'مشتری',other:'سایر'};
+  var rows=phonebook.map(function(c){ return {
+    'نام': ((c.fn||'')+' '+(c.ln||'')).trim(), 'تلفن': (c.phones||[])[0]||'',
+    'فروشگاه': c.shop||'', 'آدرس': c.addr||'', 'کدپستی': c.zip||'',
+    'دسته': catL[c.cat||'other']||'سایر', 'یادداشت': c.note||'' }; });
+  _excelExport('Laegh_Phonebook_'+fdate().replace(/\//g,'-')+'.xlsx','دفترچه',rows);
+  ntf(phonebook.length+' مخاطب در Excel ذخیره شد ✅');
+}
+function tplPhonebook(){
+  _excelExport('Laegh_Phonebook_Template.xlsx','دفترچه',[{'نام':'علی رضایی','تلفن':'09120000000','فروشگاه':'فروشگاه نمونه','آدرس':'تهران، خیابان ...','کدپستی':'1234567890','دسته':'مشتری','یادداشت':'اختیاری'}]);
+  ntf('فایل نمونه‌ی دفترچه دانلود شد — پر کنید و «ورود از Excel» را بزنید');
+}
+// قطعات
+function expPartsExcel(){
+  if(!parts.length){ ntf('قطعه‌ای برای خروجی نیست','err'); return; }
+  var rows=parts.map(function(p){ return {
+    'کد قطعه': p.code||'', 'نام قطعه': p.name||'', 'موجودی': p.qty||0,
+    'حداقل موجودی': (p.minQty!=null?p.minQty:(p.min||0)), 'قیمت': p.price||0, 'موقعیت': p.location||'' }; });
+  _excelExport('Laegh_Parts_'+fdate().replace(/\//g,'-')+'.xlsx','قطعات',rows);
+  ntf(parts.length+' قطعه در Excel ذخیره شد ✅');
+}
+function tplParts(){
+  _excelExport('Laegh_Parts_Template.xlsx','قطعات',[{'کد قطعه':'PT-100','نام قطعه':'المنت چایساز','موجودی':10,'حداقل موجودی':3,'قیمت':150000,'موقعیت':'قفسه A1'}]);
+  ntf('فایل نمونه‌ی قطعات دانلود شد — پر کنید و «ورود از Excel» را بزنید');
+}
+// خدمات
+function expServicesExcel(){
+  if(!services.length){ ntf('خدمتی برای خروجی نیست','err'); return; }
+  var rows=services.map(function(s){ return { 'نام خدمت': s.name||'', 'قیمت': s.price||0, 'توضیحات': s.desc||'' }; });
+  _excelExport('Laegh_Services_'+fdate().replace(/\//g,'-')+'.xlsx','خدمات',rows);
+  ntf(services.length+' خدمت در Excel ذخیره شد ✅');
+}
+function tplServices(){
+  _excelExport('Laegh_Services_Template.xlsx','خدمات',[{'نام خدمت':'تعمیر برد','قیمت':200000,'توضیحات':'اختیاری'}]);
+  ntf('فایل نمونه‌ی خدمات دانلود شد — پر کنید و «ورود از Excel» را بزنید');
+}
+// فروش — نمونه (ستون‌ها دقیقاً مثل importSales تا round-trip کند)
+function tplSales(){
+  _excelExport('Laegh_Sales_Template.xlsx','فروش',[{'نام مشتری':'علی رضایی','قطعه':'المنت چایساز','تلفن':'09120000000','تعداد':1,'قیمت واحد':150000,'تاریخ':'1405/04/04','یادداشت':'اختیاری'}]);
+  ntf('فایل نمونه‌ی فروش دانلود شد — پر کنید و «ورود از Excel» را بزنید');
+}
+// گارانتی — خروجی و نمونه (ستون‌ها مثل importWarranties)
+function expWarrantiesExcel(){
+  if(!warranties.length){ ntf('پرونده‌ای برای خروجی نیست','err'); return; }
