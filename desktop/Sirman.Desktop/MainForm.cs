@@ -1,10 +1,18 @@
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
+using System.Runtime.InteropServices;
 
 namespace Sirman.Desktop;
 
 public sealed class MainForm : Form
 {
+    private const int DwmwaUseImmersiveDarkMode = 20;
+    private const int DwmwaSystemBackdropType = 38;
+    private const int DwmsbtMainWindow = 2; // Mica در ویندوز 11
+
+    [DllImport("dwmapi.dll", PreserveSig = true)]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
+
     private readonly WebView2 _webView = new();
     private readonly StatusStrip _status = new();
     private readonly ToolStripStatusLabel _statusLabel = new();
@@ -29,6 +37,12 @@ public sealed class MainForm : Form
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
         WindowState = FormWindowState.Maximized;
+        Font = new Font("Segoe UI", 10.5f, FontStyle.Regular, GraphicsUnit.Point);
+        BackColor = Color.FromArgb(246, 249, 252);
+        ForeColor = Color.FromArgb(25, 45, 64);
+        Padding = new Padding(1);
+        DoubleBuffered = true;
+        HandleCreated += (_, _) => ApplyModernWindowChrome();
 
         _webView.Dock = DockStyle.Fill;
         Controls.Add(_webView);
@@ -40,11 +54,44 @@ public sealed class MainForm : Form
         Controls.Add(_status);
 
         var menu = BuildMenu();
+        menu.Font = new Font("Segoe UI", 10.5f, FontStyle.Regular, GraphicsUnit.Point);
+        menu.BackColor = Color.FromArgb(18, 74, 104);
+        menu.ForeColor = Color.White;
+        menu.Renderer = new ToolStripProfessionalRenderer(new ModernColorTable());
+        menu.Padding = new Padding(10, 4, 10, 4);
         MainMenuStrip = menu;
         Controls.Add(menu);
 
         Load += async (_, _) => await InitWebViewAsync();
         FormClosed += (_, _) => _notify.Dispose();
+    }
+
+    /// <summary>رنگ و لایهٔ بیرونی مدرن برای ویندوز 11؛ در ویندوزهای قدیمی بی‌خطر است.</summary>
+    private void ApplyModernWindowChrome()
+    {
+        if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)) return;
+        try
+        {
+            var backdrop = DwmsbtMainWindow;
+            _ = DwmSetWindowAttribute(Handle, DwmwaSystemBackdropType, ref backdrop, sizeof(int));
+            var darkTitle = 0;
+            _ = DwmSetWindowAttribute(Handle, DwmwaUseImmersiveDarkMode, ref darkTitle, sizeof(int));
+        }
+        catch { /* Mica اختیاری است؛ پوستهٔ استاندارد ادامه دارد */ }
+    }
+
+    private sealed class ModernColorTable : ProfessionalColorTable
+    {
+        public override Color MenuStripGradientBegin => Color.FromArgb(22, 92, 128);
+        public override Color MenuStripGradientEnd => Color.FromArgb(14, 66, 96);
+        public override Color ToolStripDropDownBackground => Color.FromArgb(249, 252, 255);
+        public override Color ImageMarginGradientBegin => Color.FromArgb(239, 246, 252);
+        public override Color ImageMarginGradientMiddle => Color.FromArgb(239, 246, 252);
+        public override Color ImageMarginGradientEnd => Color.FromArgb(239, 246, 252);
+        public override Color MenuItemSelected => Color.FromArgb(207, 232, 246);
+        public override Color MenuItemSelectedGradientBegin => Color.FromArgb(207, 232, 246);
+        public override Color MenuItemSelectedGradientEnd => Color.FromArgb(182, 219, 239);
+        public override Color MenuItemBorder => Color.FromArgb(74, 151, 191);
     }
 
     protected override void OnFormClosing(FormClosingEventArgs e)
