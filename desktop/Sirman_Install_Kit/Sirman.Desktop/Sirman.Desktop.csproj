@@ -24,7 +24,7 @@
 
   <!-- کپی HTML کنار خروجی بیلد (برای تست محلی) -->
   <ItemGroup>
-    <None Include="..\..\Sirman_Final.html" Condition="Exists('..\..\Sirman_Final.html')">
+    <None Include="..\Sirman_Final.html" Condition="Exists('..\Sirman_Final.html')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>Sirman_Final.html</Link>
     </None>
