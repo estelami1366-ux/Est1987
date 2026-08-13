@@ -1,0 +1,500 @@
+  if(pw){
+    const entered=prompt('برای ریست کامل، رمز مدیر را وارد کنید:');
+    if(entered===null)return;
+    if(entered!==pw){ntf('رمز اشتباه است','err');return;}
+    ok=true;
+  } else {
+    ok=confirm('⚠️ ریست کامل نرم‌افزار\n\nهمه اطلاعات شامل فاکتورها، کالاها، انبار، مخاطبین،\nقطعات، خدمات، گارانتی و فروش پاک می‌شود.\n\nاین عملیات غیرقابل بازگشت است!\n\nآیا مطمئن هستید؟');
+  }
+  if(!ok)return;
+
+  // ===== بک‌اپ اجباری قبل از ریست — همیشه، بدون استثنا =====
+  ntf('در حال تهیه بک‌اپ اجباری قبل از ریست...','info');
+  try {
+    exportData(); // فایل JSON کامل را همین الان دانلود می‌کند
+  } catch(e) {
+    if (typeof addDbgEntry === 'function') addDbgEntry('err','بک‌اپ اجباری',e.message,'بک‌اپ خودکار قبل از ریست ناموفق بود','');
+  }
+
+  const confirm2 = confirm('📥 یک فایل بک‌اپ کامل همین الان دانلود شد (پوشه Downloads را چک کنید).\n\nآیا فایل را دیدید و مطمئن هستید می‌خواهید ادامه دهید؟\n\nبا تأیید این پیام، همه داده‌ها برای همیشه پاک می‌شوند.');
+  if(!confirm2){ ntf('ریست لغو شد — داده‌های شما سالم ماند','ok'); return; }
+
+  // یک تأیید نهایی با تایپ کلمه «تأیید»
+  const finalWord = prompt('برای تأیید نهایی، کلمه "تایید" را تایپ کنید:');
+  if (finalWord !== 'تایید') { ntf('ریست لغو شد — متن وارد شده مطابقت نداشت','ok'); return; }
+
+  // لیست دقیق و کامل همه کلیدهای داده (هم با پیشوند laegh_ و هم کلیدهای کوتاه قدیمی)
+  const dataKeys = [
+    'li','lp','lv','lb','la','lc',           // فاکتور/کالا/انبار/دفترچه/شمارنده (قدیمی)
+    'li2','lp2','ls2','lw2',                  // فاکتور جدید/قطعات/خدمات/گارانتی
+    'laegh_pb','laegh_sales','laegh_tasks','laegh_printSettings','laegh_company',
+    'laegh_autosave_snapshot','laegh_last_hourly_save'
+  ];
+  // هر کلید دیگری که با laegh_ شروع شود هم اضافه شود (به جز موارد محافظت‌شده)
+  const protectedKeys = ['laegh_adminpw','laegh_theme','laegh_logo','laegh_sender','laegh_autosave_enabled','laegh_autosave_interval'];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k && k.startsWith('laegh_') && !protectedKeys.includes(k) && !dataKeys.includes(k)) dataKeys.push(k);
+  }
+  // حذف همه کلیدهای داده (محافظت‌شده‌ها دست نمی‌خورند)
+  dataKeys.forEach(k=>{ if(!protectedKeys.includes(k)) localStorage.removeItem(k); });
+
+  // ریست متغیرهای حافظه (in-memory)
+  invoices=[];products=[];inventory={};phonebook=[];invCtr=1;
+  if(typeof parts!=='undefined') parts=[];
+  if(typeof services!=='undefined') services=[];
+  if(typeof svcs!=='undefined') svcs=(typeof services!=='undefined'?services:[]);
+  if(typeof sales!=='undefined') sales=[];
+  if(typeof warranties!=='undefined') warranties=[];
+  if(typeof userRoles!=='undefined') userRoles=[];
+  if(typeof loginPw!=='undefined') loginPw='';
+  if(typeof pb!=='undefined') pb=[];
+  if(typeof tasks!=='undefined') tasks=[];
+  if(typeof defectiveStock!=='undefined') defectiveStock=[];
+  if(typeof userAuditLog!=='undefined') userAuditLog=[];
+  if(typeof bgAuditLog!=='undefined') bgAuditLog=[];
+
+  sv();
+  if(typeof svParts==='function') svParts();
+  if(typeof svSvcs==='function') svSvcs();
+  if(typeof svSales==='function') svSales();
+  if(typeof svWarr==='function') svWarr();
+  if(typeof svPB==='function') svPB();
+  if(typeof svTasks==='function') svTasks();
+  if(typeof svDefective==='function') svDefective();
+  localStorage.setItem('laegh_audit_user','[]');
+  localStorage.setItem('laegh_audit_bg','[]');
+
+  getNum();renderSaved();renderProds();renderInv();renderPB();
+  if(typeof renderParts==='function') renderParts();
+  if(typeof renderSvcs==='function') renderSvcs();
+  if(typeof renderSales==='function') renderSales();
+  if(typeof renderWarList==='function') renderWarList();
+  if(typeof renderTasks==='function') renderTasks();
+  if(typeof renderSidebarBadges==='function') renderSidebarBadges();
+  renderDataStats();
+
+  if (typeof addDbgEntry === 'function') addDbgEntry('ok','ریست کامل','','ریست با موفقیت انجام شد — بک‌اپ قبل از ریست دانلود شده بود','');
+  ntf('✅ نرم‌افزار ریست شد — یادتان باشد فایل بک‌اپ در Downloads موجود است','ok');
+}
+function importProducts(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();r.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'binary'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1}).slice(1);
+      let added=0, skipped=0;
+      rows.forEach(row=>{
+        if(!row[0]||!row[1])return;
+        const code=String(row[0]).trim(),name=String(row[1]).trim();
+        if(!products.find(p=>p.code===code)){
+          products.push({code,name,cat:row[2]||'',brand:row[3]||'',supplier:row[4]||'',price:parseFloat(row[5])||0,desc:row[6]||'',img:''});
+          if(!inventory[code]) inventory[code]={qty:parseInt(row[7])||0,min:parseInt(row[8])||0,note:''};
+          added++;
+        } else skipped++;
+      });
+      sv();renderProds();renderInv();updateCats();
+      ntf(added+' کالای جدید اضافه شد'+(skipped?(' — '+skipped+' کد تکراری رد شد'):''));
+    }catch(err){ntf('خطا در خواندن فایل Excel — مطمئن شوید ستون‌ها مثل فایل نمونه‌اند','err');}
+  };r.readAsBinaryString(f);inp.value='';
+}
+// خروجی اکسل فقط برای کالاها (ستون‌ها دقیقاً مثل فایل ورودی، تا رفت‌وبرگشت کند)
+function expProductsExcel(){
+  if(!products.length){ ntf('کالایی برای خروجی وجود ندارد','err'); return; }
+  const rows=[['کد','نام','دسته','برند','تأمین‌کننده','قیمت','توضیحات','موجودی','حداقل']];
+  products.forEach(p=>{ const inv=inventory[p.code]||{qty:0,min:0}; rows.push([p.code,p.name,p.cat||'',p.brand||'',p.supplier||'',p.price||0,p.desc||'',inv.qty,inv.min]); });
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'کالاها');
+  XLSX.writeFile(wb,'Laegh_Products_'+fdate().replace(/\//g,'-')+'.xlsx');
+  ntf(products.length+' کالا در فایل Excel ذخیره شد ✅');
+}
+// فایل نمونه‌ی خالی با سرستون‌ها و یک ردیف مثال — تا کاربر فرمت درست را بداند
+function downloadProductTemplate(){
+  const rows=[
+    ['کد','نام','دسته','برند','تأمین‌کننده','قیمت','توضیحات','موجودی','حداقل'],
+    ['P-1001','نمونه: المنت چایساز','قطعات','برند نمونه','تأمین‌کننده نمونه',250000,'توضیح اختیاری',10,3]
+  ];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'کالاها');
+  XLSX.writeFile(wb,'Laegh_Products_Template.xlsx');
+  ntf('فایل نمونه دانلود شد — ستون‌ها را پر کنید و «افزودن از اکسل» را بزنید');
+}
+function expAllExcel(){
+  const wb=XLSX.utils.book_new();
+  // Sheet 1: invoices summary
+  const irows=[['شماره','فروشنده','تلفن','تاریخ','تعداد','برآورد','تخفیف','نهایی','وضعیت']];
+  invoices.forEach(d=>irows.push([d.num,d.seller,d.phone||'',d.date||'',d.items.length,d.tE||0,d.tD||0,d.tF||0,d.status==='closed'?'تکمیل':'باز']));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(irows),'فاکتورها');
+  // Sheet 2: products
+  const prows=[['کد','نام','دسته','برند','تأمین‌کننده','قیمت','توضیحات','موجودی','حداقل']];
+  products.forEach(p=>{const inv=inventory[p.code]||{qty:0,min:0};prows.push([p.code,p.name,p.cat||'',p.brand||'',p.supplier||'',p.price||0,p.desc||'',inv.qty,inv.min]);});
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(prows),'کالاها');
+  // Sheet 3: phonebook
+  const brows=[['نام','فامیل','فروشگاه','آدرس','کدپستی','تلفن‌ها','ایتا','تلگرام','واتساپ']];
+  phonebook.forEach(c=>brows.push([c.fn||'',c.ln||'',c.shop||'',c.addr||'',c.zip||'',(c.phones||[]).join(' / '),c.ita||'',c.tg||'',c.wa||'']));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(brows),'دفترچه');
+  XLSX.writeFile(wb,'Laegh_full_export.xlsx');ntf('Excel کامل دانلود شد');
+}
+function renderDataStats(){
+  const totalFin=invoices.reduce((s,d)=>s+(d.tF||0),0);
+  document.getElementById('data-stats').innerHTML=`<div class="stat-card"><div class="stat-val">${invoices.length}</div><div class="stat-lbl">فاکتور</div></div><div class="stat-card"><div class="stat-val">${products.length}</div><div class="stat-lbl">کالا</div></div><div class="stat-card"><div class="stat-val">${phonebook.length}</div><div class="stat-lbl">مخاطب</div></div><div class="stat-card"><div class="stat-val" style="color:var(--green);font-size:14px">${totalFin.toLocaleString()}</div><div class="stat-lbl">جمع فروش (ریال)</div></div>`;
+}
+
+// ─── ماژول وظایف و یادآوری ──────────────────────────────────────────────────────
+function svTasks(){
+  localStorage.setItem('laegh_tasks', JSON.stringify(tasks));
+  markDirty();
+  mirrorTasksToIDB();
+}
+function openTasksIDB(){
+  return new Promise(resolve=>{
+    if(!('indexedDB' in window)){resolve(null);return;}
+    const req = indexedDB.open('laegh-tasks-db',1);
+    req.onupgradeneeded=()=>{ if(!req.result.objectStoreNames.contains('tasks')) req.result.createObjectStore('tasks',{keyPath:'id'}); };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>resolve(null);
+  });
+}
+async function mirrorTasksToIDB(){
+  // Service Worker به localStorage دسترسی ندارد، پس برای اعلان پس‌زمینه باید کارها در IndexedDB هم mirror شوند
+  const db = await openTasksIDB(); if(!db) return;
+  const tx = db.transaction('tasks','readwrite'); const st=tx.objectStore('tasks');
+  st.clear();
+  tasks.forEach(t=>st.put(t));
+}
+async function syncNotifiedFromIDB(){
+  const db = await openTasksIDB(); if(!db) return;
+  const tx = db.transaction('tasks','readonly');
+  const req = tx.objectStore('tasks').getAll();
+  req.onsuccess=()=>{
+    const fromIdb = req.result||[]; let changed=false;
+    fromIdb.forEach(it=>{
+      const t = tasks.find(x=>x.id===it.id);
+      if(t && it.notifiedAt && !t.notifiedAt){ t.notifiedAt=it.notifiedAt; changed=true; }
+    });
+    if(changed){ localStorage.setItem('laegh_tasks', JSON.stringify(tasks)); renderTasks(); renderSidebarBadges(); }
+  };
+}
+let _activeTaskTab='do';
+let _taskEditId=null;
+function switchTaskTab(kind){
+  _activeTaskTab=kind; resetTaskForm();
+  document.getElementById('tab-do').classList.toggle('active',kind==='do');
+  document.getElementById('tab-watch').classList.toggle('active',kind==='watch');
+  document.getElementById('task-form-title').textContent = kind==='do' ? '➕ کار جدید' : '➕ مورد جدید برای رصد';
+  renderTasks();
+}
+function renderTaskLinkOptions(){
+  const type=document.getElementById('tsk-link-type').value;
+  const sel=document.getElementById('tsk-link-id');
+  let opts='<option value="">—</option>';
+  if(type==='invoice'){
+    invoices.filter(d=>d.status!=='closed').forEach(d=>opts+=`<option value="${d.num}">#${d.num} — ${d.seller}</option>`);
+  } else if(type==='sale'){
+    (typeof sales!=='undefined'?sales:[]).forEach(s=>opts+=`<option value="${s.id}">${s.id} — ${s.partName||s.partCode}</option>`);
+  } else if(type==='warranty'){
+    warranties.forEach(w=>opts+=`<option value="${w.id}">${w.id} — ${w.name}</option>`);
+  }
+  sel.innerHTML=opts;
+}
+function resetTaskForm(){
+  _taskEditId=null;
+  document.getElementById('tsk-title').value='';
+  document.getElementById('tsk-desc').value='';
+  document.getElementById('tsk-priority').value='normal';
+  const dl=document.getElementById('tsk-deadline'); dl.value=''; delete dl.dataset.ts; delete dl.dataset.hh; delete dl.dataset.mm;
+  document.getElementById('tsk-notify').value='1';
+  document.getElementById('tsk-link-type').value=''; renderTaskLinkOptions();
+  document.getElementById('tsk-cancel-edit').style.display='none';
+}
+function saveTask(){
+  const title=document.getElementById('tsk-title').value.trim();
+  if(!title){ntf('عنوان کار را وارد کنید','err');return;}
+  const dlInp=document.getElementById('tsk-deadline');
+  const deadlineTS = dlInp.dataset.ts ? +dlInp.dataset.ts : null;
+  const hasTime = !!deadlineTS && /:\d\d$/.test(dlInp.value.trim());
+  const linkType=document.getElementById('tsk-link-type').value||null;
+  const linkId=document.getElementById('tsk-link-id').value||null;
+  if(_taskEditId){
+    const t=tasks.find(x=>x.id===_taskEditId);
+    if(t){
+      if(t.deadlineTS!==deadlineTS) t.notifiedAt=null;
+      Object.assign(t,{title,desc:document.getElementById('tsk-desc').value,priority:document.getElementById('tsk-priority').value,deadlineTS,hasTime,link:{type:linkType,id:linkId},notify:document.getElementById('tsk-notify').value==='1'});
+    }
+  } else {
+    tasks.push({
+      id:'TSK-'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase(),
+      kind:_activeTaskTab, title, desc:document.getElementById('tsk-desc').value,
+      priority:document.getElementById('tsk-priority').value,
+      deadlineTS, hasTime, link:{type:linkType,id:linkId},
+      status:'open', notify:document.getElementById('tsk-notify').value==='1', notifiedAt:null,
+      createdAt:Date.now(), doneAt:null
+    });
+  }
+  svTasks(); resetTaskForm(); renderTasks(); ntf('کار ذخیره شد');
+}
+function editTask(id){
+  const t=tasks.find(x=>x.id===id); if(!t) return;
+  _taskEditId=id; _activeTaskTab=t.kind;
+  document.getElementById('tab-do').classList.toggle('active',t.kind==='do');
+  document.getElementById('tab-watch').classList.toggle('active',t.kind==='watch');
+  document.getElementById('tsk-title').value=t.title;
+  document.getElementById('tsk-desc').value=t.desc||'';
+  document.getElementById('tsk-priority').value=t.priority;
+  const dlInp=document.getElementById('tsk-deadline');
+  if(t.deadlineTS){
+    const p=tehranParts(t.deadlineTS); const [jy,jm,jd]=gregorian_to_jalali(p.y,p.m,p.d);
+    dlInp.value = jalaliStr(jy,jm,jd) + (t.hasTime?(' '+String(p.hh).padStart(2,'0')+':'+String(p.mm).padStart(2,'0')):'');
+    dlInp.dataset.ts=t.deadlineTS; dlInp.dataset.hh=p.hh; dlInp.dataset.mm=p.mm;
+  } else { dlInp.value=''; delete dlInp.dataset.ts; }
+  document.getElementById('tsk-notify').value = t.notify?'1':'0';
+  document.getElementById('tsk-link-type').value = (t.link&&t.link.type) || '';
+  renderTaskLinkOptions();
+  if(t.link&&t.link.id) document.getElementById('tsk-link-id').value=t.link.id;
+  document.getElementById('tsk-cancel-edit').style.display='inline-block';
+  renderTasks();
+}
+function doneTask(id){ const t=tasks.find(x=>x.id===id); if(!t)return; t.status='done'; t.doneAt=Date.now(); svTasks(); renderTasks(); }
+function reopenTask(id){ const t=tasks.find(x=>x.id===id); if(!t)return; t.status='open'; t.doneAt=null; svTasks(); renderTasks(); }
+function delTask(id){ if(!confirm('این کار حذف شود؟'))return; tasks=tasks.filter(x=>x.id!==id); svTasks(); renderTasks(); }
+function openTaskLink(id){
+  const t=tasks.find(x=>x.id===id); if(!t||!t.link||!t.link.type) return;
+  const map={invoice:'saved',sale:'sales',warranty:'warranty',inventory:'inventory',dataio:'dataio'};
+  const pid=map[t.link.type]; if(!pid) return;
+  showPage(pid, document.querySelector('[data-page="'+pid+'"]'));
+}
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function sameTehranDay(ts1,ts2){ const a=tehranParts(ts1), b=tehranParts(ts2); return a.y===b.y&&a.m===b.m&&a.d===b.d; }
+function renderTasks(){
+  const listEl=document.getElementById('task-list'); if(!listEl) return;
+  const kind=_activeTaskTab;
+  const prFilter=document.getElementById('tsk-filter-pr')?document.getElementById('tsk-filter-pr').value:'';
+  const stFilter=document.getElementById('tsk-filter-status')?document.getElementById('tsk-filter-status').value:'open';
+  let list = tasks.filter(t=>t.kind===kind);
+  if(prFilter) list=list.filter(t=>t.priority===prFilter);
+  if(stFilter) list=list.filter(t=>t.status===stFilter);
+  const now=Date.now();
+  const prOrder={urgent:0,high:1,normal:2,low:3};
+  list.sort((a,b)=>{ const ao=a.deadlineTS||Infinity, bo=b.deadlineTS||Infinity; if(ao!==bo) return ao-bo; return prOrder[a.priority]-prOrder[b.priority]; });
+  const groups={'سررسیدگذشته':[], 'امروز':[], 'این هفته':[], 'بعداً / بدون موعد':[]};
+  const dayMs=86400000;
+  list.forEach(t=>{
+    if(!t.deadlineTS){ groups['بعداً / بدون موعد'].push(t); return; }
+    if(t.status==='open' && t.deadlineTS<now && !sameTehranDay(t.deadlineTS,now)){ groups['سررسیدگذشته'].push(t); return; }
+    if(sameTehranDay(t.deadlineTS,now)){ groups['امروز'].push(t); return; }
+    if(t.deadlineTS < now+7*dayMs){ groups['این هفته'].push(t); return; }
+    groups['بعداً / بدون موعد'].push(t);
+  });
+  const prLbl={urgent:'فوری',high:'بالا',normal:'معمولی',low:'پایین'};
+  let html='';
+  Object.keys(groups).forEach(g=>{
+    if(!groups[g].length) return;
+    html+=`<div class="task-grp-title">${g} (${groups[g].length})</div>`;
+    groups[g].forEach(t=>{
+      const overdue = t.status==='open' && !!t.deadlineTS && t.deadlineTS<now;
+      const linkBtn = (t.link&&t.link.type) ? `<button class="btn btn-sm" onclick="openTaskLink('${t.id}')">🔗 باز کردن</button>` : '';
+      html+=`<div class="task-row${overdue?' overdue':''}${t.status==='done'?' done':''}">
+        <input type="checkbox" ${t.status==='done'?'checked':''} onchange="${t.status==='done'?'reopenTask':'doneTask'}('${t.id}')">
+        <div style="flex:1">
+          <div><b>${escapeHtml(t.title)}</b> <span class="task-pr task-pr-${t.priority}">${prLbl[t.priority]}</span></div>
+          ${t.desc?`<div style="font-size:11px;color:#888">${escapeHtml(t.desc)}</div>`:''}
+          ${t.deadlineTS?`<div style="font-size:11px;color:${overdue?'var(--red)':'#789'}">⏰ ${fdate(t.deadlineTS)}${t.hasTime?' '+ftime(t.deadlineTS):''}</div>`:''}
+        </div>
+        ${linkBtn}
+        <button class="btn btn-sm btn-p" onclick="editTask('${t.id}')">✏</button>
+        <button class="btn btn-sm btn-r" onclick="delTask('${t.id}')">✕</button>
+      </div>`;
+    });
+  });
+  listEl.innerHTML = html || '<div style="text-align:center;color:#aaa;padding:24px">کاری ثبت نشده</div>';
+  renderSidebarBadges();
+}
+
+// ─── یادآوری فاکتور باز → کار خودکار «موارد مدنظر» (جایگزین toast هر ۵ دقیقه‌ی قبلی) ──
+function syncOpenInvoiceTasks(){
+  const open = invoices.filter(d=>d.status!=='closed');
+  const openNums = open.map(d=>d.num);
+  let changed=false;
+  tasks = tasks.filter(t=>{
+    if(t.autoInvoice && !openNums.includes(t.link.id)){ changed=true; return false; }
+    return true;
+  });
+  open.forEach(d=>{
+    const t = tasks.find(x=>x.autoInvoice && x.link && x.link.id===d.num);
+    if(!t){
+      tasks.push({
+        id:'TSK-AUTO-'+d.num, kind:'watch',
+        title:'فاکتور باز #'+d.num+' — '+d.seller,
+        desc:'این کار به‌صورت خودکار از فاکتورهای باز/ناقص ساخته شده است.',
+        priority:'high', deadlineTS:null, hasTime:false,
+        link:{type:'invoice',id:d.num}, status:'open', notify:true, notifiedAt:null,
+        autoInvoice:true, createdAt:Date.now(), doneAt:null
+      });
+      changed=true;
+    }
+  });
+  if(changed){
+    svTasks();
+    if(document.getElementById('page-tasks').classList.contains('active')) renderTasks();
+    renderSidebarBadges();
+    // اخطار دسکتاپ برای فاکتورهای باز هم بلافاصله بررسی شود (نه فقط در تیک ۶۰ ثانیه‌ای)
+    if(typeof checkDueTasksForNotification==='function') checkDueTasksForNotification();
+  }
+  else renderSidebarBadges();
+}
+// کار مشترک بعد از تغییر کارهای خودکار (ذخیره + رفرش + بررسی اعلان دسکتاپ)
+function _afterAutoTaskSync(changed){
+  if(changed){
+    svTasks();
+    if(document.getElementById('page-tasks').classList.contains('active')) renderTasks();
+    renderSidebarBadges();
+    if(typeof checkDueTasksForNotification==='function') checkDueTasksForNotification();
+  } else renderSidebarBadges();
+}
+// گارانتی‌های باز → کار خودکار «مورد مدنظر» + اعلان دسکتاپ (یک‌بار)
+function syncOpenWarrantyTasks(){
+  if(typeof warranties==='undefined' || !Array.isArray(warranties)) return;
+  const open = warranties.filter(w=>w.status!=='closed');
+  const openIds = open.map(w=>w.id);
+  let changed=false;
+  tasks = tasks.filter(t=>{
+    if(t.autoWarranty && !openIds.includes(t.link.id)){ changed=true; return false; }
+    return true;
+  });
+  open.forEach(w=>{
+    const ex = tasks.find(x=>x.autoWarranty && x.link && x.link.id===w.id);
+    if(!ex){
+      tasks.push({
+        id:'TSK-AUTO-WAR-'+w.id, kind:'watch',
+        title:'پرونده گارانتی باز — '+(w.name||w.id),
+        desc:'پرونده گارانتی در جریان است. خودکار ساخته شده تا پیگیری شود.',
+        priority:'normal', deadlineTS:null, hasTime:false,
+        link:{type:'warranty',id:w.id}, status:'open', notify:true, notifiedAt:null,
+        autoWarranty:true, createdAt:Date.now(), doneAt:null
+      });
+      changed=true;
+    }
+  });
+  _afterAutoTaskSync(changed);
+}
+// موجودی کم انبار (qty<=min و min>0) → کار خودکار + اعلان دسکتاپ (یک‌بار)
+function syncLowInventoryTasks(){
+  if(typeof products==='undefined' || !Array.isArray(products) || typeof inventory==='undefined') return;
+  const low = products.filter(p=>{ const inv=inventory[p.code]; return inv && inv.min>0 && inv.qty<=inv.min; });
+  const lowCodes = low.map(p=>p.code);
+  let changed=false;
+  tasks = tasks.filter(t=>{
+    if(t.autoInventory && !lowCodes.includes(t.link.id)){ changed=true; return false; }
+    return true;
+  });
+  low.forEach(p=>{
+    const ex = tasks.find(x=>x.autoInventory && x.link && x.link.id===p.code);
+    if(!ex){
+      const inv=inventory[p.code];
+      tasks.push({
+        id:'TSK-AUTO-INV-'+p.code, kind:'watch',
+        title:'موجودی کم: '+(p.name||p.code),
+        desc:'موجودی ('+faNum(inv.qty)+') به حداقل ('+faNum(inv.min)+') رسیده یا کمتر است — سفارش دهید.',
+        priority:'high', deadlineTS:null, hasTime:false,
+        link:{type:'inventory',id:p.code}, status:'open', notify:true, notifiedAt:null,
+        autoInventory:true, createdAt:Date.now(), doneAt:null
+      });
+      changed=true;
+    }
+  });
+  _afterAutoTaskSync(changed);
+}
+// یادآوری هفتگی بک‌اپ → کار خودکار «کارها» (فقط وقتی داده دارید و بیش از ۷ روز از بک‌اپ دستی گذشته)
+function syncBackupReminderTask(){
+  const existing = tasks.find(t=>t.autoBackup);
+  const hasData = (typeof invoices!=='undefined'&&invoices&&invoices.length)
+    || (typeof products!=='undefined'&&products&&products.length)
+    || (typeof pb!=='undefined'&&pb&&pb.length)
+    || (typeof warranties!=='undefined'&&warranties&&warranties.length)
+    || (typeof sales!=='undefined'&&sales&&sales.length);
+  const last = parseInt(localStorage.getItem('laegh_last_backup')||'0',10);
+  const overdue = !last || (Date.now()-last) > 7*86400000;
+  if(hasData && overdue){
+    if(!existing){
+      tasks.push({
+        id:'TSK-AUTO-BACKUP', kind:'do',
+        title:'بک‌اپ هفتگی بگیرید 💾',
+        desc:'بیش از ۷ روز از آخرین پشتیبان دستی گذشته. از «ورود/خروج داده» یک بک‌اپ بگیرید و یک نسخه‌ی سرد (فلش/ابر) نگه دارید.',
+        priority:'high', deadlineTS:null, hasTime:false,
+        link:{type:'dataio',id:'backup'}, status:'open', notify:true, notifiedAt:null,
+        autoBackup:true, createdAt:Date.now(), doneAt:null
+      });
+      _afterAutoTaskSync(true);
+    }
+  } else if(existing){
+    tasks = tasks.filter(t=>!t.autoBackup);
+    _afterAutoTaskSync(true);
+  }
+}
+// همه‌ی کارهای خودکار (فاکتور باز + گارانتی باز + موجودی کم + یادآوری بک‌اپ) را با هم همگام می‌کند
+function syncAllAutoTasks(){
+  if(typeof syncOpenInvoiceTasks==='function') syncOpenInvoiceTasks();
+  if(typeof syncOpenWarrantyTasks==='function') syncOpenWarrantyTasks();
+  if(typeof syncLowInventoryTasks==='function') syncLowInventoryTasks();
+  if(typeof syncBackupReminderTask==='function') syncBackupReminderTask();
+}
+// توجه: زمان‌بندی اجرای syncAllAutoTasks عمداً به انتهای اسکریپت منتقل شده
+// (بعد از اینکه متغیرهای tasks/warranties/products با let تعریف شدند) تا از خطای ReferenceError/TDZ مشابه
+// باگی که قبلاً در صفحه ورود رخ داد، جلوگیری شود.
+
+// ─── اعلان واقعی دسکتاپ (PWA + Service Worker) ──────────────────────────────────
+// ⚠️ محدودیت پلتفرمی: دقت زمانی فقط وقتی پروسه‌ی مرورگر/PWA زنده است (حتی پس‌زمینه) تضمین‌شده.
+// با بسته‌بودن کامل مرورگر، Periodic Background Sync کرومیوم best-effort است و ممکن است دیر یا اصلاً اجرا نشود —
+// این محدودیت خود مرورگر/ویندوز است، نه باگ این کد.
+let _swReg=null;
+// نمایش یک اعلان دسکتاپ به مطمئن‌ترین روش ممکن:
+// وقتی پنجره باز است، new Notification مستقیم و بدون وابستگی به سرویس‌ورکر کار می‌کند (مسیر اصلی و قابل‌اعتماد).
+// اگر به هر دلیل شکست خورد، از طریق سرویس‌ورکر (که برای حالت پس‌زمینه هم لازم است) تلاش می‌شود.
+function showLaeghNotification(title, opts){
+  opts = opts || {};
+  if(!('Notification' in window) || Notification.permission!=='granted') return false;
+  try{
+    new Notification(title, opts);
+    return true;
+  }catch(e){
+    // برخی مرورگرها (مثل کروم روی اندروید) new Notification را بلاک می‌کنند و فقط از مسیر سرویس‌ورکر اجازه می‌دهند
+    if(_swReg){ try{ _swReg.showNotification(title, opts); return true; }catch(e2){} }
+    return false;
+  }
+}
+function enableTaskNotifications(){
+  if(!('Notification' in window)){ ntf('مرورگر شما از اعلان دسکتاپ پشتیبانی نمی‌کند','err'); return; }
+  Notification.requestPermission().then(p=>{
+    if(p==='granted'){
+      ntf('اعلان دسکتاپ فعال شد ✅');
+      registerLaeghSW();
+      // اعلان تست فوری تا کاربر بلافاصله مطمئن شود کار می‌کند
+      showLaeghNotification('✅ اعلان دسکتاپ لایق فعال شد', {body:'از این پس یادآوری کارهای سررسیددار همین‌جا نمایش داده می‌شود.', tag:'laegh-enable-test'});
+      // یک‌بار همان لحظه کارهای سررسیدشده را هم چک کن (نه اینکه تا ۶۰ ثانیه‌ی بعد صبر کند)
+      checkDueTasksForNotification();
+    }
+    else ntf('اجازه‌ی اعلان داده نشد — از تنظیمات مرورگر برای این سایت اجازه‌ی Notification بدهید','err');
+  });
+}
+function registerLaeghSW(){
+  if(!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    _swReg=reg;
+    if('periodicSync' in reg){ reg.periodicSync.register('laegh-task-check',{minInterval:30*60*1000}).catch(()=>{}); }
+    mirrorTasksToIDB();
+  }).catch(()=>{});
+}
+function checkDueTasksForNotification(){
+  if(!('Notification' in window) || Notification.permission!=='granted') return;
+  const now=Date.now(); let changed=false;
+  tasks.forEach(t=>{
+    // اعلان یک‌بار فرستاده می‌شود (notifiedAt جلوی تکرار/اسپم را می‌گیرد) برای:
+    //  - کارهای دارای موعد که موعدشان رسیده/گذشته،
+    //  - کارهای بدون موعد ولی مهم (مثل «فاکتور باز») که باید همان لحظه یک اخطار دسکتاپ بدهند.
+    if(t.status==='open' && t.notify && !t.notifiedAt && (!t.deadlineTS || t.deadlineTS<=now)){
+      const icon = t.autoInvoice ? '🧾 ' : t.autoWarranty ? '🛡 ' : t.autoInventory ? '📦 ' : t.autoBackup ? '💾 ' : '⏰ ';
+      showLaeghNotification(icon+t.title, {body:(t.desc||'')+' — اولویت: '+t.priority, tag:t.id});
+      t.notifiedAt = now; changed=true;
+    }
+  });
