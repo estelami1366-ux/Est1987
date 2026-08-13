@@ -3963,14 +3963,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۲ζ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۲η باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.22ζ', 'نسخه meta باید 1405.5.22ζ باشد');
+  assertEqual(metaVer, '1405.5.22η', 'نسخه meta باید 1405.5.22η باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/22', 'app-date باید 1405/05/22 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲ζ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲ζ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲η', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲η را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.22ζ'", 'فیلد version بک‌آپ باید 1405.5.22ζ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.22η'", 'فیلد version بک‌آپ باید 1405.5.22η باشد');
 });
 
 
@@ -6155,6 +6155,117 @@ test('شبیه‌سازی: کاتالوگ، تبدیل Exception، پاسخ UI �
 
   const same = EE.create('ERR-AUTH-001', { userMessage:'متن عوض‌شده' });
   assertEqual(same.code, 'ERR-AUTH-001', 'عوض کردن متن نباید کد را عوض کند');
+});
+
+
+console.log('');
+console.log('📋 گروه: قفل جلسه در حال اجرا (میانبر و منو)');
+
+function makeLockDom(){
+  const els = {};
+  function el(id){
+    if(!els[id]) els[id] = { id:id, value:'', textContent:'', style:{display: id==='login-overlay' ? 'none' : ''}, focus(){ this._focused = true; } };
+    return els[id];
+  }
+  return {
+    els,
+    document: {
+      getElementById: id => el(id),
+      querySelector: () => ({ className:'stg-tab' })
+    }
+  };
+}
+
+test('توابع و دکمه‌های قفل برنامه باید در HTML و منوها باشند', () => {
+  ['lockApp','canLockApp','isAppSessionLocked','setLoginOverlayHint'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  assertContainsString(html, 'id="btn-lock-app"', 'دکمه قفل در سایدبار پیدا نشد');
+  assertContainsString(html, 'id="btn-stg-lock-app"', 'دکمه قفل در تنظیمات امنیت پیدا نشد');
+  assertContainsString(html, "winContextAction(\\'lock\\'", 'منوی راست‌کلیک پنجره باید قفل داشته باشد');
+  assertContainsString(html, 'id="win-ctx-lock-app"', 'آیتم قفل منوی پنجره پیدا نشد');
+  assertContainsString(html, 'id="login-overlay-hint"', 'متن راهنمای overlay ورود برای قفل لازم است');
+  assertContainsString(html, 'Ctrl+Shift+L', 'میانبر Ctrl+Shift+L باید در رابط باشد');
+  assertContainsString(html, '_lockShortcutBound', 'شنونده میانبر قفل باید ثبت شود');
+  assertContainsString(html, 'قفل برنامه در حالی که باز است', 'راهنمای قفل برنامه لازم است (قانون ۷)');
+  const lockSrc = extractFunctionSource(html, 'lockApp');
+  assertTrue(lockSrc.indexOf('invoices')===-1 && lockSrc.indexOf('phonebook')===-1, 'lockApp نباید داده‌های فاکتور/دفترچه را پاک کند');
+  const winSrc = extractFunctionSource(html, 'winContextAction');
+  assertContainsString(winSrc, "action==='lock'", 'winContextAction باید عمل lock را صدا بزند');
+});
+
+test('شبیه‌سازی: قفل بدون رمز فعال نشود؛ با رمز overlay بیاید و داده پاک نشود (execution-based)', () => {
+  const src = [
+    extractFunctionSource(html, 'setLoginOverlayHint'),
+    extractFunctionSource(html, 'isAppSessionLocked'),
+    extractFunctionSource(html, 'canLockApp'),
+    extractFunctionSource(html, 'lockApp'),
+    extractFunctionSource(html, 'finishLogin')
+  ].join('\n');
+  assertTrue(src.indexOf('function lockApp')>=0, 'سورس lockApp استخراج نشد');
+
+  function runCase(loginPw, userRoles){
+    const dom = makeLockDom();
+    const notes = [];
+    const pages = [];
+    const runner = new Function(
+      'document','loginPw','userRoles','ntf','showPage','showStgTab','applyRoleRestrictions',
+      'var _appLocked = false;\n' +
+      "var LOGIN_HINT_DEFAULT = 'برای ورود، رمز عبور را وارد کنید';\n" +
+      "var LOGIN_HINT_LOCKED = 'برنامه قفل است — برای ادامه رمز را وارد کنید';\n" +
+      'var invoices = [{num:"KEEP-INV"}];\n' +
+      'var parts = [{code:"KEEP-PT"}];\n' +
+      'var setTimeout = function(fn){ try{ fn(); }catch(_e){} };\n' +
+      src + '\n' +
+      'var can = canLockApp();\n' +
+      'var did = lockApp();\n' +
+      'var afterLock = {\n' +
+      '  can: can, did: did,\n' +
+      '  display: document.getElementById("login-overlay").style.display,\n' +
+      '  hint: document.getElementById("login-overlay-hint").textContent,\n' +
+      '  pwVal: document.getElementById("login-pw-input").value,\n' +
+      '  invoices: invoices.slice(),\n' +
+      '  parts: parts.slice(),\n' +
+      '  sessionLocked: isAppSessionLocked()\n' +
+      '};\n' +
+      'finishLogin();\n' +
+      'afterLock.afterUnlockDisplay = document.getElementById("login-overlay").style.display;\n' +
+      'afterLock.afterUnlockLocked = isAppSessionLocked();\n' +
+      'return afterLock;'
+    );
+    return runner(dom.document, loginPw, userRoles, function(m){ notes.push(m); }, function(p){ pages.push(p); }, function(){}, function(){});
+  }
+
+  const denied = runCase('', []);
+  assertEqual(denied.can, false, 'بدون رمز و پروفایل نباید قفل مجاز باشد');
+  assertEqual(denied.did, false, 'lockApp بدون رمز باید false برگرداند');
+  assertEqual(denied.display, 'none', 'بدون رمز نباید overlay قفل نشان داده شود');
+  assertEqual(denied.invoices[0].num, 'KEEP-INV', 'حتی در رد قفل نباید فاکتور پاک شود');
+
+  const ok = runCase('secret', []);
+  assertEqual(ok.can, true, 'با رمز ورود باید قفل مجاز باشد');
+  assertEqual(ok.did, true, 'lockApp با رمز باید موفق شود');
+  assertEqual(ok.display, 'flex', 'قفل باید overlay ورود را نشان دهد');
+  assertTrue(String(ok.hint).indexOf('قفل')>=0, 'متن overlay باید بگوید برنامه قفل است');
+  assertEqual(ok.pwVal, '', 'فیلد رمز باید خالی شود');
+  assertEqual(ok.invoices[0].num, 'KEEP-INV', 'قفل نباید فاکتورها را پاک کند');
+  assertEqual(ok.parts[0].code, 'KEEP-PT', 'قفل نباید قطعات را پاک کند');
+  assertEqual(ok.sessionLocked, true, 'بعد از قفل isAppSessionLocked باید true باشد');
+  assertEqual(ok.afterUnlockDisplay, 'none', 'finishLogin باید overlay را ببندد');
+  assertEqual(ok.afterUnlockLocked, false, 'بعد از ورود مجدد نباید قفل مانده باشد');
+
+  const roleOk = runCase('', [{name:'کارمند', pw:'1111', pages:['invoice']}]);
+  assertEqual(roleOk.did, true, 'اگر فقط پروفایل کارمند باشد هم باید بشود قفل کرد');
+});
+
+test('شنونده میانبر قفل باید Ctrl+Shift+L را در capture بگیرد', () => {
+  const idx = html.indexOf('_lockShortcutBound');
+  assertTrue(idx > 0, 'شنونده میانبر قفل پیدا نشد');
+  const chunk = html.slice(idx, idx + 700);
+  assertContainsString(chunk, 'shiftKey', 'میانبر باید Shift داشته باشد');
+  assertContainsString(chunk, 'KeyL', 'میانبر باید کلید L باشد');
+  assertContainsString(chunk, 'lockApp()', 'میانبر باید lockApp را صدا بزند');
+  assertTrue(/addEventListener\(\s*'keydown'[\s\S]*,\s*true\s*\)/.test(chunk), 'شنونده باید capture باشد تا داخل فیلد هم کار کند');
 });
 
 

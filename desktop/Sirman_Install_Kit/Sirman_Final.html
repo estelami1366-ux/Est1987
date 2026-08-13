@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ζ">
+<meta name="app-version" content="1405.5.22η">
 <meta name="app-date" content="1405/05/22">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -921,7 +921,7 @@ body.sirman-app-frame .topbar{padding-left:56px}
 .stg-panel.active{display:block;}
 /* PRINT SETTINGS */
 .print-section-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;}
-/* ══════ مرکز پرینت / Print Center (v1405.5.22ζ) ══════ */
+/* ══════ مرکز پرینت / Print Center (v1405.5.22η) ══════ */
 .pc-shell{display:grid;grid-template-columns:210px minmax(0,1fr) 300px;gap:12px;min-height:540px;align-items:stretch;}
 .pc-col{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 24px rgba(15,40,55,.06);display:flex;flex-direction:column;min-width:0;overflow:hidden;}
 .pc-col-h{padding:12px 14px;font-size:12px;font-weight:800;letter-spacing:.02em;color:var(--blue2);background:linear-gradient(180deg,color-mix(in srgb,var(--blue-l) 70%,#fff),transparent);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -1048,7 +1048,7 @@ body.has-bg-image::after{
 }
 body.has-bg-image.theme-dark::after{background:rgba(10,12,15,var(--bg-overlay,0.55));}
 
-/* ══════ اسکین قوی / Skin Pack (v1405.5.22ζ) ══════ */
+/* ══════ اسکین قوی / Skin Pack (v1405.5.22η) ══════ */
 .skin-card{width:148px;border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--card);transition:.18s;text-align:right;}
 .skin-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,40,55,.10);}
 .skin-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 25%,transparent);}
@@ -1591,7 +1591,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 
 </style>
 <style id="win-manager-css">
-/* ══════ چندپنجره / تب‌های کاری (v1405.5.22ζ) ══════ */
+/* ══════ چندپنجره / تب‌های کاری (v1405.5.22η) ══════ */
 #win-chrome{
   position:sticky; top:0; z-index:60;
   display:flex; flex-wrap:wrap; align-items:center; gap:6px;
@@ -1901,7 +1901,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   <div style="background:#fff;border-radius:16px;padding:36px 32px;width:90%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center">
     <div style="font-size:40px;margin-bottom:8px">🔒</div>
     <div id="brand-login-title" style="font-size:17px;font-weight:800;color:#1e3a5f;margin-bottom:4px">سیرمان</div>
-    <div style="font-size:12px;color:#888;margin-bottom:24px">برای ورود، رمز عبور را وارد کنید</div>
+    <div id="login-overlay-hint" style="font-size:12px;color:#888;margin-bottom:24px">برای ورود، رمز عبور را وارد کنید</div>
     <input type="password" id="login-pw-input" placeholder="رمز عبور" style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;text-align:center;margin-bottom:12px;outline:none" onkeydown="if(event.key==='Enter')attemptLogin()">
     <button onclick="attemptLogin()" style="width:100%;padding:11px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:Tahoma">ورود</button>
     <div id="login-error-msg" style="color:#e74c3c;font-size:12px;margin-top:10px;min-height:16px"></div>
@@ -2034,7 +2034,8 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۲ζ — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۲η — <span id="sb-foot-brand">سیرمان</span></div>
+  <button class="btn btn-sm" id="btn-lock-app" onclick="lockApp()" style="width:100%;margin-top:8px;font-weight:700" title="قفل برنامه در حالی که باز است — Ctrl+Shift+L">🔒 قفل برنامه <small style="opacity:.7">Ctrl+Shift+L</small></button>
   <button class="btn btn-r btn-sm" id="btn-exit-safe" onclick="promptExitBackup()" style="width:100%;margin-top:8px;font-weight:700">🚪 خروج امن (پرسش بک‌آپ)</button>
   <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;padding:0 2px">اگر ✕ پنجره را بزنید، مرورگر اول هشدار می‌دهد؛ برای بک‌آپ از این دکمه استفاده کنید.</div>
 </div>
@@ -4064,7 +4065,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   <div class="stg-panel" id="stg-security">
     <div class="card" style="max-width:440px">
       <div class="card-title">🔒 رمز ورود به نرم‌افزار</div>
-      <p style="font-size:12px;color:var(--text2);margin-bottom:10px">این رمز قبل از باز شدن نرم‌افزار پرسیده می‌شود. اگر خالی بگذارید، صفحه ورود نمایش داده نمی‌شود.</p>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:10px">این رمز قبل از باز شدن نرم‌افزار پرسیده می‌شود و برای قفل کردن برنامه در حین کار هم لازم است. اگر خالی بگذارید، صفحه ورود و قفل نمایش داده نمی‌شود.</p>
       <div class="g2" style="margin-bottom:8px">
         <div class="f"><label>رمز جدید</label><input type="password" id="login-pw-new" placeholder="رمز ورود"></div>
         <div class="f"><label>تکرار</label><input type="password" id="login-pw-rep" placeholder="تکرار"></div>
@@ -4074,6 +4075,12 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
         <button class="btn btn-sm btn-r" onclick="clearLoginPw()">🗑 حذف رمز ورود</button>
       </div>
       <div id="login-pw-msg" style="font-size:12px;margin-top:8px;min-height:16px"></div>
+    </div>
+    <div class="card" style="max-width:440px;margin-top:12px">
+      <div class="card-title">🔒 قفل برنامه در حال کار</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.7">برنامه باز می‌ماند ولی صفحه ورود می‌آید تا کسی پشت میز نتواند کار کند. داده پاک نمی‌شود. برای باز کردن همان رمز ورود را بزنید. اگر رمز ورود تنظیم نشده باشد، اول از کارت بالا رمز بگذارید.</p>
+      <button class="btn btn-p btn-sm" id="btn-stg-lock-app" type="button" onclick="lockApp()">🔒 قفل کردن همین حالا</button>
+      <div style="font-size:11px;color:var(--text2);margin-top:8px">میانبر: <b>Ctrl+Shift+L</b> — در منوی راست‌کلیک پنجره و پایین سایدبار هم هست.</div>
     </div>
     <div class="card" style="max-width:440px;margin-top:12px">
       <div class="card-title">🔒 رمز مدیر</div>
@@ -4856,7 +4863,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <li><b>🗂 منوهای کشویی فاکتور:</b> دکمه‌های زیر فاکتور به سه دسته تقسیم شده‌اند: <b>«💾 ذخیره»</b> (ذخیره / تکمیل)، <b>«🖨 چاپ و خروجی»</b> (چاپ / PDF / Word / Excel)، و <b>«📩 ارسال به مشتری»</b>. روی هر دسته بزنید تا زیرمنوی آن باز شود.</li>
     <li><b>🚪 هشدار هوشمند بستن:</b> اگر تغییراتی ذخیره‌نشده داشته باشید، با کلیک روی دکمه‌ی «🚪 خروج / بستن برنامه» در پایین سایدبار، پنجره‌ای باز می‌شود که می‌پرسد: «الان بک‌آپ بگیرم و بعد ببندم؟» با سه گزینه: <b>بک‌آپ و بستن</b> (فایل JSON دانلود می‌شود و برنامه تلاش می‌کند بسته شود)، <b>بستن بدون بک‌آپ</b>، یا <b>انصراف</b>. اگر مرورگر تب را خودش نبندد، پیام «Ctrl+W» نشان داده می‌شود. یک <b>دایره سبز کوچک</b> فقط پس از هر ذخیرهٔ موفق چند لحظه پالس می‌زند؛ بنابراین علامت واقعی انجام ذخیره است.</li>
     <li><b>🗂 چندپنجره:</b> مثل تب‌های مرورگر می‌توانید چند بخش را باز کنید. از نوار بالای صفحه «＋ پنجره» بزنید، یا روی آیتم منو <b>Ctrl+کلیک</b> / <b>Shift+کلیک</b> کنید تا در پنجره جدید باز شود. دو یا چند پنجره غیرکوچک <b>کنار هم</b> در همان صفحه دیده می‌شوند و با کلیک روی هر کدام، آن پنجره فعال می‌شود — بدون اینکه پنجره بغلی خالی شود. دکمه‌های <b>─</b> کوچک‌سازی، <b>□</b> بزرگ‌نمایی و <b>✕</b> بستن هستند. دکمه <b>←</b> مسیر قبلی همان پنجره را برمی‌گرداند.</li>
-    <li><b>🖱 منوی عملیاتی پنجره:</b> روی نام تب راست‌کلیک کنید. ابتدا مهم‌ترین کارهای همان بخش را می‌بینید؛ مثلاً در «مدیریت کالا» گزینه‌های <b>کالای جدید</b> و <b>خروجی اکسل</b>، در «گارانتی» <b>پرونده جدید</b> و در «فروش» <b>فروش جدید</b>. گزینه <b>❓ راهنمای این پنجره</b> دقیقاً دسته راهنمای همان بخش را باز می‌کند. میانبرها: <b>Alt+N</b> انتخاب بخش پنجره جدید، <b>Alt+Enter</b> بازکردن آن، <b>Alt+1/2</b> عملیات اول/دوم، <b>Alt+B</b> برگشت، <b>Alt+H</b> راهنما، <b>Alt+M</b> کوچک‌سازی، <b>Alt+X</b> بزرگ‌نمایی و <b>Alt+W</b> بستن. گزینه آخر همیشه <b>✕ بستن پنجره</b> است.</li>
+    <li><b>🖱 منوی عملیاتی پنجره:</b> روی نام تب راست‌کلیک کنید. ابتدا مهم‌ترین کارهای همان بخش را می‌بینید؛ مثلاً در «مدیریت کالا» گزینه‌های <b>کالای جدید</b> و <b>خروجی اکسل</b>، در «گارانتی» <b>پرونده جدید</b> و در «فروش» <b>فروش جدید</b>. گزینه <b>❓ راهنمای این پنجره</b> دقیقاً دسته راهنمای همان بخش را باز می‌کند. میانبرها: <b>Alt+N</b> انتخاب بخش پنجره جدید، <b>Alt+Enter</b> بازکردن آن، <b>Alt+1/2</b> عملیات اول/دوم، <b>Alt+B</b> برگشت، <b>Alt+H</b> راهنما، <b>Alt+M</b> کوچک‌سازی، <b>Alt+X</b> بزرگ‌نمایی و <b>Alt+W</b> بستن. گزینه <b>🔒 قفل برنامه</b> صفحه ورود را می‌آورد بدون بستن برنامه (<b>Ctrl+Shift+L</b>). گزینه آخر همیشه <b>✕ بستن پنجره</b> است.</li>
     <li><b>🖼 عکس و ضمیمه روی هارد:</b> پس‌زمینه، لوگو و اسناد ضمیمه در حافظه مرورگر ذخیره نمی‌شوند. اول از تنظیمات → 💾 ذخیره خودکار، <b>پوشه بک‌آپ</b> را انتخاب کنید؛ فایل‌ها داخل زیرپوشه <code>sirman_media</code> روی هارد نوشته می‌شوند تا پیام «حافظه مرورگر پر است» نیاید.</li>
     <li><b>💾 بک‌آپ کامل:</b> بک‌آپ اکنون <b>تمام بخش‌ها</b> را شامل می‌شود: فاکتورها، کالاها، دفترچه تلفن، قطعات، خدمات، گارانتی، فروش، وظایف، حساب‌ها، انبار معیوب، تنظیمات ظاهر، تنظیمات پرینت، اطلاعات شرکت، لوگو، نقش‌های کاربری، و تنظیمات SMS/AI. قبلاً چندین بخش (وظایف، حساب‌ها، تنظیمات ظاهر و...) بی‌صدا گم می‌شدند — این باگ رفع شد.</li>
     <li><b>🔒 حفاظت از داده:</b> همیشه قبل از بستن یا ریست، یک فایل بک‌آپ بگیرید و در یک جای امن (فلش، کلود) نگه دارید. داده‌ها در حافظه‌ی مرورگر هستند — اگر کش پاک شود، بدون فایل بک‌آپ از دست می‌روند.</li>
@@ -4931,6 +4938,18 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <li><b>خطای فرم:</b> اگر رمز ورود اشتباه باشد، پیام زیر همان فیلد می‌آید.</li>
     <li><b>لاگ:</b> تنظیمات → عیب‌یابی. «عیب‌یابی کامل» سلامت داده و حافظه را چک می‌کند. تیک «نمایش جزئیات فنی» فقط برای خودتان است.</li>
     <li><b>کد پیگیری:</b> دکمه «کپی آخرین کد پیگیری» را بزنید و به پشتیبانی بدهید.</li>
+  </ul>
+</div>
+
+<div class="help-cat-header">🔒 قفل برنامه</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>🔒 قفل برنامه در حالی که باز است</span><span class="help-chev">▾</span></div>
+  <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>هدف:</b> وقتی از میز دور می‌شوید، برنامه را قفل کنید بدون اینکه ببندید. فاکتور و کار باز می‌ماند؛ فقط صفحه ورود روی همه چیز می‌آید.</li>
+    <li><b>میانبر:</b> <b>Ctrl+Shift+L</b> (در مرورگر Ctrl+L نوار آدرس را می‌گیرد؛ برای همین Shift هم لازم است).</li>
+    <li><b>منوها:</b> دکمه <b>🔒 قفل برنامه</b> پایین سایدبار، تنظیمات → امنیت، راست‌کلیک روی تب پنجره، و در نسخه ویندوز منوی <b>پرونده</b>.</li>
+    <li><b>باز کردن:</b> همان رمز ورود نرم‌افزار یا رمز پروفایل کارمند را بزنید.</li>
+    <li><b>پیش‌نیاز:</b> باید از تنظیمات → امنیت یک رمز ورود گذاشته باشید (یا حداقل یک پروفایل دسترسی داشته باشید). بدون رمز، قفل فعال نمی‌شود تا برنامه بدون راه باز شدن گیر نکند.</li>
   </ul>
 </div>
 
@@ -5141,7 +5160,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۲ζ
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۲η
 </div>
 </div>
 
@@ -5864,9 +5883,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 })();
 
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.22ζ';
-var APP_BASE_VERSION = '1405.5.22ζ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۲۲ζ';
+var APP_VERSION = '1405.5.22η';
+var APP_BASE_VERSION = '1405.5.22η'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۲۲η';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -6362,8 +6381,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.22ζ'; }
-  catch(_e){ return '1405.5.22ζ'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.22η'; }
+  catch(_e){ return '1405.5.22η'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -6989,8 +7008,8 @@ function _buildFullBackupData(){
   var data = {
     magic: (typeof SIRMAN_BACKUP_MAGIC!=='undefined'?SIRMAN_BACKUP_MAGIC:'SIRMAN_BACKUP'),
     schemaVersion: (typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1),
-    version: '1405.5.22ζ',
-    applicationVersion: '1405.5.22ζ',
+    version: '1405.5.22η',
+    applicationVersion: '1405.5.22η',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -7257,7 +7276,7 @@ async function restoreAutoSaveHandlesOnBoot(){
   }catch(_e2){ return false; }
 }
 
-// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.22ζ ═══════════════════
+// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.22η ═══════════════════
 // عکس پس‌زمینه، لوگو و ضمیمه‌ها فقط در پوشهٔ بک‌آپ روی دیسک نوشته می‌شوند.
 // در حافظهٔ مرورگر فقط ارجاع کوتاه disk://sirman_media/... نگه داشته می‌شود.
 window._diskUrlCache = window._diskUrlCache || {};
@@ -8843,7 +8862,7 @@ function showCustomer360(phone, name){
   document.getElementById('cust360-modal').classList.add('open');
 }
 
-// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۲ζ) ───────────────────────────────────────────
+// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۲η) ───────────────────────────────────────────
 window._wins = window._wins || [];
 window._winActive = window._winActive || null;
 window._winSeq = window._winSeq || 1;
@@ -8902,6 +8921,7 @@ function ensureWindowManager(){
   if(!window._winShortcutsBound){
     window._winShortcutsBound = true;
     document.addEventListener('keydown', function(e){
+      if(typeof isAppSessionLocked==='function' && isAppSessionLocked()) return;
       if(!e || !e.altKey || e.ctrlKey || e.metaKey) return;
       var code = e.code || '';
       var active = window._winActive;
@@ -9346,6 +9366,7 @@ function winContextMenu(wid, ev){
     +'<button type="button" onclick="winContextAction(\'minimize\',\''+wid+'\')" role="menuitem">─ کوچک‌سازی <small style="margin-right:auto;opacity:.65">Alt+M</small></button>'
     +'<button type="button" onclick="winContextAction(\'maximize\',\''+wid+'\')" role="menuitem">'+(w.state==='maximized'?'❐ بازگشت از بزرگ‌نمایی':'□ بزرگ‌نمایی')+' <small style="margin-right:auto;opacity:.65">Alt+X</small></button>'
     +'<div class="wcm-sep"></div>'
+    +'<button type="button" id="win-ctx-lock-app" onclick="winContextAction(\'lock\',\''+wid+'\')" role="menuitem">🔒 قفل برنامه <small style="margin-right:auto;opacity:.65">Ctrl+Shift+L</small></button>'
     +'<button type="button" class="wcm-close" onclick="winContextAction(\'close\',\''+wid+'\')" role="menuitem">✕ بستن پنجره <small style="margin-right:auto;opacity:.65">Alt+W</small></button>';
   menu.hidden = false;
   var x = ev ? ev.clientX : 20, y = ev ? ev.clientY : 60;
@@ -9363,6 +9384,7 @@ function winContextAction(action, wid){
   if(action==='help') return winOpenContextHelp(wid);
   if(action==='minimize') return winMinimize(wid);
   if(action==='maximize') return winMaximize(wid);
+  if(action==='lock'){ if(typeof lockApp==='function') lockApp(); return; }
   if(action==='close') return winClose(wid);
 }
 
@@ -10280,7 +10302,7 @@ function buildPH(list){
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 window._pcActiveDocId='invoice';
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ζ">
+<meta name="app-version" content="1405.5.22η">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -10297,7 +10319,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ζ">
+<meta name="app-version" content="1405.5.22η">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -10357,7 +10379,7 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ζ">
+<meta name="app-version" content="1405.5.22η">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -10377,11 +10399,11 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ζ">
+<meta name="app-version" content="1405.5.22η">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ζ">
+<meta name="app-version" content="1405.5.22η">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -11013,7 +11035,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ζ">
+<meta name="app-version" content="1405.5.22η">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -12591,7 +12613,7 @@ function enableTaskNotifications(){
 }
 function registerLaeghSW(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('sw.js?v=1405.5.22ζ').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=1405.5.22η').then(reg=>{
     _swReg=reg;
     // Check for SW updates
     reg.addEventListener('updatefound', ()=>{
@@ -12723,8 +12745,78 @@ function attemptLogin(){
 }
 
 function finishLogin(){
+  _appLocked = false;
+  setLoginOverlayHint(LOGIN_HINT_DEFAULT);
   document.getElementById('login-overlay').style.display = 'none';
   applyRoleRestrictions();
+}
+
+var _appLocked = false;
+var LOGIN_HINT_DEFAULT = 'برای ورود، رمز عبور را وارد کنید';
+var LOGIN_HINT_LOCKED = 'برنامه قفل است — برای ادامه رمز را وارد کنید';
+
+function setLoginOverlayHint(text){
+  try{
+    var el = document.getElementById('login-overlay-hint');
+    if(el) el.textContent = text || LOGIN_HINT_DEFAULT;
+  }catch(_e){}
+}
+
+function isAppSessionLocked(){
+  if(_appLocked) return true;
+  try{
+    var ov = document.getElementById('login-overlay');
+    return !!(ov && ov.style && ov.style.display !== 'none');
+  }catch(_e){ return false; }
+}
+
+function canLockApp(){
+  try{
+    return !!(loginPw || (typeof userRoles !== 'undefined' && userRoles && userRoles.length > 0));
+  }catch(_e){ return false; }
+}
+
+function lockApp(){
+  try{
+    var ov = document.getElementById('login-overlay');
+    if(ov && ov.style && ov.style.display !== 'none'){
+      return true;
+    }
+  }catch(_e0){}
+  if(!canLockApp()){
+    try{ ntf('برای قفل برنامه ابتدا از تنظیمات ← امنیت یک رمز ورود بگذارید','err'); }catch(_n){}
+    try{
+      if(typeof showPage==='function') showPage('settings');
+      var tab = document.querySelector('.stg-tab[onclick*="security"]');
+      if(typeof showStgTab==='function') showStgTab('security', tab);
+    }catch(_e1){}
+    return false;
+  }
+  _appLocked = true;
+  try{
+    var inp = document.getElementById('login-pw-input');
+    if(inp) inp.value = '';
+    var err = document.getElementById('login-error-msg');
+    if(err) err.textContent = '';
+    setLoginOverlayHint(LOGIN_HINT_LOCKED);
+    var ov2 = document.getElementById('login-overlay');
+    if(ov2) ov2.style.display = 'flex';
+    setTimeout(function(){ var i=document.getElementById('login-pw-input'); if(i && i.focus) i.focus(); }, 50);
+  }catch(_e2){}
+  return true;
+}
+
+if(!window._lockShortcutBound){
+  window._lockShortcutBound = true;
+  document.addEventListener('keydown', function(e){
+    if(!e) return;
+    var code = e.code || '';
+    var key = (e.key||'').toLowerCase();
+    var isLock = (e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey && (code==='KeyL' || key==='l');
+    if(!isLock) return;
+    try{ e.preventDefault(); if(e.stopPropagation) e.stopPropagation(); }catch(_p){}
+    if(typeof lockApp==='function') lockApp();
+  }, true);
 }
 
 function applyRoleRestrictions(){
@@ -13832,7 +13924,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22ζ">'+
+    '<meta name="app-version" content="1405.5.22η">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -14005,7 +14097,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.22ζ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.22η"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -16292,7 +16384,7 @@ function doPrint(paperSize){
   const wbg=bgMap[pw.bg||'none']||'#fff';
   const effPaper = pw.paper || paperSize;
   var htmlDoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22ζ">
+<meta name="app-version" content="1405.5.22η">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -16388,7 +16480,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22ζ"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.22η"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -16417,7 +16509,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22ζ"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.22η"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -16454,7 +16546,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22ζ">'+
+    '<meta name="app-version" content="1405.5.22η">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -16538,7 +16630,7 @@ function printCompanyReport(idx){
   var qcResultLbl = {'pass':'✅ تأیید کیفیت','fail':'❌ رد شد — نیاز به اصلاح','pending':'در حال بررسی'};
   var mgrApproveLbl = {'approved':'✅ تأیید نهایی','pending':'در انتظار بررسی','rejected':'❌ رد شد'};
 
-  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.22ζ';
+  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.22η';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
     '<title>گزارش داخلی شرکت — '+wHdr.id+'</title>'+
     '<style>'+
@@ -17169,7 +17261,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22ζ">'+
+    '<meta name="app-version" content="1405.5.22η">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -17389,7 +17481,7 @@ function expSalesExcel(){
 // ══════ حسابداری ══════
 // ═══════════════════════════════════════════════════════════════════════════
 // ماژول داغی (پیگیری رسید امضا‌شده‌ی نمایندگی‌های خدمات)
-// نسخه ۱۴۰۵.۵.۲۲ζ — فاز داغی
+// نسخه ۱۴۰۵.۵.۲۲η — فاز داغی
 //
 // «داغی» یعنی وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستیم، آن‌ها باید رسید امضا‌شده
 // (داغی) را به ما برگردانند. این ماژول پیگیری می‌کند که چه کسانی داغی معوقه دارند.
@@ -18693,7 +18785,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22ζ">'+
+    '<meta name="app-version" content="1405.5.22η">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
