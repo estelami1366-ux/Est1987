@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22δ">
+<meta name="app-version" content="1405.5.22ε">
 <meta name="app-date" content="1405/05/22">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -918,7 +918,7 @@ body.sirman-app-frame .topbar{padding-left:56px}
 .stg-panel.active{display:block;}
 /* PRINT SETTINGS */
 .print-section-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;}
-/* ══════ مرکز پرینت / Print Center (v1405.5.22δ) ══════ */
+/* ══════ مرکز پرینت / Print Center (v1405.5.22ε) ══════ */
 .pc-shell{display:grid;grid-template-columns:210px minmax(0,1fr) 300px;gap:12px;min-height:540px;align-items:stretch;}
 .pc-col{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 24px rgba(15,40,55,.06);display:flex;flex-direction:column;min-width:0;overflow:hidden;}
 .pc-col-h{padding:12px 14px;font-size:12px;font-weight:800;letter-spacing:.02em;color:var(--blue2);background:linear-gradient(180deg,color-mix(in srgb,var(--blue-l) 70%,#fff),transparent);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -1045,7 +1045,7 @@ body.has-bg-image::after{
 }
 body.has-bg-image.theme-dark::after{background:rgba(10,12,15,var(--bg-overlay,0.55));}
 
-/* ══════ اسکین قوی / Skin Pack (v1405.5.22δ) ══════ */
+/* ══════ اسکین قوی / Skin Pack (v1405.5.22ε) ══════ */
 .skin-card{width:148px;border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--card);transition:.18s;text-align:right;}
 .skin-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,40,55,.10);}
 .skin-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 25%,transparent);}
@@ -1588,7 +1588,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 
 </style>
 <style id="win-manager-css">
-/* ══════ چندپنجره / تب‌های کاری (v1405.5.22δ) ══════ */
+/* ══════ چندپنجره / تب‌های کاری (v1405.5.22ε) ══════ */
 #win-chrome{
   position:sticky; top:0; z-index:60;
   display:flex; flex-wrap:wrap; align-items:center; gap:6px;
@@ -2031,7 +2031,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۲δ — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۲ε — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-r btn-sm" id="btn-exit-safe" onclick="promptExitBackup()" style="width:100%;margin-top:8px;font-weight:700">🚪 خروج امن (پرسش بک‌آپ)</button>
   <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;padding:0 2px">اگر ✕ پنجره را بزنید، مرورگر اول هشدار می‌دهد؛ برای بک‌آپ از این دکمه استفاده کنید.</div>
 </div>
@@ -3264,8 +3264,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <label style="cursor:pointer"><input type="radio" name="restore-preview-mode" value="merge" checked> 🔄 ادغام (رکورد جدید اضافه شود)</label>
     <label style="cursor:pointer"><input type="radio" name="restore-preview-mode" value="replace"> 🔁 جایگزینی فقط بخش‌های انتخاب‌شده</label>
   </div>
-  <p style="font-size:11px;color:var(--text2);line-height:1.7;margin:0 0 8px">در جایگزینیِ بخشی، فقط همان بخش‌های تیک‌خورده عوض می‌شوند؛ بقیه داده‌های فعلی دست‌نخورده می‌مانند.</p>
+  <p style="font-size:11px;color:var(--text2);line-height:1.7;margin:0 0 8px">قبل از جایگزینی، از وضعیت فعلی یک نسخه ایمنی گرفته می‌شود تا در صورت خطا Rollback شود. هیچ‌وقت تنها نسخه داده overwrite مستقیم نمی‌شود.</p>
   <div class="restore-inv-actions">
+    <button class="btn btn-o" onclick="runPendingTestRestore()">🧪 تست بازگردانی (بدون اعمال)</button>
     <button class="btn btn-p" onclick="confirmRestorePreview()">✅ بازگردانی بخش‌های انتخاب‌شده</button>
     <button class="btn btn-o" onclick="closeRestorePreviewModal()">انصراف</button>
   </div>
@@ -3281,6 +3282,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <div class="card-title">📤 خروجی (پشتیبان‌گیری)</div>
     <p style="font-size:12px;color:var(--text2);margin-bottom:12px">همه داده‌ها شامل فاکتورها، کالاها، انبار و دفترچه تلفن را به فایل JSON ذخیره کنید.</p>
     <button class="btn btn-g" onclick="exportData()">⬇ دانلود فایل پشتیبان کامل</button>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <label style="font-size:12px;display:flex;align-items:center;gap:6px">رمز اختیاری (در فایل ذخیره نمی‌شود) <input type="password" id="bk-encrypt-pw" placeholder="خالی = بدون رمز" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;width:160px"></label>
+    </div>
     <div style="margin-top:10px">
       <button class="btn btn-o btn-sm" onclick="expAllExcel()">📊 خروجی Excel کامل</button>
     </div>
@@ -3302,6 +3306,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
         <label><input type="checkbox" class="sec-chk" value="userAuditLog" checked> لاگ کاربر</label>
         <label><input type="checkbox" class="sec-chk" value="printSettings" checked> تنظیمات چاپ</label>
         <label><input type="checkbox" class="sec-chk" value="company" checked> اطلاعات شرکت</label>
+        <label><input type="checkbox" class="sec-chk" value="warehouses" checked> انبارها</label>
         <label><input type="checkbox" class="sec-chk" value="appearance" checked> تنظیمات ظاهر</label>
       </div>
       <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
@@ -3368,6 +3373,24 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   <div class="card-title">🔍 مقایسه‌ی دو فایل بک‌آپ</div>
   <p style="font-size:12px;color:var(--text2);margin-bottom:10px">دو فایل بک‌آپ را انتخاب کنید تا تفاوت‌ها (موارد جدید، حذف‌شده، تغییر یافته) به تفکیک بخش نشان داده شود.</p>
   <button class="btn btn-o" onclick="openDiffModal()">🔍 مقایسه‌ی دو بک‌آپ</button>
+</div>
+
+<div class="card">
+  <div class="card-title">🏛 مدیر پشتیبان (Backup Manager)</div>
+  <p style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.8">بک‌آپ یک بسته مستقل است: داده + تنظیمات + پیوست‌ها + Manifest + Schema Version + Checksum. نسخه برنامه و Schema جدا هستند. بازگردانی اول نسخه ایمنی می‌گیرد و در خطا Rollback می‌کند.</p>
+  <div class="g2" style="margin-bottom:10px;font-size:12px">
+    <div>Schema فعلی: <b id="bk-schema-ver">۱</b></div>
+    <div>نسخه برنامه: <b id="bk-app-ver">—</b></div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+    <button class="btn btn-p btn-sm" onclick="exportArchiveBackup()">📦 آرشیو بلندمدت (فقط‌خواندنی)</button>
+    <button class="btn btn-o btn-sm" onclick="exportArchivalCsv()">📄 خروجی CSV آرشیوی</button>
+    <button class="btn btn-sm" onclick="openLastSafetyForRestore()">🛟 بازگردانی نسخه ایمنی</button>
+    <button class="btn btn-sm" onclick="refreshBackupManagerUI()">↺ نوسازی فهرست محلی</button>
+  </div>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:6px">نگهداری: روزانه ۷، هفتگی ۵، ماهانه ۱۲، آرشیو حذف خودکار نمی‌شود. حداقل یک نسخه را خارج از این سیستم نگه دارید.</p>
+  <div id="bk-layer-list" style="max-height:220px;overflow:auto;font-size:12px"></div>
+  <div id="bk-audit-list" style="margin-top:8px;font-size:11px;color:var(--text2)"></div>
 </div>
 
 <div class="card" style="max-width:440px;margin-top:12px;background:var(--bg2);border:1px dashed var(--border)">
@@ -4814,7 +4837,13 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <li><b>☑️ بک‌آپ بخشی:</b> در بخش «ورود/خروج داده»، می‌توانید تیک بخش‌هایی که می‌خواهید بک‌آپ بگیرید را روشن/خاموش کنید (مثلاً فقط دفترچه تلفن و قطعات). فقط بخش‌های تیک‌خورده در فایل ذخیره می‌شوند. هنگام بازگردانی، فقط همان بخش‌ها جایگزین/ادغام می‌شوند و بقیه دست‌نخورده می‌مانند.</li>
     <li><b>📦 پیش‌نمایش بازگردانی:</b> وقتی فایل بک‌آپ را انتخاب می‌کنید، اول نسخه و تعداد هر بخش (فاکتور، مخاطب، گارانتی و …) نمایش داده می‌شود. سپس تیک می‌زنید کدام بخش‌ها بازگردانی شوند و بین «ادغام» و «جایگزینی بخشی» انتخاب می‌کنید. بدون تأیید شما چیزی اعمال نمی‌شود.</li>
     <li><b>🔍 مقایسه‌ی دو بک‌آپ:</b> در همان بخش، دکمه‌ی «مقایسه‌ی دو بک‌آپ» به شما اجازه می‌دهد دو فایل بک‌آپ (مثلاً دیروز و امروز) را انتخاب کنید و تفاوت‌ها را ببینید: کدام موارد جدید اضافه شده، کدام حذف شده، و کدام تغییر کرده — به تفکیک هر بخش (فاکتورها، دفترچه، قطعات و...).</li>
-    <li><b>🔐 checksum و سلامت فایل:</b> هر فایل بک‌آپ اکنون دارای یک «اثرانگشت» (SHA-256) است که هنگام بازگردانی تأیید می‌شود. اگر فایل خراب یا دستکاری شده باشد، هشدار می‌دهد. همچنین شمارش اقلام هر بخش (itemCounts) برای تشخیص ناقص‌بودن بررسی می‌شود.</li>
+    <li><b>📦 بسته مستقل:</b> هر بک‌آپ شامل داده، تنظیمات، فهرست پیوست‌ها، Manifest، Schema Version، نسخه برنامه، تاریخ و Checksum است. نسخه برنامه و Schema جدا هستند تا فایل قدیمی با Migration به ساختار جدید برسد.</li>
+    <li><b>🧪 تست بازگردانی:</b> قبل از اعمال واقعی می‌توانید «تست بازگردانی» بزنید. هیچ داده‌ای عوض نمی‌شود؛ فقط صحت فایل، Schema و روابط بررسی و در لاگ ثبت می‌شود.</li>
+    <li><b>🛟 Restore ایمن:</b> قبل از جایگزینی از وضعیت فعلی نسخه ایمنی گرفته می‌شود. اگر خطا رخ دهد Rollback کامل انجام می‌شود. هیچ‌وقت تنها نسخه داده مستقیم overwrite نمی‌شود.</li>
+    <li><b>🗂 لایه‌ها:</b> روزانه / هفتگی / ماهانه / آرشیو بلندمدت. ذخیره خودکار روزانه، اگر نسخه هفتگی یا ماهانه کهنه باشد همان را هم می‌سازد. آرشیو فقط‌خواندنی است و از نگهداری خودکار حذف نمی‌شود. نگهداری: ۷ روزانه، ۵ هفتگی، ۱۲ ماهانه. لایه فقط بعد از تأیید صحت JSON ثبت می‌شود.</li>
+    <li><b>🛟 نسخه ایمنی:</b> قبل از هر بازگردانی از وضعیت فعلی تا ۳ نسخه ایمنی محلی نگه داشته می‌شود. از دکمه «بازگردانی نسخه ایمنی» می‌توانید همان را پیش‌نمایش و برگردانید.</li>
+    <li><b>📄 CSV آرشیوی:</b> برای نگهداری ۵ تا ۱۰ سال، خروجی CSV مستقل از نسخه برنامه هم بگیرید.</li>
+    <li><b>🔐 رمز اختیاری:</b> می‌توانید بک‌آپ را با رمز AES رمز کنید. رمز داخل فایل ذخیره نمی‌شود.</li>
     <li><b>🗄 ذخیره‌ی سه‌گانه (۳-۲-۱):</b> داده‌های شما اکنون در سه مکان ذخیره می‌شوند: ۱) حافظه‌ی مرورگر (localStorage)، ۲) فایل دانلودی، ۳) IndexedDB مرورگر (کپی امن اضافی). اگر localStorage پاک شود، نسخه‌ی IndexedDB باقی می‌ماند.</li>
     <li><b>🔄 سازگاری قدیمی/جدید:</b> هنگام بازگردانی بک‌آپ‌های قدیمی، فقط فیلدهایی که در نسخه‌ی قدیمی وجود داشتند پر می‌شوند؛ فیلدهای جدید خالی می‌مانند و فیلدهای منسوخ حذف می‌شوند. این کار به‌صورت خودکار برای هر بخش انجام می‌شود.</li>
   </ul>
@@ -5073,7 +5102,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۲δ
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۲ε
 </div>
 </div>
 
@@ -5796,9 +5825,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 })();
 
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.22δ';
-var APP_BASE_VERSION = '1405.5.22δ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۲۲δ';
+var APP_VERSION = '1405.5.22ε';
+var APP_BASE_VERSION = '1405.5.22ε'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۲۲ε';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -6294,8 +6323,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.22δ'; }
-  catch(_e){ return '1405.5.22δ'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.22ε'; }
+  catch(_e){ return '1405.5.22ε'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -6593,9 +6622,336 @@ function _safeArr(a){ return Array.isArray(a)?a:[]; }
 function _safeObj(o){ return (o && typeof o==='object')?o:{}; }
 function _safeStr(s){ return (s==null)?'':String(s); }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// Backup Manager — بسته مستقل + Schema Version + Restore ایمن
+// نسخه نرم‌افزار و Schema Version جدا هستند. Migration زنجیره‌ای و دائمی است.
+// قانون طلایی: هیچ Restore روی تنها نسخه اطلاعات انجام نمی‌شود.
+// ═══════════════════════════════════════════════════════════════════════════
+var SIRMAN_SCHEMA_VERSION = 1;
+var SIRMAN_BACKUP_MAGIC = 'SIRMAN_BACKUP';
+var SIRMAN_BACKUP_ENC_MAGIC = 'SIRMAN_BACKUP_ENC';
+var BACKUP_RETENTION = { daily:7, weekly:5, monthly:12, archive:9999, safety:3, manual:30 };
+
+function inferBackupSchemaVersion(d){
+  if(!d || typeof d !== 'object') return 0;
+  if(d.schemaVersion != null && d.schemaVersion !== ''){
+    var n = parseInt(d.schemaVersion, 10);
+    if(!isNaN(n)) return n;
+  }
+  if(d.manifest && d.manifest.schemaVersion != null){
+    var m = parseInt(d.manifest.schemaVersion, 10);
+    if(!isNaN(m)) return m;
+  }
+  return 0;
+}
+function canRestoreSchema(fileVer, appVer){
+  appVer = (appVer == null) ? SIRMAN_SCHEMA_VERSION : parseInt(appVer, 10);
+  fileVer = parseInt(fileVer, 10);
+  if(isNaN(fileVer)) fileVer = 0;
+  if(isNaN(appVer)) appVer = SIRMAN_SCHEMA_VERSION;
+  if(fileVer <= appVer) return { ok:true, direction: fileVer < appVer ? 'upgrade' : 'same' };
+  return { ok:false, direction:'downgrade', reason:'این بک‌آپ با Schema جدیدتر از این نسخه ساخته شده و بدون Migration معکوس باز نمی‌شود' };
+}
+function buildBackupManifest(data, origin, kind){
+  data = data || {};
+  return {
+    magic: SIRMAN_BACKUP_MAGIC,
+    format: 1,
+    schemaVersion: SIRMAN_SCHEMA_VERSION,
+    applicationVersion: data.version || data.applicationVersion || '',
+    exportedAt: data.exportedAt || '',
+    origin: origin || data.origin || 'manual',
+    kind: kind || (data.partial ? 'partial' : 'full'),
+    itemCounts: data.itemCounts || {},
+    sections: data.sections || [],
+    encrypted: !!data.encrypted,
+    immutable: !!data.immutable,
+    documentedFormat: 'JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.'
+  };
+}
+function backupSectionHash(value){
+  var s = '';
+  try { s = JSON.stringify(value); } catch(_e){ s = String(value); }
+  var h = 5381;
+  for(var i=0;i<s.length;i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(16);
+}
+function attachSectionChecksums(data){
+  data = data || {};
+  var skip = {version:1, exportedAt:1, origin:1, checksum:1, checksumAlgo:1, manifest:1, magic:1, schemaVersion:1, sectionChecksums:1, applicationVersion:1, attachmentsIndex:1};
+  var map = {};
+  var keys = data.sections && data.sections.length ? data.sections : Object.keys(data);
+  keys.forEach(function(k){
+    if(skip[k] || data[k] === undefined) return;
+    map[k] = backupSectionHash(data[k]);
+  });
+  data.sectionChecksums = map;
+  return map;
+}
+function collectAttachmentIndex(d){
+  var refs = [];
+  function pushDoc(kind, parentId, doc, i){
+    if(!doc) return;
+    var data = doc.data || doc.src || doc.ref || '';
+    var isDisk = (typeof data === 'string' && (data.indexOf('disk:')===0 || data.indexOf('idb:')===0 || (typeof isDiskRef==='function' && isDiskRef(data))));
+    refs.push({
+      id: doc.id || (kind + '-' + String(parentId||'') + '-' + i),
+      name: doc.name || '',
+      ref: isDisk ? data : '',
+      inline: !isDisk && !!data,
+      kind: kind,
+      parentId: parentId || ''
+    });
+  }
+  function walk(arr, kind){
+    (arr||[]).forEach(function(rec){
+      var docs = rec && (rec.docs || rec.attachments) || [];
+      if(!Array.isArray(docs) && rec && rec.docs && typeof rec.docs==='object'){
+        Object.keys(rec.docs).forEach(function(k){
+          (rec.docs[k]||[]).forEach(function(doc,i){ pushDoc(kind, rec.id, doc, i); });
+        });
+        return;
+      }
+      (docs||[]).forEach(function(doc,i){ pushDoc(kind, rec && rec.id, doc, i); });
+    });
+  }
+  walk(d && d.warranties, 'warranty');
+  walk(d && d.sales, 'sale');
+  walk(d && d.invoices, 'invoice');
+  return refs;
+}
+function finalizeBackupPackage(data, origin, kind){
+  data = data || {};
+  data.magic = SIRMAN_BACKUP_MAGIC;
+  data.schemaVersion = SIRMAN_SCHEMA_VERSION;
+  data.applicationVersion = data.version || data.applicationVersion || '';
+  data.attachmentsIndex = collectAttachmentIndex(data);
+  attachSectionChecksums(data);
+  data.manifest = buildBackupManifest(data, origin, kind);
+  return data;
+}
+function cloneBackupData(d){
+  try { return JSON.parse(JSON.stringify(d || {})); }
+  catch(_e){ return d || {}; }
+}
+function validateBackupPackage(d){
+  var errors = [], warnings = [];
+  if(!d || typeof d !== 'object'){
+    errors.push('بسته خالی است');
+    return { ok:false, errors:errors, warnings:warnings };
+  }
+  var has = d.invoices||d.products||d.phonebook||d.pb||d.parts||d.warranties||d.sales||d.accounts||d.tasks||d.services||d.svcs||d.company||d.appearance||d.inventory||d.warehouses;
+  if(!has) errors.push('کلید داده شناخته‌شده نیست');
+  if(d.itemCounts){
+    Object.keys(d.itemCounts).forEach(function(k){
+      if(Array.isArray(d[k]) && d[k].length !== d.itemCounts[k]) warnings.push('شمارش '+k+' ناهماهنگ است');
+    });
+  }
+  if(d.sectionChecksums){
+    Object.keys(d.sectionChecksums).forEach(function(k){
+      if(d[k] === undefined) return;
+      if(backupSectionHash(d[k]) !== d.sectionChecksums[k]) warnings.push('هش بخش '+k+' مطابقت ندارد');
+    });
+  }
+  (d.invoices||[]).forEach(function(inv,i){
+    if(inv && inv.items != null && !Array.isArray(inv.items)) warnings.push('فاکتور '+(inv.num||i)+' اقلام نامعتبر');
+  });
+  return { ok: errors.length===0, errors:errors, warnings:warnings };
+}
+var SCHEMA_MIGRATIONS = [
+  { from:0, to:1, id:'add-package-manifest', run:function(d, log){
+      d.magic = d.magic || SIRMAN_BACKUP_MAGIC;
+      d.schemaVersion = 1;
+      if(!d.attachmentsIndex) d.attachmentsIndex = collectAttachmentIndex(d);
+      if(!d.manifest) d.manifest = buildBackupManifest(d, d.origin||'unknown', d.partial?'partial':'full');
+      log.push('Schema ۰→۱: Manifest و فهرست پیوست اضافه شد');
+      return d;
+    }}
+];
+function applySchemaMigrations(d, targetVer){
+  d = cloneBackupData(d);
+  targetVer = (targetVer == null) ? SIRMAN_SCHEMA_VERSION : parseInt(targetVer, 10);
+  if(isNaN(targetVer)) targetVer = SIRMAN_SCHEMA_VERSION;
+  var from = inferBackupSchemaVersion(d);
+  var startFrom = from;
+  var gate = canRestoreSchema(from, targetVer);
+  var log = [];
+  if(!gate.ok) return { ok:false, tooNew:true, from:from, to:targetVer, data:d, log:log, reason:gate.reason };
+  var guard = 0;
+  while(from < targetVer && guard < 50){
+    guard++;
+    var step = null;
+    for(var i=0;i<SCHEMA_MIGRATIONS.length;i++){
+      if(SCHEMA_MIGRATIONS[i].from === from){ step = SCHEMA_MIGRATIONS[i]; break; }
+    }
+    if(!step){ log.push('Migration از Schema '+from+' پیدا نشد'); break; }
+    d = step.run(d, log) || d;
+    from = step.to;
+    d.schemaVersion = from;
+  }
+  d.schemaVersion = Math.max(from, inferBackupSchemaVersion(d));
+  return { ok:true, tooNew:false, from:startFrom, to:d.schemaVersion, data:d, log:log };
+}
+function classifyBackupLayer(origin){
+  origin = String(origin||'');
+  if(origin==='archive' || origin==='immutable') return 'archive';
+  if(origin==='monthly') return 'monthly';
+  if(origin==='weekly') return 'weekly';
+  if(origin==='daily' || origin==='autosave') return 'daily';
+  if(origin==='safety' || origin==='pre-restore') return 'safety';
+  if(origin==='manual') return 'manual';
+  return 'daily';
+}
+function layersDueForPromotion(items, nowMs){
+  nowMs = nowMs == null ? Date.now() : Number(nowMs);
+  if(isNaN(nowMs)) nowMs = Date.now();
+  var lastW = 0, lastM = 0;
+  (items||[]).forEach(function(it){
+    var t = Date.parse(it.ts || '') || 0;
+    if(it.layer === 'weekly' && t > lastW) lastW = t;
+    if(it.layer === 'monthly' && t > lastM) lastM = t;
+  });
+  var due = [];
+  if(!lastW || (nowMs - lastW) >= 7*24*60*60*1000) due.push('weekly');
+  if(!lastM || (nowMs - lastM) >= 28*24*60*60*1000) due.push('monthly');
+  return due;
+}
+function pruneSafetySnapshots(items, limit){
+  limit = (limit == null) ? (BACKUP_RETENTION.safety || 3) : limit;
+  var current = [];
+  var others = [];
+  (items||[]).forEach(function(it){
+    if(it && it.id === 'current') current.push(it);
+    else others.push(it);
+  });
+  others.sort(function(a,b){ return String(b.ts||'').localeCompare(String(a.ts||'')); });
+  return { kept: current.concat(others.slice(0, limit)), deleted: others.slice(limit) };
+}
+function verifyLayerPayload(payload){
+  var obj = payload;
+  if(typeof payload === 'string'){
+    try { obj = JSON.parse(payload); }
+    catch(_e){ return { ok:false, errors:['JSON لایه خراب است'], warnings:[], data:null }; }
+  }
+  if(!obj || typeof obj !== 'object') return { ok:false, errors:['لایه خالی است'], warnings:[], data:null };
+  var val = validateBackupPackage(obj);
+  return { ok:!!val.ok, errors:val.errors||[], warnings:val.warnings||[], data:obj };
+}
+function pruneBackupRetention(items, policy){
+  policy = policy || BACKUP_RETENTION;
+  var groups = {};
+  (items||[]).forEach(function(it){
+    var layer = it.layer || classifyBackupLayer(it.origin);
+    if(!groups[layer]) groups[layer] = [];
+    groups[layer].push(it);
+  });
+  var kept = [], deleted = [];
+  Object.keys(groups).forEach(function(layer){
+    var list = groups[layer].slice().sort(function(a,b){ return String(b.ts||'').localeCompare(String(a.ts||'')); });
+    var limit = policy[layer];
+    if(limit == null) limit = (layer==='archive' || layer==='manual') ? 9999 : 7;
+    list.forEach(function(it, i){
+      if(it.immutable) kept.push(it);
+      else if(i < limit) kept.push(it);
+      else deleted.push(it);
+    });
+  });
+  return { kept:kept, deleted:deleted };
+}
+function backupAuditRecord(op, result, extra){
+  extra = extra || {};
+  return {
+    id: 'BA-' + (extra.id || Date.now()),
+    at: extra.at || (typeof fdt==='function' ? fdt() : new Date().toISOString()),
+    user: extra.user || (typeof invCurrentUser==='function' ? invCurrentUser() : 'کاربر'),
+    op: op,
+    result: result,
+    version: extra.version || (typeof APP_VERSION!=='undefined' ? APP_VERSION : ''),
+    schemaVersion: extra.schemaVersion != null ? extra.schemaVersion : SIRMAN_SCHEMA_VERSION,
+    error: extra.error || '',
+    detail: extra.detail || ''
+  };
+}
+function unwrapBackupEnvelope(rawObj){
+  if(!rawObj || typeof rawObj !== 'object') return rawObj;
+  if(rawObj.magic === SIRMAN_BACKUP_ENC_MAGIC) return rawObj;
+  if(rawObj.database && typeof rawObj.database === 'object' && !rawObj.invoices){
+    var merged = {};
+    Object.keys(rawObj.database).forEach(function(k){ merged[k] = rawObj.database[k]; });
+    if(rawObj.settings && typeof rawObj.settings === 'object'){
+      Object.keys(rawObj.settings).forEach(function(k){ if(merged[k] === undefined) merged[k] = rawObj.settings[k]; });
+    }
+    merged.magic = rawObj.magic || SIRMAN_BACKUP_MAGIC;
+    merged.manifest = rawObj.manifest;
+    merged.schemaVersion = rawObj.schemaVersion || (rawObj.manifest && rawObj.manifest.schemaVersion);
+    merged.checksum = rawObj.checksum;
+    merged.checksumAlgo = rawObj.checksumAlgo;
+    merged.version = rawObj.applicationVersion || rawObj.version || (rawObj.manifest && rawObj.manifest.applicationVersion);
+    merged.attachments = rawObj.attachments;
+    merged.exportedAt = rawObj.exportedAt || (rawObj.manifest && rawObj.manifest.exportedAt);
+    return merged;
+  }
+  return rawObj;
+}
+function testRestoreBackup(d){
+  var cloned = cloneBackupData(d);
+  cloned = unwrapBackupEnvelope(cloned);
+  var fileVer = inferBackupSchemaVersion(cloned);
+  var gate = canRestoreSchema(fileVer, SIRMAN_SCHEMA_VERSION);
+  if(!gate.ok) return { ok:false, applied:false, log:[gate.reason], validation:{ok:false, errors:[gate.reason], warnings:[]}, schemaFrom:fileVer, schemaTo:SIRMAN_SCHEMA_VERSION };
+  var mig = applySchemaMigrations(cloned);
+  if(typeof migrateBackup === 'function'){
+    var legacy = migrateBackup(mig.data);
+    mig.data = legacy.data;
+    mig.log = (mig.log||[]).concat(legacy.log||[]);
+  }
+  var val = validateBackupPackage(mig.data);
+  return { ok: !!(val.ok && mig.ok), applied:false, log: mig.log||[], validation: val, schemaFrom:fileVer, schemaTo:SIRMAN_SCHEMA_VERSION, data: mig.data };
+}
+function prepareAtomicRestore(currentData, incomingData){
+  return { safety: cloneBackupData(currentData), incoming: cloneBackupData(incomingData) };
+}
+function archivalCsvEscape(v){
+  var s = (v == null) ? '' : String(v);
+  if(/[",\n\r]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+  return s;
+}
+function archivalCsvFromRows(headers, rows){
+  var lines = [headers.join(',')];
+  (rows||[]).forEach(function(r){
+    lines.push(headers.map(function(h){ return archivalCsvEscape(r[h]); }).join(','));
+  });
+  return '\ufeff' + lines.join('\n');
+}
+function isEncryptedBackup(d){
+  return !!(d && d.magic === SIRMAN_BACKUP_ENC_MAGIC);
+}
+var BackupEngine = {
+  schemaVersion: function(){ return SIRMAN_SCHEMA_VERSION; },
+  inferSchema: inferBackupSchemaVersion,
+  canRestore: canRestoreSchema,
+  manifest: buildBackupManifest,
+  finalize: finalizeBackupPackage,
+  validate: validateBackupPackage,
+  migrateSchema: applySchemaMigrations,
+  testRestore: testRestoreBackup,
+  unwrap: unwrapBackupEnvelope,
+  prune: pruneBackupRetention,
+  classify: classifyBackupLayer,
+  promote: layersDueForPromotion,
+  pruneSafety: pruneSafetySnapshots,
+  verifyLayer: verifyLayerPayload,
+  audit: backupAuditRecord,
+  csv: archivalCsvFromRows,
+  atomic: prepareAtomicRestore
+};
+
 function _buildFullBackupData(){
   var data = {
-    version: '1405.5.22δ',
+    magic: (typeof SIRMAN_BACKUP_MAGIC!=='undefined'?SIRMAN_BACKUP_MAGIC:'SIRMAN_BACKUP'),
+    schemaVersion: (typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1),
+    version: '1405.5.22ε',
+    applicationVersion: '1405.5.22ε',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -6691,6 +7047,9 @@ function _buildFullBackupData(){
     },
     sections: ['invoices','products','inventory','phonebook','parts','services','warranties','sales','tasks','accounts','defectiveStock','userAuditLog','bgAuditLog','userRoles','loginPw','printSettings','company','senderInfo','logoSrc','acH','appearance','sms','tz','aiKeys','warehouses','daqi','daqiWarehouse','daqiVouchers','postalHistory']
   };
+  try{ if(typeof getPrintCenterState==='function') data.printCenter = getPrintCenterState(); }catch(_pc){}
+  if(data.printCenter && data.sections && data.sections.indexOf('printCenter')<0) data.sections.push('printCenter');
+  if(typeof collectAttachmentIndex==='function') data.attachmentsIndex = collectAttachmentIndex(data);
   return data;
 }
 
@@ -6699,6 +7058,7 @@ function buildBackupObject(){
   var d = _buildFullBackupData();
   d.autoSave = true;
   d.origin = 'autosave';
+  if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(d, 'autosave', 'full');
   return d;
 }
 
@@ -6761,7 +7121,7 @@ async function verifyChecksum(data){
 function openBackupIDB(){
   return new Promise(function(resolve){
     if(!('indexedDB' in window)){ resolve(null); return; }
-    var req = indexedDB.open('laegh-backup-db', 2);
+    var req = indexedDB.open('laegh-backup-db', 3);
     req.onupgradeneeded = function(ev){
       var db = req.result;
       if(!db.objectStoreNames.contains('snapshots')){
@@ -6769,6 +7129,15 @@ function openBackupIDB(){
       }
       if(!db.objectStoreNames.contains('fsHandles')){
         db.createObjectStore('fsHandles');
+      }
+      if(!db.objectStoreNames.contains('layers')){
+        db.createObjectStore('layers', { keyPath: 'id' });
+      }
+      if(!db.objectStoreNames.contains('safety')){
+        db.createObjectStore('safety', { keyPath: 'id' });
+      }
+      if(!db.objectStoreNames.contains('backupAudit')){
+        db.createObjectStore('backupAudit', { keyPath: 'id' });
       }
     };
     req.onsuccess = function(){ resolve(req.result); };
@@ -6849,7 +7218,7 @@ async function restoreAutoSaveHandlesOnBoot(){
   }catch(_e2){ return false; }
 }
 
-// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.22δ ═══════════════════
+// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.22ε ═══════════════════
 // عکس پس‌زمینه، لوگو و ضمیمه‌ها فقط در پوشهٔ بک‌آپ روی دیسک نوشته می‌شوند.
 // در حافظهٔ مرورگر فقط ارجاع کوتاه disk://sirman_media/... نگه داشته می‌شود.
 window._diskUrlCache = window._diskUrlCache || {};
@@ -7145,6 +7514,170 @@ async function getLatestIDBSnapshot(){
   });
 }
 
+async function recordBackupLayer(data, origin){
+  try{
+    var db = await openBackupIDB();
+    if(!db || !db.objectStoreNames.contains('layers')) return;
+    var json = JSON.stringify(data);
+    var verified = (typeof verifyLayerPayload==='function') ? verifyLayerPayload(json) : { ok:true };
+    if(!verified.ok) return;
+    var layer = classifyBackupLayer(origin || (data && data.origin) || 'manual');
+    function putRec(ly, orig){
+      var rec = {
+        id: 'LY-' + Date.now() + '-' + ly + '-' + Math.random().toString(16).slice(2,8),
+        ts: (data && data.exportedAt) || new Date().toISOString(),
+        layer: ly,
+        origin: orig || ly,
+        immutable: !!(data && (data.immutable || orig==='archive' || ly==='archive')),
+        schemaVersion: data && data.schemaVersion,
+        version: data && data.version,
+        itemCounts: data && data.itemCounts,
+        json: json,
+        verified: true
+      };
+      return new Promise(function(resolve){
+        var tx = db.transaction('layers', 'readwrite');
+        tx.objectStore('layers').put(rec);
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(){ resolve(); };
+      });
+    }
+    await putRec(layer, origin || layer);
+    if(layer === 'daily' || origin === 'autosave'){
+      var existing = await new Promise(function(resolve){
+        var tx = db.transaction('layers', 'readonly');
+        var req = tx.objectStore('layers').getAll();
+        req.onsuccess = function(){ resolve(req.result||[]); };
+        req.onerror = function(){ resolve([]); };
+      });
+      var due = layersDueForPromotion(existing, Date.now());
+      for(var i=0;i<due.length;i++) await putRec(due[i], due[i]);
+    }
+    var all = await new Promise(function(resolve){
+      var tx = db.transaction('layers', 'readonly');
+      var req = tx.objectStore('layers').getAll();
+      req.onsuccess = function(){ resolve(req.result||[]); };
+      req.onerror = function(){ resolve([]); };
+    });
+    var pruned = pruneBackupRetention(all, BACKUP_RETENTION);
+    if(pruned.deleted && pruned.deleted.length){
+      await new Promise(function(resolve){
+        var tx = db.transaction('layers', 'readwrite');
+        var st = tx.objectStore('layers');
+        pruned.deleted.forEach(function(it){ if(it && it.id && !it.immutable) st['delete'](it.id); });
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(){ resolve(); };
+      });
+    }
+  }catch(_e){}
+}
+async function listBackupLayers(){
+  try{
+    var db = await openBackupIDB();
+    if(!db || !db.objectStoreNames.contains('layers')) return [];
+    return await new Promise(function(resolve){
+      var tx = db.transaction('layers', 'readonly');
+      var req = tx.objectStore('layers').getAll();
+      req.onsuccess = function(){
+        var all = req.result||[];
+        all.sort(function(a,b){ return String(b.ts||'').localeCompare(String(a.ts||'')); });
+        resolve(all);
+      };
+      req.onerror = function(){ resolve([]); };
+    });
+  }catch(_e){ return []; }
+}
+async function saveSafetySnapshot(data){
+  try{
+    var db = await openBackupIDB();
+    if(!db || !db.objectStoreNames.contains('safety')) return;
+    var ts = new Date().toISOString();
+    var json = JSON.stringify(data||{});
+    await new Promise(function(resolve){
+      var tx = db.transaction('safety', 'readwrite');
+      var st = tx.objectStore('safety');
+      st.put({ id:'current', ts:ts, json:json });
+      st.put({ id:'SF-'+Date.now()+'-'+Math.random().toString(16).slice(2,6), ts:ts, json:json });
+      tx.oncomplete = function(){ resolve(); };
+      tx.onerror = function(){ resolve(); };
+    });
+    var all = await new Promise(function(resolve){
+      var tx = db.transaction('safety', 'readonly');
+      var req = tx.objectStore('safety').getAll();
+      req.onsuccess = function(){ resolve(req.result||[]); };
+      req.onerror = function(){ resolve([]); };
+    });
+    var pruned = pruneSafetySnapshots(all, BACKUP_RETENTION.safety);
+    if(pruned.deleted && pruned.deleted.length){
+      await new Promise(function(resolve){
+        var tx = db.transaction('safety', 'readwrite');
+        var st = tx.objectStore('safety');
+        pruned.deleted.forEach(function(it){ if(it && it.id && it.id !== 'current') st['delete'](it.id); });
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(){ resolve(); };
+      });
+    }
+  }catch(_e){}
+}
+async function openLastSafetyForRestore(){
+  try{
+    var db = await openBackupIDB();
+    if(!db || !db.objectStoreNames.contains('safety')){ ntf('نسخه ایمنی محلی پیدا نشد','err'); return; }
+    var rec = await new Promise(function(resolve){
+      var tx = db.transaction('safety', 'readonly');
+      var req = tx.objectStore('safety').get('current');
+      req.onsuccess = function(){ resolve(req.result||null); };
+      req.onerror = function(){ resolve(null); };
+    });
+    if(!rec || !rec.json){ ntf('نسخه ایمنی محلی پیدا نشد','err'); return; }
+    var d = JSON.parse(rec.json);
+    if(typeof logBackupAudit==='function') logBackupAudit('safety-open', 'ok', {detail:'preview'});
+    openRestorePreviewModal(d, ['نسخه ایمنی قبل از آخرین بازگردانی'], 'replace', {ok:true, msg:'safety snapshot محلی'});
+  }catch(e){
+    ntf('خواندن نسخه ایمنی ناموفق بود','err');
+  }
+}
+function logBackupAudit(op, result, extra){
+  extra = extra || {};
+  var rec = backupAuditRecord(op, result, extra);
+  try{
+    var arr = JSON.parse(localStorage.getItem('laegh_backup_audit')||'[]');
+    arr.unshift(rec);
+    if(arr.length > 80) arr = arr.slice(0,80);
+    localStorage.setItem('laegh_backup_audit', JSON.stringify(arr));
+  }catch(_e){}
+  if(typeof auditUser==='function') auditUser('بک‌آپ/'+op, (result||'')+' '+(rec.detail||''));
+  openBackupIDB().then(function(db){
+    if(!db || !db.objectStoreNames.contains('backupAudit')) return;
+    var tx = db.transaction('backupAudit', 'readwrite');
+    tx.objectStore('backupAudit').put(rec);
+  }).catch(function(){});
+  return rec;
+}
+async function encryptBackupPackage(data, passphrase){
+  if(!passphrase) throw new Error('رمز خالی است');
+  if(!window.crypto || !crypto.subtle) throw new Error('رمزنگاری در این مرورگر در دسترس نیست');
+  var enc = new TextEncoder();
+  var salt = crypto.getRandomValues(new Uint8Array(16));
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  var keyMat = await crypto.subtle.importKey('raw', enc.encode(passphrase), 'PBKDF2', false, ['deriveKey']);
+  var key = await crypto.subtle.deriveKey({name:'PBKDF2', salt:salt, iterations:100000, hash:'SHA-256'}, keyMat, {name:'AES-GCM', length:256}, false, ['encrypt']);
+  var buf = await crypto.subtle.encrypt({name:'AES-GCM', iv:iv}, key, enc.encode(JSON.stringify(data)));
+  function b64(u8){ var s=''; var a=new Uint8Array(u8); for(var i=0;i<a.length;i++) s+=String.fromCharCode(a[i]); return btoa(s); }
+  return { magic:SIRMAN_BACKUP_ENC_MAGIC, format:1, algo:'AES-GCM', kdf:'PBKDF2', iterations:100000, iv:b64(iv), salt:b64(salt), ciphertext:b64(buf) };
+}
+async function decryptBackupPackage(env, passphrase){
+  if(!env || env.magic !== SIRMAN_BACKUP_ENC_MAGIC) return env;
+  if(!passphrase) throw new Error('رمز این بک‌آپ لازم است');
+  if(!window.crypto || !crypto.subtle) throw new Error('رمزگشایی در این مرورگر در دسترس نیست');
+  function u8(b64){ var s=atob(b64); var a=new Uint8Array(s.length); for(var i=0;i<s.length;i++) a[i]=s.charCodeAt(i); return a; }
+  var enc = new TextEncoder();
+  var keyMat = await crypto.subtle.importKey('raw', enc.encode(passphrase), 'PBKDF2', false, ['deriveKey']);
+  var key = await crypto.subtle.deriveKey({name:'PBKDF2', salt:u8(env.salt), iterations:env.iterations||100000, hash:'SHA-256'}, keyMat, {name:'AES-GCM', length:256}, false, ['decrypt']);
+  var buf = await crypto.subtle.decrypt({name:'AES-GCM', iv:u8(env.iv)}, key, u8(env.ciphertext));
+  return JSON.parse(new TextDecoder().decode(buf));
+}
+
 // نام فایل امن برای File System Access API (بدون ارقام فارسی، LRM، کاراکترهای ممنوع ویندوز)
 function safeFsFileName(name){
   var s = String(name == null ? '' : name);
@@ -7433,6 +7966,7 @@ async function doAutoSave(force){
     var json = JSON.stringify(data, null, 2);
     // mirror در IndexedDB (کپی امن اضافی — قانون ۳-۲-۱)
     if(typeof mirrorBackupToIDB==='function'){ try{ await mirrorBackupToIDB(json); }catch(idbErr){} }
+    if(typeof recordBackupLayer==='function'){ try{ await recordBackupLayer(data, 'autosave'); }catch(_ly){} }
 
     if (autoSaveFileHandle || autoSaveDirHandle) {
       try {
@@ -8270,7 +8804,7 @@ function showCustomer360(phone, name){
   document.getElementById('cust360-modal').classList.add('open');
 }
 
-// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۲δ) ───────────────────────────────────────────
+// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۲ε) ───────────────────────────────────────────
 window._wins = window._wins || [];
 window._winActive = window._winActive || null;
 window._winSeq = window._winSeq || 1;
@@ -9707,7 +10241,7 @@ function buildPH(list){
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 window._pcActiveDocId='invoice';
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22δ">
+<meta name="app-version" content="1405.5.22ε">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -9724,7 +10258,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22δ">
+<meta name="app-version" content="1405.5.22ε">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -9784,7 +10318,7 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22δ">
+<meta name="app-version" content="1405.5.22ε">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -9804,11 +10338,11 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22δ">
+<meta name="app-version" content="1405.5.22ε">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22δ">
+<meta name="app-version" content="1405.5.22ε">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -10440,7 +10974,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22δ">
+<meta name="app-version" content="1405.5.22ε">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -10613,13 +11147,35 @@ async function exportData(selectedKeys){
     var allKeys = Object.keys(data);
     allKeys.forEach(function(k){
       // متادیتا (version, exportedAt, origin, sections, itemCounts, checksum) را نگه دار
-      if(['version','exportedAt','origin','checksum','checksumAlgo'].indexOf(k) !== -1) return;
+      if(['version','exportedAt','origin','checksum','checksumAlgo','magic','schemaVersion','applicationVersion','manifest','sectionChecksums','attachmentsIndex'].indexOf(k) !== -1) return;
       if(selectedKeys.indexOf(k) === -1){ delete data[k]; }
     });
     data.partial = true;
     data.sections = (data.sections||[]).filter(function(s){ return selectedKeys.indexOf(s) !== -1; });
     data.itemCounts = {};
     selectedKeys.forEach(function(k){ if(Array.isArray(data[k])) data.itemCounts[k] = data[k].length; });
+  }
+  var kind = (data.partial ? 'partial' : 'full');
+  if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(data, data.origin, kind);
+  var encPw = ((document.getElementById('bk-encrypt-pw')||{}).value||'').trim();
+  if(encPw && typeof encryptBackupPackage==='function'){
+    try{
+      var env = await encryptBackupPackage(data, encPw);
+      var blobEnc = new Blob([JSON.stringify(env,null,2)],{type:'application/json'});
+      var aEnc = document.createElement('a');
+      aEnc.href = URL.createObjectURL(blobEnc);
+      aEnc.download = 'Laegh_backup_'+fdate().replace(/\//g,'-')+'_enc.json';
+      aEnc.click();
+      localStorage.setItem('laegh_last_backup', String(Date.now()));
+      if(typeof recordBackupLayer==='function'){ try{ await recordBackupLayer(data, 'manual'); }catch(_l){} }
+      if(typeof logBackupAudit==='function') logBackupAudit('backup', 'ok', {detail:'encrypted'});
+      addDbgEntry('ok','بک‌آپ','','بک‌آپ رمزنگاری‌شده دانلود شد','');
+      auditUser('بک‌آپ دستی رمزدار', 'encrypted');
+      ntf('فایل پشتیبان رمزدار دانلود شد ✅');
+      return;
+    }catch(encErr){
+      ntf('رمزنگاری ناموفق بود — فایل عادی ذخیره می‌شود','err');
+    }
   }
   // checksum محاسبه کن (اگر crypto.subtle موجود باشد)
   if(typeof attachChecksum==='function'){ await attachChecksum(data); }
@@ -10632,9 +11188,11 @@ async function exportData(selectedKeys){
   localStorage.setItem('laegh_last_backup', String(Date.now()));
   // mirror در IndexedDB (redundancy)
   if(typeof mirrorBackupToIDB==='function'){ try{ await mirrorBackupToIDB(JSON.stringify(data)); }catch(e){} }
+  if(typeof recordBackupLayer==='function'){ try{ await recordBackupLayer(data, 'manual'); }catch(_l){} }
   if(typeof clearDirty==='function') clearDirty();
   if(typeof syncBackupReminderTask==='function') syncBackupReminderTask();
   var secCount = data.sections ? data.sections.length : '?';
+  if(typeof logBackupAudit==='function') logBackupAudit('backup', 'ok', {detail:secCount+' بخش'});
   addDbgEntry('ok','بک‌آپ','','بک‌آپ دانلود شد ('+secCount+' بخش'+(data.checksum?'، checksum ✓':'')+')','');
   auditUser('بک‌آپ دستی', secCount+' بخش');
   ntf('فایل پشتیبان دانلود شد ✅ ('+secCount+' بخش'+(data.partial?' — جزئی':'')+')');
@@ -10655,6 +11213,63 @@ function openDiffModal(){
   document.getElementById('diff-file-a').value = '';
   document.getElementById('diff-file-b').value = '';
   document.getElementById('diff-modal').classList.add('open');
+}
+
+async function exportArchiveBackup(){
+  var data = _buildFullBackupData();
+  data.origin = 'archive';
+  data.immutable = true;
+  if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(data, 'archive', 'archive');
+  if(typeof attachChecksum==='function') await attachChecksum(data);
+  var blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Laegh_archive_'+fdate().replace(/\//g,'-')+'.json';
+  a.click();
+  if(typeof recordBackupLayer==='function') try{ await recordBackupLayer(data, 'archive'); }catch(_e){}
+  if(typeof logBackupAudit==='function') logBackupAudit('archive', 'ok', {detail:'immutable'});
+  ntf('آرشیو بلندمدت دانلود شد ✅');
+  refreshBackupManagerUI();
+}
+function exportArchivalCsv(){
+  var headers = ['section','id','name','extra'];
+  var rows = [];
+  function add(section, id, name, extra){ rows.push({section:section, id:id||'', name:name||'', extra:extra||''}); }
+  (typeof invoices!=='undefined'?invoices:[]).forEach(function(x){ add('invoice', x.num||x.id, x.seller||x.buyer||'', x.date||''); });
+  (typeof phonebook!=='undefined'?phonebook:[]).forEach(function(x){ add('phonebook', x.fn+' '+x.ln, x.shop||'', (x.phones&&x.phones[0])||''); });
+  (typeof parts!=='undefined'?parts:[]).forEach(function(x){ add('part', x.code, x.name, String(x.qty||0)); });
+  (typeof products!=='undefined'?products:[]).forEach(function(x){ add('product', x.code, x.name, String(x.price||0)); });
+  (typeof warranties!=='undefined'?warranties:[]).forEach(function(x){ add('warranty', x.id, x.name, x.status||''); });
+  (typeof sales!=='undefined'?sales:[]).forEach(function(x){ add('sale', x.id, x.name, String(x.total||0)); });
+  var csv = archivalCsvFromRows(headers, rows);
+  var blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Laegh_archive_'+fdate().replace(/\//g,'-')+'.csv';
+  a.click();
+  if(typeof logBackupAudit==='function') logBackupAudit('archive-csv', 'ok', {detail:rows.length+' ردیف'});
+  ntf('خروجی CSV آرشیوی دانلود شد ✅');
+}
+async function refreshBackupManagerUI(){
+  var sv = document.getElementById('bk-schema-ver');
+  if(sv) sv.textContent = String(typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1);
+  var av = document.getElementById('bk-app-ver');
+  if(av) av.textContent = (typeof APP_VERSION_FA!=='undefined'?APP_VERSION_FA:(typeof APP_VERSION!=='undefined'?APP_VERSION:'—'));
+  var list = document.getElementById('bk-layer-list');
+  if(list && typeof listBackupLayers==='function'){
+    var items = await listBackupLayers();
+    if(!items.length) list.innerHTML = '<div style="color:#aaa;padding:8px">هنوز نسخه محلی لایه‌ای ثبت نشده</div>';
+    else list.innerHTML = items.slice(0,20).map(function(it){
+      return '<div style="padding:6px 0;border-bottom:1px solid var(--border)">'+(it.immutable?'🔒 ':'')+'<b>'+(it.layer||'')+'</b> — '+(it.ts||'')+' — Schema '+(it.schemaVersion!=null?it.schemaVersion:'—')+(it.version?(' — v'+it.version):'')+'</div>';
+    }).join('');
+  }
+  var aud = document.getElementById('bk-audit-list');
+  if(aud){
+    try{
+      var arr = JSON.parse(localStorage.getItem('laegh_backup_audit')||'[]');
+      aud.textContent = arr.slice(0,5).map(function(x){ return (x.at||'')+' '+x.op+' '+x.result; }).join(' | ') || 'لاگ خالی';
+    }catch(_e){ aud.textContent=''; }
+  }
 }
 // ---- SMART MIGRATION: همه نسخه‌های بک‌اپ رو می‌شناسه ----
 function migrateBackup(d) {
@@ -10785,6 +11400,8 @@ function migrateBackup(d) {
   });
   if(migratedFields > 0) log.push('🔧 '+migratedFields+' بخش با migration فیلدی نرمال‌سازی شد');
 
+  if(d.schemaVersion == null || d.schemaVersion === '') d.schemaVersion = 1;
+  if(!d.magic) d.magic = 'SIRMAN_BACKUP';
   log.push('✅ آماده برای بارگذاری');
   return { data: d, log: log };
 }
@@ -10817,6 +11434,7 @@ function getBackupSectionDefs(){
     {key:'bgAuditLog', label:'لاگ پس‌زمینه', kind:'array'},
     {key:'userRoles', label:'پروفایل‌های دسترسی', kind:'array'},
     {key:'loginPw', label:'رمز ورود', kind:'scalar'},
+    {key:'printCenter', label:'مرکز پرینت', kind:'object'},
     {key:'printSettings', label:'تنظیمات چاپ', kind:'object'},
     {key:'company', label:'اطلاعات شرکت', kind:'object'},
     {key:'senderInfo', label:'اطلاعات فرستنده', kind:'object'},
@@ -10895,7 +11513,8 @@ function openRestorePreviewModal(d, migLog, defaultMode, chkInfo){
     }
   }catch(_e){}
   var withData = rows.filter(function(r){ return r.has; }).length;
-  meta.innerHTML = '<div><b>نسخه بک‌آپ:</b> '+(d.version||'نامشخص')+(d.partial?' <span style="color:#b45309">(جزئی)</span>':'')+'</div>'
+  meta.innerHTML = '<div><b>نسخه برنامه:</b> '+(d.version||d.applicationVersion||'نامشخص')+(d.partial?' <span style="color:#b45309">(جزئی)</span>':'')+'</div>'
+    + '<div><b>Schema:</b> '+(d.schemaVersion!=null?d.schemaVersion:(d.manifest&&d.manifest.schemaVersion)||'۰ (قدیمی)')+' → '+(typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1)+'</div>'
     + '<div><b>تاریخ تهیه:</b> '+exported+'</div>'
     + '<div><b>بخش‌های دارای داده:</b> '+withData+' از '+rows.length+'</div>'
     + (chkInfo && chkInfo.msg ? ('<div><b>سلامت فایل:</b> '+String(chkInfo.msg).replace(/</g,'&lt;')+'</div>') : '')
@@ -10947,8 +11566,17 @@ function confirmRestorePreview(){
     closeRestorePreviewModal();
   }catch(err){
     addDbgEntry('err','بازگردانی',err.message,'خطا در اعمال انتخابی: '+err.message,'');
+    if(typeof logBackupAudit==='function') logBackupAudit('restore', 'err', {error:err.message});
     alert('❌ خطا: '+err.message);
   }
+}
+
+function runPendingTestRestore(){
+  if(!_pendingRestore || !_pendingRestore.data){ ntf('فایلی برای تست نیست','err'); return; }
+  var r = (typeof testRestoreBackup==='function') ? testRestoreBackup(_pendingRestore.data) : {ok:false, log:['تابع تست نیست']};
+  if(typeof logBackupAudit==='function') logBackupAudit('test-restore', r.ok?'ok':'err', {detail:(r.log||[]).join(' | '), error: r.ok?'':((r.validation&&r.validation.errors)||[]).join(',')});
+  var extra = r.ok ? 'اعتبارسنجی موفق — هیچ داده‌ای اعمال نشد.' : ('ناموفق: '+((r.validation&&r.validation.errors)||r.log||[]).join('\n'));
+  alert((r.ok?'✅ ':'❌ ')+'تست بازگردانی (بدون اعمال)\nSchema '+(r.schemaFrom)+' → '+(r.schemaTo)+'\n\n'+(r.log||[]).join('\n')+'\n\n'+extra);
 }
 
 function _restoreWants(selected, key){
@@ -10959,6 +11587,13 @@ function _restoreWants(selected, key){
 function applyBackupSelective(d, selectedKeys, mode, migLog){
   migLog = migLog || [];
   selectedKeys = selectedKeys || [];
+  var safety = null;
+  try { if(typeof _buildFullBackupData==='function') safety = _buildFullBackupData(); } catch(_s){}
+  if(safety){
+    try { if(typeof saveSafetySnapshot==='function') saveSafetySnapshot(safety); } catch(_idb){}
+    if(typeof logBackupAudit==='function') logBackupAudit('pre-restore', 'ok', {detail:'safety snapshot'});
+  }
+  try {
   if(mode === 'replace'){
     applyBackupReplaceSections(d, selectedKeys);
     addDbgEntry('ok','بازگردانی','','✅ جایگزینی بخشی\nبخش‌ها: '+selectedKeys.join(', ')+'\n'+migLog.join('\n'),'');
@@ -10972,6 +11607,14 @@ function applyBackupSelective(d, selectedKeys, mode, migLog){
     ntf('ادغام بخش‌های انتخاب‌شده انجام شد ✅','ok');
     auditUser('ادغام بک‌اپ (انتخابی)', selectedKeys.length+' بخش');
     alert('✅ ادغام بخش‌های انتخاب‌شده!\n\n'+migLog.join('\n')+'\n\n'+sum);
+  }
+    if(typeof logBackupAudit==='function') logBackupAudit('restore', 'ok', {detail:mode+' '+selectedKeys.length+' بخش'});
+  } catch(err){
+    if(safety && typeof applyBackupReplaceSections==='function'){
+      try{ applyBackupReplaceSections(safety, null); }catch(_r){}
+    }
+    if(typeof logBackupAudit==='function') logBackupAudit('restore', 'err', {error:String(err && err.message || err), detail:'rollback'});
+    throw err;
   }
 }
 
@@ -11177,16 +11820,40 @@ async function importData(inp) {
       inp.value=''; return;
     }
 
+    // مرحله ۱.۵: بسته رمزدار / envelope
+    if(typeof unwrapBackupEnvelope==='function') d = unwrapBackupEnvelope(d);
+    if(typeof isEncryptedBackup==='function' && isEncryptedBackup(d)){
+      var pw = prompt('این بک‌آپ رمزنگاری شده است. رمز را وارد کنید:');
+      if(pw===null){ inp.value=''; return; }
+      try{
+        d = await decryptBackupPackage(d, pw);
+        if(typeof unwrapBackupEnvelope==='function') d = unwrapBackupEnvelope(d);
+      }catch(decErr){
+        alert('❌ رمز نادرست یا فایل رمزدار خراب است\n'+decErr.message);
+        inp.value=''; return;
+      }
+    }
+
     // مرحله ۲: اعتبارسنجی
     if (!d || typeof d !== 'object') {
       addDbgEntry('err','بازگردانی','invalid','فایل خالی یا نامعتبر است','یک فایل JSON معتبر انتخاب کنید');
       inp.value=''; return;
     }
-    var hasData = d.invoices||d.products||d.pb||d.phonebook||d.parts||d.warranties||d.sales||d.accounts||d.tasks||d.services||d.svcs||d.daqi||d.company||d.appearance;
+    var hasData = d.invoices||d.products||d.pb||d.phonebook||d.parts||d.warranties||d.sales||d.accounts||d.tasks||d.services||d.svcs||d.daqi||d.company||d.appearance||d.database;
     if (!hasData) {
       addDbgEntry('err','بازگردانی','no known keys','این فایل بک‌اپ لایق نیست — کلیدهای موجود: '+Object.keys(d).join(', '),'فایل بک‌اپ باید با نرم‌افزار سیرمان ساخته شده باشد');
       alert('❌ فایل بک‌اپ معتبر نیست\nکلیدهای موجود: '+Object.keys(d).join(', '));
       inp.value=''; return;
+    }
+
+    var fileVer = (typeof inferBackupSchemaVersion==='function') ? inferBackupSchemaVersion(d) : 0;
+    if(typeof canRestoreSchema==='function'){
+      var gate = canRestoreSchema(fileVer, typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1);
+      if(!gate.ok){
+        addDbgEntry('err','بازگردانی','schema too new', gate.reason, 'نسخه برنامه را ارتقا دهید');
+        alert('❌ '+gate.reason+'\n\nSchema فایل: '+fileVer+' — Schema برنامه: '+(typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1));
+        inp.value=''; return;
+      }
     }
 
     // مرحله ۲.۵: تأیید checksum (تشخیص خرابی فایل)
@@ -11199,7 +11866,12 @@ async function importData(inp) {
       }
     }
 
-    // مرحله ۳: migration هوشمند
+    // مرحله ۳: Schema Migration جدا از نسخه برنامه، سپس migration فیلدی
+    if(typeof applySchemaMigrations==='function'){
+      var schemaMig = applySchemaMigrations(d);
+      d = schemaMig.data;
+      if(schemaMig.log && schemaMig.log.length) chkInfo.msg = (chkInfo.msg?chkInfo.msg+' — ':'')+schemaMig.log.join('؛ ');
+    }
     var migResult = migrateBackup(d);
     d = migResult.data;
     var migLog = migResult.log;
@@ -11214,6 +11886,17 @@ async function importData(inp) {
       });
       if(countWarns.length){
         addDbgEntry('warn','بازگردانی','itemCounts mismatch', countWarns.join('; '), 'برخی بخش‌ها ممکن است ناقص باشند');
+      }
+    }
+
+    // مرحله ۳.۷: اعتبارسنجی روابط و شمارش
+    if(typeof validateBackupPackage==='function'){
+      var val = validateBackupPackage(d);
+      if(!val.ok){
+        addDbgEntry('err','بازگردانی','validate', (val.errors||[]).join('; '), '');
+        if(!confirm('⚠️ اعتبارسنجی بسته:\n'+(val.errors||[]).join('\n')+'\n\nادامه؟')){ inp.value=''; return; }
+      } else if(val.warnings && val.warnings.length){
+        chkInfo.msg = (chkInfo.msg?chkInfo.msg+' — ':'') + val.warnings.join('؛ ');
       }
     }
 
@@ -11408,6 +12091,7 @@ function expAllExcel(){
 function renderDataStats(){
   const totalFin=invoices.reduce((s,d)=>s+(d.tF||0),0);
   document.getElementById('data-stats').innerHTML=`<div class="stat-card"><div class="stat-val">${invoices.length}</div><div class="stat-lbl">فاکتور</div></div><div class="stat-card"><div class="stat-val">${products.length}</div><div class="stat-lbl">کالا</div></div><div class="stat-card"><div class="stat-val">${phonebook.length}</div><div class="stat-lbl">مخاطب</div></div><div class="stat-card"><div class="stat-val" style="color:var(--green);font-size:14px">${totalFin.toLocaleString()}</div><div class="stat-lbl">جمع فروش (ریال)</div></div>`;
+  if(typeof refreshBackupManagerUI==='function') refreshBackupManagerUI();
 }
 
 // ─── ماژول وظایف و یادآوری ──────────────────────────────────────────────────────
@@ -11868,7 +12552,7 @@ function enableTaskNotifications(){
 }
 function registerLaeghSW(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('sw.js?v=1405.5.22δ').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=1405.5.22ε').then(reg=>{
     _swReg=reg;
     // Check for SW updates
     reg.addEventListener('updatefound', ()=>{
@@ -13108,7 +13792,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22δ">'+
+    '<meta name="app-version" content="1405.5.22ε">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -13281,7 +13965,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.22δ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.22ε"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -15568,7 +16252,7 @@ function doPrint(paperSize){
   const wbg=bgMap[pw.bg||'none']||'#fff';
   const effPaper = pw.paper || paperSize;
   var htmlDoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22δ">
+<meta name="app-version" content="1405.5.22ε">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -15664,7 +16348,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22δ"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.22ε"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -15693,7 +16377,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22δ"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.22ε"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -15730,7 +16414,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22δ">'+
+    '<meta name="app-version" content="1405.5.22ε">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -15814,7 +16498,7 @@ function printCompanyReport(idx){
   var qcResultLbl = {'pass':'✅ تأیید کیفیت','fail':'❌ رد شد — نیاز به اصلاح','pending':'در حال بررسی'};
   var mgrApproveLbl = {'approved':'✅ تأیید نهایی','pending':'در انتظار بررسی','rejected':'❌ رد شد'};
 
-  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.22δ';
+  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.22ε';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
     '<title>گزارش داخلی شرکت — '+wHdr.id+'</title>'+
     '<style>'+
@@ -16445,7 +17129,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22δ">'+
+    '<meta name="app-version" content="1405.5.22ε">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -16665,7 +17349,7 @@ function expSalesExcel(){
 // ══════ حسابداری ══════
 // ═══════════════════════════════════════════════════════════════════════════
 // ماژول داغی (پیگیری رسید امضا‌شده‌ی نمایندگی‌های خدمات)
-// نسخه ۱۴۰۵.۵.۲۲δ — فاز داغی
+// نسخه ۱۴۰۵.۵.۲۲ε — فاز داغی
 //
 // «داغی» یعنی وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستیم، آن‌ها باید رسید امضا‌شده
 // (داغی) را به ما برگردانند. این ماژول پیگیری می‌کند که چه کسانی داغی معوقه دارند.
@@ -17969,7 +18653,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22δ">'+
+    '<meta name="app-version" content="1405.5.22ε">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+

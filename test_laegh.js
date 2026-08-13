@@ -3963,14 +3963,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۲δ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۲ε باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.22δ', 'نسخه meta باید 1405.5.22δ باشد');
+  assertEqual(metaVer, '1405.5.22ε', 'نسخه meta باید 1405.5.22ε باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/22', 'app-date باید 1405/05/22 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲δ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲δ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲ε', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲ε را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.22δ'", 'فیلد version بک‌آپ باید 1405.5.22δ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.22ε'", 'فیلد version بک‌آپ باید 1405.5.22ε باشد');
 });
 
 
@@ -5979,6 +5979,120 @@ test('شبیه‌سازی: موجودی/رزرو/کارتکس/کم‌موجود�
   assertTrue(r.inWh, 'وضعیت کارشناسی باید داخل انبار معیوب باشد');
   assertTrue(!r.outWh, 'اسقاط نباید داخل انبار فعال باشد');
   assertEqual(r.mapped, 'received', 'in_stock قدیمی باید به دریافت نگاشته شود');
+});
+
+
+console.log('');
+console.log('📋 گروه: موتور پشتیبان (Backup Manager / Schema / Restore ایمن)');
+
+function loadBackupEngine(srcHtml){
+  const start = srcHtml.indexOf('var SIRMAN_SCHEMA_VERSION = ');
+  const end = srcHtml.indexOf('\nfunction _buildFullBackupData(');
+  if(start < 0 || end < 0 || end <= start) throw new Error('موتور BackupEngine در فایل پیدا نشد');
+  const src = srcHtml.slice(start, end);
+  return new Function(src + '\nreturn { BackupEngine: BackupEngine, SIRMAN_SCHEMA_VERSION: SIRMAN_SCHEMA_VERSION, SIRMAN_BACKUP_MAGIC: SIRMAN_BACKUP_MAGIC, SIRMAN_BACKUP_ENC_MAGIC: SIRMAN_BACKUP_ENC_MAGIC, BACKUP_RETENTION: BACKUP_RETENTION };')();
+}
+
+test('توابع BackupEngine و UI مدیر پشتیبان باید تعریف شده باشند', () => {
+  ['inferBackupSchemaVersion','canRestoreSchema','buildBackupManifest','finalizeBackupPackage','validateBackupPackage','applySchemaMigrations','testRestoreBackup','unwrapBackupEnvelope','pruneBackupRetention','layersDueForPromotion','verifyLayerPayload','prepareAtomicRestore','archivalCsvFromRows','recordBackupLayer','saveSafetySnapshot','openLastSafetyForRestore'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  assertContainsString(html, 'var BackupEngine = {', 'شیء BackupEngine پیدا نشد');
+  assertContainsString(html, 'id="bk-schema-ver"', 'نمایش Schema در مدیر پشتیبان لازم است');
+  assertContainsString(html, 'runPendingTestRestore()', 'دکمه تست بازگردانی لازم است');
+  assertContainsString(html, 'exportArchiveBackup()', 'دکمه آرشیو بلندمدت لازم است');
+  assertContainsString(html, 'openLastSafetyForRestore()', 'دکمه نسخه ایمنی لازم است');
+  assertContainsString(html, 'بسته مستقل', 'راهنما باید بسته مستقل را توضیح دهد');
+  assertContainsString(html, 'لایه فقط بعد از تأیید صحت JSON ثبت می‌شود', 'راهنما باید ثبت پس از تأیید را بگوید');
+});
+
+test('شبیه‌سازی: Schema، Migration ۰→۱، Restore ایمن، نگهداری لایه، CSV، envelope (execution-based)', () => {
+  const eng = loadBackupEngine(html);
+  const BE = eng.BackupEngine;
+  assertEqual(BE.schemaVersion(), 1, 'Schema برنامه باید ۱ باشد');
+  assertEqual(BE.inferSchema({invoices:[{num:'1'}]}), 0, 'بک‌آپ قدیمی بدون schemaVersion باید Schema ۰ باشد');
+  assertEqual(BE.inferSchema({schemaVersion:1, invoices:[]}), 1, 'schemaVersion=1 باید ۱ خوانده شود');
+  assertEqual(BE.inferSchema({manifest:{schemaVersion:1}}), 1, 'schemaVersion داخل Manifest باید خوانده شود');
+
+  const tooNew = BE.canRestore(2, 1);
+  assertEqual(tooNew.ok, false, 'Schema جدیدتر از برنامه باید رد شود');
+  assertEqual(tooNew.direction, 'downgrade', 'جهت باید downgrade باشد');
+  const up = BE.canRestore(0, 1);
+  assertEqual(up.ok, true, 'Schema قدیمی‌تر باید با Migration پذیرفته شود');
+  assertEqual(up.direction, 'upgrade', 'جهت باید upgrade باشد');
+
+  const oldPkg = { version:'10.3.29', invoices:[{num:'1', seller:'A'}], phonebook:[{fn:'علی', ln:'رضایی'}], warranties:[{id:'W1', docs:[{id:'D1', name:'قبض.jpg', data:'disk:abc'}]}] };
+  const originalJson = JSON.stringify(oldPkg);
+  const mig = BE.migrateSchema(oldPkg, 1);
+  assertTrue(mig.ok, 'Migration ۰→۱ باید موفق باشد');
+  assertEqual(mig.from, 0, 'مبدأ Schema باید ۰ باشد');
+  assertEqual(mig.data.schemaVersion, 1, 'بعد از Migration باید Schema ۱ شود');
+  assertEqual(mig.data.magic, eng.SIRMAN_BACKUP_MAGIC, 'magic بسته باید SIRMAN_BACKUP باشد');
+  assertTrue(!!mig.data.manifest, 'Manifest باید اضافه شود');
+  assertTrue(Array.isArray(mig.data.attachmentsIndex) && mig.data.attachmentsIndex.length>=1, 'فهرست پیوست باید ساخته شود');
+  assertEqual(JSON.parse(originalJson).schemaVersion, undefined, 'Migration نباید روی نسخه اصلی اعمال شود (باید clone کند)');
+
+  const emptyVal = BE.validate({});
+  assertEqual(emptyVal.ok, false, 'بسته بدون کلید داده باید نامعتبر باشد');
+  const okVal = BE.validate({invoices:[{num:'1', items:[]}]});
+  assertEqual(okVal.ok, true, 'بسته با فاکتور باید معتبر باشد');
+
+  const pruned = BE.prune([
+    {id:'d1', layer:'daily', ts:'2026-08-13'}, {id:'d2', layer:'daily', ts:'2026-08-12'},
+    {id:'d3', layer:'daily', ts:'2026-08-11'}, {id:'d4', layer:'daily', ts:'2026-08-10'},
+    {id:'d5', layer:'daily', ts:'2026-08-09'}, {id:'d6', layer:'daily', ts:'2026-08-08'},
+    {id:'d7', layer:'daily', ts:'2026-08-07'}, {id:'d8', layer:'daily', ts:'2026-08-06'},
+    {id:'d9', layer:'daily', ts:'2026-08-05'}, {id:'arch', layer:'archive', ts:'2026-01-01', immutable:true}
+  ]);
+  assertEqual(pruned.kept.filter(x=>x.layer==='daily').length, 7, 'باید حداکثر ۷ روزانه نگه داشته شود');
+  assertTrue(pruned.kept.some(x=>x.id==='arch'), 'آرشیو immutable نباید حذف شود');
+  assertTrue(pruned.deleted.some(x=>x.id==='d9'), 'قدیمی‌ترین روزانه باید حذف شود');
+
+  const env = BE.unwrap({
+    magic: eng.SIRMAN_BACKUP_MAGIC,
+    database: { invoices:[{num:'9'}] },
+    settings: { company:{name:'سیرمان'} },
+    applicationVersion: '1405.5.22δ',
+    schemaVersion: 1
+  });
+  assertEqual(env.invoices[0].num, '9', 'envelope باید database را به کلیدهای تخت باز کند');
+  assertEqual(env.company.name, 'سیرمان', 'settings باید در بسته تخت ادغام شود');
+  assertEqual(env.version, '1405.5.22δ', 'applicationVersion باید به version نگاشته شود');
+
+  const live = { invoices:[{num:'KEEP'}], phonebook:[] };
+  const incoming = { invoices:[{num:'NEW'}], phonebook:[{fn:'ب'}] };
+  const tr = BE.testRestore(incoming);
+  assertEqual(tr.applied, false, 'تست بازگردانی نباید داده را اعمال کند');
+  assertTrue(tr.ok, 'تست بازگردانی روی بسته معتبر باید ok باشد');
+  assertEqual(live.invoices[0].num, 'KEEP', 'تست بازگردانی نباید آرایه زنده را عوض کند');
+
+  const atom = BE.atomic(live, incoming);
+  atom.safety.invoices[0].num = 'MUT';
+  assertEqual(live.invoices[0].num, 'KEEP', 'نسخه ایمنی باید clone باشد نه همان آرایه');
+
+  const csv = BE.csv(['section','id'], [{section:'invoice', id:'1,2'}, {section:'a "b"', id:'x'}]);
+  assertTrue(csv.indexOf('"1,2"')>=0, 'CSV باید مقدار دارای کاما را quote کند');
+  assertTrue(csv.indexOf('"a ""b"""')>=0, 'CSV باید نقل‌قول داخلی را دوبل کند');
+
+  const now = Date.parse('2026-08-13T12:00:00Z');
+  const dueEmpty = BE.promote([], now);
+  assertTrue(dueEmpty.indexOf('weekly')>=0 && dueEmpty.indexOf('monthly')>=0, 'بدون لایه قبلی باید هفتگی و ماهانه ساخته شود');
+  const dueFresh = BE.promote([{layer:'weekly', ts:'2026-08-12T12:00:00Z'}, {layer:'monthly', ts:'2026-08-01T12:00:00Z'}], now);
+  assertEqual(dueFresh.length, 0, 'اگر هفتگی/ماهانه تازه باشند نباید دوباره ساخته شوند');
+  const dueOld = BE.promote([{layer:'weekly', ts:'2026-07-01T12:00:00Z'}, {layer:'monthly', ts:'2026-06-01T12:00:00Z'}], now);
+  assertTrue(dueOld.indexOf('weekly')>=0 && dueOld.indexOf('monthly')>=0, 'لایه کهنه باید مجدداً ساخته شود');
+
+  const sf = BE.pruneSafety([
+    {id:'current', ts:'t4'}, {id:'a', ts:'t4'}, {id:'b', ts:'t3'}, {id:'c', ts:'t2'}, {id:'d', ts:'t1'}
+  ], 3);
+  assertTrue(sf.kept.some(x=>x.id==='current'), 'alias current باید بماند');
+  assertEqual(sf.kept.filter(x=>x.id!=='current').length, 3, 'حداکثر ۳ نسخه ایمنی timestamped');
+  assertTrue(sf.deleted.some(x=>x.id==='d'), 'قدیمی‌ترین ایمنی باید حذف شود');
+
+  const badLayer = BE.verifyLayer({});
+  assertEqual(badLayer.ok, false, 'لایه خالی نباید ثبت شود');
+  const goodLayer = BE.verifyLayer({invoices:[{num:'1'}]});
+  assertEqual(goodLayer.ok, true, 'لایه دارای داده باید تأیید شود');
 });
 
 
