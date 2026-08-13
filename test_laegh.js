@@ -997,7 +997,7 @@ test('openSaleForm هنگام ویرایش یک فروش قبلی باید docs 
 });
 
 test('شبیه‌سازی واقعی کامل: یک چرخه کامل ثبت فروش با عکس ضمیمه باید عکس را در رکورد نهایی sales[] ذخیره کند', async () => {
-  // از ۱۴۰۵.۵.۲۱ρ ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
+  // از ۱۴۰۵.۵.۲۱σ ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
   const addSrc = extractFunctionSource(html, 'addSaleDocs');
   assertTrue(addSrc !== null, 'تابع addSaleDocs پیدا نشد');
   assertContainsString(addSrc, 'storeDocFileOnDisk', 'addSaleDocs باید روی دیسک بنویسد');
@@ -3875,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱ρ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱σ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21ρ', 'نسخه meta باید 1405.5.21ρ باشد');
+  assertEqual(metaVer, '1405.5.21σ', 'نسخه meta باید 1405.5.21σ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ρ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ρ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱σ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱σ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21ρ'", 'فیلد version بک‌آپ باید 1405.5.21ρ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21σ'", 'فیلد version بک‌آپ باید 1405.5.21σ باشد');
 });
 
 
@@ -3951,7 +3951,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
       good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.20ε', minBaseVersion:'1405.5.20ε'}),
-      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21ρ'}),
+      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21σ'}),
       cmp: compareSirmanVersions('1405.5.20ε','1405.5.18ε')
     };
   `);
@@ -4100,7 +4100,7 @@ test('شبیه‌سازی واقعی: summarizeBackupInventory باید بخش�
   assertTrue(!!extractFunctionSource(html, 'summarizeBackupInventory'), 'summarizeBackupInventory پیدا نشد');
   const runner = new Function(src + `;
     return summarizeBackupInventory({
-      version:'1405.5.21ρ',
+      version:'1405.5.21σ',
       invoices:[{id:1},{id:2}],
       phonebook:[{fn:'علی',phones:['0912']}],
       pb:[],
@@ -5341,6 +5341,13 @@ test('همه پنجره‌های minimize‌شده نباید DOM صفحه‌ه�
   assertTrue(settings.indexOf("showPage('dataio')") === -1, 'ورود/خروج داده نباید تب مستقل باشد');
   assertTrue(settings.indexOf("showStgTab('autosave',this)") === -1, 'ذخیره خودکار نباید تب مستقل باشد');
   assertContainsString(html, 'function openDataAutoSave(', 'داده‌ها باید زیرگزینه ذخیره خودکار داشته باشد');
+});
+
+test('داشبورد باید فهرست وظایف سررسیدگذشته را جدا از تعداد آن نگه دارد', () => {
+  const dash = extractFunctionSource(html, 'renderDashboard');
+  assertContainsString(dash, 'var overdueTaskList', 'فهرست overdueTaskList لازم است');
+  assertContainsString(dash, 'var overdueTasks = overdueTaskList.length', 'KPI باید تعداد را از فهرست بگیرد');
+  assertContainsString(dash, 'overdueTaskList.forEach', 'هشدارها باید روی آرایه اجرا شوند نه عدد');
 });
 
 
