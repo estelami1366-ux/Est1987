@@ -1,6 +1,6 @@
 ---
 name: laegh-software-workflow
-description: Use this skill for ANY work on the "Laegh Electronic Parsian" (لایق الکترونیک پارسیان) after-sales service management software — a single-file HTML application. This applies whenever the user asks to add a feature, fix a bug, change the UI, touch backup/restore logic, change version numbers, or deliver any new version of this specific project. Always consult this skill before editing or delivering any Laegh_Final*.html file, before running or skipping tests, and before naming/versioning a new release. Trigger this even for small-seeming requests (e.g. "just add a button") because the mandatory testing and versioning rules apply regardless of request size.
+description: Use this skill for ANY work on the "Laegh Electronic Parsian" / Sirman after-sales software (single-file HTML UI + .NET WebView2 shell). Applies to features, bugs, UI, backup/restore, versioning, architecture, inventory, printing, and delivery. Always consult this skill AND docs/ARCHITECTURE_RULES.md before editing HTML/.NET or delivering a release. Trigger even for small requests because testing, versioning, and architecture-layer rules apply regardless of size.
 ---
 
 # گردش‌کار نرم‌افزار لایق الکترونیک پارسیان
@@ -8,6 +8,8 @@ description: Use this skill for ANY work on the "Laegh Electronic Parsian" (لا
 این یک پروژه‌ی واقعی و در حال استفاده است (نه نمونه یا آزمایشی). صاحب کسب‌وکار از این نرم‌افزار برای کار روزمره استفاده می‌کند و از دست رفتن داده در این پروژه واقعاً قبلاً اتفاق افتاده. رعایت دقیق این قوانین اختیاری نیست.
 
 ارتباط با کاربر همیشه به **فارسی، مستقیم و خلاصه** است — همانطور که در طول این پروژه انجام شده.
+
+سند معماری بلندمدت: `docs/ARCHITECTURE_RULES.md` (قانون ۱۲). آن سند باطل‌کنندهٔ قوانین ۱ تا ۱۱ نیست؛ جهت لایه‌ها، هستهٔ .NET، و ممنوعیت منطق کسب‌وکار داخل UI را اضافه می‌کند.
 
 ## قانون ۱ — هرگز بدون اجرای تست خودکار، فایل تحویل نده
 
@@ -44,12 +46,14 @@ node test_laegh.js path/to/Laegh_Final_X.html
 
 ⚠️ توجه: تابع `migrateBackup` نباید با `parseFloat(d.version)` نسخه را عدد کسری فرض کند، چون فرمت سه‌بخشی (`10.3.29`) با `parseFloat` ناقص پارس می‌شود (می‌شود `10.3`). اگر منطق migration به عدد نسخه برای تصمیم‌گیری نیاز داشت، باید رشته را با `.split('.')` جدا کند، نه `parseFloat`.
 
-## قانون ۳ — معماری: یک فایل تک‌تکه، نه چندفایلی
+## قانون ۳ — محصول UI: یک فایل HTML تک‌تکه (نه چند فایل JS جدا)
 
-محصول نهایی که دست کاربر می‌رسد باید **همیشه یک فایل HTML تنها** باشد (دوبار کلیک و اجرا، بدون نصب). این عمداً انتخاب شده چون:
-- تقسیم به چند فایل JS جدا (حتی به نیت تمیزی کد) یک‌بار امتحان شد و دو بار به‌خاطر گم‌شدن متغیرهای سراسری بین توابع (مثل `pb`, `PB_CATS`) شکست خورد.
+رابط کاربری که دست کاربر می‌رسد باید **یک فایل HTML تنها** باشد (دوبار کلیک، یا داخل exe). این برای UI است، نه مجوزی برای ریختن منطق کسب‌وکار داخل JS:
+- تقسیم UI به چند فایل JS جدا (حتی به نیت تمیزی کد) یک‌بار امتحان شد و دو بار به‌خاطر گم‌شدن متغیرهای سراسری بین توابع (مثل `pb`, `PB_CATS`) شکست خورد.
 - اگر نیاز به توسعه روی فایل‌های کوچک‌تر بود، فقط با یک تقسیم **ساده و قابل اثبات با diff بایت‌به‌بایت** (نه استخراج پیچیده با regex) انجام شود، و یک اسکریپت build باید دوباره همه را به یک فایل واحد بچسباند قبل از تحویل.
-- هرگز چندین فایل HTML/JS را مستقیماً به کاربر نهایی تحویل نده؛ فقط فایل نهایی single-file.
+- هرگز چندین فایل HTML/JS را مستقیماً به کاربر نهایی به‌جای محصول UI تحویل نده.
+- هستهٔ .NET (پوسته WebView2 + Host Object) بخشی از محصول دسکتاپ است و با قانون تک‌فایلی UI در تضاد نیست. منطق کسب‌وکار جدید باید به سمت Core برود، نه اینکه HTML را به چند فایل JS بشکند.
+- بازنویسی کل HTML یا عوض کردن فریم‌ورک بدون درخواست صریح کاربر ممنوع است.
 
 ## قانون ۴ — بک‌اپ و Migration
 
@@ -103,6 +107,44 @@ node test_laegh.js path/to/Laegh_Final_X.html
 3. **استثنا:** اگر خودِ هستهٔ آپدیت/لانچر/تست‌ها باید عوض شود، یا کاربر هنوز روی نسخهٔ قبل از ε است، یک HTML کامل نسخه‌دار تحویل بده.
 4. نمونه و توضیح فرمت: پوشهٔ `updates/`.
 
+## قانون ۱۲ — معماری بلندمدت (Modular Monolith)
+
+منبع کامل: `docs/ARCHITECTURE_RULES.md`. خلاصهٔ اجرایی برای هر تغییر:
+
+### اصل
+قابلیت جدید نباید قابلیت قبلی را خراب کند. اولویت تصمیم: ۱) حفظ اطلاعات ۲) پایداری ۳) امنیت ۴) سازگاری نسخه ۵) نگهداری ۶) عملکرد ۷) امکانات جدید ۸) زیبایی UI.
+
+### لایه‌ها
+`HTML/JS (فقط UI)` → `Application Services` → `Business Logic` → `Data Access` → `Database`
+
+- HTML مسئول UI است، نه Business Logic / Database / Backup پیچیده.
+- هستهٔ هدف: .NET. پوستهٔ موجود WebView2 است.
+- مسیر مجاز UI↔Core تا اطلاع ثانوی: Host Object به نام `sirmanHost` در `desktop/Sirman.Desktop/SirmanHostObject.cs` (از JS: `chrome.webview.hostObjects.sync.sirmanHost`).
+- `fetch` به localhost، XHR، یا Blazor برای منطق کسب‌وکار ممنوع است مگر همین سند معماری با تصمیم صریح عوض شود.
+- هر متد جدید Core باید به لیست مجاز `sirmanHost` اضافه شود، نه با مسیر موازی.
+- مخفی کردن دکمه در UI به‌تنهایی امنیت نیست؛ Core باید دسترسی و اعتبار داده را مستقل بررسی کند.
+- انبارها از Inventory Core مشترک؛ چاپ از Print Engine مرکزی؛ بک‌آپ مستقل از UI با Schema Version + Manifest + Checksum + Restore ایمن (Verify → موقت → Migration → Validation → Atomic Replace / Rollback).
+- هر تغییر ساختار داده باید Migration نسخه‌دار داشته باشد. Migration قدیمی حذف نشود.
+- سیستم موازی برای قابلیت موجود نساز. کد تکراری، Query پراکنده، و Hard-code مسیر/تنظیمات ممنوع است.
+
+### انتقال تدریجی (وضعیت واقعی امروز)
+بیشتر منطق هنوز داخل HTML است. این میراث است، نه الگوی ادامه.
+- بازنویسی یک‌شبه یا حذف HTML ممنوع است.
+- اگر قابلیت مشابه در HTML وجود دارد، همان را توسعه بده مگر تغییر شامل منطق کسب‌وکار مهم / داده / بک‌آپ / دسترسی باشد — در آن صورت متد Host Object در .NET بساز و UI فقط صدا بزند.
+- مسیر باز کردن مستقیم HTML تا اطلاع ثانوی باید کار کند.
+
+### چک‌لیست قبل از کد (بخش ۲۷ معماری)
+1. این تغییر در کدام Layer است؟
+2. آیا قابلیت مشابه قبلاً وجود دارد؟
+3. آیا Business Logic از UI جدا می‌ماند؟
+4. آیا Database Migration لازم دارد؟
+5. آیا Backup/Restore همچنان کار می‌کند؟
+6. آیا قابلیت‌های قبلی حفظ می‌شوند؟
+7. آیا در نسخه‌های آینده قابل توسعه است؟
+8. آیا از مسیر مجاز `sirmanHost` عبور می‌کند؟
+
+اگر یکی منفی است، قبل از پیاده‌سازی ساختار را اصلاح کن.
+
 ## قانون ۱۰ — در پایان هر کار، فایل را خودت بده (اجباری)
 
 وقتی کار تمام شد (بعد از تست سبز و commit/push در صورت نیاز)، **بدون اینکه کاربر بپرسد** مسیر فایل‌های تحویلی را صریح بده:
@@ -126,4 +168,5 @@ node test_laegh.js path/to/Laegh_Final_X.html
 - [ ] `Sirman_Final.html` / `Laegh_Final.html` با نسخهٔ شماره‌دار همگام است
 - [ ] `Sirman_Start.bat` + `OPEN_SIRMAN.bat` + `sirman_run.ps1` با همان شماره نسخه همگام شده‌اند (قانون ۹)
 - [ ] در پیام پایانی، مسیر فایل HTML و BAT را بدون درخواست کاربر داده‌ام (قانون ۱۰)
-- [ ] فقط **یک فایل HTML تک‌تکه** نهایی به‌عنوان محصول اصلی تحویل می‌دهم (به‌همراه لانچر)
+- [ ] فقط **یک فایل HTML تک‌تکه** نهایی به‌عنوان محصول UI تحویل می‌دهم (به‌همراه لانچر / exe)
+- [ ] اگر منطق کسب‌وکار / داده / بک‌آپ / دسترسی عوض شد: لایه درست است، از `sirmanHost` عبور می‌کند، و سیستم موازی نساختم (`docs/ARCHITECTURE_RULES.md`)
