@@ -3963,14 +3963,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۲ι باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۲κ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.22ι', 'نسخه meta باید 1405.5.22ι باشد');
+  assertEqual(metaVer, '1405.5.22κ', 'نسخه meta باید 1405.5.22κ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/22', 'app-date باید 1405/05/22 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲ι', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲ι را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲κ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲κ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.22ι'", 'فیلد version بک‌آپ باید 1405.5.22ι باشد');
+  assertContainsString(buildSrc, "version: '1405.5.22κ'", 'فیلد version بک‌آپ باید 1405.5.22κ باشد');
 });
 
 
@@ -6338,7 +6338,7 @@ test('شبیه‌سازی: ایجنت بدون کلید فعال نشود؛ زم
     querySelectorAll: () => []
   };
   const out = runner2(
-    fakeLS, fakeDoc, '1405.5.22ι',
+    fakeLS, fakeDoc, '1405.5.22κ',
     [{num:'1'}], [], [], [], [],
     [{fn:'علی', phones:['09121234567']}],
     [],
@@ -6464,6 +6464,282 @@ test('شبیه‌سازی: applySbCollapsed باید منو را جمع کند،
   assertEqual(out.dockVisual, false, 'کلاس sb-collapsed در داک نباید بماند');
   assertEqual(out.dockSaved, '1', 'ترجیح کاربر حتی در داک باید ذخیره شود');
   assertEqual(out.afterRestore, true, 'restore از localStorage باید منو را جمع کند');
+});
+
+
+console.log('');
+console.log('📋 گروه: عملیات گارانتی، پذیرش OEM و گزارش انبار');
+
+test('اقدام نهایی پرونده باید کشویی باشد و با انتخاب، کلید کنارش فعال شود', () => {
+  assertContainsString(html, 'id="war-final-action"', 'کشویی اقدام نهایی پیدا نشد');
+  assertContainsString(html, 'id="war-final-go"', 'کلید کنار کشویی اقدام نهایی پیدا نشد');
+  ['ثبت پرونده','پیش‌فاکتور','فاکتور هزینه مشتری','فاکتور نمایندگی','چاپ سریع پذیرش'].forEach(lbl=>{
+    assertContainsString(html, lbl, 'گزینه «'+lbl+'» در کشویی لازم است');
+  });
+  const src = extractFunctionSource(html, 'onWarFinalActionChange');
+  const runSrc = extractFunctionSource(html, 'runWarFinalAction');
+  assertTrue(!!src && !!runSrc, 'توابع کشویی اقدام نهایی پیدا نشد');
+  assertContainsString(src, "btn.style.display='inline-flex'", 'با انتخاب گزینه باید کلید کنارش ظاهر شود');
+  assertContainsString(html, 'var WAR_FINAL_ACTIONS = {', 'WAR_FINAL_ACTIONS لازم است');
+  ['save','proforma','cust_bill','agency_inv','reception'].forEach(k=>{
+    assertTrue(html.indexOf(k+':')>=0, 'اقدام '+k+' باید در WAR_FINAL_ACTIONS باشد');
+  });
+});
+
+test('چاپ سریع پذیرش باید تاریخ چاپ، اولتیماتوم ۲۴/۴۸/۷۲ و جای نظر چهار کارشناس را داشته باشد', () => {
+  const src = extractFunctionSource(html, 'buildWarA5');
+  assertTrue(!!src, 'buildWarA5 پیدا نشد');
+  ['تاریخ چاپ','۲۴ ساعت اول','۴۸ ساعت','۷۲ ساعت','کارشناس خدمات','کنترل کیفی','لجستیک','نهایی'].forEach(s=>{
+    assertContainsString(src, s, 'رسید پذیرش باید «'+s+'» داشته باشد');
+  });
+  assertContainsString(src, 'warSlaDatesFrom', 'باید تاریخ اولتیماتوم از warSlaDatesFrom بیاید');
+  const slaSrc = extractFunctionSource(html, 'warSlaDatesFrom');
+  const addSrc = extractFunctionSource(html, 'addJalaliDays');
+  const partsSrc = extractFunctionSource(html, 'warJalaliParts');
+  const latSrc = extractFunctionSource(html, 'warLatinDigits');
+  const g2j = extractFunctionSource(html, 'gregorian_to_jalali');
+  const j2g = extractFunctionSource(html, 'jalali_to_gregorian');
+  const strSrc = extractFunctionSource(html, 'jalaliStr');
+  const divSrc = extractFunctionSource(html, 'div_');
+  assertTrue(!!slaSrc && !!addSrc && !!partsSrc, 'توابع SLA استخراج نشد');
+  const runner = new Function(
+    divSrc+'\n'+g2j+'\n'+j2g+'\n'+strSrc+'\n'+latSrc+'\n'+partsSrc+'\n'+addSrc+'\n'+slaSrc+'\n'+
+    'return warSlaDatesFrom("1405/05/20");'
+  );
+  const sla = runner();
+  assertEqual(sla.h24, '1405/05/21', '۲۴ ساعت باید فردای ورود باشد');
+  assertEqual(sla.h48, '1405/05/22', '۴۸ ساعت باید دو روز بعد باشد');
+  assertEqual(sla.h72, '1405/05/23', '۷۲ ساعت باید سه روز بعد باشد');
+});
+
+test('برگشت OEM باید گزینه پذیرش باشد، شرکت فقط از دسته شرکت‌ها جستجو شود و کالا وارد انبار معیوب شود', () => {
+  assertContainsString(html, 'value="return_oem"', 'گزینه برگشت به شرکت تولیدکننده لازم است');
+  assertContainsString(html, 'id="war-oem-path"', 'مسیر OEM پیدا نشد');
+  assertContainsString(html, 'id="wo-company-search"', 'جستجوی شرکت OEM پیدا نشد');
+  assertContainsString(html, "showWarPbLive('oem'", 'جستجوی زنده OEM لازم است');
+  assertContainsString(html, "oem:'برگشت به شرکت تولیدکننده'", 'برچسب منبع OEM در انبار معیوب لازم است');
+  const liveSrc = extractFunctionSource(html, 'showWarPbLive');
+  assertContainsString(liveSrc, "kind==='oem' ? ['company']", 'جستجوی OEM باید فقط دسته شرکت‌ها باشد');
+  const getWar = extractFunctionSource(html, 'getWarData');
+  assertContainsString(getWar, 'oemWork', 'getWarData باید oemWork برگرداند');
+  const saveSrc = extractFunctionSource(html, 'saveWar');
+  assertContainsString(saveSrc, "source:'oem'", 'ذخیره OEM باید کالا را با منبع oem به انبار معیوب بفرستد');
+
+  const filtSrc = extractFunctionSource(html, 'filterPbByCats');
+  const blobSrc = extractFunctionSource(html, 'pbContactBlob');
+  const labSrc = extractFunctionSource(html, 'pbContactLabel');
+  const addSrc = extractFunctionSource(html, 'addDefectiveFromWarranty');
+  const defSrc = extractFunctionSource(html, 'defIsInWarehouse');
+  const stSrc = extractFunctionSource(html, 'defStatusOf');
+  assertTrue(!!filtSrc && !!addSrc, 'توابع OEM استخراج نشد');
+  const runner = new Function(
+    labSrc+'\n'+blobSrc+'\n'+filtSrc+'\n'+stSrc+'\n'+defSrc+'\n'+addSrc+'\n'+
+    `var phonebook = [
+      {name:'شرکت آلفا', cat:'company', shop:'آلفا OEM', phones:['0211']},
+      {name:'نماینده بتا', cat:'service_agent', phones:['0912']},
+      {name:'شخص حقیقی', cat:'customer', phones:['0935']}
+    ];
+    var companies = filterPbByCats(['company'], '');
+    var agents = filterPbByCats(['service_agent','agency'], 'بتا');
+    var persons = filterPbByCats(['company'], 'شخص');
+    var defectiveStock = [];
+    var stockMoves = [];
+    function fdt(){ return '1405/05/22'; }
+    function svDefective(){}
+    function auditBg(){}
+    function svStockMoves(){}
+    addDefectiveFromWarranty(
+      {id:'W-1405-تابستان-22-0001', name:'علی', phone:'0912', initialService:'return_oem', oemWork:{companyName:'شرکت آلفا'}},
+      {model:'خردکن', serial:'SN1'},
+      {source:'oem', oemCompany:'شرکت آلفا'}
+    );
+    return {
+      nCo: companies.length, coName: companies[0] && companies[0].name,
+      nAg: agents.length, agName: agents[0] && agents[0].name,
+      nPe: persons.length,
+      defN: defectiveStock.length,
+      defSrc: defectiveStock[0] && defectiveStock[0].source,
+      defCo: defectiveStock[0] && defectiveStock[0].oemCompany,
+      mvWh: stockMoves[0] && stockMoves[0].whId,
+      mvType: stockMoves[0] && stockMoves[0].type
+    };`
+  );
+  const r = runner();
+  assertEqual(r.nCo, 1, 'جستجوی شرکت باید فقط مخاطب company را بدهد');
+  assertEqual(r.coName, 'شرکت آلفا', 'نام شرکت OEM باید پیدا شود');
+  assertEqual(r.nAg, 1, 'جستجوی نماینده باید فقط دسته نمایندگان خدماتی را بدهد');
+  assertEqual(r.nPe, 0, 'جستجوی OEM نباید شخص حقیقی را نشان دهد');
+  assertEqual(r.defN, 1, 'برگشت OEM باید یک ردیف انبار معیوب بسازد');
+  assertEqual(r.defSrc, 'oem', 'منبع انبار معیوب باید oem باشد');
+  assertEqual(r.defCo, 'شرکت آلفا', 'نام شرکت طلبکار باید روی ردیف معیوب ثبت شود');
+  assertEqual(r.mvWh, 'WH-DEF', 'حرکت ورود باید به انبار معیوب برود');
+  assertEqual(r.mvType, 'in', 'حرکت باید ورود باشد');
+});
+
+test('شماره پرونده باید سال، فصل و روز را نشان دهد', () => {
+  const nextSrc = extractFunctionSource(html, 'nextWarCaseId');
+  const seaFa = extractFunctionSource(html, 'warSeasonNameFa');
+  const seaMo = extractFunctionSource(html, 'warSeasonOfMonth');
+  const partsSrc = extractFunctionSource(html, 'warJalaliParts');
+  const latSrc = extractFunctionSource(html, 'warLatinDigits');
+  assertTrue(!!nextSrc, 'nextWarCaseId پیدا نشد');
+  const runner = new Function(
+    latSrc+'\n'+partsSrc+'\n'+seaMo+'\n'+seaFa+'\n'+nextSrc+'\n'+
+    `var warranties = [{id:'W-1405-تابستان-22-0001'}];
+     return {
+       summer: nextWarCaseId('1405/05/22'),
+       spring: nextWarCaseId('1405/01/09'),
+       autumn: nextWarCaseId('1405/08/03')
+     };`
+  );
+  const r = runner();
+  assertEqual(r.summer, 'W-1405-تابستان-22-0002', 'همان روز تابستان باید ردیف بعدی را بدهد');
+  assertEqual(r.spring, 'W-1405-بهار-09-0001', 'شماره بهار باید سال+فصل+روز داشته باشد');
+  assertEqual(r.autumn, 'W-1405-پاییز-03-0001', 'شماره پاییز باید فصل پاییز را نشان دهد');
+});
+
+test('پرونده جدید باید همه فیلدها را خالی کند و تلفن قبلی نماند', () => {
+  const rst = extractFunctionSource(html, 'resetWarFormFields');
+  const show = extractFunctionSource(html, 'showWarForm');
+  assertTrue(!!rst && !!show, 'resetWarFormFields / showWarForm پیدا نشد');
+  assertContainsString(rst, "querySelectorAll('input,select,textarea')", 'ریست باید همه فیلدهای فرم را بگیرد نه لیست سفید');
+  assertContainsString(show, 'resetWarFormFields()', 'پرونده جدید باید resetWarFormFields را صدا بزند');
+  assertContainsString(html, 'id="wn"', 'فیلد نام باید autocomplete=off داشته باشد');
+  assertTrue(/id="wn"[^>]*autocomplete="off"/.test(html), 'نام مشتری باید autocomplete=off باشد');
+  assertTrue(/id="wph"[^>]*autocomplete="off"/.test(html), 'تلفن باید autocomplete=off باشد تا شماره پرونده قبلی نماند');
+  const runner = new Function(rst + `
+    var store = {
+      wn:{id:'wn', type:'text', tagName:'INPUT', value:'علی قبلی'},
+      wph:{id:'wph', type:'text', tagName:'INPUT', value:'09121111111'},
+      wrefn:{id:'wrefn', type:'hidden', tagName:'INPUT', value:'نماینده قبلی'},
+      winit:{id:'winit', type:'select-one', tagName:'SELECT', selectedIndex:2, value:'refer_agency'},
+      wdt:{id:'wdt', type:'text', tagName:'INPUT', value:'قدیمی'}
+    };
+    Object.keys(store).forEach(function(k){ store[k].dataset = {}; });
+    var form = {
+      querySelectorAll: function(){ return [store.wn, store.wph, store.wrefn, store.winit, store.wdt]; }
+    };
+    var document = {
+      getElementById: function(id){
+        if(id==='war-form') return form;
+        return store[id] || {value:'', style:{display:''}, textContent:''};
+      }
+    };
+    function fdate(){ return '1405/05/22'; }
+    function onWarFinalActionChange(){}
+    resetWarFormFields();
+    return {wn:store.wn.value, wph:store.wph.value, hid:store.wrefn.value, wdt:store.wdt.value};
+  `);
+  const r = runner();
+  assertEqual(r.wn, '', 'نام پرونده قبلی باید پاک شود');
+  assertEqual(r.wph, '', 'تلفن پرونده قبلی باید پاک شود');
+  assertEqual(r.hid, '', 'فیلد مخفی ارجاع قبلی هم باید پاک شود');
+  assertEqual(r.wdt, '1405/05/22', 'تاریخ مراجعه پرونده جدید باید امروز باشد');
+});
+
+test('ارجاع نماینده باید ظاهر نامشخص داشته باشد و فیلد فقط نمایندگان خدماتی را جستجو کند', () => {
+  assertContainsString(html, 'value="unknown"', 'گزینه ظاهر نامشخص لازم است');
+  assertContainsString(html, 'service_agent:', 'دسته نمایندگان خدماتی در دفترچه لازم است');
+  assertContainsString(html, 'id="wa-agency-search"', 'جستجوی نماینده خدماتی لازم است');
+  const initSrc = extractFunctionSource(html, 'onWInitChange');
+  assertContainsString(initSrc, 'applyUnknownAppearanceForAgency', 'ارجاع نماینده باید ظاهر را نامشخص کند');
+  assertContainsString(initSrc, 'wEditIdx===-1', 'ظاهر نامشخص فقط برای پرونده جدید اعمال شود');
+  const liveSrc = extractFunctionSource(html, 'showWarPbLive');
+  assertContainsString(liveSrc, "['service_agent','agency']", 'جستجوی نماینده باید فقط دسته نمایندگان خدماتی باشد');
+  const fillSrc = extractFunctionSource(html, 'fillWarAgencySelect');
+  assertContainsString(fillSrc, "filterPbByCats(['service_agent','agency']", 'لیست نماینده نباید همه مخاطبان را بیاورد');
+});
+
+test('راست‌کلیک روی فیلد فرم گارانتی باید همان فیلد را پاک کند', () => {
+  const src = extractFunctionSource(html, 'bindWarFieldClear');
+  assertTrue(!!src, 'bindWarFieldClear پیدا نشد');
+  assertContainsString(src, "addEventListener('contextmenu'", 'باید روی راست‌کلیک گوش بدهد');
+  const runner = new Function(src + `
+    var cleared = '';
+    var inp = {tagName:'INPUT', type:'text', value:'0912', dataset:{}, dispatchEvent:function(){}};
+    var form = {
+      _clearBound: false,
+      addEventListener: function(type, fn){
+        if(type==='contextmenu'){
+          var e = {target:inp, preventDefault:function(){}};
+          fn(e);
+          cleared = inp.value;
+        }
+      }
+    };
+    var document = { getElementById: function(id){ return id==='war-form' ? form : null; } };
+    function ntf(){}
+    bindWarFieldClear();
+    return {cleared:cleared, bound:form._clearBound};
+  `);
+  const r = runner();
+  assertEqual(r.cleared, '', 'راست‌کلیک باید مقدار فیلد را خالی کند');
+  assertEqual(r.bound, true, 'باید فقط یک‌بار به فرم وصل شود');
+});
+
+test('تقویم تاریخ با کلیک بیرون باید بسته شود', () => {
+  const openSrc = extractFunctionSource(html, 'openDatePicker');
+  const closeSrc = extractFunctionSource(html, 'closeDatePicker');
+  assertTrue(!!openSrc && !!closeSrc, 'توابع تقویم پیدا نشد');
+  assertContainsString(html, "addEventListener('pointerdown', _dpOutside, true)", 'بستن تقویم باید با pointerdown در capture باشد');
+  assertContainsString(closeSrc, "removeEventListener('pointerdown', _dpOutside, true)", 'closeDatePicker باید شنونده pointerdown را بردارد');
+  assertContainsString(html, 'function _dpOutside(e)', '_dpOutside باید بیرون از IIFE نام‌دار باشد');
+  const outIdx = html.indexOf('function _dpOutside(e)');
+  const outChunk = html.slice(outIdx, outIdx + 450);
+  assertContainsString(outChunk, 'closeDatePicker()', 'کلیک بیرون باید closeDatePicker را صدا بزند');
+});
+
+test('کارتکس و گزارش ورود/خروج باید انبار قطعات و همه انبارها را جداگانه پوشش دهند', () => {
+  assertContainsString(html, 'function ensureCoreWarehouses(', 'ensureCoreWarehouses لازم است');
+  assertContainsString(html, 'function moveMatchesWarehouse(', 'moveMatchesWarehouse لازم است');
+  assertContainsString(html, 'function openWarehouseIoReport(', 'گزارش ورود/خروج هر انبار لازم است');
+  assertContainsString(html, "onclick=\"openWarehouseIoReport(", 'کارت انبار باید دکمه گزارش ورود/خروج داشته باشد');
+  assertContainsString(html, 'id="kardex-wh"', 'کشویی انبار کارتکس لازم است');
+  const kxOpen = extractFunctionSource(html, 'openKardexModal');
+  assertContainsString(kxOpen, 'getWhOptions', 'کارتکس باید انبارها را از موجودیت واقعی پر کند');
+  const ensSrc = extractFunctionSource(html, 'ensureCoreWarehouses');
+  const matchSrc = extractFunctionSource(html, 'moveMatchesWarehouse');
+  const byType = extractFunctionSource(html, 'getWhByTypeId');
+  const byId = extractFunctionSource(html, 'getWhById');
+  const kxSrc = extractFunctionSource(html, 'invKardexFromMoves');
+  const runner = new Function(
+    byId+'\n'+byType+'\n'+matchSrc+'\n'+ensSrc+'\n'+kxSrc+'\n'+
+    `var warehouses = [{id:'WH-OLD', type:'other', name:'قدیمی', status:'active'}];
+     var WAREHOUSES_KEY = 'k';
+     var saved = null;
+     var localStorage = { setItem: function(k,v){ saved = v; } };
+     ensureCoreWarehouses();
+     var ids = warehouses.map(function(w){ return w.id; }).join(',');
+     function getWhById(id){ return warehouses.find(function(x){ return x.id===id; }) || null; }
+     var mParts = {warehouse:'parts', itemCode:'P1'};
+     var mDef = {whId:'WH-DEF', warehouse:'defective'};
+     var hitParts = moveMatchesWarehouse(mParts, 'WH-PARTS');
+     var hitDef = moveMatchesWarehouse(mDef, 'WH-DEF');
+     var miss = moveMatchesWarehouse(mDef, 'WH-PARTS');
+     var moves = [
+       {itemCode:'P1', warehouse:'parts', date:'1405/05/01', qty:2},
+       {itemCode:'P1', whId:'WH-DEF', date:'1405/05/02', qty:1}
+     ];
+     var kx = invKardexFromMoves(moves, 'P1', 'WH-PARTS');
+     return {ids:ids, hitParts:hitParts, hitDef:hitDef, miss:miss, kxLen:kx.length};
+    `
+  );
+  const r = runner();
+  assertTrue(r.ids.indexOf('WH-PARTS')>=0, 'انبار قطعات باید به داده‌های قدیمی اضافه شود');
+  assertTrue(r.ids.indexOf('WH-GOODS')>=0, 'انبار کالا باید در هسته باشد');
+  assertTrue(r.ids.indexOf('WH-DEF')>=0, 'انبار معیوب باید در هسته باشد');
+  assertEqual(r.hitParts, true, 'حرکت قدیمی نوع parts باید با انبار قطعات جور شود');
+  assertEqual(r.hitDef, true, 'حرکت WH-DEF باید با انبار معیوب جور شود');
+  assertEqual(r.miss, false, 'حرکت معیوب نباید در گزارش قطعات بیاید');
+  assertEqual(r.kxLen, 1, 'کارتکس قطعات باید فقط حرکت همان انبار را بدهد');
+});
+
+test('راهنما باید کشویی اقدام نهایی، OEM، شماره فصلی، فرم خالی و گزارش ورود/خروج انبار را توضیح دهد', () => {
+  ['اقدام نهایی (کشویی پایین فرم)','چاپ سریع پذیرش','برگشت OEM','شماره پرونده','پرونده جدید','ارجاع نماینده','گزارش ورود/خروج هر انبار'].forEach(s=>{
+    assertContainsString(html, s, 'راهنما باید «'+s+'» را توضیح دهد');
+  });
+  assertContainsString(html, 'W-1405-بهار-22-0001', 'نمونه شماره پرونده فصلی باید در راهنما باشد');
+  assertContainsString(html, 'راست‌کلیک', 'راهنما باید پاک کردن فیلد با راست‌کلیک را بگوید');
 });
 
 
