@@ -1,11 +1,11 @@
 @echo off
 setlocal EnableExtensions
 cd /d "%~dp0"
-title Sirman 1405.5.21ω
+title Sirman 1405.5.22α
 color 0A
 
 rem === ALWAYS keep this version equal to the latest Sirman HTML release ===
-set "SIRMAN_VERSION=1405.5.21ω"
+set "SIRMAN_VERSION=1405.5.22α"
 set "SIRMAN_HTML=Sirman_Final.html"
 set "SIRMAN_HTML_VER=Sirman_Final_%SIRMAN_VERSION%.html"
 

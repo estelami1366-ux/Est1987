@@ -3959,14 +3959,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱ω باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۲α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21ω', 'نسخه meta باید 1405.5.21ω باشد');
+  assertEqual(metaVer, '1405.5.22α', 'نسخه meta باید 1405.5.22α باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
-  assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ω', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ω را نشان دهد');
+  assertEqual(metaDate, '1405/05/22', 'app-date باید 1405/05/22 باشد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲α', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲α را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21ω'", 'فیلد version بک‌آپ باید 1405.5.21ω باشد');
+  assertContainsString(buildSrc, "version: '1405.5.22α'", 'فیلد version بک‌آپ باید 1405.5.22α باشد');
 });
 
 
@@ -5644,6 +5644,122 @@ test('پوسته دات‌نت باید همان کاتالوگ شیشه‌ای 
   const catSrc = extractFunctionSource(html, 'defaultWarBrowseCatalog');
   assertContainsString(catSrc, "id:'spring'", 'کاتالوگ HTML باید با دات‌نت هم‌نام باشد');
   assertContainsString(html, 'GetWarrantyBrowseCss', 'پل دسکتاپ باید CSS دات‌نت را تزریق کند');
+});
+
+
+console.log('');
+console.log('📋 گروه: مرکز پرینت');
+
+test('مرکز پرینت باید در تنظیمات با سه ستون سند/پیش‌نمایش/تنظیمات باشد', () => {
+  assertContainsString(html, 'id="print-center"', 'شل مرکز پرینت پیدا نشد');
+  assertContainsString(html, 'id="pc-doc-list"', 'فهرست اسناد پیدا نشد');
+  assertContainsString(html, 'id="pc-preview-frame"', 'پیش‌نمایش iframe پیدا نشد');
+  assertContainsString(html, 'id="pc-printer"', 'انتخاب چاپگر پیدا نشد');
+  assertContainsString(html, 'id="pc-hist"', 'تاریخچه چاپ پیدا نشد');
+  assertContainsString(html, "showStgTab('printer',this)\">🖨 مرکز پرینت", 'تب تنظیمات باید مرکز پرینت باشد');
+  ['رسید پذیرش','فاکتور','رسید تحویل','ضمانت‌نامه','برگه تعمیرات','گزارش‌ها'].forEach(t=>{
+    assertContainsString(html, "title:'"+t+"'", 'کاتالوگ باید '+t+' داشته باشد');
+  });
+});
+
+test('Print Engine مرکزی، پروفایل‌ها و چاپ سریع باید موجود باشند', () => {
+  ['printCenterDefaultState','getPrintCenterState','savePrintCenterState','printDocCatalog','registerPrintDocument','printEngineJob','printEngineApplyProfile','printEnginePrintHtml','printEngineQuickPrint','printEngineSavePdf','printEngineRecordHistory','printEngineHistory','printEngineLastJob','printEngineListPrinters','printEngineBuildPreview','openPrintCenter','refreshPrintCenterUI','pcDoPrint','pcDoPdf'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  assertContainsString(html, "var PrintEngine = {", 'شیء PrintEngine پیدا نشد');
+  assertContainsString(html, "'a4-office'", 'پروفایل A4 Office لازم است');
+  assertContainsString(html, "'thermal'", 'پروفایل Thermal لازم است');
+  assertContainsString(html, "'zebra'", 'پروفایل Zebra لازم است');
+  assertContainsString(html, "id:'pdf'", 'پروفایل PDF لازم است');
+  assertContainsString(html, 'چاپ سریع فاکتور', 'منوی فاکتور باید چاپ سریع داشته باشد');
+  assertContainsString(html, "openPrintCenter('invoice')", 'منوی فاکتور باید مرکز پرینت داشته باشد');
+  assertContainsString(html, "openPrintCenter('reception')", 'پذیرش باید به مرکز پرینت وصل باشد');
+  assertContainsString(html, 'مرکز پرینت — چاپ مشترک همه فرم‌ها', 'راهنمای مرکز پرینت لازم است');
+  assertContainsString(html, 'تنظیمات ← تب مرکز پرینت', 'دستیار باید مسیر مرکز پرینت را بگوید');
+});
+
+test('شبیه‌سازی: کاتالوگ قابل توسعه، پروفایل، تاریخچه و چاپ سریع', () => {
+  const start = html.indexOf("var PC_KEY = 'laegh_printCenter';");
+  const pe = html.indexOf('\nvar PrintEngine = {');
+  assertTrue(start >= 0 && pe > start, 'بلوک Print Center برای sandbox پیدا نشد');
+  const objEnd = html.indexOf('\n};', pe);
+  assertTrue(objEnd > pe, 'شیء PrintEngine بسته نشد');
+  const src = html.slice(start, objEnd + 3);
+  const store = {};
+  const fakeLS = {
+    getItem(k){ return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },
+    setItem(k,v){ store[k]=String(v); },
+    removeItem(k){ delete store[k]; }
+  };
+  const opened = [];
+  const fakeWindow = {
+    open(){
+      const w = { document:{ open(){}, write(s){ opened.push(String(s)); }, close(){} }, focus(){}, print(){} };
+      return w;
+    },
+    chrome: null
+  };
+  const runner = new Function(
+    'window','localStorage','ntf','getPrintSettings','getBrand','logoSrc','fdt','PS_KEY','opened',
+    src + `
+      var extra = registerPrintDocument({id:'custom-doc', title:'سند سفارشی', icon:'★', section:'list', hint:'test'});
+      var cat = printDocCatalog();
+      printEngineApplyProfile('thermal');
+      var job = printEngineJob('invoice');
+      printEngineSaveJob({paper:'A5', copies:2, color:false}, 'invoice');
+      var last = printEngineLastJob('invoice');
+      printEngineSaveTemplate('invoice', {footer:'پای آزمایشی', qr:true});
+      var tpl = printEngineTemplate('invoice');
+      printEngineRecordHistory({docId:'invoice', title:'فاکتور', printer:'PDF', status:'ok'});
+      var hist = printEngineHistory();
+      var printers = printEngineParsePrinters('[{"name":"HP Laser","isDefault":true}]');
+      var css = printEnginePageCss({paper:'A4', orientation:'landscape', margin:'8mm', scale:90, color:false});
+      var sample = printEngineBuildSample('warranty');
+      printEngineQuickPrint('invoice', '<html><body>INV</body></html>', 'فاکتور');
+      return {
+        extraHas: extra.some(function(d){return d.id==='custom-doc';}),
+        catLen: cat.length,
+        thermalPaper: job.paper,
+        lastPaper: last.paper,
+        lastCopies: last.copies,
+        footer: tpl.footer,
+        qr: tpl.qr,
+        histDoc: hist[0] && hist[0].docId,
+        histStatus: hist[0] && hist[0].status,
+        hp: printers[0] && printers[0].name,
+        cssHasA4: css.indexOf('A4')!==-1,
+        cssGray: css.indexOf('grayscale')!==-1,
+        sampleHas: sample.indexOf('ضمانت')!==-1 || sample.indexOf('warranty')!==-1 || sample.indexOf('نمونه')!==-1,
+        opened: opened.length
+      };
+    `
+  );
+  const r = runner(fakeWindow, fakeLS, function(){}, function(){ return {}; }, function(){ return {nameFa:'سیرمان',nameEn:'Sirman'}; }, '', function(){ return '1405/05/22'; }, 'laegh_printSettings', opened);
+  assertTrue(r.extraHas, 'registerPrintDocument باید سند جدید اضافه کند');
+  assertTrue(r.catLen >= 9, 'کاتالوگ باید سند سفارشی را هم داشته باشد');
+  assertEqual(r.thermalPaper, '80mm', 'پروفایل Thermal باید کاغذ ۸۰mm باشد');
+  assertEqual(r.lastPaper, 'A5', 'آخرین تنظیم فاکتور باید A5 شود');
+  assertEqual(r.lastCopies, 2, 'تعداد کپی باید ذخیره شود');
+  assertEqual(r.footer, 'پای آزمایشی', 'قالب باید پاورقی را نگه دارد');
+  assertTrue(r.qr, 'قالب باید QR را ذخیره کند');
+  assertEqual(r.histDoc, 'invoice', 'تاریخچه باید سند فاکتور را ثبت کند');
+  assertEqual(r.histStatus, 'ok', 'وضعیت تاریخچه باید موفق باشد');
+  assertEqual(r.hp, 'HP Laser', 'پارس چاپگر میزبان باید نام را بخواند');
+  assertTrue(r.cssHasA4, 'CSS صفحه باید اندازه کاغذ داشته باشد');
+  assertTrue(r.cssGray, 'حالت سیاه‌سفید باید grayscale بسازد');
+  assertTrue(r.sampleHas, 'پیش‌نمایش نمونه باید محتوا داشته باشد');
+  assertTrue(r.opened >= 1, 'چاپ سریع باید پنجره چاپ باز کند');
+});
+
+test('میزبان دات‌نت باید فهرست چاپگر و چاپ HTML را بدهد', () => {
+  const hostPath = path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs');
+  assertTrue(fs.existsSync(hostPath), 'SirmanHostObject.cs باید وجود داشته باشد');
+  const host = fs.readFileSync(hostPath, 'utf8');
+  assertContainsString(host, 'GetPrinters', 'میزبان باید GetPrinters داشته باشد');
+  assertContainsString(host, 'PrintHtml', 'میزبان باید PrintHtml داشته باشد');
+  assertContainsString(host, 'PrinterSettings.InstalledPrinters', 'باید چاپگرهای ویندوز را بخواند');
+  assertContainsString(html, 'host.GetPrinters', 'HTML باید فهرست چاپگر میزبان را بخواند');
+  assertContainsString(html, 'host.PrintHtml', 'HTML باید PrintHtml میزبان را صدا بزند');
 });
 
 
