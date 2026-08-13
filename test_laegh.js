@@ -3959,14 +3959,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۲β باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۲γ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.22β', 'نسخه meta باید 1405.5.22β باشد');
+  assertEqual(metaVer, '1405.5.22γ', 'نسخه meta باید 1405.5.22γ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/22', 'app-date باید 1405/05/22 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲β', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲β را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲γ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲γ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.22β'", 'فیلد version بک‌آپ باید 1405.5.22β باشد');
+  assertContainsString(buildSrc, "version: '1405.5.22γ'", 'فیلد version بک‌آپ باید 1405.5.22γ باشد');
 });
 
 
@@ -5466,6 +5466,86 @@ test('ظاهر جمع‌وجور باید گروه‌بندی و کنترل بز
   assertContainsString(headingSrc, 'laegh_sb_heading_size', 'اندازه سرتیتر باید ماندگار باشد');
   assertContainsString(html, '--sb-section-size', 'CSS اندازه مستقل سرتیتر منو باید باشد');
   assertContainsString(groupSrc, 'laegh_appearance_group', 'آخرین دسته ظاهر باید ماندگار باشد');
+});
+
+test('رنگ سرتیتر منو باید در ظاهر، CSS، بک‌آپ و حفاظت باشد', () => {
+  assertContainsString(html, 'id="heading-color-inp"', 'ورودی رنگ سفارشی سرتیتر پیدا نشد');
+  assertContainsString(html, "setSidebarHeadingColor('#1e293b')", 'سواچ تیره سرتیتر پیدا نشد');
+  assertContainsString(html, 'function setSidebarHeadingColor(', 'تابع setSidebarHeadingColor پیدا نشد');
+  assertContainsString(html, 'function applySidebarHeadingColor(', 'تابع applySidebarHeadingColor پیدا نشد');
+  assertContainsString(html, 'function headingContrastColor(', 'تابع تشخیص کنتراست سرتیتر پیدا نشد');
+  assertContainsString(html, '--sb-heading-color', 'متغیر CSS رنگ سرتیتر باید باشد');
+  assertContainsString(html, 'heading-color-custom', 'کلاس رنگ سفارشی سرتیتر باید باشد');
+  assertContainsString(html, 'رنگ سرتیتر منو', 'راهنما باید رنگ سرتیتر را توضیح دهد');
+  const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
+  assertContainsString(buildSrc, "headingColor: localStorage.getItem('laegh_heading_color')", 'headingColor باید در بک‌آپ باشد');
+  assertContainsString(html, "localStorage.setItem('laegh_heading_color', ap.headingColor)", 'بازگردانی باید headingColor را بنویسد');
+  assertContainsString(html, "'laegh_heading_color'", 'کلید رنگ سرتیتر باید محافظت/ذخیره شود');
+  const appSrc = extractFunctionSource(html, 'applyAppearanceSettings');
+  assertContainsString(appSrc, 'applySidebarHeadingColor()', 'applyAppearanceSettings باید رنگ سرتیتر را اعمال کند');
+  const skinSrc = extractFunctionSource(html, 'setSkin');
+  assertContainsString(skinSrc, 'applySidebarHeadingColor()', 'بعد از تعویض اسکین باید رنگ سرتیتر دوباره اعمال شود');
+  const layerSrc = extractFunctionSource(html, 'applyLayerBackgrounds');
+  assertContainsString(layerSrc, 'maybeAutoSidebarHeadingContrast', 'پس‌زمینه منو باید کنتراست سرتیتر را خودکار کند');
+});
+
+test('شبیه‌سازی: رنگ سرتیتر تیره شود و برای عکس روشن خودکار مشکی شود', () => {
+  const parseSrc = extractFunctionSource(html, '_parseHexRgb');
+  const lumSrc = extractFunctionSource(html, '_hexLuminance');
+  const contrastSrc = extractFunctionSource(html, 'headingContrastColor');
+  const rgbaSrc = extractFunctionSource(html, '_rgbaFromHex');
+  const paintSrc = extractFunctionSource(html, '_paintHeadingColor');
+  const clearSrc = extractFunctionSource(html, '_clearHeadingPaint');
+  const applySrc = extractFunctionSource(html, 'applySidebarHeadingColor');
+  const setSrc = extractFunctionSource(html, 'setSidebarHeadingColor');
+  const autoSrc = extractFunctionSource(html, 'maybeAutoSidebarHeadingContrast');
+  assertTrue(!!(parseSrc && lumSrc && contrastSrc && rgbaSrc && paintSrc && clearSrc && applySrc && setSrc && autoSrc), 'توابع رنگ سرتیتر استخراج نشدند');
+  const store = {};
+  const rootProps = {};
+  const classes = new Set();
+  const fakeDocument = {
+    body: {
+      classList: {
+        add(c){ classes.add(c); },
+        remove(c){ classes.delete(c); },
+        contains(c){ return classes.has(c); }
+      }
+    },
+    documentElement: {
+      style: {
+        setProperty(n, v){ rootProps[n]=v; },
+        removeProperty(n){ delete rootProps[n]; }
+      }
+    },
+    getElementById(){ return { value: '#1e293b' }; }
+  };
+  const fakeLocalStorage = {
+    getItem(k){ return store[k]===undefined?null:store[k]; },
+    setItem(k,v){ store[k]=String(v); },
+    removeItem(k){ delete store[k]; }
+  };
+  const fakeWindow = { _sbHeadingAutoColor: '' };
+  const ntf = ()=>{};
+  const fn = new Function('document','localStorage','window','ntf',
+    parseSrc + '\n' + lumSrc + '\n' + contrastSrc + '\n' + rgbaSrc + '\n' +
+    paintSrc + '\n' + clearSrc + '\n' + applySrc + '\n' + setSrc + '\n' + autoSrc + '\n' +
+    'return {setSidebarHeadingColor, applySidebarHeadingColor, headingContrastColor, maybeAutoSidebarHeadingContrast, _hexLuminance};'
+  );
+  const api = fn(fakeDocument, fakeLocalStorage, fakeWindow, ntf);
+  assertEqual(api.headingContrastColor(0.9), '#1e293b', 'عکس روشن باید سرتیتر تیره بگیرد');
+  assertEqual(api.headingContrastColor(0.2), '#f8fafc', 'عکس تیره باید سرتیتر روشن بگیرد');
+  assertTrue(api._hexLuminance('#ffffff') > 0.9, 'سفید باید درخشندگی بالا داشته باشد');
+  api.setSidebarHeadingColor('#1e293b');
+  assertEqual(store['laegh_heading_color'], '#1e293b', 'رنگ تیره باید در localStorage ذخیره شود');
+  assertEqual(rootProps['--sb-heading-color'], '#1e293b', 'باید --sb-heading-color روی root ست شود');
+  assertTrue(classes.has('heading-color-custom'), 'کلاس heading-color-custom باید روی body باشد');
+  fakeWindow._sbHeadingAutoColor = '#f8fafc';
+  api.maybeAutoSidebarHeadingContrast('data:image/png;base64,xx');
+  assertEqual(rootProps['--sb-heading-color'], '#1e293b', 'رنگ دستی کاربر نباید با تشخیص خودکار عوض شود');
+  api.setSidebarHeadingColor('default');
+  assertTrue(store['laegh_heading_color']===undefined, 'پیش‌فرض باید کلید رنگ سرتیتر را پاک کند');
+  assertTrue(rootProps['--sb-heading-color']===undefined, 'پیش‌فرض باید رنگ سفارشی root را بردارد');
+  assertTrue(!classes.has('heading-color-custom'), 'پیش‌فرض باید کلاس سفارشی را بردارد');
 });
 
 test('کنترل‌های پس‌زمینه داشبورد باید از خود داشبورد به ظاهر و راست‌کلیک منتقل شوند', () => {
