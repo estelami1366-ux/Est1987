@@ -3963,14 +3963,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۲ε باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۲ζ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.22ε', 'نسخه meta باید 1405.5.22ε باشد');
+  assertEqual(metaVer, '1405.5.22ζ', 'نسخه meta باید 1405.5.22ζ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/22', 'app-date باید 1405/05/22 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲ε', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲ε را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲ζ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲ζ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.22ε'", 'فیلد version بک‌آپ باید 1405.5.22ε باشد');
+  assertContainsString(buildSrc, "version: '1405.5.22ζ'", 'فیلد version بک‌آپ باید 1405.5.22ζ باشد');
 });
 
 
@@ -6093,6 +6093,68 @@ test('شبیه‌سازی: Schema، Migration ۰→۱، Restore ایمن، نگ�
   assertEqual(badLayer.ok, false, 'لایه خالی نباید ثبت شود');
   const goodLayer = BE.verifyLayer({invoices:[{num:'1'}]});
   assertEqual(goodLayer.ok, true, 'لایه دارای داده باید تأیید شود');
+});
+
+
+console.log('');
+console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
+
+function loadErrorEngine(srcHtml){
+  const start = srcHtml.indexOf('var ERROR_CATALOG = {');
+  const end = srcHtml.indexOf('\nfunction addDbgEntry(');
+  if(start < 0 || end < 0 || end <= start) throw new Error('موتور ErrorEngine پیدا نشد');
+  const src = srcHtml.slice(start, end);
+  return new Function(src + '\nreturn ErrorEngine;')();
+}
+
+test('توابع AppError و UI عیب‌یابی باید تعریف شده باشند', () => {
+  ['createAppError','toAppError','appErrorResponse','redactSensitive','presentAppError','registerError','logAppError'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  assertContainsString(html, 'var ErrorEngine = {', 'شیء ErrorEngine پیدا نشد');
+  assertContainsString(html, 'ERR-AUTH-001', 'کاتالوگ باید ERR-AUTH-001 داشته باشد');
+  assertContainsString(html, 'id="app-error-modal"', 'مودال خطای Critical لازم است');
+  assertContainsString(html, 'id="dbg-show-tech"', 'تیک جزئیات فنی لازم است');
+  assertContainsString(html, 'کد خطا، پیام فارسی و کد پیگیری', 'راهنمای عیب‌یابی لازم است');
+  assertContainsString(html, '.notif.warn', 'Toast اخطار باید زرد باشد');
+});
+
+test('شبیه‌سازی: کاتالوگ، تبدیل Exception، پاسخ UI بدون جزئیات فنی (execution-based)', () => {
+  const EE = loadErrorEngine(html);
+  const auth = EE.create('ERR-AUTH-001');
+  assertEqual(auth.code, 'ERR-AUTH-001', 'کد باید ثابت بماند');
+  assertEqual(auth.severity, 'error', 'شدت ورود اشتباه باید error باشد');
+  assertTrue(auth.userMessage.indexOf('رمز')>=0, 'پیام کاربر باید فارسی و درباره رمز باشد');
+  assertTrue(!!auth.correlationId, 'باید correlationId داشته باشد');
+
+  const net = EE.fromException(new Error('Failed to fetch'));
+  assertEqual(net.code, 'ERR-NET-002', 'Failed to fetch باید ERR-NET-002 شود');
+  assertEqual(net.severity, 'warning', 'خطای شبکه باید Warning باشد');
+
+  const quota = EE.fromException({ message:'QuotaExceededError: quota' });
+  assertEqual(quota.code, 'WRN-QUOTA-01', 'پر شدن حافظه باید WRN-QUOTA-01 شود');
+
+  const crit = EE.fromException(new Error('JSON.parse unexpected'));
+  assertEqual(crit.code, 'ERR-DB-010', 'خرابی JSON باید ERR-DB-010 شود');
+  assertEqual(crit.severity, 'critical', 'خطای داخلی داده باید Critical باشد');
+
+  const resp = EE.response(new Error('password=secret123 Failed to fetch'));
+  assertEqual(resp.success, false, 'پاسخ خطا باید success:false باشد');
+  assertEqual(resp.error.code, 'ERR-NET-002', 'پاسخ باید کد کاتالوگ داشته باشد');
+  assertTrue(resp.error.message.indexOf('اتصال')>=0, 'message باید پیام فارسی باشد');
+  assertTrue(!JSON.stringify(resp).toLowerCase().includes('secret123'), 'پاسخ UI نباید رمز داشته باشد');
+  assertTrue(!('technicalMessage' in resp.error), 'پاسخ UI نباید technicalMessage داشته باشد');
+  assertTrue(!JSON.stringify(resp).includes('stack'), 'پاسخ UI نباید stack داشته باشد');
+
+  const red = EE.redact('loginPw=abc123 token=xyz Bearer abc.def password=p');
+  assertTrue(red.indexOf('abc123')===-1 && red.indexOf('xyz')===-1, 'لاگ باید رمز و توکن را ستاره کند');
+
+  const extra = EE.register('ERR-TEST-099', 'warning', 'این یک خطای آزمایشی است', '');
+  assertEqual(EE.create('ERR-TEST-099').userMessage, 'این یک خطای آزمایشی است', 'registerError باید خطای جدید را به کاتالوگ اضافه کند');
+  assertEqual(extra.code, 'ERR-TEST-099', 'کد ثبت‌شده باید همان کد درخواستی باشد');
+
+  const same = EE.create('ERR-AUTH-001', { userMessage:'متن عوض‌شده' });
+  assertEqual(same.code, 'ERR-AUTH-001', 'عوض کردن متن نباید کد را عوض کند');
 });
 
 
