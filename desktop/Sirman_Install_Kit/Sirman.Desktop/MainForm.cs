@@ -7,6 +7,9 @@ namespace Sirman.Desktop;
 public sealed class MainForm : Form
 {
     private const int DwmwaUseImmersiveDarkMode = 20;
+    private const int DwmwaBorderColor = 34;
+    private const int DwmwaCaptionColor = 35;
+    private const int DwmwaTextColor = 36;
     private const int DwmwaSystemBackdropType = 38;
     private const int DwmsbtMainWindow = 2; // Mica در ویندوز 11
 
@@ -66,18 +69,36 @@ public sealed class MainForm : Form
         FormClosed += (_, _) => _notify.Dispose();
     }
 
-    /// <summary>رنگ و لایهٔ بیرونی مدرن برای ویندوز 11؛ در ویندوزهای قدیمی بی‌خطر است.</summary>
+    /// <summary>
+    /// ظاهر بومی مدرن: Mica در ویندوز 11 و نوار عنوان رنگی/خوانا در ویندوز 10.
+    /// DWM در نسخه‌های قدیمی‌تر ویژگی ناشناخته را نادیده می‌گیرد.
+    /// </summary>
     private void ApplyModernWindowChrome()
     {
-        if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)) return;
         try
         {
-            var backdrop = DwmsbtMainWindow;
-            _ = DwmSetWindowAttribute(Handle, DwmwaSystemBackdropType, ref backdrop, sizeof(int));
+            // ویندوز 10 نسخه 1903 به بعد: رنگ واقعی title bar / border
+            // برخلاف Mica، این ظاهر در ویندوز 10 هم واضح و قابل مشاهده است.
+            if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 18362))
+            {
+                var caption = ColorTranslator.ToWin32(Color.FromArgb(18, 92, 128));
+                var border = ColorTranslator.ToWin32(Color.FromArgb(31, 128, 167));
+                var text = ColorTranslator.ToWin32(Color.White);
+                _ = DwmSetWindowAttribute(Handle, DwmwaCaptionColor, ref caption, sizeof(int));
+                _ = DwmSetWindowAttribute(Handle, DwmwaBorderColor, ref border, sizeof(int));
+                _ = DwmSetWindowAttribute(Handle, DwmwaTextColor, ref text, sizeof(int));
+            }
+
+            // ویندوز 11: لایهٔ Mica علاوه بر رنگ‌های پایه
+            if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
+            {
+                var backdrop = DwmsbtMainWindow;
+                _ = DwmSetWindowAttribute(Handle, DwmwaSystemBackdropType, ref backdrop, sizeof(int));
+            }
             var darkTitle = 0;
             _ = DwmSetWindowAttribute(Handle, DwmwaUseImmersiveDarkMode, ref darkTitle, sizeof(int));
         }
-        catch { /* Mica اختیاری است؛ پوستهٔ استاندارد ادامه دارد */ }
+        catch { /* ظاهر استاندارد ویندوز ادامه دارد */ }
     }
 
     private sealed class ModernColorTable : ProfessionalColorTable
