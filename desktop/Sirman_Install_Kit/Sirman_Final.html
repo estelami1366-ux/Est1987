@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22κ">
+<meta name="app-version" content="1405.5.22λ">
 <meta name="app-date" content="1405/05/22">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -994,7 +994,7 @@ body.sb-dock .ai-float{bottom:170px;}
 .stg-panel.active{display:block;}
 /* PRINT SETTINGS */
 .print-section-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;}
-/* ══════ مرکز پرینت / Print Center (v1405.5.22κ) ══════ */
+/* ══════ مرکز پرینت / Print Center (v1405.5.22λ) ══════ */
 .pc-shell{display:grid;grid-template-columns:210px minmax(0,1fr) 300px;gap:12px;min-height:540px;align-items:stretch;}
 .pc-col{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 24px rgba(15,40,55,.06);display:flex;flex-direction:column;min-width:0;overflow:hidden;}
 .pc-col-h{padding:12px 14px;font-size:12px;font-weight:800;letter-spacing:.02em;color:var(--blue2);background:linear-gradient(180deg,color-mix(in srgb,var(--blue-l) 70%,#fff),transparent);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -1121,7 +1121,7 @@ body.has-bg-image::after{
 }
 body.has-bg-image.theme-dark::after{background:rgba(10,12,15,var(--bg-overlay,0.55));}
 
-/* ══════ اسکین قوی / Skin Pack (v1405.5.22κ) ══════ */
+/* ══════ اسکین قوی / Skin Pack (v1405.5.22λ) ══════ */
 .skin-card{width:148px;border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--card);transition:.18s;text-align:right;}
 .skin-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,40,55,.10);}
 .skin-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 25%,transparent);}
@@ -1664,7 +1664,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 
 </style>
 <style id="win-manager-css">
-/* ══════ چندپنجره / تب‌های کاری (v1405.5.22κ) ══════ */
+/* ══════ چندپنجره / تب‌های کاری (v1405.5.22λ) ══════ */
 #win-chrome{
   position:sticky; top:0; z-index:60;
   display:flex; flex-wrap:wrap; align-items:center; gap:6px;
@@ -1805,6 +1805,14 @@ body.theme-dark .war-year-dd-btn,body.theme-dark .war-year-dd-menu{background:li
 body.theme-dark .war-year-dd-item:hover,body.theme-dark .war-year-dd-item.active{background:rgba(96,205,255,.16);color:#fff}
 body.theme-dark .war-browse-mode.active{background:rgba(30,48,64,.72);color:#fff}
 body.theme-dark .war-glass-count{background:rgba(8,16,28,.35);color:#e8eef5}
+.war-wizard-bar{position:sticky;top:0;z-index:40;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:12px;box-shadow:0 8px 20px rgba(15,40,55,.08)}
+.war-wizard-steps{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.war-wiz-step{border:1px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:999px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font)}
+.war-wiz-step.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.war-wiz-step.done{background:var(--blue-l);color:var(--blue2);border-color:var(--blue)}
+.war-wizard-nav{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#prefs-resume-bar{display:none;position:sticky;top:0;z-index:70;background:#fff8e1;border-bottom:1px solid #f0ad4e;padding:8px 14px;font-size:12px}
+#prefs-resume-bar.show{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
 </style>
 
 <style id="pb-browse-css">
@@ -1981,6 +1989,13 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   </div>
 </div>
 <div class="notif-c" id="nc"></div>
+<div id="prefs-resume-bar" role="status">
+  <span id="prefs-resume-msg">تنظیمات قبلی شما مانده است. برای ادامه ذخیره خودکار و اعلان، یک‌بار تأیید کنید.</span>
+  <span style="display:flex;gap:6px;flex-wrap:wrap">
+    <button type="button" class="btn btn-sm btn-p" onclick="resumePersistedPrefs()">ادامه تنظیمات قبلی</button>
+    <button type="button" class="btn btn-sm" onclick="hidePrefsResumeBar()">بعداً</button>
+  </span>
+</div>
 <div id="autosave-dot" title="ذخیره خودکار" aria-hidden="true"></div>
 <button type="button" class="ai-float" id="btn-ai-float" onclick="toggleAiDock()" title="دستیار هوشمند — Ctrl+Shift+A"><span class="ai-dot" id="ai-float-dot"></span>🤖 دستیار</button>
 <div id="ai-dock" class="ai-dock" role="dialog" aria-label="دستیار هوشمند سیرمان">
@@ -2143,7 +2158,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۲κ — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۲λ — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-sm" id="btn-lock-app" onclick="lockApp()" style="width:100%;margin-top:8px;font-weight:700" title="قفل برنامه در حالی که باز است — Ctrl+Shift+L">🔒 قفل برنامه <small style="opacity:.7">Ctrl+Shift+L</small></button>
   <button class="btn btn-r btn-sm" id="btn-exit-safe" onclick="promptExitBackup()" style="width:100%;margin-top:8px;font-weight:700">🚪 خروج امن (پرسش بک‌آپ)</button>
   <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;padding:0 2px">اگر ✕ پنجره را بزنید، مرورگر اول هشدار می‌دهد؛ برای بک‌آپ از این دکمه استفاده کنید.</div>
@@ -2956,11 +2971,20 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 
 <!-- فرم -->
 <div id="war-form" style="display:none">
-<div class="card">
-  <div class="card-title">👤 اطلاعات مشتری</div>
+<div id="war-wizard-bar" class="war-wizard-bar">
+  <div id="war-wizard-steps"></div>
+  <div class="war-wizard-nav">
+    <button type="button" class="btn" onclick="warWizardPrev()">→ قبلی</button>
+    <button type="button" class="btn btn-p" onclick="warWizardNext()">بعدی ←</button>
+    <button type="button" class="btn btn-o" onclick="printWarWizardPage()">🖨 چاپ این صفحه</button>
+    <button type="button" class="btn btn-o" onclick="printWarFullForm()">🖨 فرم جامع از بالا تا پایین</button>
+  </div>
+</div>
+<div class="card" id="war-wp-customer">
+  <div class="card-title">👤 پذیرش اولیه — اطلاعات مشتری</div>
   <div class="g3" style="margin-bottom:8px">
     <div class="f"><label>نام و نام‌خانوادگی *</label><input id="wn" placeholder="نام مشتری" autocomplete="off"></div>
-    <div class="f"><label>شماره تماس *</label><input id="wph" placeholder="۰۹۱۲۰۰۰۰۰۰۰" autocomplete="off"></div>
+    <div class="f"><label>شماره تماس *</label><input id="wph" placeholder="۰۹۱۲۰۰۰۰۰۰۰" autocomplete="off" oninput="suggestWarSocialFromPhone()"></div>
     <div class="f"><label>تاریخ مراجعه</label><input id="wdt" readonly placeholder="۱۴۰۳/۰۸/۱۵" onclick="openDatePicker(this)"></div>
   </div>
   <div class="g2">
@@ -2970,7 +2994,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
   </div>
 </div>
-<div class="card">
+<div class="card" id="war-wp-social">
   <div class="card-title">📱 شبکه‌های اجتماعی</div>
   <div class="g3" style="margin-bottom:8px">
     <div class="f"><label>نوع شبکه</label>
@@ -2984,25 +3008,26 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
         <option value="sms">پیامک</option>
       </select>
     </div>
-    <div class="f"><label>شماره / آیدی</label><input id="wsoc-val" placeholder="@username یا 09..."></div>
+    <div class="f"><label>شماره / آیدی</label><input id="wsoc-val" placeholder="@username یا 09..." oninput="this.dataset.auto='0'"></div>
     <div class="f" style="justify-content:flex-end"><label>&nbsp;</label><button class="btn btn-sm btn-p" type="button" onclick="addWSocial()">+ افزودن</button></div>
   </div>
   <div id="wsoc-list"></div>
 </div>
-<div class="card">
+<div class="card" id="war-wp-devs">
   <div class="card-title">① معرفی دستگاه‌ها (مدل، رنگ، گارانتی)
     <button class="btn btn-sm btn-p" type="button" onclick="addWDev()" data-tip="افزودن دستگاه دیگر به همین پرونده">+ دستگاه</button>
   </div>
   <div id="w-devs"></div>
 </div>
-<div class="card">
-  <div class="card-title">② اولین برخورد شبکه گارانتی</div>
-  <p style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.7">بعد از ثبت مشتری و دستگاه، اولین اقدام را مشخص کنید. مسیر بعدی (نمایندگی / شرکت / بستن تلفنی) همین‌جا باز می‌شود.</p>
+<div class="card" id="war-wp-init">
+  <div class="card-title">② تصمیم پذیرش و مستندات</div>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.7">بعد از پذیرش سریع مشتری و مدل دستگاه، تصمیم را مشخص کنید. صفحات بعدی بر اساس همین انتخاب باز می‌شوند. مستنداتی که بر اساس آن‌ها تصمیم گرفتید را همین‌جا پیوست کنید.</p>
   <div class="f"><label>اقدام اولیه *</label>
     <select id="winit" onchange="onWInitChange()">
       <option value="">— انتخاب کنید —</option>
       <option value="activate">فعال‌سازی گارانتی</option>
       <option value="phone_fix">مشاوره تلفنی و رفع مشکل (بستن پرونده)</option>
+      <option value="no_follow">پیگیر نشد — بستن پرونده</option>
       <option value="refer_agency">ارجاع به نمایندگی خدماتی</option>
       <option value="refer_company">ارجاع به شرکت مرکزی (خدمات در شرکت)</option>
       <option value="return_oem">برگشت به شرکت تولیدکننده (OEM)</option>
@@ -3010,9 +3035,10 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   </div>
   <div id="winit-hint" style="font-size:11px;color:var(--amber);margin-top:6px;display:none"></div>
   <div id="war-phone-path" style="display:none;margin-top:12px;padding:12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)">
-    <div style="font-weight:700;font-size:12px;margin-bottom:8px">☎️ نتیجه مشاوره تلفنی</div>
-    <div class="f"><label>چطور مشکل مشتری حل شد؟</label>
-      <textarea id="w-phone-resolution" rows="3" placeholder="توضیح کوتاه رفع مشکل از طریق تلفن..."></textarea></div>
+    <div id="w-phone-path-title" style="font-weight:700;font-size:12px;margin-bottom:8px">☎️ توضیحات این تصمیم</div>
+    <div class="f"><label id="w-phone-path-lbl">توضیح</label>
+      <textarea id="w-phone-resolution" rows="3" placeholder="توضیح کوتاه..."></textarea></div>
+    <div id="war-nofollow-extra" style="display:none;margin-top:8px;font-size:11px;color:var(--amber)">با ثبت، پرونده بسته می‌شود چون مشتری پیگیری نکرد.</div>
     <div class="f" style="margin-top:8px"><label>اسناد این مرحله (اختیاری)</label>
       <button class="btn btn-sm btn-o" type="button" onclick="document.getElementById('w-phone-docs-inp').click()">📷 پیوست</button>
       <input type="file" id="w-phone-docs-inp" accept="image/*,.pdf" multiple style="display:none" onchange="addWarStageDocs('phone',this)">
@@ -3023,16 +3049,16 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 
 <div id="war-ext-sections">
-<div class="card">
+<div class="card" id="war-wp-problem">
   <div class="card-title">🔧 شرح مشکل مشتری</div>
   <div class="f" style="margin-bottom:8px"><label>مشکل اعلام‌شده *</label>
     <textarea id="wprob" rows="3" placeholder="مشتری چه مشکلی گزارش داده..."></textarea></div>
   <div class="f"><label>یادداشت اولیه کارشناس</label>
     <textarea id="wexp2" rows="2" placeholder="یادداشت کوتاه..."></textarea></div>
 </div>
-<div class="card">
-  <div class="card-title">📎 اسناد مشتری</div>
-  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">فاکتور، کارت گارانتی، عکس و...</p>
+<div class="card" id="war-wp-docs">
+  <div class="card-title">📎 اسناد و مستندات تصمیم</div>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">فاکتور، کارت گارانتی، عکس و هر سندی که بر اساس آن این تصمیم را گرفتید.</p>
   <button class="btn btn-sm btn-p" onclick="document.getElementById('wdoc-inp').click()">📷 انتخاب عکس/سند</button>
   <input type="file" id="wdoc-inp" accept="image/*" multiple style="display:none" onchange="addWDocs(this)">
   <div id="wdocs-prev" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
@@ -3239,6 +3265,8 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   </div>
 </div>
 
+</div><!-- /war-company-path -->
+
 <div id="company-report-section" style="display:none">
 <div class="company-report">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
@@ -3303,7 +3331,6 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   <div id="wc-out-docs-prev" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
 </div>
 </div><!-- /company-report-section -->
-</div><!-- /war-company-path -->
 
 <!-- ══════ برگشت به شرکت تولیدکننده (OEM) ══════ -->
 <div id="war-oem-path" style="display:none">
@@ -3329,7 +3356,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 
 </div><!-- /war-ext-sections -->
 
-<div class="btn-bar war-final-bar" style="flex-wrap:wrap;align-items:flex-end">
+<div class="btn-bar war-final-bar" id="war-wp-final" style="flex-wrap:wrap;align-items:flex-end">
   <div class="f" style="min-width:220px;margin:0">
     <label>اقدام نهایی پرونده</label>
     <select id="war-final-action" onchange="onWarFinalActionChange()">
@@ -4301,7 +4328,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
         ⚠️ برای <b>عکس و ضمیمه</b> حتماً <b>«📂 انتخاب پوشه»</b> را بزنید تا روی هارد در <code>sirman_media</code> ذخیره شود (حافظه مرورگر استفاده نمی‌شود).
         برای بک‌آپ متنی می‌توانید «📄 انتخاب فایل ذخیره» را هم بزنید.
         اگر هیچ پنجره‌ای باز نشد: صفحه را با <b>Sirman_Start.bat</b> باز کنید.
-        <br>✅ بعد از یک‌بار انتخاب، محل ذخیره یادآوری می‌شود.<br>🟢 نشانه سبز فقط هنگام ذخیرهٔ موفق چند لحظه ظاهر می‌شود.
+        <br>✅ بعد از یک‌بار انتخاب، محل ذخیره در تنظیمات برنامه می‌ماند و با باز شدن دوباره از همان‌جا ادامه می‌دهد. اگر مرورگر اجازه را بردارد، نوار زرد بالا با دکمه «ادامه تنظیمات قبلی» می‌آید — لازم نیست دوباره پوشه را از صفر انتخاب کنید.<br>🟢 نشانه سبز فقط هنگام ذخیرهٔ موفق چند لحظه ظاهر می‌شود.
       </div>
       <div style="background:var(--blue-l);border:1px solid var(--blue);border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--blue2);line-height:1.9">
         📌 <b>نصب میانبر ویندوز (جایگزین منوی نصب قدیمی):</b>
@@ -4857,13 +4884,16 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 <div class="card help-card help-collapsed">
   <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>ساختار پرونده و مدارک گارانتی</span><span class="help-chev">▾</span></div>
   <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
-    <li><b>مشتری و ارتباط:</b> نام، تلفن، آدرس، و شبکه‌های اجتماعی (واتساپ/تلگرام/...).</li>
+    <li><b>مشتری و ارتباط:</b> نام، تلفن، آدرس، و شبکه‌های اجتماعی (واتساپ/تلگرام/...). با وارد کردن شماره تماس، همان شماره به‌صورت پیشنهاد در فیلد شماره/آیدی شبکه اجتماعی ظاهر می‌شود.</li>
     <li><b>① معرفی دستگاه:</b> یک یا چند دستگاه با مدل، رنگ، سریال، مدت/انقضای گارانتی و اسناد هر دستگاه.</li>
     <li><b>② اولین برخورد:</b> فعال‌سازی، مشاوره تلفنی، ارجاع نمایندگی خدماتی، ارجاع شرکت، یا برگشت به شرکت تولیدکننده (OEM).</li>
     <li><b>اقدام نهایی (کشویی پایین فرم):</b> ثبت پرونده، پیش‌فاکتور، فاکتور هزینه مشتری، فاکتور نمایندگی، یا چاپ سریع پذیرش. با انتخاب هر کدام، کلید همان کار کنار کشویی ظاهر می‌شود.</li>
     <li><b>چاپ سریع پذیرش:</b> روی کاغذ، تاریخ چاپ، اولتیماتوم ۲۴ / ۴۸ / ۷۲ ساعت، و جای نظر چهار کارشناس (خدمات، کنترل کیفی، لجستیک، نهایی) می‌آید تا گزارش داخلی را همان‌جا بنویسند.</li>
     <li><b>برگشت OEM:</b> شرکت تولیدکننده را از دفترچه (فقط دسته «شرکت») جستجو کنید. کالا وارد انبار معیوب می‌شود تا مشخص باشد از کدام شرکت طلبکار هستید.</li>
-    <li><b>شماره پرونده:</b> مثل <b>W-1405-بهار-22-0001</b> — سال، فصل، روز و ردیف همان فصل در خود شماره دیده می‌شود.</li>
+    <li><b>فرم صفحه‌به‌صفحه:</b> پرونده از پذیرش سریع (مشتری + مدل) شروع می‌شود، بعد تصمیم و مستندات، بعد فقط صفحات مربوط به همان تصمیم. هر صفحه چاپ جدا دارد؛ در پایان «فرم جامع» همه را از بالا تا پایین چاپ می‌کند.</li>
+    <li><b>فعال‌سازی گارانتی:</b> با این انتخاب، بخش‌های بعدی خاموش می‌شوند و فقط توضیحات فعال‌سازی می‌ماند.</li>
+    <li><b>پیگیر نشد:</b> اگر مشتری زنگ زد ولی پیگیری نکرد، همین گزینه را بزنید تا پرونده بسته شود.</li>
+    <li><b>شماره پرونده:</b> استاندارد <b>WYY-SMMDD-NNNN</b> مثلاً <b>W05-20522-0001</b> — W پرونده گارانتی، ۰۵ سال ۱۴۰۵، ۲ فصل تابستان (۱ بهار ۲ تابستان ۳ پاییز ۴ زمستان)، ۰۵ ماه، ۲۲ روز، ۰۰۰۱ ردیف همان روز.</li>
     <li><b>پرونده جدید:</b> فرم کاملاً خالی باز می‌شود (حتی تلفن پرونده قبلی نمی‌ماند). روی هر فیلد راست‌کلیک کنید تا همان فیلد پاک شود.</li>
     <li><b>ارجاع نماینده:</b> چون دستگاه هنوز به دست شما نرسیده، وضعیت ظاهری «نامشخص» می‌شود. فیلد نماینده فقط مخاطبان دسته «نمایندگان خدماتی» را جستجو می‌کند.</li>
     <li><b>مسیر نمایندگی:</b> مشخصات/شماره/شهر/تاریخ ارجاع ← درخواست قطعه و داغی (کسر از انبار قطعات + حواله داغی) ← ارسال داغی با کد مرسوله ← تحویل و رضایت مشتری ← فاکتور هزینه نمایندگی از لیست خدمات با برداشت از حساب مالی.</li>
@@ -5032,7 +5062,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <li><b>🛟 نسخه ایمنی:</b> قبل از هر بازگردانی از وضعیت فعلی تا ۳ نسخه ایمنی محلی نگه داشته می‌شود. از دکمه «بازگردانی نسخه ایمنی» می‌توانید همان را پیش‌نمایش و برگردانید.</li>
     <li><b>📄 CSV آرشیوی:</b> برای نگهداری ۵ تا ۱۰ سال، خروجی CSV مستقل از نسخه برنامه هم بگیرید.</li>
     <li><b>🔐 رمز اختیاری:</b> می‌توانید بک‌آپ را با رمز AES رمز کنید. رمز داخل فایل ذخیره نمی‌شود.</li>
-    <li><b>🗄 ذخیره‌ی سه‌گانه (۳-۲-۱):</b> داده‌های شما اکنون در سه مکان ذخیره می‌شوند: ۱) حافظه‌ی مرورگر (localStorage)، ۲) فایل دانلودی، ۳) IndexedDB مرورگر (کپی امن اضافی). اگر localStorage پاک شود، نسخه‌ی IndexedDB باقی می‌ماند.</li>
+    <li><b>ماندن تنظیمات:</b> اعلان دسکتاپ، فاصله ذخیره خودکار و محل ذخیره در تنظیمات برنامه ثبت می‌شود. در Sirman.exe روی پوشه پایدار ویندوز هم نوشته می‌شود تا با بستن و باز کردن برنامه از نو تنظیم نشود. اگر مرورگر اجازه پوشه را بردارد، نوار زرد «ادامه تنظیمات قبلی» می‌آید.</li>
     <li><b>🔄 سازگاری قدیمی/جدید:</b> هنگام بازگردانی بک‌آپ‌های قدیمی، فقط فیلدهایی که در نسخه‌ی قدیمی وجود داشتند پر می‌شوند؛ فیلدهای جدید خالی می‌مانند و فیلدهای منسوخ حذف می‌شوند. این کار به‌صورت خودکار برای هر بخش انجام می‌شود.</li>
   </ul>
 </div>
@@ -5328,7 +5358,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۲κ
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۲λ
 </div>
 </div>
 
@@ -6053,9 +6083,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 })();
 
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.22κ';
-var APP_BASE_VERSION = '1405.5.22κ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۲۲κ';
+var APP_VERSION = '1405.5.22λ';
+var APP_BASE_VERSION = '1405.5.22λ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۲۲λ';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -6551,8 +6581,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.22κ'; }
-  catch(_e){ return '1405.5.22κ'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.22λ'; }
+  catch(_e){ return '1405.5.22λ'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -7178,8 +7208,8 @@ function _buildFullBackupData(){
   var data = {
     magic: (typeof SIRMAN_BACKUP_MAGIC!=='undefined'?SIRMAN_BACKUP_MAGIC:'SIRMAN_BACKUP'),
     schemaVersion: (typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1),
-    version: '1405.5.22κ',
-    applicationVersion: '1405.5.22κ',
+    version: '1405.5.22λ',
+    applicationVersion: '1405.5.22λ',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -7245,6 +7275,7 @@ function _buildFullBackupData(){
     // ── SMS و timezone ──
     sms: _safeObj(JSON.parse(localStorage.getItem('laegh_sms')||'{}')),
     tz: localStorage.getItem('laegh_tz')||'Asia/Tehran',
+    prefs: (typeof collectPrefsBundle==='function' ? collectPrefsBundle() : {}),
     // ── کلیدهای AI ──
     aiKeys: (function(){
       var keys = {};
@@ -7353,7 +7384,7 @@ async function verifyChecksum(data){
 function openBackupIDB(){
   return new Promise(function(resolve){
     if(!('indexedDB' in window)){ resolve(null); return; }
-    var req = indexedDB.open('laegh-backup-db', 3);
+    var req = indexedDB.open('laegh-backup-db', 4);
     req.onupgradeneeded = function(ev){
       var db = req.result;
       if(!db.objectStoreNames.contains('snapshots')){
@@ -7370,6 +7401,9 @@ function openBackupIDB(){
       }
       if(!db.objectStoreNames.contains('backupAudit')){
         db.createObjectStore('backupAudit', { keyPath: 'id' });
+      }
+      if(!db.objectStoreNames.contains('prefs')){
+        db.createObjectStore('prefs', { keyPath: 'id' });
       }
     };
     req.onsuccess = function(){ resolve(req.result); };
@@ -7413,44 +7447,183 @@ async function clearAutoSaveHandlesIDB(){
     });
   }catch(_e){}
 }
+function getSirmanHostSync(){
+  try{
+    return window.chrome && chrome.webview && chrome.webview.hostObjects && chrome.webview.hostObjects.sync && chrome.webview.hostObjects.sync.sirmanHost;
+  }catch(_e){ return null; }
+}
+var PREF_KEYS = ['laegh_desktop_notify_on','laegh_autosave_enabled','laegh_autosave_mode','laegh_autosave_interval','laegh_autosave_ok_name','laegh_autosave_file_name','laegh_autosave_dir_name','laegh_theme','laegh_skin','laegh_depth3d','laegh_color_theme','laegh_sb_mode','laegh_sb_collapsed','laegh_nav_shape','laegh_text_color','laegh_heading_color','laegh_sb_heading_size','laegh_app_font','laegh_text_size','laegh_tz','laegh_last_page'];
+function collectPrefsBundle(){
+  var o = {};
+  PREF_KEYS.forEach(function(k){
+    try{ var v = localStorage.getItem(k); if(v!=null) o[k]=v; }catch(_e){}
+  });
+  return o;
+}
+function applyPrefsBundle(o){
+  if(!o || typeof o!=='object') return;
+  Object.keys(o).forEach(function(k){
+    try{ if(o[k]!=null) localStorage.setItem(k, String(o[k])); }catch(_e){}
+  });
+}
+async function persistPrefsBundle(){
+  var o = collectPrefsBundle();
+  try{ localStorage.setItem('laegh_prefs_bundle', JSON.stringify(o)); }catch(_e){}
+  try{
+    var db = await openBackupIDB();
+    if(db && db.objectStoreNames.contains('prefs')){
+      await new Promise(function(resolve){
+        var tx = db.transaction('prefs', 'readwrite');
+        tx.objectStore('prefs').put({id:'bundle', data:o, savedAt: Date.now()});
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(){ resolve(); };
+      });
+    }
+  }catch(_i){}
+  try{
+    var h = getSirmanHostSync();
+    if(h && h.SaveAppPref) h.SaveAppPref(JSON.stringify(o));
+  }catch(_h){}
+}
+async function restorePrefsBundleOnBoot(){
+  var bundle = null;
+  try{
+    var raw = localStorage.getItem('laegh_prefs_bundle');
+    if(raw) bundle = JSON.parse(raw);
+  }catch(_e){}
+  if(!bundle){
+    try{
+      var db = await openBackupIDB();
+      if(db && db.objectStoreNames.contains('prefs')){
+        bundle = await new Promise(function(resolve){
+          var tx = db.transaction('prefs', 'readonly');
+          var req = tx.objectStore('prefs').get('bundle');
+          req.onsuccess = function(){ resolve((req.result && req.result.data) || null); };
+          req.onerror = function(){ resolve(null); };
+        });
+      }
+    }catch(_i){}
+  }
+  try{
+    var h = getSirmanHostSync();
+    if(h && h.LoadAppPref){
+      var hs = h.LoadAppPref();
+      if(hs){
+        var ho = JSON.parse(hs);
+        bundle = Object.assign({}, bundle||{}, ho||{});
+      }
+    }
+  }catch(_h){}
+  if(bundle) applyPrefsBundle(bundle);
+  return !!bundle;
+}
+function showPrefsResumeBar(msg){
+  var bar = document.getElementById('prefs-resume-bar');
+  var t = document.getElementById('prefs-resume-msg');
+  if(t && msg) t.textContent = msg;
+  if(bar) bar.classList.add('show');
+}
+function hidePrefsResumeBar(){
+  var bar = document.getElementById('prefs-resume-bar');
+  if(bar) bar.classList.remove('show');
+}
+async function resumePersistedPrefs(){
+  var okA = false, okN = false;
+  try{
+    if(window._pendingAutoSaveFile){
+      var ok = await ensureFsPermission(window._pendingAutoSaveFile, 'readwrite');
+      if(ok){ autoSaveFileHandle = window._pendingAutoSaveFile; okA = true; }
+    }
+    if(window._pendingAutoSaveDir){
+      var ok2 = await ensureFsPermission(window._pendingAutoSaveDir, 'readwrite');
+      if(ok2){ autoSaveDirHandle = window._pendingAutoSaveDir; okA = true; }
+    }
+    if(okA){
+      localStorage.setItem('laegh_autosave_enabled','1');
+      try{ startAutoSave(); }catch(_s){}
+      try{ updateAutoSaveTargetUI(); }catch(_u){}
+    }
+  }catch(_a){}
+  try{
+    if(localStorage.getItem('laegh_desktop_notify_on')==='1'){
+      if('Notification' in window){
+        var p = Notification.permission;
+        if(p==='granted') okN = true;
+        else if(p!=='denied'){
+          var np = await Notification.requestPermission();
+          okN = np==='granted';
+        }
+      }
+      if(okN && typeof registerLaeghSW==='function') registerLaeghSW();
+    }
+  }catch(_n){}
+  try{ persistPrefsBundle(); }catch(_p){}
+  hidePrefsResumeBar();
+  if(typeof ntf==='function') ntf(okA||okN ? 'تنظیمات قبلی ادامه یافت ✅' : 'اگر مرورگر اجازه نداد، یک‌بار محل ذخیره را انتخاب کنید');
+}
+async function ensureFsPermissionSilent(handle, mode){
+  if (!handle) return false;
+  mode = mode || 'readwrite';
+  try {
+    if (typeof handle.queryPermission === 'function') {
+      var q = await handle.queryPermission({ mode: mode });
+      return q === 'granted';
+    }
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
 async function restoreAutoSaveHandlesOnBoot(){
   try{
+    await restorePrefsBundleOnBoot();
+    var savedInterval = localStorage.getItem('laegh_autosave_interval');
+    if (savedInterval) autoSaveIntervalMin = parseInt(savedInterval)||autoSaveIntervalMin;
     var enabled = localStorage.getItem('laegh_autosave_enabled')==='1';
-    if(!enabled) return false;
+    var host = getSirmanHostSync();
+    if(host && host.WriteBackupText){
+      if(!enabled){
+        try{ localStorage.setItem('laegh_autosave_enabled','1'); }catch(_e){}
+        enabled = true;
+      }
+      try{
+        var dir = host.GetBackupDir ? host.GetBackupDir() : '';
+        var el = document.getElementById('as-folder-name');
+        if(el && dir) el.textContent = '📁 محل پایدار برنامه: ' + dir;
+        var st = document.getElementById('as-status');
+        if(st){ st.textContent = '✅ فعال (محل پایدار برنامه) — هر ' + autoSaveIntervalMin + ' دقیقه'; st.style.color = 'var(--green)'; }
+      }catch(_u){}
+    }
     var restored = false;
-    // هر دو هندل را بازیابی کن: فایل برای بک‌آپ متنی + پوشه برای رسانه روی هارد
     var fh = await loadAutoSaveHandleFromIDB('file');
     if(fh){
-      var ok = await ensureFsPermission(fh, 'readwrite');
+      window._pendingAutoSaveFile = fh;
+      var ok = await ensureFsPermissionSilent(fh, 'readwrite');
       if(ok){ autoSaveFileHandle = fh; restored = true; }
     }
     var dh = await loadAutoSaveHandleFromIDB('dir');
     if(dh){
-      var ok2 = await ensureFsPermission(dh, 'readwrite');
+      window._pendingAutoSaveDir = dh;
+      var ok2 = await ensureFsPermissionSilent(dh, 'readwrite');
       if(ok2){ autoSaveDirHandle = dh; restored = true; }
     }
     if(restored){
       updateAutoSaveTargetUI();
-      var st = document.getElementById('as-status');
-      if(st){ st.textContent = '✅ فعال (بازیابی‌شده) — هر ' + autoSaveIntervalMin + ' دقیقه'; st.style.color = 'var(--green)'; }
+      var st2 = document.getElementById('as-status');
+      if(st2){ st2.textContent = '✅ فعال (بازیابی‌شده) — هر ' + autoSaveIntervalMin + ' دقیقه'; st2.style.color = 'var(--green)'; }
       try{ startAutoSave(); }catch(_e){}
       if(typeof ntf==='function') ntf('محل بک‌آپ قبلی بازیابی شد ✅');
       try{ await migrateAllHeavyMediaToDisk(); }catch(_m){}
-      try{
-        if(typeof applyAppBg==='function') applyAppBg();
-        if(typeof applyLayerBackgrounds==='function') applyLayerBackgrounds();
-        if(typeof logoSrc==='string' && isDiskRef(logoSrc)){
-          resolveDiskRef(logoSrc).then(function(u){
-            if(u){ var el=document.getElementById('sb-logo'); if(el) el.src=u; }
-          });
-        }
-      }catch(_a){}
+    } else if(enabled && (fh || dh) && !(host && host.WriteBackupText)){
+      var nm = localStorage.getItem('laegh_autosave_dir_name') || localStorage.getItem('laegh_autosave_file_name') || 'محل قبلی';
+      showPrefsResumeBar('محل ذخیره «'+nm+'» از قبل انتخاب شده. یک‌بار «ادامه تنظیمات قبلی» را بزنید تا دوباره انتخاب پوشه لازم نباشد.');
     }
+    try{ persistPrefsBundle(); }catch(_p){}
     return restored;
   }catch(_e2){ return false; }
 }
 
-// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.22κ ═══════════════════
+// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.22λ ═══════════════════
 // عکس پس‌زمینه، لوگو و ضمیمه‌ها فقط در پوشهٔ بک‌آپ روی دیسک نوشته می‌شوند.
 // در حافظهٔ مرورگر فقط ارجاع کوتاه disk://sirman_media/... نگه داشته می‌شود.
 window._diskUrlCache = window._diskUrlCache || {};
@@ -8062,6 +8235,14 @@ async function writeTextToAutoSaveFolder(text){
 }
 
 async function writeAutoSaveTarget(text){
+  try{
+    var h = getSirmanHostSync();
+    if(h && h.WriteBackupText){
+      var r = h.WriteBackupText('sirman_autosave.txt', text);
+      if(typeof r==='string' && r.indexOf('"ok":false')>=0) throw new Error(r);
+      if(!autoSaveFileHandle && !autoSaveDirHandle) return { ok:true, name:'sirman_autosave.txt', mode:'host' };
+    }
+  }catch(_h){}
   // اولویت ۱: هندل فایل مستقیم (بدون getFileHandle و بدون محدودیت نام)
   if (autoSaveFileHandle) {
     try {
@@ -8110,6 +8291,7 @@ async function chooseAutoSaveFile(){
     localStorage.setItem('laegh_autosave_enabled','1');
     localStorage.setItem('laegh_autosave_mode','file');
     try{ await saveAutoSaveHandleToIDB('file', autoSaveFileHandle); }catch(_sh){}
+    try{ localStorage.setItem('laegh_autosave_file_name', autoSaveFileHandle.name||'sirman_autosave.txt'); persistPrefsBundle(); }catch(_nm){}
     updateAutoSaveTargetUI();
     var st = document.getElementById('as-status');
     if (st) { st.textContent = '✅ فعال — هر ' + autoSaveIntervalMin + ' دقیقه'; st.style.color = 'var(--green)'; }
@@ -8157,6 +8339,7 @@ async function chooseAutoSaveFolder(){
     localStorage.setItem('laegh_autosave_enabled','1');
     localStorage.setItem('laegh_autosave_mode','dir');
     try{ await saveAutoSaveHandleToIDB('dir', autoSaveDirHandle); }catch(_sh){}
+    try{ localStorage.setItem('laegh_autosave_dir_name', autoSaveDirHandle.name||''); persistPrefsBundle(); }catch(_nm){}
     updateAutoSaveTargetUI();
     document.getElementById('as-status').textContent = '✅ فعال — هر ' + autoSaveIntervalMin + ' دقیقه';
     document.getElementById('as-status').style.color = 'var(--green)';
@@ -8341,6 +8524,7 @@ function disableAutoSaveFolder(){
 function setAutoSaveInterval(min){
   autoSaveIntervalMin = parseInt(min) || 3;
   localStorage.setItem('laegh_autosave_interval', autoSaveIntervalMin);
+  try{ persistPrefsBundle(); }catch(_p){}
   startAutoSave();
   ntf('فاصله ذخیره خودکار: هر '+autoSaveIntervalMin+' دقیقه');
 }
@@ -9048,7 +9232,7 @@ function showCustomer360(phone, name){
   document.getElementById('cust360-modal').classList.add('open');
 }
 
-// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۲κ) ───────────────────────────────────────────
+// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۲λ) ───────────────────────────────────────────
 window._wins = window._wins || [];
 window._winActive = window._winActive || null;
 window._winSeq = window._winSeq || 1;
@@ -10489,7 +10673,7 @@ function buildPH(list){
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 window._pcActiveDocId='invoice';
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22κ">
+<meta name="app-version" content="1405.5.22λ">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -10506,7 +10690,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22κ">
+<meta name="app-version" content="1405.5.22λ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -10566,7 +10750,7 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22κ">
+<meta name="app-version" content="1405.5.22λ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -10586,11 +10770,11 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22κ">
+<meta name="app-version" content="1405.5.22λ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22κ">
+<meta name="app-version" content="1405.5.22λ">
 <meta name="app-date" content="1405/05/22"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -11223,7 +11407,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22κ">
+<meta name="app-version" content="1405.5.22λ">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -11943,6 +12127,9 @@ function applyBackupReplaceSections(d, selectedKeys){
   }
   if(_restoreWants(selectedKeys,'sms') && d.sms) localStorage.setItem('laegh_sms', JSON.stringify(d.sms));
   if(_restoreWants(selectedKeys,'tz') && d.tz) localStorage.setItem('laegh_tz', d.tz);
+  if(d.prefs && typeof d.prefs==='object'){
+    try{ applyPrefsBundle(d.prefs); persistPrefsBundle(); }catch(_pf){}
+  }
   if(_restoreWants(selectedKeys,'aiKeys') && d.aiKeys && typeof d.aiKeys==='object'){
     Object.keys(d.aiKeys).forEach(function(k){ try{ localStorage.setItem(k, d.aiKeys[k]); }catch(_e){} });
   }
@@ -12219,7 +12406,7 @@ async function resetAll(){
     'laegh_autosave_snapshot','laegh_last_hourly_save','laegh_accounts'
   ];
   // هر کلید دیگری که با laegh_ شروع شود هم اضافه شود (به جز موارد محافظت‌شده)
-  const protectedKeys = ['laegh_adminpw','laegh_theme','laegh_skin','laegh_depth3d','laegh_color_theme','laegh_sb_mode','laegh_sb_collapsed','laegh_nav_shape','laegh_text_color','laegh_heading_color','laegh_sb_heading_size','laegh_app_font','laegh_text_size','laegh_dash_tint','laegh_dash_bg','laegh_dash_bg_overlay','laegh_dash_hide_widgets','laegh_last_page','laegh_logo','laegh_sender','laegh_company','laegh_printSettings','laegh_autosave_enabled','laegh_autosave_mode','laegh_autosave_interval','laegh_desktop_notify_on','laegh_autosave_ok_name','laegh_applied_updates','laegh_version_snapshots'];
+  const protectedKeys = ['laegh_adminpw','laegh_theme','laegh_skin','laegh_depth3d','laegh_color_theme','laegh_sb_mode','laegh_sb_collapsed','laegh_nav_shape','laegh_text_color','laegh_heading_color','laegh_sb_heading_size','laegh_app_font','laegh_text_size','laegh_dash_tint','laegh_dash_bg','laegh_dash_bg_overlay','laegh_dash_hide_widgets','laegh_last_page','laegh_logo','laegh_sender','laegh_company','laegh_printSettings','laegh_autosave_enabled','laegh_autosave_mode','laegh_autosave_interval','laegh_desktop_notify_on','laegh_autosave_ok_name','laegh_autosave_file_name','laegh_autosave_dir_name','laegh_prefs_bundle','laegh_applied_updates','laegh_version_snapshots'];
   for(let i=0;i<localStorage.length;i++){
     const k=localStorage.key(i);
     if(k && k.startsWith('laegh_') && !protectedKeys.includes(k) && !dataKeys.includes(k)) dataKeys.push(k);
@@ -12753,7 +12940,7 @@ function pushWindowsNotifyBridge(title, opts){
 }
 function enableTaskNotifications(){
   function markOk(){
-    try{ localStorage.setItem('laegh_desktop_notify_on','1'); }catch(_e){}
+    try{ localStorage.setItem('laegh_desktop_notify_on','1'); persistPrefsBundle(); }catch(_e){}
     ntf('اعلان دسکتاپ فعال شد ✅');
     try{ registerLaeghSW(); }catch(_e2){}
     showLaeghNotification('✅ اعلان دسکتاپ سیرمان فعال شد', {body:'از این پس یادآوری کارهای سررسیددار در مرکز اعلان ویندوز هم نمایش داده می‌شود.', tag:'laegh-enable-test'});
@@ -12802,7 +12989,7 @@ function enableTaskNotifications(){
 }
 function registerLaeghSW(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('sw.js?v=1405.5.22κ').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=1405.5.22λ').then(reg=>{
     _swReg=reg;
     // Check for SW updates
     reg.addEventListener('updatefound', ()=>{
@@ -14134,7 +14321,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22κ">'+
+    '<meta name="app-version" content="1405.5.22λ">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -14318,7 +14505,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.22κ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.22λ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -15248,7 +15435,7 @@ function initTooltips(){
 
 // پرونده گارانتی
 const SOCIAL_LBL={whatsapp:'واتساپ',telegram:'تلگرام',eitaa:'ایتا',instagram:'اینستاگرام',rubika:'روبیکا',bale:'بله',sms:'پیامک'};
-const WINIT_LBL={activate:'فعال‌سازی گارانتی',phone_fix:'مشاوره/رفع تلفنی',refer_agency:'ارجاع نمایندگی',refer_company:'ارجاع شرکت',return_oem:'برگشت به شرکت تولیدکننده'};
+const WINIT_LBL={activate:'فعال‌سازی گارانتی',phone_fix:'مشاوره/رفع تلفنی',no_follow:'پیگیر نشد',refer_agency:'ارجاع نمایندگی',refer_company:'ارجاع شرکت',return_oem:'برگشت به شرکت تولیدکننده'};
 function warDevices(w){
   if(w.devices && w.devices.length) return w.devices;
   if(w.model) return [{model:w.model,color:w.color||'',buydate:w.buydate||'',serial:w.serial||'',warrStatus:w.warrStatus||'card',warrExp:w.warrExp||'',condition:w.condition||'سالم'}];
@@ -15264,14 +15451,24 @@ function warSeasonNameFa(month){
   var s = warSeasonOfMonth(month);
   return ({spring:'بهار',summer:'تابستان',autumn:'پاییز',winter:'زمستان'})[s] || '';
 }
-function nextWarCaseId(dateStr){
+function warSeasonDigit(month){
+  var s = warSeasonOfMonth(month);
+  return ({spring:'1',summer:'2',autumn:'3',winter:'4'})[s] || '0';
+}
+function warCasePrefix(dateStr){
   var p = null;
   try{ p = warJalaliParts(dateStr); }catch(_e){}
   if(!p){
     try{ var t = jalaliToday(); p = {y:t[0], m:t[1], d:t[2]}; }catch(_t){ p = {y:1405, m:1, d:1}; }
   }
-  var season = warSeasonNameFa(p.m) || 'نامشخص';
-  var prefix = 'W-'+p.y+'-'+season+'-'+String(p.d).padStart(2,'0')+'-';
+  var yy = String(p.y).slice(-2);
+  var s = warSeasonDigit(p.m);
+  var mm = String(p.m).padStart(2,'0');
+  var dd = String(p.d).padStart(2,'0');
+  return 'W'+yy+'-'+s+mm+dd+'-';
+}
+function nextWarCaseId(dateStr){
+  var prefix = warCasePrefix(dateStr);
   var max = 0;
   (typeof warranties!=='undefined' && warranties ? warranties : []).forEach(function(w){
     var id = String(w && w.id || '');
@@ -15281,6 +15478,12 @@ function nextWarCaseId(dateStr){
     }
   });
   return prefix + String(max+1).padStart(4,'0');
+}
+function explainWarCaseId(id){
+  var m = String(id||'').match(/^W(\d{2})-([0-4])(\d{2})(\d{2})-(\d{4})$/i);
+  if(!m) return '';
+  var season = ({'1':'بهار','2':'تابستان','3':'پاییز','4':'زمستان'})[m[2]] || 'نامشخص';
+  return 'سال ۱۴'+m[1]+' — فصل '+m[2]+' ('+season+') — ماه '+m[3]+' — روز '+m[4]+' — ردیف '+m[5];
 }
 function addJalaliDays(jdate, days){
   var p = null;
@@ -15492,15 +15695,28 @@ function onWInitChange(){
   var agencyPath = document.getElementById('war-agency-path');
   var companyPath = document.getElementById('war-company-path');
   var oemPath = document.getElementById('war-oem-path');
-  if(phonePath) phonePath.style.display = (init==='phone_fix' || init==='activate') ? 'block' : 'none';
+  var ext = document.getElementById('war-ext-sections');
+  var shortPath = (init==='activate' || init==='phone_fix' || init==='no_follow');
+  if(phonePath) phonePath.style.display = shortPath ? 'block' : 'none';
   if(agencyPath) agencyPath.style.display = (init==='refer_agency') ? 'block' : 'none';
   if(companyPath) companyPath.style.display = (init==='refer_company') ? 'block' : 'none';
   if(oemPath) oemPath.style.display = (init==='return_oem') ? 'block' : 'none';
+  if(ext){
+    ext.style.display = shortPath ? 'none' : 'block';
+    try{ ext.querySelectorAll('input,select,textarea,button').forEach(function(el){ el.disabled = !!shortPath; }); }catch(_d){}
+  }
+  var title = document.getElementById('w-phone-path-title');
+  var lbl = document.getElementById('w-phone-path-lbl');
+  var extra = document.getElementById('war-nofollow-extra');
+  if(title) title.textContent = init==='activate' ? '📝 توضیحات فعال‌سازی گارانتی' : (init==='no_follow' ? '⏸ پیگیر نشد' : '☎️ نتیجه مشاوره تلفنی');
+  if(lbl) lbl.textContent = init==='activate' ? 'توضیح فعال‌سازی' : (init==='no_follow' ? 'توضیح بستن پرونده' : 'چطور مشکل مشتری حل شد؟');
+  if(extra) extra.style.display = init==='no_follow' ? 'block' : 'none';
   if(hint){
-    if(init==='phone_fix'){ hint.style.display='block'; hint.textContent='✓ با رفع تلفنی، پرونده پس از ثبت می‌تواند بسته شود. نتیجه مشاوره را بنویسید.'; }
-    else if(init==='activate'){ hint.style.display='block'; hint.textContent='✓ فعال‌سازی گارانتی — در صورت نیاز توضیح کوتاه ثبت کنید.'; }
+    if(init==='phone_fix'){ hint.style.display='block'; hint.textContent='✓ با رفع تلفنی، پرونده پس از ثبت می‌تواند بسته شود. نتیجه مشاوره را بنویسید. بخش‌های بعدی غیرفعال‌اند.'; }
+    else if(init==='activate'){ hint.style.display='block'; hint.textContent='✓ فعال‌سازی گارانتی: فقط همین توضیحات فعال است؛ بقیه بخش‌های بعدی خاموش می‌شوند.'; }
+    else if(init==='no_follow'){ hint.style.display='block'; hint.textContent='مشتری زنگ زد / سفارش داد ولی پیگیری نکرد. با ثبت، پرونده بسته می‌شود.'; }
     else if(init==='refer_agency'){ hint.style.display='block'; hint.textContent='ارجاع به نماینده خدماتی: ظاهر دستگاه از ابتدا نامشخص است چون هنوز به دست شما نرسیده. نماینده را از دسته «نمایندگان خدماتی» جستجو کنید.'; }
-    else if(init==='refer_company'){ hint.style.display='block'; hint.textContent='مسیر شرکت: دریافت، وضعیت اولیه، تشخیص، قطعه، هزینه مشتری، QC و ارسال.'; }
+    else if(init==='refer_company'){ hint.style.display='block'; hint.textContent='مسیر شرکت: صفحه بعد گزارش داخلی است تا پرینت بگیرید و به بخش‌ها بدهید.'; }
     else if(init==='return_oem'){ hint.style.display='block'; hint.textContent='برگشت OEM: شرکت تولیدکننده را از دفترچه (فقط دسته شرکت‌ها) جستجو کنید. کالا وارد انبار معیوب می‌شود تا طلب از آن شرکت مشخص بماند.'; }
     else { hint.style.display='none'; hint.textContent=''; }
   }
@@ -15517,14 +15733,109 @@ function onWInitChange(){
   if(init==='refer_company'){
     fillWarAccountSelects(); onWarUnderWarrChange();
     toggleWarPartRequest('company', !!(document.getElementById('wc-parts-enabled')||{}).checked);
+    var cr = document.getElementById('company-report-section');
+    if(cr) cr.style.display = 'block';
   }
   if(init==='return_oem'){
     var wod = document.getElementById('wo-date'); if(wod && !wod.value) wod.value = fdate();
   }
+  if(typeof syncWarWizard==='function') syncWarWizard();
+}
+function suggestWarSocialFromPhone(){
+  var ph = ((document.getElementById('wph')||{}).value||'').trim();
+  var val = document.getElementById('wsoc-val');
+  if(!val) return;
+  if(!ph) return;
+  if(!val.value.trim() || val.dataset.auto==='1'){
+    val.value = ph;
+    val.dataset.auto = '1';
+  }
+}
+function warWizardAllIds(){
+  return ['war-wp-customer','war-wp-social','war-wp-devs','war-wp-init','war-wp-problem','war-wp-docs','war-agency-path','war-company-path','company-report-section','war-oem-path','war-wp-final'];
+}
+function warWizardPages(){
+  var init = ((document.getElementById('winit')||{}).value)||'';
+  var pages = [
+    {id:'intake', title:'۱ پذیرش سریع', els:['war-wp-customer','war-wp-social','war-wp-devs']},
+    {id:'decision', title:'۲ تصمیم و مستندات', els: (init==='activate'||init==='phone_fix'||init==='no_follow') ? ['war-wp-init'] : ['war-wp-init','war-wp-problem','war-wp-docs']}
+  ];
+  if(init==='refer_company'){
+    pages.push({id:'company_report', title:'۳ گزارش داخلی', els:['company-report-section']});
+    pages.push({id:'company_work', title:'۴ خدمات شرکت', els:['war-company-path']});
+  } else if(init==='refer_agency'){
+    pages.push({id:'agency', title:'۳ نمایندگی', els:['war-agency-path']});
+  } else if(init==='return_oem'){
+    pages.push({id:'oem', title:'۳ برگشت OEM', els:['war-oem-path']});
+  }
+  pages.push({id:'final', title:(pages.length+1)+' ثبت و چاپ', els:['war-wp-final']});
+  return pages;
+}
+function syncWarWizard(){
+  var pages = warWizardPages();
+  var i = (typeof window._warWizI==='number') ? window._warWizI : 0;
+  if(i>=pages.length) i = pages.length-1;
+  if(i<0) i = 0;
+  showWarWizardPage(i);
+}
+function showWarWizardPage(i){
+  var pages = warWizardPages();
+  if(!pages.length) return;
+  if(i<0) i=0;
+  if(i>=pages.length) i=pages.length-1;
+  window._warWizI = i;
+  var show = {};
+  (pages[i].els||[]).forEach(function(id){ show[id]=true; });
+  warWizardAllIds().forEach(function(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    el.style.display = show[id] ? (id==='war-wp-final' ? 'flex' : 'block') : 'none';
+  });
+  var bar = document.getElementById('war-wizard-steps');
+  if(bar){
+    bar.innerHTML = pages.map(function(p, idx){
+      var cls = 'war-wiz-step'+(idx===i?' on':(idx<i?' done':''));
+      return '<button type="button" class="'+cls+'" onclick="showWarWizardPage('+idx+')">'+p.title+'</button>';
+    }).join('');
+  }
+}
+function warWizardNext(){
+  var pages = warWizardPages();
+  var i = (window._warWizI||0)+1;
+  if(i>=pages.length){ ntf('این آخرین صفحه است'); return; }
+  var init = ((document.getElementById('winit')||{}).value)||'';
+  if((window._warWizI||0)===1 && !init){ ntf('ابتدا تصمیم پذیرش را انتخاب کنید','err'); return; }
+  showWarWizardPage(i);
+}
+function warWizardPrev(){ showWarWizardPage((window._warWizI||0)-1); }
+function printWarWizardPage(){
+  var pages = warWizardPages();
+  var p = pages[window._warWizI||0];
+  if(!p) return;
+  var html = '';
+  (p.els||[]).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) html += el.innerHTML;
+  });
+  var doc = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>'+(p.title||'صفحه پرونده')+'</title>'+
+    '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}input,select,textarea{width:100%;border:1px solid #ccc;padding:6px;margin:4px 0}label{font-size:12px;font-weight:700}.card-title{font-size:16px;font-weight:800;margin:8px 0}</style></head><body>'+
+    '<h2>'+(p.title||'')+'</h2>'+html+'</body></html>';
+  if(typeof openFreshPrintWindow==='function') openFreshPrintWindow(doc, {docId:'war-page', title:p.title||'صفحه پرونده'});
+  else { var w=window.open('','_blank'); if(w){ w.document.write(doc); w.document.close(); w.print(); } }
+}
+function printWarFullForm(){
+  var d = (typeof getWarData==='function') ? getWarData() : {};
+  var a5 = (typeof buildWarA5==='function') ? buildWarA5(d, 'A4') : '';
+  var extra = '';
+  if(d.companyReport) extra += '<div style="page-break-before:always"></div>';
+  if(typeof printCompanyReport==='function' && d.refTo==='company'){
+    /* گزارش داخلی در فرم جامع هم می‌آید — از همان فیلدها */
+  }
+  var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>فرم جامع پرونده '+(d.id||'')+'</title></head><body>'+a5+'</body></html>';
+  if(typeof openFreshPrintWindow==='function') openFreshPrintWindow(html, {docId:'war-full', title:'فرم جامع پرونده'});
+  else { var w=window.open('','_blank'); if(w){ w.document.write(html); w.document.close(); w.print(); } }
 }
 
-// --- stage docs ---
-window._warStageDocs = window._warStageDocs || { phone:[], agencyShip:[], companyCond:[], companyOut:[] };
 function addWarStageDocs(key, inp){
   if(!window._warStageDocs[key]) window._warStageDocs[key]=[];
   var files = Array.from(inp.files||[]);
@@ -15836,6 +16147,7 @@ function showWarForm(idx){
     renderWarSvcLines('agency'); renderWarSvcLines('company');
     ['phone','agencyShip','companyCond','companyOut'].forEach(renderWarStageDocs);
     onWInitChange(); toggleCompanyReport('agency'); toggleWarPartRequest('agency',false); toggleWarPartRequest('company',false);
+    window._warWizI = 0; if(typeof syncWarWizard==='function') syncWarWizard();
   }else{
     const w=warranties[idx];
     [['wn','name'],['wph','phone'],['wdt','date'],['waddr','addr'],['wacc','accRef'],['wrefn','refName'],['wrefd','refDate'],['wrefnote','refNote'],['wprob','problem'],['wexp2','expert']].forEach(([id,key])=>setv(id,w[key]||''));
@@ -15904,6 +16216,7 @@ function showWarForm(idx){
     renderWarSvcLines('agency'); renderWarSvcLines('company');
     ['phone','agencyShip','companyCond','companyOut'].forEach(renderWarStageDocs);
     onWInitChange(); toggleCompanyReport(document.getElementById('wref').value); toggleWarPartRequest('agency',!!(document.getElementById('wa-parts-enabled')||{}).checked); toggleWarPartRequest('company',!!(document.getElementById('wc-parts-enabled')||{}).checked); calcWarrantyRepairDuration();
+    window._warWizI = 0; if(typeof syncWarWizard==='function') syncWarWizard();
   }
 }
 function showWarList(){
@@ -16211,11 +16524,17 @@ function getWarData(){
 function saveWar(){
   return withSaveLock('war', function(){
     const d=getWarData();
-    if(!d.name||!d.phone||!d.devices.length||!d.problem){ntf('نام، تلفن، حداقل یک دستگاه و شرح مشکل الزامی است','err');return;}
+    var shortPath = d.initialService==='activate' || d.initialService==='phone_fix' || d.initialService==='no_follow';
+    if(!d.name||!d.phone||!d.devices.length){ntf('نام، تلفن و حداقل یک دستگاه الزامی است','err');return;}
+    if(!shortPath && !d.problem){ntf('شرح مشکل الزامی است','err');return;}
     if(!d.initialService){ ntf('وضعیت اولیه خدمات را انتخاب کنید','err'); return; }
     if(d.initialService==='refer_agency' && !(d.agencyWork&&d.agencyWork.name)){ ntf('نام نمایندگی الزامی است','err'); return; }
     if(d.initialService==='return_oem' && !(d.oemWork&&d.oemWork.companyName)){ ntf('نام شرکت تولیدکننده الزامی است','err'); return; }
-    if(d.initialService==='phone_fix' && !(d.phoneResolution&&d.phoneResolution.note)){ ntf('نتیجه مشاوره تلفنی را بنویسید','err'); return; }
+    if(shortPath && !(d.phoneResolution&&d.phoneResolution.note)){ ntf('توضیح این تصمیم را بنویسید','err'); return; }
+    if(d.initialService==='phone_fix' || d.initialService==='no_follow'){
+      d.status='closed'; d.closedAt=d.closedAt||fdt();
+      if(d.initialService==='no_follow') d.closeReason='no_follow';
+    }
 
     // کسر قطعات / حواله داغی (فقط برای ردیف‌های جدید اعمال‌نشده)
     function applyPartReqs(reqs, flagKey, opts){
@@ -16336,7 +16655,8 @@ function saveWar(){
       wEditIdx = warranties.length - 1;
     } else {
       d.status = d.status==='closed' ? 'closed' : (warranties[wEditIdx].status||'open');
-      if(d.initialService==='phone_fix'){ d.status='closed'; d.closedAt=d.closedAt||fdt(); }
+      if(d.initialService==='phone_fix' || d.initialService==='no_follow'){ d.status='closed'; d.closedAt=d.closedAt||fdt(); }
+      if(d.initialService==='no_follow') d.closeReason='no_follow';
       d.createdAt=warranties[wEditIdx].createdAt||d.createdAt;
       if(!d._agencyStockApplied && warranties[wEditIdx]._agencyStockApplied) d._agencyStockApplied=warranties[wEditIdx]._agencyStockApplied;
       if(!d._companyStockApplied && warranties[wEditIdx]._companyStockApplied) d._companyStockApplied=warranties[wEditIdx]._companyStockApplied;
@@ -16841,7 +17161,7 @@ function doPrint(paperSize){
   const wbg=bgMap[pw.bg||'none']||'#fff';
   const effPaper = pw.paper || paperSize;
   var htmlDoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.22κ">
+<meta name="app-version" content="1405.5.22λ">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -16974,7 +17294,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22κ"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.22λ"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -17003,7 +17323,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22κ"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.22λ"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -17040,7 +17360,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22κ">'+
+    '<meta name="app-version" content="1405.5.22λ">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -17124,7 +17444,7 @@ function printCompanyReport(idx){
   var qcResultLbl = {'pass':'✅ تأیید کیفیت','fail':'❌ رد شد — نیاز به اصلاح','pending':'در حال بررسی'};
   var mgrApproveLbl = {'approved':'✅ تأیید نهایی','pending':'در انتظار بررسی','rejected':'❌ رد شد'};
 
-  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.22κ';
+  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.22λ';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
     '<title>گزارش داخلی شرکت — '+wHdr.id+'</title>'+
     '<style>'+
@@ -17755,7 +18075,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22κ">'+
+    '<meta name="app-version" content="1405.5.22λ">'+
     '<meta name="app-date" content="1405/05/22">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -17975,7 +18295,7 @@ function expSalesExcel(){
 // ══════ حسابداری ══════
 // ═══════════════════════════════════════════════════════════════════════════
 // ماژول داغی (پیگیری رسید امضا‌شده‌ی نمایندگی‌های خدمات)
-// نسخه ۱۴۰۵.۵.۲۲κ — فاز داغی
+// نسخه ۱۴۰۵.۵.۲۲λ — فاز داغی
 //
 // «داغی» یعنی وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستیم، آن‌ها باید رسید امضا‌شده
 // (داغی) را به ما برگردانند. این ماژول پیگیری می‌کند که چه کسانی داغی معوقه دارند.
@@ -19279,7 +19599,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.22κ">'+
+    '<meta name="app-version" content="1405.5.22λ">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
@@ -22420,8 +22740,18 @@ function loadAutoSaveUI(){
     document.getElementById('as-status').textContent = '✅ فعال — هر ' + autoSaveIntervalMin + ' دقیقه';
     document.getElementById('as-status').style.color = 'var(--green)';
   } else if (localStorage.getItem('laegh_autosave_enabled')) {
-    document.getElementById('as-status').textContent = '⚠️ نیاز به انتخاب مجدد فایل/پوشه (پس از بستن مرورگر، دسترسی لغو می‌شود)';
-    document.getElementById('as-status').style.color = 'var(--yellow)';
+    var pending = window._pendingAutoSaveFile || window._pendingAutoSaveDir;
+    var host = (typeof getSirmanHostSync==='function') ? getSirmanHostSync() : null;
+    if(host && host.WriteBackupText){
+      document.getElementById('as-status').textContent = '✅ فعال (محل پایدار برنامه) — هر ' + autoSaveIntervalMin + ' دقیقه';
+      document.getElementById('as-status').style.color = 'var(--green)';
+    } else if(pending){
+      document.getElementById('as-status').textContent = '⏳ محل قبلی آماده است — از نوار بالا «ادامه تنظیمات قبلی» را بزنید';
+      document.getElementById('as-status').style.color = 'var(--yellow)';
+    } else {
+      document.getElementById('as-status').textContent = '⏳ ذخیره خودکار روشن است — اگر نوار بالا آمد یک‌بار ادامه دهید';
+      document.getElementById('as-status').style.color = 'var(--yellow)';
+    }
   }
   if (lastAutoSaveTime) updateAutoSaveUI(true);
 }

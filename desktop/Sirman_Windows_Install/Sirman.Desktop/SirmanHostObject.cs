@@ -24,6 +24,42 @@ public class SirmanHostObject
 
     public string Ping() => "sirman-host-ok";
 
+    public string GetBackupDir()
+    {
+        var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Sirman", "backup");
+        Directory.CreateDirectory(dir);
+        return dir;
+    }
+
+    public void SaveAppPref(string json)
+    {
+        var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Sirman");
+        Directory.CreateDirectory(dir);
+        File.WriteAllText(Path.Combine(dir, "prefs.json"), json ?? "", new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+    }
+
+    public string LoadAppPref()
+    {
+        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Sirman", "prefs.json");
+        return File.Exists(path) ? File.ReadAllText(path) : "";
+    }
+
+    public string WriteBackupText(string fileName, string content)
+    {
+        try
+        {
+            var safe = Path.GetFileName(string.IsNullOrWhiteSpace(fileName) ? "sirman_autosave.txt" : fileName);
+            if (string.IsNullOrWhiteSpace(safe)) safe = "sirman_autosave.txt";
+            var path = Path.Combine(GetBackupDir(), safe);
+            File.WriteAllText(path, content ?? "", new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            return "{\"ok\":true,\"path\":" + JsonSerializer.Serialize(path) + "}";
+        }
+        catch (Exception ex)
+        {
+            return "{\"ok\":false,\"error\":" + JsonSerializer.Serialize(ex.Message) + "}";
+        }
+    }
+
     /// <summary>کاتالوگ پوستهٔ شیشه‌ای فصل/ماه برای مرور گارانتی.</summary>
     public string GetWarrantyBrowseCatalog() => SeasonalGlassTheme.CatalogJson();
 

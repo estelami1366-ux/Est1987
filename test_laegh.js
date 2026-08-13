@@ -3963,14 +3963,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۲κ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۲λ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.22κ', 'نسخه meta باید 1405.5.22κ باشد');
+  assertEqual(metaVer, '1405.5.22λ', 'نسخه meta باید 1405.5.22λ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/22', 'app-date باید 1405/05/22 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲κ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲κ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲λ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲λ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.22κ'", 'فیلد version بک‌آپ باید 1405.5.22κ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.22λ'", 'فیلد version بک‌آپ باید 1405.5.22λ باشد');
 });
 
 
@@ -5852,6 +5852,8 @@ test('میزبان دات‌نت باید فهرست چاپگر و چاپ HTML �
   const host = fs.readFileSync(hostPath, 'utf8');
   assertContainsString(host, 'GetPrinters', 'میزبان باید GetPrinters داشته باشد');
   assertContainsString(host, 'PrintHtml', 'میزبان باید PrintHtml داشته باشد');
+  assertContainsString(host, 'SaveAppPref', 'میزبان باید تنظیمات را در AppData نگه دارد');
+  assertContainsString(host, 'WriteBackupText', 'میزبان باید بک‌آپ متنی پایدار بنویسد');
   assertContainsString(host, 'PrinterSettings.InstalledPrinters', 'باید چاپگرهای ویندوز را بخواند');
   assertContainsString(html, 'host.GetPrinters', 'HTML باید فهرست چاپگر میزبان را بخواند');
   assertContainsString(html, 'host.PrintHtml', 'HTML باید PrintHtml میزبان را صدا بزند');
@@ -6338,7 +6340,7 @@ test('شبیه‌سازی: ایجنت بدون کلید فعال نشود؛ زم
     querySelectorAll: () => []
   };
   const out = runner2(
-    fakeLS, fakeDoc, '1405.5.22κ',
+    fakeLS, fakeDoc, '1405.5.22λ',
     [{num:'1'}], [], [], [], [],
     [{fn:'علی', phones:['09121234567']}],
     [],
@@ -6578,14 +6580,16 @@ test('برگشت OEM باید گزینه پذیرش باشد، شرکت فقط �
 
 test('شماره پرونده باید سال، فصل و روز را نشان دهد', () => {
   const nextSrc = extractFunctionSource(html, 'nextWarCaseId');
+  const prefSrc = extractFunctionSource(html, 'warCasePrefix');
+  const seaD = extractFunctionSource(html, 'warSeasonDigit');
   const seaFa = extractFunctionSource(html, 'warSeasonNameFa');
   const seaMo = extractFunctionSource(html, 'warSeasonOfMonth');
   const partsSrc = extractFunctionSource(html, 'warJalaliParts');
   const latSrc = extractFunctionSource(html, 'warLatinDigits');
   assertTrue(!!nextSrc, 'nextWarCaseId پیدا نشد');
   const runner = new Function(
-    latSrc+'\n'+partsSrc+'\n'+seaMo+'\n'+seaFa+'\n'+nextSrc+'\n'+
-    `var warranties = [{id:'W-1405-تابستان-22-0001'}];
+    latSrc+'\n'+partsSrc+'\n'+seaMo+'\n'+seaFa+'\n'+seaD+'\n'+prefSrc+'\n'+nextSrc+'\n'+
+    `var warranties = [{id:'W05-20522-0001'}];
      return {
        summer: nextWarCaseId('1405/05/22'),
        spring: nextWarCaseId('1405/01/09'),
@@ -6593,9 +6597,9 @@ test('شماره پرونده باید سال، فصل و روز را نشان �
      };`
   );
   const r = runner();
-  assertEqual(r.summer, 'W-1405-تابستان-22-0002', 'همان روز تابستان باید ردیف بعدی را بدهد');
-  assertEqual(r.spring, 'W-1405-بهار-09-0001', 'شماره بهار باید سال+فصل+روز داشته باشد');
-  assertEqual(r.autumn, 'W-1405-پاییز-03-0001', 'شماره پاییز باید فصل پاییز را نشان دهد');
+  assertEqual(r.summer, 'W05-20522-0002', 'همان روز تابستان باید ردیف بعدی را بدهد');
+  assertEqual(r.spring, 'W05-10109-0001', 'شماره بهار باید سال+فصل+ماه+روز داشته باشد');
+  assertEqual(r.autumn, 'W05-30803-0001', 'شماره پاییز باید فصل ۳ را نشان دهد');
 });
 
 test('پرونده جدید باید همه فیلدها را خالی کند و تلفن قبلی نماند', () => {
@@ -6738,8 +6742,101 @@ test('راهنما باید کشویی اقدام نهایی، OEM، شماره 
   ['اقدام نهایی (کشویی پایین فرم)','چاپ سریع پذیرش','برگشت OEM','شماره پرونده','پرونده جدید','ارجاع نماینده','گزارش ورود/خروج هر انبار'].forEach(s=>{
     assertContainsString(html, s, 'راهنما باید «'+s+'» را توضیح دهد');
   });
-  assertContainsString(html, 'W-1405-بهار-22-0001', 'نمونه شماره پرونده فصلی باید در راهنما باشد');
+  assertContainsString(html, 'W05-20522-0001', 'نمونه شماره پرونده کددار باید در راهنما باشد');
   assertContainsString(html, 'راست‌کلیک', 'راهنما باید پاک کردن فیلد با راست‌کلیک را بگوید');
+});
+
+
+console.log('');
+console.log('📋 گروه: ویزارد گارانتی، کد پرونده و ماندن تنظیمات');
+
+test('فعال‌سازی گارانتی باید بخش‌های بعدی را خاموش کند و فقط توضیحات بماند', () => {
+  const src = extractFunctionSource(html, 'onWInitChange');
+  assertTrue(!!src, 'onWInitChange پیدا نشد');
+  assertContainsString(src, "init==='activate'", 'فعال‌سازی باید شاخه خودش را داشته باشد');
+  assertContainsString(src, "ext.style.display = shortPath ? 'none'", 'بخش‌های بعدی باید برای فعال‌سازی مخفی شوند');
+  assertContainsString(html, 'value="no_follow"', 'گزینه پیگیر نشد لازم است');
+  assertContainsString(html, "no_follow:'پیگیر نشد'", 'برچسب پیگیر نشد لازم است');
+});
+
+test('شماره پرونده باید قالب WYY-SMMDD-NNNN باشد و قابل خواندن باشد', () => {
+  const nextSrc = extractFunctionSource(html, 'nextWarCaseId');
+  const prefSrc = extractFunctionSource(html, 'warCasePrefix');
+  const expSrc = extractFunctionSource(html, 'explainWarCaseId');
+  const seaD = extractFunctionSource(html, 'warSeasonDigit');
+  const seaMo = extractFunctionSource(html, 'warSeasonOfMonth');
+  const partsSrc = extractFunctionSource(html, 'warJalaliParts');
+  const latSrc = extractFunctionSource(html, 'warLatinDigits');
+  const runner = new Function(
+    latSrc+'\n'+partsSrc+'\n'+seaMo+'\n'+seaD+'\n'+prefSrc+'\n'+nextSrc+'\n'+expSrc+'\n'+
+    `var warranties = [];
+     var id = nextWarCaseId('1405/05/22');
+     return {id:id, expl:explainWarCaseId(id), pref:warCasePrefix('1405/02/10')};`
+  );
+  const r = runner();
+  assertEqual(r.id, 'W05-20522-0001', 'نمونه مرداد باید W05-20522-0001 باشد');
+  assertTrue(String(r.expl).indexOf('تابستان')>=0, 'توضیح کد باید فصل تابستان را بگوید');
+  assertEqual(r.pref, 'W05-10210-', 'اردیبهشت باید فصل ۱ و ماه ۰۲ باشد');
+});
+
+test('فرم گارانتی باید صفحه‌به‌صفحه باشد و هر صفحه چاپ جدا داشته باشد', () => {
+  assertContainsString(html, 'id="war-wizard-bar"', 'نوار ویزارد پیدا نشد');
+  ['warWizardPages','showWarWizardPage','printWarWizardPage','printWarFullForm'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  const pagesSrc = extractFunctionSource(html, 'warWizardPages');
+  assertContainsString(pagesSrc, "init==='refer_company'", 'بعد از ارجاع شرکت باید صفحات شرکت بیاید');
+  assertContainsString(pagesSrc, 'company-report-section', 'صفحه گزارش داخلی باید جدا باشد');
+  const runner = new Function(pagesSrc + `
+    var init = 'refer_company';
+    var document = { getElementById: function(){ return {value: init}; } };
+    var pages = warWizardPages();
+    return pages.map(function(p){ return p.id; }).join(',');
+  `);
+  const ids = runner();
+  assertTrue(ids.indexOf('intake')>=0 && ids.indexOf('decision')>=0, 'باید صفحه پذیرش و تصمیم داشته باشد');
+  assertTrue(ids.indexOf('company_report')>=0, 'بعد از ارجاع شرکت باید صفحه گزارش داخلی فعال شود');
+  assertTrue(ids.indexOf('final')>=0, 'صفحه ثبت/چاپ نهایی لازم است');
+});
+
+test('شماره تماس باید در فیلد شبکه اجتماعی پیشنهاد شود', () => {
+  const src = extractFunctionSource(html, 'suggestWarSocialFromPhone');
+  assertTrue(!!src, 'suggestWarSocialFromPhone پیدا نشد');
+  assertContainsString(html, 'oninput="suggestWarSocialFromPhone()"', 'فیلد تلفن باید پیشنهاد شبکه اجتماعی را صدا بزند');
+  const runner = new Function(src + `
+    var wph = {value:'09121234567'};
+    var wsoc = {value:'', dataset:{}};
+    var document = { getElementById: function(id){ return id==='wph' ? wph : wsoc; } };
+    suggestWarSocialFromPhone();
+    return {v:wsoc.value, auto:wsoc.dataset.auto};
+  `);
+  const r = runner();
+  assertEqual(r.v, '09121234567', 'شماره تماس باید در آیدی شبکه اجتماعی پیشنهاد شود');
+  assertEqual(r.auto, '1', 'پیشنهاد باید به‌عنوان مقدار خودکار علامت بخورد');
+});
+
+test('تنظیمات اعلان و ذخیره خودکار باید در بسته prefs و میزبان پایدار بمانند', () => {
+  assertContainsString(html, 'function collectPrefsBundle(', 'collectPrefsBundle لازم است');
+  assertContainsString(html, 'function restorePrefsBundleOnBoot(', 'بازیابی تنظیمات هنگام شروع لازم است');
+  assertContainsString(html, 'function resumePersistedPrefs(', 'ادامه تنظیمات قبلی لازم است');
+  assertContainsString(html, 'function ensureFsPermissionSilent(', 'بازیابی بی‌صدا بدون درخواست اجازه لازم است');
+  assertContainsString(html, 'id="prefs-resume-bar"', 'نوار ادامه تنظیمات لازم است');
+  const col = extractFunctionSource(html, 'collectPrefsBundle');
+  const app = extractFunctionSource(html, 'applyPrefsBundle');
+  const runner = new Function(col+'\n'+app+'\n'+
+    `var PREF_KEYS = ['laegh_desktop_notify_on','laegh_autosave_enabled'];
+     var store = {laegh_desktop_notify_on:'1', laegh_autosave_enabled:'1'};
+     var localStorage = { getItem:function(k){ return Object.prototype.hasOwnProperty.call(store,k)?store[k]:null; }, setItem:function(k,v){ store[k]=String(v); } };
+     var b = collectPrefsBundle();
+     store = {};
+     applyPrefsBundle(b);
+     return {n:store.laegh_desktop_notify_on, a:store.laegh_autosave_enabled};`
+  );
+  const r = runner();
+  assertEqual(r.n, '1', 'اعلان دسکتاپ باید در بسته تنظیمات بماند');
+  assertEqual(r.a, '1', 'ذخیره خودکار باید در بسته تنظیمات بماند');
+  assertContainsString(html, 'WriteBackupText', 'HTML باید بک‌آپ پایدار میزبان را صدا بزند');
+  assertContainsString(html, 'ماندن تنظیمات', 'راهنما باید ماندن تنظیمات را توضیح دهد');
 });
 
 
