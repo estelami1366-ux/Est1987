@@ -1,7 +1,7 @@
 @echo off
 cd /d "%~dp0"
 rem Keep in sync with Sirman_Start.bat / latest HTML version
-set "SIRMAN_VERSION=1405.5.22λ"
+set "SIRMAN_VERSION=1405.5.22μ"
 if exist "%~dp0apply_sirman_update.ps1" (
   powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0apply_sirman_update.ps1"
 )
