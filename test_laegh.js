@@ -997,7 +997,7 @@ test('openSaleForm هنگام ویرایش یک فروش قبلی باید docs 
 });
 
 test('شبیه‌سازی واقعی کامل: یک چرخه کامل ثبت فروش با عکس ضمیمه باید عکس را در رکورد نهایی sales[] ذخیره کند', async () => {
-  // از ۱۴۰۵.۵.۲۱ξ ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
+  // از ۱۴۰۵.۵.۲۱ο ضمیمه روی هارد (disk://) ذخیره می‌شود نه dataURL در حافظه مرورگر
   const addSrc = extractFunctionSource(html, 'addSaleDocs');
   assertTrue(addSrc !== null, 'تابع addSaleDocs پیدا نشد');
   assertContainsString(addSrc, 'storeDocFileOnDisk', 'addSaleDocs باید روی دیسک بنویسد');
@@ -3875,14 +3875,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۱ξ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۱ο باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.21ξ', 'نسخه meta باید 1405.5.21ξ باشد');
+  assertEqual(metaVer, '1405.5.21ο', 'نسخه meta باید 1405.5.21ο باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/21', 'app-date باید 1405/05/21 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ξ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ξ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۱ο', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۱ο را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.21ξ'", 'فیلد version بک‌آپ باید 1405.5.21ξ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.21ο'", 'فیلد version بک‌آپ باید 1405.5.21ο باشد');
 });
 
 
@@ -3951,7 +3951,7 @@ test('ε: مرکز آپدیت باید در تنظیمات باشد و بسته 
     return {
       bad: validateUpdatePackage({magic:'X', format:1, id:'a', version:'1'}),
       good: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'1405.5.20ε', minBaseVersion:'1405.5.20ε'}),
-      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21ξ'}),
+      tooNew: validateUpdatePackage({magic:'SIRMAN_UPDATE', format:1, id:'a', version:'x', minBaseVersion:'1405.5.21ο'}),
       cmp: compareSirmanVersions('1405.5.20ε','1405.5.18ε')
     };
   `);
@@ -4100,7 +4100,7 @@ test('شبیه‌سازی واقعی: summarizeBackupInventory باید بخش�
   assertTrue(!!extractFunctionSource(html, 'summarizeBackupInventory'), 'summarizeBackupInventory پیدا نشد');
   const runner = new Function(src + `;
     return summarizeBackupInventory({
-      version:'1405.5.21ξ',
+      version:'1405.5.21ο',
       invoices:[{id:1},{id:2}],
       phonebook:[{fn:'علی',phones:['0912']}],
       pb:[],
@@ -5289,6 +5289,37 @@ test('کنترل‌های پس‌زمینه داشبورد باید از خود 
   assertContainsString(actions, 'dashboard-bg', 'راست‌کلیک داشبورد باید انتخاب تصویر داشته باشد');
   assertContainsString(actions, 'dashboard-bg-clear', 'راست‌کلیک داشبورد باید حذف تصویر داشته باشد');
   assertContainsString(run, "getElementById('dash-bg-inp')", 'عمل راست‌کلیک باید input تصویر داشبورد را باز کند');
+});
+
+test('گردش‌کار گارانتی باید درخواست قطعه، مدت تعمیر، SLA و اعتبارسنجی بستن را داشته باشد', () => {
+  ['toggleWarPartRequest','calcWarrantyRepairDuration','checkWarrantySlaAlerts','startWarrantySlaAlerts','warrantyCloseMissingFields'].forEach(fn=>{
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  assertContainsString(html, 'id="wa-parts-enabled"', 'تیک درخواست قطعه نمایندگی لازم است');
+  assertContainsString(html, 'id="wc-parts-enabled"', 'تیک درخواست قطعه شرکت لازم است');
+  assertContainsString(html, 'id="wc-sla-resolved"', 'توقف هشدار SLA باید دستی باشد');
+  assertContainsString(html, 'id="wc-sla-note"', 'یادداشت توقف SLA لازم است');
+  assertContainsString(html, 'مدت تعمیر (خودکار از زمان ورود)', 'مدت تعمیر باید خودکار باشد');
+  ['parts_replaced','recalibrated','full_replacement','no_fault','irreparable'].forEach(v=>{
+    assertContainsString(html, 'value="'+v+'"', 'نتیجه تعمیر '+v+' لازم است');
+  });
+  const sla = extractFunctionSource(html, 'checkWarrantySlaAlerts');
+  const slaStart = extractFunctionSource(html, 'startWarrantySlaAlerts');
+  assertContainsString(sla, 'ageH<24', 'هشدار اول باید از ۲۴ ساعت شروع شود');
+  assertContainsString(sla, 'ageH>=48', 'هشدار قرمز باید از ۴۸ ساعت باشد');
+  assertContainsString(slaStart, '60*60*1000', 'یادآوری SLA باید هر ساعت باشد');
+  const close = extractFunctionSource(html, 'closeWar');
+  assertContainsString(close, 'warrantyCloseMissingFields', 'بستن پرونده باید اعتبارسنجی کامل داشته باشد');
+});
+
+test('داده‌ها باید از منوی راست به تنظیمات منتقل شود و برگشت فرم گارانتی کار کند', () => {
+  assertTrue(html.indexOf('data-grp="data"') === -1, 'گروه داده‌ها نباید در منوی راست بماند');
+  const settings = (html.match(/<div class="page" id="page-settings">([\s\S]*?)<!-- TAB: PRINTER -->/) || [])[1] || html;
+  assertContainsString(settings, "showPage('dataio')", 'ورود/خروج داده باید در تنظیمات باشد');
+  assertContainsString(settings, 'داده و ذخیره خودکار', 'ذخیره خودکار باید زیر داده‌ها در تنظیمات باشد');
+  const back = extractFunctionSource(html, 'winBack');
+  assertContainsString(back, "w.pageId==='warranty'", 'برگشت پنجره باید فرم گارانتی را بشناسد');
+  assertContainsString(back, 'showWarList()', 'برگشت از فرم گارانتی باید به لیست برود');
 });
 
 

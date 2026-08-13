@@ -6,7 +6,7 @@ $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $Root
 
 # === ALWAYS keep this version equal to the latest Sirman HTML release ===
-$SirmanVersion = '1405.5.21ξ'
+$SirmanVersion = '1405.5.21ο'
 $Port = 8765
 $NotifyPort = 8766
 $DefaultFile = 'Sirman_Final.html'
