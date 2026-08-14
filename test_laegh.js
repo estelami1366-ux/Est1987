@@ -3966,13 +3966,13 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳κ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳λ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.23κ', 'نسخه محصول باید 1405.5.23κ باشد');
-  assertEqual(ver.assembly, '1405.5.23.11', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (κ=11)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳κ', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.23λ', 'نسخه محصول باید 1405.5.23λ باشد');
+  assertEqual(ver.assembly, '1405.5.23.12', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (λ=12)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳λ', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -8370,9 +8370,10 @@ test('رزرو در exe فقط Writer هسته باشد و بدون Host هما�
   const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
   const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
   const applySrc = extractFunctionSource(html, 'applyCoreItemOnto');
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
   const resSrc = extractFunctionSource(html, 'invReserveOnItem');
   assertTrue(!!applySrc && !!resSrc, 'آداپتر رزرو پیدا نشد');
-  const jsPath = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + applySrc + '\n' + resSrc + `
+  const jsPath = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + recSrc + '\n' + applySrc + '\n' + resSrc + `
     function getSirmanHostSync(){ return null; }
     function invStockSnapshot(item){ return {qty:item.qty||0, reserved:item.reserved||0, available:Math.max(0,(item.qty||0)-(item.reserved||0))}; }
     var item = {qty:10, reserved:0};
@@ -8381,7 +8382,7 @@ test('رزرو در exe فقط Writer هسته باشد و بدون Host هما�
   `)();
   assertEqual(jsPath.ok, true, 'HTML-only باید رزرو کند');
   assertEqual(jsPath.reserved, 4, 'HTML-only باید reserved را ۴ کند');
-  const exePath = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + applySrc + '\n' + resSrc + `
+  const exePath = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + recSrc + '\n' + applySrc + '\n' + resSrc + `
     function getSirmanHostSync(){
       return { RunBusiness: function(name, json){
         return JSON.stringify({ok:true, result:{ok:true, item:{qty:10, reserved:3, reservedByWh:{}}, stock:{qty:10, reserved:3, available:7}}});
@@ -8394,6 +8395,69 @@ test('رزرو در exe فقط Writer هسته باشد و بدون Host هما�
   assertEqual(exePath.ok, true, 'exe باید رزرو هسته را بپذیرد');
   assertEqual(exePath.reserved, 3, 'آداپتر باید reserved هسته را روی کالا بنویسد نه محاسبه JS');
   assertEqual(exePath.avail, 7, 'موجودی قابل‌استفاده باید از هسته بیاید');
+});
+
+console.log('');
+console.log('📋 گروه: تکمیل فاز ۲ (C# منبع حقیقت عملیات حساس)');
+
+test('در exe جمع فاکتور و فروش نباید بعد از هسته دوباره با JS بازنویسی شود', () => {
+  const calcTSrc = extractFunctionSource(html, 'calcT');
+  const saleSrc = extractFunctionSource(html, 'calcSaleTotal');
+  assertContainsString(calcTSrc, 'invoice.totals', 'calcT باید جمع را از هسته بخواهد');
+  assertContainsString(calcTSrc, 'disc>0', 'شرط تخفیف نباید از calcT حذف شود');
+  assertTrue(calcTSrc.indexOf('if(coreTot && coreTot.tF!=null)') < 0, 'calcT نباید جمع JS را روی نتیجه هسته بنویسد');
+  assertContainsString(saleSrc, 'sale.total', 'جمع فروش باید از هسته بیاید');
+  assertTrue(saleSrc.indexOf('if(coreSale!=null && typeof coreSale!==\'undefined\') localTotal = coreSale') < 0, 'جمع فروش نباید الگوی dual-overwrite داشته باشد');
+});
+
+test('ثبت و بستن گارانتی و حواله در exe از هسته تصمیم می‌گیرند', () => {
+  const saveWarSrc = extractFunctionSource(html, 'saveWar');
+  const closeWarSrc = extractFunctionSource(html, 'closeWar');
+  const closeInvSrc = extractFunctionSource(html, 'closeInv');
+  const whSrc = extractFunctionSource(html, 'saveWarehouseDoc');
+  const applySrc = extractFunctionSource(html, 'applyStockByWarehouse');
+  assertContainsString(saveWarSrc, "warranty.save", 'saveWar باید از هسته اعتبارسنجی/وضعیت بگیرد');
+  assertContainsString(closeWarSrc, "warranty.close", 'closeWar باید گذار وضعیت را از هسته بگیرد');
+  assertContainsString(closeInvSrc, "invoice.close", 'closeInv باید تکمیل فاکتور را از هسته بگیرد');
+  assertContainsString(whSrc, "inventory.applyWarehouseDoc", 'حواله باید از هسته اعمال شود');
+  assertContainsString(applySrc, "inventory.applyByWarehouse", 'حرکت انبار باید از هسته اعمال شود');
+});
+
+test('پرداخت در exe حساب را با نتیجه هسته عوض می‌کند نه با جمع JS', () => {
+  const depSrc = extractFunctionSource(html, 'depositToAccount');
+  const wdSrc = extractFunctionSource(html, 'withdrawFromAccount');
+  assertContainsString(depSrc, 'payment.applyDeposit', 'واریز باید applyDeposit هسته باشد');
+  assertContainsString(wdSrc, 'payment.applyWithdraw', 'برداشت باید applyWithdraw هسته باشد');
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const persistSrc = extractFunctionSource(html, 'persistCoreSnapshot');
+  const exeDep = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + recSrc + '\n' + persistSrc + '\n' + depSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        return JSON.stringify({ok:true, result:{ok:true, amount:25, account:{id:'A1', balance:125, transactions:[{amount:25}]}, persistKeys:[]}});
+      }};
+    }
+    function emit(){}
+    var accounts = [{id:'A1', balance:100, transactions:[]}];
+    var err = depositToAccount('A1', 25, 'تست');
+    return {err:err, bal:accounts[0].balance};
+  `)();
+  assertEqual(exeDep.err, null, 'واریز هسته باید موفق باشد');
+  assertEqual(exeDep.bal, 125, 'مانده باید از هسته بیاید نه 100+25 سمت JS در صورت مقدار متفاوت');
+});
+
+test('آداپتر ذخیره فقط نتیجه هسته را روی شیء زنده می‌نویسد', () => {
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const fn = new Function(recSrc + `
+    var live = {qty:10, reserved:0, code:'P1'};
+    applyCoreRecordOnto(live, {qty:10, reserved:4, reservedByWh:{'WH-A':4}});
+    return live;
+  `)();
+  assertEqual(fn.reserved, 4, 'reserved هسته باید نوشته شود');
+  assertEqual(fn.code, 'P1', 'فیلدهای قبلی نباید پاک شوند');
+  assertEqual(fn.reservedByWh['WH-A'], 4, 'reservedByWh باید از هسته بیاید');
 });
 
 // نتیجه نهایی
