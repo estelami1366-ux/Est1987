@@ -692,7 +692,7 @@ console.log('📋 گروه ۳: تابع ریست (مهم‌ترین نقطه ر�
 test('تابع resetAll باید قبل از پاک کردن، اجباراً بک‌اپ بگیرد', () => {
   const resetSrc = extractFunctionSource(html, 'resetAll');
   assertTrue(resetSrc !== null, 'تابع resetAll پیدا نشد');
-  assertContainsString(resetSrc, 'exportData()', 'resetAll باید قبل از پاک کردن داده، exportData() را صدا بزند تا بک‌اپ اجباری گرفته شود');
+  assertTrue(/exportData\s*\(/.test(resetSrc), 'resetAll باید قبل از پاک کردن داده، exportData را صدا بزند تا بک‌اپ اجباری گرفته شود');
 });
 
 test('تابع resetAll باید تأیید نهایی با تایپ کلمه بخواهد (نه فقط یک کلیک)', () => {
@@ -935,7 +935,8 @@ test('پروفایل مدیر کل (currentRole=null) باید همه صفحات
 test('رمز پروفایل کارمند نباید بتواند با رمز کلی نرم‌افزار یا پروفایل دیگر یکسان باشد (جلوگیری از تداخل ورود)', () => {
   const saveRoleSrc = extractFunctionSource(html, 'saveRole');
   assertTrue(saveRoleSrc !== null, 'تابع saveRole پیدا نشد');
-  assertContainsString(saveRoleSrc, 'pw === loginPw', 'باید رمز پروفایل را با رمز کلی نرم‌افزار مقایسه کند تا تداخل پیش نیاید');
+  assertTrue(saveRoleSrc.indexOf('passwordMatches') >= 0 || saveRoleSrc.indexOf('pw === loginPw') >= 0,
+    'باید رمز پروفایل را با رمز کلی نرم‌افزار مقایسه کند تا تداخل پیش نیاید');
 });
 
 test('بک‌اپ باید userRoles و loginPw را هم شامل شود تا با انتقال بک‌اپ، کاربران هم منتقل شوند', () => {
@@ -3965,14 +3966,33 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳ζ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳η باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+  const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
+  assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
+  const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
+  assertEqual(ver.app, '1405.5.23η', 'نسخه محصول باید 1405.5.23η باشد');
+  assertEqual(ver.assembly, '1405.5.23.8', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (η=8)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳η', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.23ζ', 'نسخه meta باید 1405.5.23ζ باشد');
+  assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
-  assertEqual(metaDate, '1405/05/23', 'app-date باید 1405/05/23 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۳ζ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۳ζ را نشان دهد');
+  assertEqual(metaDate, ver.date, 'app-date باید با فایل نسخه یکی باشد');
+  assertContainsString(html, 'نسخه '+ver.appFa, 'سایدبار باید نسخه فارسی را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.23ζ'", 'فیلد version بک‌آپ باید 1405.5.23ζ باشد');
+  assertContainsString(buildSrc, "version: '"+ver.app+"'", 'فیلد version بک‌آپ باید با منبع واحد یکی باشد');
+  const propsPath = path.join(path.dirname(filePath), 'desktop', 'Directory.Build.props');
+  assertTrue(fs.existsSync(propsPath), 'Directory.Build.props باید نسخه پوسته را از همان منبع بخواند');
+  const props = fs.readFileSync(propsPath, 'utf8');
+  assertContainsString(props, '<Version>'+ver.assembly+'</Version>', 'پوسته ویندوز باید assembly را از منبع واحد بگیرد');
+  assertContainsString(props, '<InformationalVersion>'+ver.app+'</InformationalVersion>', 'InformationalVersion باید همان نسخه HTML باشد');
+  ['desktop/Sirman.Desktop/Sirman.Desktop.csproj',
+   'desktop/Sirman_Install_Kit/Sirman.Desktop/Sirman.Desktop.csproj',
+   'desktop/Sirman_Windows_Install/Sirman.Desktop/Sirman.Desktop.csproj'].forEach(function(rel){
+    const cs = fs.readFileSync(path.join(path.dirname(filePath), rel), 'utf8');
+    assertTrue(!/<Version>1405\.5\.21/.test(cs), rel+' نباید نسخه قدیمی جدا داشته باشد');
+  });
+  const bat = fs.readFileSync(path.join(path.dirname(filePath), 'Sirman_Start.bat'), 'utf8');
+  assertContainsString(bat, ver.app, 'لانچر BAT باید همان نسخه منبع واحد را داشته باشد');
 });
 
 
@@ -7428,7 +7448,8 @@ test('قانون ۷: راهنمای نقش‌ها و گزارش فعالیت ب�
 test('saveRole همچنان نباید رمز کاربر را با رمز کلی نرم‌افزار یکی کند', () => {
   const saveRoleSrc = extractFunctionSource(html, 'saveRole');
   assertTrue(saveRoleSrc !== null, 'تابع saveRole پیدا نشد');
-  assertContainsString(saveRoleSrc, 'pw === loginPw', 'باید رمز پروفایل را با رمز کلی نرم‌افزار مقایسه کند تا تداخل پیش نیاید');
+  assertTrue(saveRoleSrc.indexOf('passwordMatches') >= 0 || saveRoleSrc.indexOf('pw === loginPw') >= 0,
+    'باید رمز پروفایل را با رمز کلی نرم‌افزار مقایسه کند تا تداخل پیش نیاید');
 });
 
 
@@ -8006,14 +8027,205 @@ test('تب شبکه، راهنما و مسیر Host Object باید وجود د�
 
 test('ورود فعلی و مقایسه رمز پروفایل با رمز کلی نباید بشکند', () => {
   const saveRoleSrc = extractFunctionSource(html, 'saveRole');
-  assertContainsString(saveRoleSrc, 'pw === loginPw', 'باید رمز پروفایل را با رمز کلی نرم‌افزار مقایسه کند');
+  assertTrue(saveRoleSrc.indexOf('passwordMatches') >= 0 || saveRoleSrc.indexOf('pw === loginPw') >= 0,
+    'باید رمز پروفایل را با رمز کلی نرم‌افزار مقایسه کند');
   assertContainsString(saveRoleSrc, 'checkPasswordStrength', 'ذخیره کاربر جدید باید رمز را با سیاست قدرت بسنجد');
   const loginSrc = extractFunctionSource(html, 'setLoginPw');
   assertContainsString(loginSrc, 'checkPasswordStrength', 'رمز مدیر سیستم باید سیاست قدرت داشته باشد');
   const matchSrc = extractFunctionSource(html, 'matchAppUserForLogin');
-  assertContainsString(matchSrc, 'u.pw !== password', 'ورود باید همچنان با رمز ذخیره‌شده کار کند');
+  assertTrue(matchSrc.indexOf('passwordMatches') >= 0 || matchSrc.indexOf('u.pw !== password') >= 0,
+    'ورود باید همچنان با رمز ذخیره‌شده کار کند');
   assertContainsString(html, 'encryptBackupPackage', 'رمزنگاری بک‌آپ موجود نباید حذف شود');
   assertContainsString(html, 'GetMachineInfo', 'نام رایانه برای گزارش فعالیت باید بماند');
+});
+
+console.log('');
+console.log('📋 گروه: هش یک‌طرفه رمز عبور');
+
+function passwordCryptoBundle(srcHtml) {
+  const names = ['secSha1','secHmacSha1','secUtf8Bytes','secBytesToHex','secHexToBytes','secPbkdf2HmacSha1','isPasswordHash','hashPassword','passwordMatches','upgradeStoredPassword','matchAppUserForLogin'];
+  const parts = names.map(n => extractFunctionSource(srcHtml, n)).filter(Boolean);
+  return parts.join('\n');
+}
+
+test('توابع هش رمز باید موجود باشند و با بردار RFC 6070 درست کار کنند', () => {
+  ['secUtf8Bytes','secPbkdf2HmacSha1','isPasswordHash','hashPassword','passwordMatches'].forEach(n => {
+    assertTrue(!!extractFunctionSource(html, n), 'تابع '+n+' پیدا نشد');
+  });
+  const bundle = passwordCryptoBundle(html);
+  const runner = new Function(bundle + `
+    var dk1 = secBytesToHex(secPbkdf2HmacSha1('password', secUtf8Bytes('salt'), 1, 20));
+    var dk2 = secBytesToHex(secPbkdf2HmacSha1('password', secUtf8Bytes('salt'), 2, 20));
+    return {dk1:dk1, dk2:dk2};
+  `);
+  const r = runner();
+  assertEqual(r.dk1, '0c60c80f961f0e71f3a9b524af6012062fe037a6', 'RFC 6070 c=1 باید مطابقت داشته باشد');
+  assertEqual(r.dk2, 'ea6c014dc72d6f8ccd1ed92ace1d41f0d8de8957', 'RFC 6070 c=2 باید مطابقت داشته باشد');
+});
+
+test('hashPassword باید رمز خام را ذخیره نکند و passwordMatches هم هش و هم رمز قدیمی را بپذیرد', () => {
+  const bundle = passwordCryptoBundle(html);
+  const runner = new Function(bundle + `
+    var stored = hashPassword('Secret9x');
+    var again = hashPassword('Secret9x');
+    var up = (typeof upgradeStoredPassword==='function') ? upgradeStoredPassword('oldplain', 'oldplain') : '';
+    var roles = [
+      {id:'u1', name:'علی', username:'ali', pw:'p1', active:false, pages:['dashboard']},
+      {id:'u2', name:'مینا', username:'mina', pw: hashPassword('p2'), active:true, pages:['dashboard']}
+    ];
+    return {
+      stored: stored,
+      isHash: isPasswordHash(stored),
+      rawInside: String(stored).indexOf('Secret9x') >= 0,
+      match: passwordMatches('Secret9x', stored),
+      mismatch: passwordMatches('wrong', stored),
+      legacy: passwordMatches('oldPw', 'oldPw'),
+      legacyBad: passwordMatches('oldPw', 'other'),
+      saltsDiffer: stored !== again,
+      upgradedHash: isPasswordHash(up),
+      upgradedPlainGone: String(up).indexOf('oldplain') < 0,
+      inactive: matchAppUserForLogin('ali', 'p1', roles, 'master'),
+      named: matchAppUserForLogin('mina', 'p2', roles, 'master'),
+      masterLegacy: matchAppUserForLogin('', 'master', roles, 'master'),
+      masterHashed: matchAppUserForLogin('', 'Secret9x', roles, stored),
+      bad: matchAppUserForLogin('', 'nope', roles, stored)
+    };
+  `);
+  const r = runner();
+  assertEqual(r.isHash, true, 'خروجی hashPassword باید هش باشد');
+  assertEqual(r.rawInside, false, 'رمز خام نباید داخل رشته هش دیده شود');
+  assertEqual(r.match, true, 'رمز درست باید با هش یکی باشد');
+  assertEqual(r.mismatch, false, 'رمز غلط باید رد شود');
+  assertEqual(r.legacy, true, 'رمز قدیمی plaintext باید هنوز وارد شود');
+  assertEqual(r.legacyBad, false, 'رمز قدیمی غلط باید رد شود');
+  assertEqual(r.saltsDiffer, true, 'هر ذخیره باید salt جدا داشته باشد');
+  assertEqual(r.upgradedHash, true, 'ارتقا باید هش بسازد');
+  assertEqual(r.upgradedPlainGone, true, 'بعد از ارتقا رمز خام نماند');
+  assertEqual(r.inactive.ok, false, 'کاربر غیرفعال با رمز قدیمی نباید وارد شود');
+  assertEqual(r.named.ok, true, 'کاربر فعال با هش باید وارد شود');
+  assertEqual(r.masterLegacy.ok, true, 'رمز کلی قدیمی باید کار کند');
+  assertEqual(r.masterHashed.ok, true, 'رمز کلی هش‌شده باید کار کند');
+  assertEqual(r.bad.ok, false, 'رمز غلط نباید وارد شود');
+});
+
+test('ذخیره رمز مدیر و کاربر باید هش کند نه متن خام، و ورود موفق رمز قدیمی را ارتقا دهد', () => {
+  const setSrc = extractFunctionSource(html, 'setLoginPw');
+  const saveSrc = extractFunctionSource(html, 'saveRole');
+  const forceSrc = extractFunctionSource(html, 'submitForcePwChange');
+  const attemptSrc = extractFunctionSource(html, 'attemptLogin');
+  assertContainsString(setSrc, 'hashPassword', 'setLoginPw باید رمز را هش کند');
+  assertTrue(setSrc.indexOf("localStorage.setItem('laegh_login_pw',a)") < 0, 'نباید رمز خام مدیر در localStorage نوشته شود');
+  assertContainsString(saveSrc, 'hashPassword', 'saveRole باید رمز کاربر را هش کند');
+  assertContainsString(saveSrc, 'passwordMatches', 'saveRole باید تداخل با رمز کلی را با هش بسنجد');
+  assertContainsString(forceSrc, 'hashPassword', 'تعویض اجباری رمز باید هش کند');
+  assertContainsString(attemptSrc, 'upgradeStoredPassword', 'ورود موفق باید رمز قدیمی را به هش ارتقا دهد');
+});
+
+console.log('');
+console.log('📋 گروه: بک‌آپ رمزدار پیش‌فرض');
+
+test('خروجی بک‌آپ باید پیش‌فرض رمزدار باشد و بدون رمز هشدار بدهد', () => {
+  assertContainsString(html, 'id="bk-encrypt-on"', 'تیک بک‌آپ رمزدار لازم است');
+  assertTrue(/id="bk-encrypt-on"[^>]*checked/.test(html) || /<input[^>]*id="bk-encrypt-on"[^>]*checked/.test(html),
+    'تیک رمزنگاری بک‌آپ باید پیش‌فرض روشن باشد');
+  assertTrue(!!extractFunctionSource(html, 'isBackupEncryptPreferred'), 'isBackupEncryptPreferred پیدا نشد');
+  assertTrue(!!extractFunctionSource(html, 'confirmUnencryptedBackup'), 'confirmUnencryptedBackup پیدا نشد');
+  const exp = extractFunctionSource(html, 'exportData');
+  assertContainsString(exp, 'confirmUnencryptedBackup', 'exportData باید قبل از بک‌آپ بدون رمز تأیید بگیرد');
+  assertContainsString(exp, 'skipEncryptPrompt', 'ریست اجباری باید بتواند هشدار رمز را رد کند');
+  const resetSrc = extractFunctionSource(html, 'resetAll');
+  assertContainsString(resetSrc, 'skipEncryptPrompt', 'ریست کامل نباید به‌خاطر تیک رمز متوقف شود');
+  const pref = extractFunctionSource(html, 'isBackupEncryptPreferred');
+  const conf = extractFunctionSource(html, 'confirmUnencryptedBackup');
+  const runner = new Function(pref + '\n' + conf + `
+    var checks = {};
+    function documentMock(checked){
+      return { getElementById: function(id){ return id==='bk-encrypt-on' ? {checked:checked} : null; } };
+    }
+    var document = documentMock(true);
+    var a = isBackupEncryptPreferred();
+    document = documentMock(false);
+    var b = isBackupEncryptPreferred();
+    document = { getElementById: function(){ return null; } };
+    var c = isBackupEncryptPreferred();
+    var asked = '';
+    confirm = function(msg){ asked = msg; return false; };
+    var d = confirmUnencryptedBackup();
+    return {a:a,b:b,c:c,d:d, asked:asked};
+  `);
+  const r = runner();
+  assertEqual(r.a, true, 'تیک روشن یعنی رمزدار ترجیح داده شود');
+  assertEqual(r.b, false, 'تیک خاموش یعنی کاربر رمز نمی‌خواهد');
+  assertEqual(r.c, true, 'بدون عنصر UI باید پیش‌فرض رمزدار باشد');
+  assertEqual(r.d, false, 'رد کردن هشدار باید بک‌آپ خام را متوقف کند');
+  assertTrue(/رمز|هشدار/.test(r.asked), 'متن تأیید باید هشدار بدون رمز باشد');
+});
+
+console.log('');
+console.log('📋 گروه: هشدار اشتراک LAN');
+
+test('قبل از روشن کردن اشتراک LAN باید تأیید هشدار بدون HTTPS/احراز هویت بیاید', () => {
+  assertTrue(!!extractFunctionSource(html, 'confirmLanShareEnable'), 'confirmLanShareEnable پیدا نشد');
+  const saveSrc = extractFunctionSource(html, 'saveNetworkSettingsFromUi');
+  assertContainsString(saveSrc, 'confirmLanShareEnable', 'ذخیره شبکه باید قبل از روشن کردن LAN تأیید بگیرد');
+  const conf = extractFunctionSource(html, 'confirmLanShareEnable');
+  const runner = new Function(conf + `
+    var asked = '';
+    confirm = function(msg){ asked = String(msg||''); return false; };
+    return {
+      offToOn: confirmLanShareEnable(false, true),
+      alreadyOn: confirmLanShareEnable(true, true),
+      turningOff: confirmLanShareEnable(true, false),
+      stayOff: confirmLanShareEnable(false, false),
+      asked: asked
+    };
+  `);
+  const r = runner();
+  assertEqual(r.offToOn, false, 'رد کردن هشدار باید روشن شدن LAN را متوقف کند');
+  assertEqual(r.alreadyOn, true, 'اگر از قبل روشن بوده نباید دوباره بپرسد');
+  assertEqual(r.turningOff, true, 'خاموش کردن نباید هشدار بخواهد');
+  assertEqual(r.stayOff, true, 'ماندن خاموش نباید هشدار بخواهد');
+  assertTrue(/HTTPS|رمزنگاری|هویت|هشدار/.test(r.asked), 'متن باید خطر بدون رمزنگاری و بدون هویت را بگوید');
+  assertContainsString(html, 'بدون HTTPS', 'راهنما باید بگوید LAN بدون HTTPS است');
+});
+
+console.log('');
+console.log('📋 گروه: تداخل پورت اعلان');
+
+test('قبل از bind پورت اعلان باید آزاد بودن پورت چک شود و HTML از پورت واقعی استفاده کند', () => {
+  assertTrue(!!extractFunctionSource(html, 'getNotifyBridgePort'), 'getNotifyBridgePort پیدا نشد');
+  assertTrue(!!extractFunctionSource(html, 'getNotifyBridgeUrl'), 'getNotifyBridgeUrl پیدا نشد');
+  const portSrc = extractFunctionSource(html, 'getNotifyBridgePort');
+  const urlSrc = extractFunctionSource(html, 'getNotifyBridgeUrl');
+  const bridge = extractFunctionSource(html, 'pushWindowsNotifyBridge');
+  assertContainsString(bridge, 'getNotifyBridgeUrl', 'پل اعلان باید از آدرس پویا استفاده کند نه پورت ثابت تنها');
+  const runner = new Function(portSrc + '\n' + urlSrc + `
+    var window = {};
+    function getSirmanHostSync(){ return null; }
+    var a = getNotifyBridgePort();
+    var u = getNotifyBridgeUrl('/notify');
+    var h = getNotifyBridgeUrl('health');
+    getSirmanHostSync = function(){ return { GetNotifyPort: function(){ return 8770; } }; };
+    var b = getNotifyBridgePort();
+    var u2 = getNotifyBridgeUrl('/notify');
+    return {a:a, u:u, h:h, b:b, u2:u2};
+  `);
+  const r = runner();
+  assertEqual(r.a, 8766, 'بدون Host باید پورت پیش‌فرض ۸۷۶۶ باشد');
+  assertEqual(r.u, 'http://127.0.0.1:8766/notify', 'آدرس پیش‌فرض notify');
+  assertEqual(r.h, 'http://127.0.0.1:8766/health', 'آدرس پیش‌فرض health');
+  assertEqual(r.b, 8770, 'اگر Host پورت دیگری داد باید همان استفاده شود');
+  assertEqual(r.u2, 'http://127.0.0.1:8770/notify', 'URL باید پورت واقعی Host را بگیرد');
+  const cs = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'NotifyBridgeService.cs'), 'utf8');
+  assertContainsString(cs, 'IsTcpPortFree', 'پوسته باید قبل از bind آزاد بودن پورت را چک کند');
+  assertContainsString(cs, 'preferredPort', 'اگر پورت اشغال بود باید پورت بعدی را امتحان کند');
+  const host = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs'), 'utf8');
+  assertContainsString(host, 'GetNotifyPort', 'Host باید پورت واقعی اعلان را به HTML بدهد');
+  const ps1 = fs.readFileSync(path.join(path.dirname(filePath), 'sirman_run.ps1'), 'utf8');
+  assertTrue(/Test-Path|TcpListener|PortFree|port .+busy|in use/i.test(ps1) && /NotifyPort/.test(ps1), 'PS1 باید پورت اعلان را قبل از bind چک کند');
+  assertContainsString(ps1, 'Test-SirmanPortFree', 'لانچر باید تابع بررسی پورت آزاد داشته باشد');
+  const rules = fs.readFileSync(path.join(path.dirname(filePath), 'docs', 'ARCHITECTURE_RULES.md'), 'utf8');
+  assertContainsString(rules, 'GetNotifyPort', 'GetNotifyPort باید در لیست مجاز Host باشد');
 });
 
 

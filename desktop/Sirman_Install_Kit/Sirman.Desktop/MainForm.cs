@@ -262,6 +262,8 @@ public sealed class MainForm : Form
         else Go();
     }
 
+    public int GetNotifyBridgePort() => _notify.Port;
+
     /// <summary>
     /// بستن قطعی پروسه. Close()/Dispose وب‌ویو گاهی hang می‌کند —
     /// بعد از مخفی‌کردن tray مستقیم Environment.Exit.
