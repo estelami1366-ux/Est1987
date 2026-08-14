@@ -3966,13 +3966,13 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳λ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳μ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.23λ', 'نسخه محصول باید 1405.5.23λ باشد');
-  assertEqual(ver.assembly, '1405.5.23.12', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (λ=12)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳λ', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.23μ', 'نسخه محصول باید 1405.5.23μ باشد');
+  assertEqual(ver.assembly, '1405.5.23.13', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (μ=13)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳μ', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -8302,6 +8302,9 @@ test('Host Object باید دروازه مجوز و متدهای امنیت را
   assertContainsString(rules, 'BindSession', 'لیست مجاز معماری باید BindSession را ثبت کند');
   assertContainsString(rules, 'ValidateEntity', 'لیست مجاز معماری باید ValidateEntity را ثبت کند');
   assertContainsString(html, 'data-help-id="security-guide"', 'راهنمای امنیت موجود نباید حذف شود');
+  assertContainsString(html, 'data-help-id="install-update-guide"', 'راهنمای نصب و آپدیت باید در صفحه راهنما باشد');
+  assertContainsString(html, 'Sirman_Start.bat', 'راهنمای نصب باید لانچر را نام ببرد');
+  assertContainsString(html, 'exe جدید', 'راهنمای این نسخه باید بگوید exe هم عوض شود');
   assertContainsString(html, 'مجوز واقعی', 'راهنما باید مجوز واقعی را توضیح دهد');
 });
 
