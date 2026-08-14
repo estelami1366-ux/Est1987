@@ -3966,12 +3966,12 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳μ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳ν باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.23μ', 'نسخه محصول باید 1405.5.23μ باشد');
-  assertEqual(ver.assembly, '1405.5.23.13', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (μ=13)');
+  assertEqual(ver.app, '1405.5.23ν', 'نسخه محصول باید 1405.5.23ν باشد');
+  assertEqual(ver.assembly, '1405.5.23.14', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (ν=14)');
   assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳μ', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
@@ -8305,6 +8305,13 @@ test('Host Object باید دروازه مجوز و متدهای امنیت را
   assertContainsString(html, 'data-help-id="install-update-guide"', 'راهنمای نصب و آپدیت باید در صفحه راهنما باشد');
   assertContainsString(html, 'Sirman_Start.bat', 'راهنمای نصب باید لانچر را نام ببرد');
   assertContainsString(html, 'exe جدید', 'راهنمای این نسخه باید بگوید exe هم عوض شود');
+  assertContainsString(html, 'فایل یک‌کیلوبایتی برنامه نیست', 'راهنمای نصب از صفر باید بگوید JSON یک‌کیلوبایتی برنامه نیست');
+  assertContainsString(html, 'نصب از صفر', 'راهنما باید نصب از صفر را توضیح دهد');
+  const guideTxt = path.join(path.dirname(filePath), 'راهنمای_نصب_از_صفر.txt');
+  assertTrue(fs.existsSync(guideTxt), 'فایل راهنمای_نصب_از_صفر.txt باید کنار برنامه باشد');
+  const guideBody = fs.readFileSync(guideTxt, 'utf8');
+  assertTrue(guideBody.indexOf('فایل یک‌کیلوبایتی برنامه نیست') >= 0, 'متن راهنمای از صفر باید هشدار ۱ کیلوبایت را داشته باشد');
+  assertTrue(guideBody.indexOf('Sirman_Final.html') >= 0, 'متن راهنمای از صفر باید فایل برنامه را نام ببرد');
   assertContainsString(html, 'مجوز واقعی', 'راهنما باید مجوز واقعی را توضیح دهد');
 });
 
