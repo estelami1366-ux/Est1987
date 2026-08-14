@@ -3972,7 +3972,7 @@ test('نسخه ۱۴۰۵.۵.۲۳ν باید Year.Month.Day شمسی با حرف �
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
   assertEqual(ver.app, '1405.5.23ν', 'نسخه محصول باید 1405.5.23ν باشد');
   assertEqual(ver.assembly, '1405.5.23.14', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (ν=14)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳μ', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳ν', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
