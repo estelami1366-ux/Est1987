@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using Sirman.Core.Infrastructure;
 
 namespace Sirman.Desktop;
 
@@ -18,6 +19,34 @@ public class SirmanHostObject
     private readonly MainForm _form;
 
     public SirmanHostObject(MainForm form) => _form = form;
+
+    private string? Guard(string method)
+    {
+        if (DesktopSecurity.Current.IsHostMethodAllowed(method)) return null;
+        return DesktopSecurity.Current.AuthorizeHostMethod(method);
+    }
+
+    public string Login(string json) => DesktopSecurity.Current.Login(json);
+    public string Logout() => DesktopSecurity.Current.Logout();
+    public string BindSession(string json) => DesktopSecurity.Current.BindSession(json);
+    public string CheckPermission(string permission) => DesktopSecurity.Current.CheckPermission(permission);
+    public string HashPassword(string plain) => DesktopSecurity.Current.HashPassword(plain);
+    public string VerifyPassword(string plain, string stored)
+    {
+        try
+        {
+            var ok = DesktopSecurity.Current.VerifyPassword(plain ?? "", stored ?? "");
+            return "{\"ok\":" + (ok ? "true" : "false") + "}";
+        }
+        catch (Exception ex)
+        {
+            return SafeError.Json("verify-failed", "بررسی رمز انجام نشد", ex);
+        }
+    }
+    public string ValidateEntity(string entity, string json) => DesktopSecurity.Current.ValidateEntity(entity, json);
+    public string GetSecurityStatus() => DesktopSecurity.Current.GetSecurityStatus();
+    public string SaveSecret(string name, string value) => DesktopSecurity.Current.SaveSecret(name, value);
+    public string LoadSecret(string name) => DesktopSecurity.Current.LoadSecret(name);
 
     /// <summary>بستن فوری پنجرهٔ exe (بعد از بک‌آپ/خروج HTML).</summary>
     public void CloseApp() => _form.RequestForceClose();
@@ -38,6 +67,7 @@ public class SirmanHostObject
 
     public void SaveAppPref(string json)
     {
+        if (Guard("SaveAppPref") != null) return;
         var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Sirman");
         Directory.CreateDirectory(dir);
         File.WriteAllText(Path.Combine(dir, "prefs.json"), json ?? "", new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
@@ -61,7 +91,7 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return "{\"ok\":false,\"error\":" + JsonSerializer.Serialize(ex.Message) + "}";
+            return SafeError.Json("backup-write", "نوشتن فایل پشتیبان انجام نشد", ex);
         }
     }
 
@@ -178,6 +208,8 @@ public class SirmanHostObject
     /// <summary>فعال‌سازی اشتراک LAN و مسیر پوشه مشترک (فایل AppData، نه دیتابیس جدا).</summary>
     public string SetNetworkConfig(string json)
     {
+        var denied = Guard("SetNetworkConfig");
+        if (denied != null) return denied;
         try
         {
             using var incoming = JsonDocument.Parse(string.IsNullOrWhiteSpace(json) ? "{}" : json);
@@ -206,13 +238,15 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return "{\"ok\":false,\"error\":" + JsonSerializer.Serialize(ex.Message) + "}";
+            return SafeError.Json("network-config", "تنظیم شبکه ذخیره نشد", ex);
         }
     }
 
     /// <summary>نوشتن بسته بک‌آپ موجود روی پوشه مشترک. CRUD جدا نیست.</summary>
     public string WriteWorkspaceFile(string content)
     {
+        var denied = Guard("WriteWorkspaceFile");
+        if (denied != null) return denied;
         try
         {
             var dir = ResolveWorkspaceDir();
@@ -223,13 +257,15 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return "{\"ok\":false,\"error\":" + JsonSerializer.Serialize(ex.Message) + "}";
+            return SafeError.Json("workspace-write", "نوشتن فضای کاری انجام نشد", ex);
         }
     }
 
     /// <summary>خواندن فضای کاری مشترک برای ادغام با import موجود.</summary>
     public string ReadWorkspaceFile()
     {
+        var denied = Guard("ReadWorkspaceFile");
+        if (denied != null) return denied;
         try
         {
             var path = Path.Combine(ResolveWorkspaceDir(), "sirman-workspace.json");
@@ -245,7 +281,7 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return "{\"ok\":false,\"error\":" + JsonSerializer.Serialize(ex.Message) + "}";
+            return SafeError.Json("workspace-read", "خواندن فضای کاری انجام نشد", ex);
         }
     }
 
@@ -313,6 +349,8 @@ public class SirmanHostObject
     /// <summary>چاپ HTML روی چاپگر نام‌دار یا دستور print پیش‌فرض ویندوز.</summary>
     public string PrintHtml(string html, string printerName, string paper, string orientation, int copies)
     {
+        var denied = Guard("PrintHtml");
+        if (denied != null) return denied;
         try
         {
             var dir = Path.Combine(Path.GetTempPath(), "sirman-print");
@@ -341,7 +379,7 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return "{\"ok\":false,\"error\":" + JsonSerializer.Serialize(ex.Message) + "}";
+            return SafeError.Json("print-failed", "چاپ انجام نشد", ex);
         }
     }
 }

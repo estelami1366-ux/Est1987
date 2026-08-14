@@ -3966,13 +3966,13 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳η باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳θ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.23η', 'نسخه محصول باید 1405.5.23η باشد');
-  assertEqual(ver.assembly, '1405.5.23.8', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (η=8)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳η', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.23θ', 'نسخه محصول باید 1405.5.23θ باشد');
+  assertEqual(ver.assembly, '1405.5.23.9', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (θ=9)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳θ', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -8228,6 +8228,82 @@ test('قبل از bind پورت اعلان باید آزاد بودن پورت �
   assertContainsString(rules, 'GetNotifyPort', 'GetNotifyPort باید در لیست مجاز Host باشد');
 });
 
+
+console.log('');
+console.log('📋 گروه: تثبیت امنیت فاز ۱ (مجوز، رمز حذف فاکتور، مرز Host)');
+
+test('Authz باید از صفحات نقش موجود استفاده کند و مدیر کل همیشه مجاز باشد', () => {
+  ['isMasterSession','hasPermission','requirePermission','syncHostAuthSession'].forEach(n => {
+    assertTrue(!!extractFunctionSource(html, n), 'تابع '+n+' پیدا نشد');
+  });
+  const mapM = html.match(/var AUTH_PERM_TO_PAGE = \{[\s\S]*?\};/);
+  assertTrue(!!mapM, 'AUTH_PERM_TO_PAGE باید همان کاتالوگ صفحات موجود باشد');
+  assertContainsString(mapM[0], "Customer.View':'phonebook", 'Customer باید به دفترچه موجود نگاشت شود');
+  assertContainsString(mapM[0], "Invoice.Create':'invoice", 'Invoice.Create باید به صفحه فاکتور موجود نگاشت شود');
+  const isM = extractFunctionSource(html, 'isMasterSession');
+  const hasP = extractFunctionSource(html, 'hasPermission');
+  const reqP = extractFunctionSource(html, 'requirePermission');
+  const runner = new Function(mapM[0] + '\n' + isM + '\n' + hasP + '\n' + reqP + `
+    var notes = [];
+    function ntf(msg){ notes.push(msg); }
+    function auditActivity(){}
+    var currentRole = null;
+    var masterOk = hasPermission('User.Delete') && requirePermission('Invoice.Cancel');
+    currentRole = {roleKey:'service', pages:['dashboard','warranty','parts','phonebook']};
+    var techWar = hasPermission('ServiceCase.Edit');
+    var techUser = hasPermission('User.Create');
+    var techInv = requirePermission('Invoice.Create');
+    currentRole = {roleKey:'viewer', pages:['dashboard','saved','warranty','help']};
+    var viewInv = hasPermission('Invoice.View');
+    var viewCreate = hasPermission('Invoice.Create');
+    return {masterOk:masterOk, techWar:techWar, techUser:techUser, techInv:techInv, viewInv:viewInv, viewCreate:viewCreate, notes:notes};
+  `);
+  const r = runner();
+  assertEqual(r.masterOk, true, 'مدیر کل (currentRole=null) باید همه مجوزها را داشته باشد');
+  assertEqual(r.techWar, true, 'تکنسین با صفحه گارانتی باید ServiceCase.Edit داشته باشد');
+  assertEqual(r.techUser, false, 'تکنسین نباید User.Create داشته باشد');
+  assertEqual(r.techInv, false, 'تکنسین نباید فاکتور بسازد');
+  assertEqual(r.viewInv, true, 'مشاهده‌گر با صفحه فاکتورهای ذخیره‌شده Invoice.View دارد');
+  assertEqual(r.viewCreate, false, 'مشاهده‌گر نباید Invoice.Create داشته باشد');
+});
+
+test('رمز حذف فاکتور باید هش شود و با passwordMatches بررسی شود، نه متن خام', () => {
+  const setSrc = extractFunctionSource(html, 'setAdminPw');
+  const delSrc = extractFunctionSource(html, 'confirmDelInv');
+  assertContainsString(setSrc, 'hashPassword', 'setAdminPw باید رمز را هش کند');
+  assertTrue(setSrc.indexOf("localStorage.setItem('admin-pw',n)") < 0, 'نباید رمز خام admin-pw ذخیره شود');
+  assertContainsString(delSrc, 'passwordMatches', 'confirmDelInv باید هش و رمز قدیمی را بپذیرد');
+  assertTrue(delSrc.indexOf('entered!==adminPw') < 0, 'مقایسه مستقیم متن خام حذف فاکتور باید رفته باشد');
+  assertContainsString(delSrc, 'upgradeStoredPassword', 'حذف موفق باید رمز قدیمی را ارتقا دهد');
+  const saveRoleSrc = extractFunctionSource(html, 'saveRole');
+  const saveWarSrc = extractFunctionSource(html, 'saveWar');
+  const saveNetSrc = extractFunctionSource(html, 'saveNetworkSettingsFromUi');
+  assertContainsString(saveRoleSrc, 'requirePermission', 'ذخیره کاربر باید مجوز واقعی بخواهد');
+  assertContainsString(saveWarSrc, 'requirePermission', 'ذخیره گارانتی باید مجوز واقعی بخواهد');
+  assertContainsString(saveNetSrc, 'requirePermission', 'تنظیم شبکه باید مجوز واقعی بخواهد');
+  const lockSrc = extractFunctionSource(html, 'lockApp');
+  assertContainsString(lockSrc, "'logout'", 'قفل برنامه باید خروج را در گزارش فعالیت ثبت کند');
+  const finishSrc = extractFunctionSource(html, 'finishLogin');
+  assertContainsString(finishSrc, 'syncHostAuthSession', 'بعد از ورود باید نشست Host همگام شود');
+});
+
+test('Host Object باید دروازه مجوز و متدهای امنیت را روی همان sirmanHost داشته باشد', () => {
+  const hostPath = path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs');
+  const host = fs.readFileSync(hostPath, 'utf8');
+  ['Login','Logout','BindSession','CheckPermission','HashPassword','VerifyPassword','ValidateEntity','GetSecurityStatus','SaveSecret','LoadSecret'].forEach(n => {
+    assertContainsString(host, 'public string '+n, 'Host باید متد '+n+' را روی همان شیء داشته باشد');
+  });
+  assertContainsString(host, 'Guard("SetNetworkConfig")', 'SetNetworkConfig باید از دروازه مجوز بگذرد');
+  assertContainsString(host, 'Guard("WriteWorkspaceFile")', 'WriteWorkspaceFile باید مجوز داشته باشد');
+  assertContainsString(host, 'Guard("ReadWorkspaceFile")', 'ReadWorkspaceFile باید مجوز داشته باشد');
+  assertContainsString(host, 'Guard("PrintHtml")', 'PrintHtml باید مجوز داشته باشد');
+  assertTrue(fs.existsSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Security', 'PasswordHasher.cs')), 'Sirman.Core PasswordHasher باید موجود باشد');
+  const rules = fs.readFileSync(path.join(path.dirname(filePath), 'docs', 'ARCHITECTURE_RULES.md'), 'utf8');
+  assertContainsString(rules, 'BindSession', 'لیست مجاز معماری باید BindSession را ثبت کند');
+  assertContainsString(rules, 'ValidateEntity', 'لیست مجاز معماری باید ValidateEntity را ثبت کند');
+  assertContainsString(html, 'data-help-id="security-guide"', 'راهنمای امنیت موجود نباید حذف شود');
+  assertContainsString(html, 'مجوز واقعی', 'راهنما باید مجوز واقعی را توضیح دهد');
+});
 
 // نتیجه نهایی
 // ===================================================================
