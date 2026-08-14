@@ -50,13 +50,17 @@ public sealed class BusinessFacade
         "invoice.totals" => InvoiceTotalsFrom(o),
         "invoice.validate" => InvoiceValidateDto(InvoiceService.Validate(o["invoice"] as JsonObject ?? o)),
         "invoice.close" => InvoiceCloseDto(o),
+        "invoice.delete" => InvoiceDeleteDto(o),
         "sale.line" => SaleLineDto(InvoicePricing.SaleLine(Num(o, "qty") == 0 ? 1 : Num(o, "qty"), Num(o, "price"), Num(o, "disc"))),
         "sale.total" => SaleTotalFrom(o),
+        "sale.delete" => SaleDeleteDto(o),
         "payment.withdraw" => PaymentDto(PaymentRules.Withdraw(Num(o, "balance"), Num(o, "amount"))),
         "payment.deposit" => PaymentDto(PaymentRules.Deposit(Num(o, "amount"))),
         "payment.remaining" => PaymentRules.Remaining(Num(o, "total"), Num(o, "paid")),
         "payment.applyDeposit" => PaymentAccountDto(PaymentRules.ApplyDeposit(o["account"] as JsonObject, Num(o, "amount"), JsonVal.Str(o, "subject"), JsonVal.Str(o, "refId"), JsonVal.Str(o, "refType"), JsonVal.Str(o, "date"))),
-        "payment.applyWithdraw" => PaymentAccountDto(PaymentRules.ApplyWithdraw(o["account"] as JsonObject, Num(o, "amount"), JsonVal.Str(o, "subject"), JsonVal.Str(o, "date"))),
+        "payment.applyWithdraw" => PaymentAccountDto(PaymentRules.ApplyWithdraw(o["account"] as JsonObject, Num(o, "amount"), JsonVal.Str(o, "subject"), JsonVal.Str(o, "date"), JsonVal.Str(o, "refId"), JsonVal.Str(o, "refType"))),
+        "payment.reverseLinked" => PaymentAccountDto(PaymentRules.ReverseLinked(o["account"] as JsonObject, JsonVal.Str(o, "refId"), JsonVal.Str(o, "refType"))),
+        "payment.reverseOwned" => PaymentAccountDto(PaymentRules.ReverseOwned(o["account"] as JsonObject, JsonVal.Str(o, "refId").Length > 0 ? JsonVal.Str(o, "refId") : JsonVal.Str(o, "documentId"))),
         "payment.editTransaction" => PaymentAccountDto(PaymentRules.EditTransaction(o["account"] as JsonObject, CalculationEngine.ToInt(JsonVal.Str(o, "trxIndex")), Num(o, "amount"), JsonVal.Str(o, "date"), JsonVal.Str(o, "subject"), JsonVal.Str(o, "category"), JsonVal.Str(o, "refNo"))),
         "payment.deleteTransaction" => PaymentAccountDto(PaymentRules.DeleteTransaction(o["account"] as JsonObject, CalculationEngine.ToInt(JsonVal.Str(o, "trxIndex")))),
         "inventory.stock" => InventoryCore.Stock(o["item"] as JsonObject ?? o, JsonVal.Str(o, "whId")).ToJson(),
@@ -81,6 +85,7 @@ public sealed class BusinessFacade
         "warranty.validateSave" => WarrantySaveDto(WarrantyWorkflow.ValidateSave(o["record"] as JsonObject ?? o)),
         "warranty.save" => WarrantySaveDto(WarrantyWorkflow.Save(o["record"] as JsonObject ?? o, Bool(o, "isNew"), JsonVal.Str(o, "now"))),
         "warranty.close" => WarrantyCloseDto(o),
+        "warranty.delete" => WarrantyDeleteDto(o),
         "service.save" => WarrantySaveDto(ServiceRepairWorkflow.CreateOrUpdate(o["record"] as JsonObject ?? o, Bool(o, "isNew"), JsonVal.Str(o, "now"))),
         "service.close" => WarrantyCloseDto(o),
         "service.addPart" => MutateDto(ServiceRepairWorkflow.AddPart(o["item"] as JsonObject, CalculationEngine.ToInt(JsonVal.Str(o, "qty"))), o["item"] as JsonObject),
@@ -181,6 +186,73 @@ public sealed class BusinessFacade
             totals = r.Totals is null ? null : new { tE = r.Totals.TE, tD = r.Totals.TD, tF = r.Totals.TF },
             audit = r.Audit,
             persistKeys = r.Ok ? new[] { "invoices", "inventory" } : Array.Empty<string>()
+        };
+    }
+
+    private object InvoiceDeleteDto(JsonObject o)
+    {
+        var r = InvoiceService.Delete(o);
+        var inventory = r.Ok ? _store.MergeMap(o["inventory"] as JsonObject, r.Inventory) : r.Inventory;
+        return new
+        {
+            ok = r.Ok,
+            alreadyReversed = r.AlreadyReversed,
+            kind = r.Kind,
+            error = r.Error,
+            err = r.Error,
+            inventory,
+            accounts = r.Accounts,
+            invoices = r.Records,
+            parts = r.Parts,
+            removedId = r.RemovedId,
+            restocked = r.Restocked,
+            reversedPayments = r.ReversedPayments,
+            audit = r.Audit,
+            persistKeys = r.Ok ? new[] { "invoices", "inventory", "accounts" } : Array.Empty<string>()
+        };
+    }
+
+    private object SaleDeleteDto(JsonObject o)
+    {
+        var r = TransactionReversal.DeleteSale(o);
+        return new
+        {
+            ok = r.Ok,
+            alreadyReversed = r.AlreadyReversed,
+            kind = r.Kind,
+            error = r.Error,
+            err = r.Error,
+            inventory = r.Inventory,
+            accounts = r.Accounts,
+            sales = r.Records,
+            parts = r.Parts,
+            removedId = r.RemovedId,
+            restocked = r.Restocked,
+            reversedPayments = r.ReversedPayments,
+            audit = r.Audit,
+            persistKeys = r.Ok ? new[] { "sales", "parts", "accounts" } : Array.Empty<string>()
+        };
+    }
+
+    private object WarrantyDeleteDto(JsonObject o)
+    {
+        var r = WarrantyWorkflow.Delete(o);
+        return new
+        {
+            ok = r.Ok,
+            alreadyReversed = r.AlreadyReversed,
+            kind = r.Kind,
+            error = r.Error,
+            err = r.Error,
+            inventory = r.Inventory,
+            accounts = r.Accounts,
+            warranties = r.Records,
+            parts = r.Parts,
+            removedId = r.RemovedId,
+            restocked = r.Restocked,
+            reversedPayments = r.ReversedPayments,
+            audit = r.Audit,
+            persistKeys = r.Ok ? new[] { "warranties", "parts", "accounts" } : Array.Empty<string>()
         };
     }
 

@@ -61,6 +61,8 @@ public static class InvoiceService
         };
     }
 
+    public static ReversalResult Delete(JsonObject? payload) => TransactionReversal.DeleteInvoice(payload);
+
     public static InvoiceTotals TotalsFromInvoice(JsonObject invoice)
     {
         var lines = new List<InvoiceLine>();

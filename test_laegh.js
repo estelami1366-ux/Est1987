@@ -1898,13 +1898,14 @@ test('saveSale باید برای همه اقلام از انبار کسر کند
 
 test('delSale باید اقلام فروش نهایی را به انبار برگرداند (نه پیش‌فاکتور)', () => {
   const fnSrc = extractFunctionSource(html, 'delSale');
+  const atSrc = extractFunctionSource(html, 'deleteSaleAt');
+  const locSrc = extractFunctionSource(html, 'reverseSaleLocal');
   assertTrue(fnSrc !== null, 'تابع delSale پیدا نشد');
-  // نسخه‌ی جدید: delSale از _restockFromSale(s) استفاده می‌کند (که داخلش s.items را می‌خواند)
-  // پس یا مستقیم s.items یا از طریق _restockFromSale
-  const hasRestock = fnSrc.indexOf('_restockFromSale') !== -1 || fnSrc.indexOf('s.items') !== -1;
-  assertTrue(hasRestock, 'delSale باید اقلام را برای برگرداندن موجودی بررسی کند (مستقیم یا از طریق _restockFromSale)');
-  // نسخه‌ی جدید: فقط فروش نهایی (final) به انبار برمی‌گردد؛ پیش‌فاکتور انبار را تغییر نداده
-  assertContainsString(fnSrc, 'proforma', 'delSale باید وضعیت proforma را بررسی کند (پیش‌فاکتور نباید به انبار برگردد چون کسر نشده بود)');
+  assertContainsString(fnSrc, 'deleteSaleAt', 'delSale باید حذف را با برگشت موجودی و حساب انجام دهد');
+  assertTrue(atSrc !== null, 'تابع deleteSaleAt پیدا نشد');
+  assertTrue(locSrc !== null, 'تابع reverseSaleLocal پیدا نشد');
+  assertContainsString(locSrc, 'proforma', 'پیش‌فاکتور نباید به انبار برگردد چون کسر نشده بود');
+  assertContainsString(locSrc, 'reverseLinkedAccountTrx', 'حذف فروش نهایی باید مبلغ همان فروش را از حساب برگرداند');
 });
 
 test('renderSales باید تعداد اقلام (s.items.length) را در جدول نمایش دهد', () => {
@@ -2335,8 +2336,8 @@ test('واقعی: delSelSales باید نزولی splice کنه و برای نه
   // باید confirm بگیره
   assertContainsString(src, 'confirm', 'delSelSales باید قبل از حذف تأیید بگیره');
   // باید restock برای نهایی‌ها (نه proforma)
-  assertContainsString(src, '_restockFromSale', 'delSelSales باید برای فروش‌های نهایی موجودی رو به انبار برگردونه');
-  assertContainsString(src, 'proforma', 'delSelSales باید وضعیت proforma رو بررسی کنه (پیش‌فاکتور به انبار برنمی‌گرده)');
+  assertContainsString(src, 'deleteSaleAt', 'delSelSales باید حذف را با برگشت موجودی و حساب انجام دهد');
+  assertContainsString(src, 'proforma', 'delSelSales باید وضعیت proforma را در تأیید به کاربر بگوید');
 });
 
 // تست ۵: واقعی — delSelProds باید inventory[code] رو هم پاک کنه
@@ -3966,13 +3967,13 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳ξ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳υ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.23ξ', 'نسخه محصول باید 1405.5.23ξ باشد');
-  assertEqual(ver.assembly, '1405.5.23.15', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (ξ=15)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳ξ', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.23υ', 'نسخه محصول باید 1405.5.23υ باشد');
+  assertEqual(ver.assembly, '1405.5.23.21', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (υ=21)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳υ', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -4003,11 +4004,27 @@ test('نسخه ۱۴۰۵.۵.۲۳ξ باید Year.Month.Day شمسی با حرف �
   assertTrue(fs.statSync(kitHtml).size > 500000, 'HTML داخل کیت باید برنامه واقعی باشد نه فایل کوچک');
   assertTrue(fs.existsSync(kitExe), 'کیت نصب باید Sirman.exe آماده داشته باشد');
   assertTrue(fs.statSync(kitZip).size > 1000000, 'zip کیت نباید خالی باشد');
+  const kitUpd = path.join(kitDir, 'App', 'updates', 'Sirman_Update_'+ver.app+'.json');
+  const kitPending = path.join(kitDir, 'App', 'Sirman_Pending_Update.json');
+  const kitApply = path.join(kitDir, 'App', 'apply_sirman_update.ps1');
+  assertTrue(fs.existsSync(kitUpd), 'کیت باید از اول فایل آپدیت همین نسخه را داخل App/updates داشته باشد');
+  assertTrue(fs.statSync(kitUpd).size > 500000, 'آپدیت داخل کیت باید HTML کامل باشد نه فایل ۱ کیلوبایتی');
+  assertTrue(fs.existsSync(kitPending), 'کیت باید Sirman_Pending_Update.json هم‌نسخه داشته باشد تا Pending قدیمی نصب قبلی را بازنویسی کند');
+  assertTrue(fs.statSync(kitPending).size > 500000, 'Pending داخل کیت نباید فایل ۱ کیلوبایتی قدیمی باشد');
+  assertTrue(fs.existsSync(kitApply), 'کیت باید apply_sirman_update.ps1 داشته باشد');
+  const kitUpdPkg = JSON.parse(fs.readFileSync(kitUpd, 'utf8'));
+  const kitPendPkg = JSON.parse(fs.readFileSync(kitPending, 'utf8'));
+  const kitVer = JSON.parse(fs.readFileSync(path.join(kitDir, 'App', 'SIRMAN_VERSION.json'), 'utf8'));
+  assertEqual(kitUpdPkg.version, ver.app, 'نسخه فایل آپدیت داخل کیت باید با خود کیت یکی باشد — کیت عقب‌تر از آپدیت نیست');
+  assertEqual(kitPendPkg.version, ver.app, 'Pending داخل کیت باید همان نسخه برنامه باشد');
+  assertEqual(kitVer.app, ver.app, 'SIRMAN_VERSION داخل کیت باید همان نسخه جاری باشد');
+  const kitHtmlTxt = fs.readFileSync(kitHtml, 'utf8');
+  assertTrue(kitHtmlTxt.indexOf("var APP_VERSION = '"+ver.app+"'") >= 0, 'HTML داخل کیت باید همان نسخه جاری باشد');
   const updJsonPath = path.join(path.dirname(filePath), 'updates', 'Sirman_Update_'+ver.app+'.json');
   const pendingPath = path.join(path.dirname(filePath), 'Sirman_Pending_Update.json');
   assertTrue(fs.existsSync(updJsonPath), 'فایل آپدیت همین نسخه باید موجود باشد');
   assertTrue(fs.existsSync(pendingPath), 'Sirman_Pending_Update.json باید موجود باشد');
-  assertTrue(fs.statSync(updJsonPath).size > 500000, 'آپدیت ξ باید HTML کامل داشته باشد نه فایل ۱ کیلوبایتی');
+  assertTrue(fs.statSync(updJsonPath).size > 500000, 'آپدیت باید HTML کامل داشته باشد نه فایل ۱ کیلوبایتی');
   const updPkg = JSON.parse(fs.readFileSync(updJsonPath, 'utf8'));
   const pendingPkg = JSON.parse(fs.readFileSync(pendingPath, 'utf8'));
   assertEqual(updPkg.version, ver.app, 'آپدیت JSON باید همان نسخه جاری باشد');
@@ -8331,7 +8348,8 @@ test('Host Object باید دروازه مجوز و متدهای امنیت را
   assertContainsString(html, 'Sirman_Start.bat', 'راهنمای نصب باید لانچر را نام ببرد');
   assertContainsString(html, 'exe جدید', 'راهنمای این نسخه باید بگوید exe هم عوض شود');
   assertContainsString(html, 'فایل یک‌کیلوبایتی برنامه نیست', 'راهنمای نصب از صفر باید بگوید JSON یک‌کیلوبایتی برنامه نیست');
-  assertContainsString(html, 'نصب.bat', 'راهنما باید کیت نصب یک‌کلیکی را نام ببرد');
+  assertContainsString(html, 'آپدیت جدا لازم نیست', 'راهنما باید بگوید کیت خودش نسخه جاری است و آپدیت جدا نمی‌خواهد');
+  assertContainsString(html, 'فایل آپدیت همین نسخه', 'راهنما باید بگوید فایل آپدیت داخل کیت است');
   assertContainsString(html, 'بدون کپی‌پیست', 'راهنما باید بگوید فایل‌ها را یکی‌یکی کپی نکنید');
   const guideTxt = path.join(path.dirname(filePath), 'راهنمای_نصب_از_صفر.txt');
   assertTrue(fs.existsSync(guideTxt), 'فایل راهنمای_نصب_از_صفر.txt باید کنار برنامه باشد');
@@ -8494,6 +8512,669 @@ test('آداپتر ذخیره فقط نتیجه هسته را روی شیء زن
   assertEqual(fn.reserved, 4, 'reserved هسته باید نوشته شود');
   assertEqual(fn.code, 'P1', 'فیلدهای قبلی نباید پاک شوند');
   assertEqual(fn.reservedByWh['WH-A'], 4, 'reservedByWh باید از هسته بیاید');
+});
+
+console.log('');
+console.log('📋 گروه: برگشت آثار حذف فاکتور و گارانتی');
+
+test('حذف فاکتور/گارانتی در UI باید از هسته invoice.delete و warranty.delete برود', () => {
+  const delInvSrc = extractFunctionSource(html, 'delInv');
+  const delWarSrc = extractFunctionSource(html, 'delWar');
+  const delAtSrc = extractFunctionSource(html, 'deleteInvoiceAt');
+  const delWarAtSrc = extractFunctionSource(html, 'deleteWarrantyAt');
+  assertContainsString(delInvSrc, 'deleteInvoiceAt', 'delInv نباید فقط splice کند');
+  assertContainsString(delWarSrc, 'deleteWarrantyAt', 'delWar نباید فقط splice کند');
+  assertContainsString(delAtSrc, 'invoice.delete', 'حذف فاکتور در exe باید از هسته باشد');
+  assertContainsString(delWarAtSrc, 'warranty.delete', 'حذف گارانتی در exe باید از هسته باشد');
+  const spliceAt = delAtSrc.indexOf('invoices.splice');
+  const coreAt = delAtSrc.indexOf('invoice.delete');
+  const applyAt = delAtSrc.indexOf('applyReversalSnapshot');
+  assertTrue(coreAt >= 0 && applyAt >= 0, 'حذف فاکتور باید اول هسته را صدا بزند');
+  assertTrue(spliceAt < 0 || spliceAt > applyAt, 'splice فقط بعد از نتیجه هسته به‌عنوان اطمینان مجاز است نه به‌جای هسته');
+});
+
+test('شاهد باگ قدیمی: splice بدون برگشت، موجودی و حساب را جا می‌گذارد', () => {
+  const inventory = {P1:{code:'P1', qty:9}};
+  const accounts = [{id:'ACC-1', balance:100, transactions:[{amount:100, refId:'INV-A', refType:'invoice'}]}];
+  const invoices = [{num:'INV-A', status:'closed', items:[{code:'P1'}]}];
+  invoices.splice(0,1);
+  assertEqual(invoices.length, 0, 'فاکتور حذف شده');
+  assertEqual(inventory.P1.qty, 9, 'باگ قدیمی: موجودی برنگشته');
+  assertEqual(accounts[0].balance, 100, 'باگ قدیمی: مبلغ برنگشته');
+});
+
+test('TEST1 واقعی: حذف فاکتور موجودی و حساب همان سند را برمی‌گرداند', () => {
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const persistSrc = extractFunctionSource(html, 'persistCoreSnapshot');
+  const applySrc = extractFunctionSource(html, 'applyReversalSnapshot');
+  const linkSrc = extractFunctionSource(html, 'reverseLinkedAccountTrx');
+  const locSrc = extractFunctionSource(html, 'reverseInvoiceLocal');
+  const delSrc = extractFunctionSource(html, 'deleteInvoiceAt');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const r = new Function(recSrc+'\n'+persistSrc+'\n'+applySrc+'\n'+linkSrc+'\n'+locSrc+'\n'+delSrc+'\n'+hasSrc+'\n'+takeSrc+'\n'+runSrc+`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svWars(){}
+    function recordStockMove(){}
+    var inventory = {P1:{code:'P1', qty:9}};
+    var accounts = [{id:'ACC-1', balance:100, transactions:[{id:'TRX-1', type:'deposit', amount:100, refId:'INV-A', refType:'invoice'}]}];
+    var invoices = [{num:'INV-A', status:'closed', items:[{code:'P1'}]}];
+    var parts = [];
+    var r = deleteInvoiceAt(0);
+    return {ok:r.ok, qty:inventory.P1.qty, bal:accounts[0].balance, nInv:invoices.length, trx:accounts[0].transactions.length};
+  `)();
+  assertEqual(r.ok, true, 'حذف باید موفق باشد');
+  assertEqual(r.qty, 10, 'موجودی باید به ۱۰ برگردد');
+  assertEqual(r.bal, 0, 'مانده باید صفر شود');
+  assertEqual(r.nInv, 0, 'فاکتور باید حذف شود');
+  assertEqual(r.trx, 0, 'تراکنش همان فاکتور باید حذف شود');
+});
+
+test('TEST3 واقعی: چند قطعه گارانتی با تعداد دقیق برمی‌گردند', () => {
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const persistSrc = extractFunctionSource(html, 'persistCoreSnapshot');
+  const applySrc = extractFunctionSource(html, 'applyReversalSnapshot');
+  const linkSrc = extractFunctionSource(html, 'reverseLinkedAccountTrx');
+  const locSrc = extractFunctionSource(html, 'reverseWarrantyLocal');
+  const delSrc = extractFunctionSource(html, 'deleteWarrantyAt');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const r = new Function(recSrc+'\n'+persistSrc+'\n'+applySrc+'\n'+linkSrc+'\n'+locSrc+'\n'+delSrc+'\n'+hasSrc+'\n'+takeSrc+'\n'+runSrc+`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svWars(){}
+    function recordStockMove(){}
+    var inventory = {};
+    var accounts = [];
+    var invoices = [];
+    var parts = [{code:'A', qty:8},{code:'B', qty:17}];
+    var warranties = [{id:'W-M', _agencyStockApplied:{applied:true, items:[{code:'A', qty:2},{code:'B', qty:3}]}}];
+    deleteWarrantyAt(0);
+    return {a:parts[0].qty, b:parts[1].qty, n:warranties.length};
+  `)();
+  assertEqual(r.a, 10, 'قطعه A باید ۱۰ شود');
+  assertEqual(r.b, 20, 'قطعه B باید ۲۰ شود');
+  assertEqual(r.n, 0, 'پرونده باید حذف شود');
+});
+
+test('TEST4 واقعی: حذف فاکتور A فاکتور B را دست نمی‌زند', () => {
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const persistSrc = extractFunctionSource(html, 'persistCoreSnapshot');
+  const applySrc = extractFunctionSource(html, 'applyReversalSnapshot');
+  const linkSrc = extractFunctionSource(html, 'reverseLinkedAccountTrx');
+  const locSrc = extractFunctionSource(html, 'reverseInvoiceLocal');
+  const delSrc = extractFunctionSource(html, 'deleteInvoiceAt');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const r = new Function(recSrc+'\n'+persistSrc+'\n'+applySrc+'\n'+linkSrc+'\n'+locSrc+'\n'+delSrc+'\n'+hasSrc+'\n'+takeSrc+'\n'+runSrc+`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function recordStockMove(){}
+    var inventory = {A:{code:'A', qty:5}};
+    var accounts = [{id:'ACC-1', balance:300, transactions:[
+      {amount:100, refId:'INV-A', refType:'invoice', type:'deposit'},
+      {amount:200, refId:'INV-B', refType:'invoice', type:'deposit'}
+    ]}];
+    var invoices = [
+      {num:'INV-A', status:'closed', items:[{code:'A'},{code:'A'}]},
+      {num:'INV-B', status:'closed', items:[{code:'A'},{code:'A'},{code:'A'}]}
+    ];
+    deleteInvoiceAt(0);
+    return {qty:inventory.A.qty, bal:accounts[0].balance, n:invoices.length, ref:accounts[0].transactions[0].refId};
+  `)();
+  assertEqual(r.qty, 7, 'فقط ۲ واحد فاکتور A باید برگردد (۵+۲=۷)');
+  assertEqual(r.bal, 200, 'فقط ۱۰۰ فاکتور A باید برگشت شود');
+  assertEqual(r.n, 1, 'فاکتور B باید بماند');
+  assertEqual(r.ref, 'INV-B', 'تراکنش B باید بماند');
+});
+
+test('TEST5 واقعی: حذف دوباره فاکتور موجودی را دوباره زیاد نمی‌کند', () => {
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const persistSrc = extractFunctionSource(html, 'persistCoreSnapshot');
+  const applySrc = extractFunctionSource(html, 'applyReversalSnapshot');
+  const linkSrc = extractFunctionSource(html, 'reverseLinkedAccountTrx');
+  const locSrc = extractFunctionSource(html, 'reverseInvoiceLocal');
+  const delSrc = extractFunctionSource(html, 'deleteInvoiceAt');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const r = new Function(recSrc+'\n'+persistSrc+'\n'+applySrc+'\n'+linkSrc+'\n'+locSrc+'\n'+delSrc+'\n'+hasSrc+'\n'+takeSrc+'\n'+runSrc+`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function recordStockMove(){}
+    var inventory = {A:{code:'A', qty:9}};
+    var accounts = [{id:'ACC-1', balance:100, transactions:[{amount:100, refId:'INV-A', refType:'invoice', type:'deposit'}]}];
+    var invoices = [{num:'INV-A', status:'closed', items:[{code:'A'}]}];
+    deleteInvoiceAt(0);
+    var after1 = {qty:inventory.A.qty, bal:accounts[0].balance};
+    var r2 = deleteInvoiceAt(0);
+    return {q1:after1.qty, b1:after1.bal, q2:inventory.A.qty, b2:accounts[0].balance, already:r2.alreadyReversed};
+  `)();
+  assertEqual(r.q1, 10, 'بار اول موجودی ۱۰');
+  assertEqual(r.q2, 10, 'بار دوم موجودی همان ۱۰ بماند');
+  assertEqual(r.b2, 0, 'بار دوم مانده دوباره منفی نشود');
+  assertEqual(r.already, true, 'بار دوم alreadyReversed');
+});
+
+test('در exe حذف فاکتور موجودی را از نتیجه هسته می‌نویسد نه از +1 سمت JS', () => {
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const persistSrc = extractFunctionSource(html, 'persistCoreSnapshot');
+  const applySrc = extractFunctionSource(html, 'applyReversalSnapshot');
+  const linkSrc = extractFunctionSource(html, 'reverseLinkedAccountTrx');
+  const locSrc = extractFunctionSource(html, 'reverseInvoiceLocal');
+  const delSrc = extractFunctionSource(html, 'deleteInvoiceAt');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const r = new Function(recSrc+'\n'+persistSrc+'\n'+applySrc+'\n'+linkSrc+'\n'+locSrc+'\n'+delSrc+'\n'+hasSrc+'\n'+takeSrc+'\n'+runSrc+`
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        if(name!=='invoice.delete') return JSON.stringify({ok:false});
+        return JSON.stringify({ok:true, result:{ok:true, alreadyReversed:false, removedId:'INV-A',
+          inventory:{P1:{code:'P1', qty:42}},
+          accounts:[{id:'ACC-1', balance:3, transactions:[]}],
+          restocked:[{code:'P1', qty:1}], reversedPayments:1,
+          persistKeys:[]}});
+      }};
+    }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function recordStockMove(){}
+    var inventory = {P1:{code:'P1', qty:9}};
+    var accounts = [{id:'ACC-1', balance:100, transactions:[{amount:100, refId:'INV-A', refType:'invoice'}]}];
+    var invoices = [{num:'INV-A', status:'closed', items:[{code:'P1'}]}];
+    deleteInvoiceAt(0);
+    return {qty:inventory.P1.qty, bal:accounts[0].balance, n:invoices.length};
+  `)();
+  assertEqual(r.qty, 42, 'موجودی باید از هسته بیاید نه 9+1 جاوااسکریپت');
+  assertEqual(r.bal, 3, 'مانده باید از هسته بیاید');
+  assertEqual(r.n, 0, 'فاکتور باید بعد از هسته حذف شود');
+});
+
+test('راهنمای برگشت حذف فاکتور/گارانتی باید در صفحه راهنما باشد (قانون ۷)', () => {
+  assertContainsString(html, 'برگشت با حذف سند', 'راهنمای حسابداری باید برگشت حذف سند را توضیح دهد');
+  assertContainsString(html, 'حذف پرونده', 'راهنمای گارانتی باید حذف با برگشت قطعه را توضیح دهد');
+});
+
+test('حذف فروش باید مبلغ همان فروش را هم از حساب برگرداند', () => {
+  const delSrc = extractFunctionSource(html, 'delSale');
+  const atSrc = extractFunctionSource(html, 'deleteSaleAt');
+  assertContainsString(delSrc, 'deleteSaleAt', 'delSale نباید فقط splice کند');
+  assertContainsString(atSrc, 'sale.delete', 'حذف فروش در exe باید از هسته باشد');
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const persistSrc = extractFunctionSource(html, 'persistCoreSnapshot');
+  const applySrc = extractFunctionSource(html, 'applyReversalSnapshot');
+  const ownSrc = extractFunctionSource(html, 'reverseOwnedAccountTrx');
+  const linkSrc = extractFunctionSource(html, 'reverseLinkedAccountTrx');
+  const locSrc = extractFunctionSource(html, 'reverseSaleLocal');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const r = new Function(recSrc+'\n'+persistSrc+'\n'+applySrc+'\n'+ownSrc+'\n'+linkSrc+'\n'+locSrc+'\n'+atSrc+'\n'+hasSrc+'\n'+takeSrc+'\n'+runSrc+`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){}
+    function recordStockMove(){}
+    var parts = [{code:'A', qty:9}];
+    var accounts = [{id:'ACC-1', balance:100, transactions:[{amount:100, refId:'SL-0001', refType:'sale', type:'deposit'}]}];
+    var sales = [{id:'SL-0001', status:'final', items:[{partCode:'A', qty:1}]}];
+    deleteSaleAt(0);
+    var after1 = {qty:parts[0].qty, bal:accounts[0].balance, n:sales.length};
+    var r2 = deleteSaleAt(0);
+    return {q:after1.qty, b:after1.bal, n:after1.n, q2:parts[0].qty, b2:accounts[0].balance, already:r2.alreadyReversed};
+  `)();
+  assertEqual(r.q, 10, 'قطعه باید برگردد');
+  assertEqual(r.b, 0, 'مبلغ فروش باید از حساب برگشت شود');
+  assertEqual(r.n, 0, 'فروش باید حذف شود');
+  assertEqual(r.q2, 10, 'حذف دوباره موجودی را زیاد نکند');
+  assertEqual(r.b2, 0, 'حذف دوباره حساب را دوباره کم نکند');
+  assertEqual(r.already, true, 'بار دوم alreadyReversed');
+});
+
+function saleDeleteSandbox(extra){
+  extra = extra || '';
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const persistSrc = extractFunctionSource(html, 'persistCoreSnapshot');
+  const applySrc = extractFunctionSource(html, 'applyReversalSnapshot');
+  const ownSrc = extractFunctionSource(html, 'reverseOwnedAccountTrx');
+  const linkSrc = extractFunctionSource(html, 'reverseLinkedAccountTrx');
+  const locSrc = extractFunctionSource(html, 'reverseSaleLocal');
+  const invLoc = extractFunctionSource(html, 'reverseInvoiceLocal');
+  const delSrc = extractFunctionSource(html, 'deleteSaleAt');
+  const delInvSrc = extractFunctionSource(html, 'deleteInvoiceAt');
+  const uiSrc = extractFunctionSource(html, 'delSale');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  return new Function(recSrc+'\n'+persistSrc+'\n'+applySrc+'\n'+ownSrc+'\n'+linkSrc+'\n'+locSrc+'\n'+invLoc+'\n'+delSrc+'\n'+delInvSrc+'\n'+uiSrc+'\n'+hasSrc+'\n'+takeSrc+'\n'+runSrc+'\n'+extra);
+}
+
+test('TEST1 حذف فروش قطعه — Host بدون removedId هم رکورد را برمی‌دارد', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        var p = JSON.parse(json);
+        if(name!=='sale.delete') return JSON.stringify({ok:false, error:'bad-op', message:'عملیات ناشناخته'});
+        return JSON.stringify({ok:true, result:{ok:true, alreadyReversed:false,
+          sales:[], parts:[{code:'A', qty:10}], accounts:[{id:'ACC-1', balance:0, transactions:[]}],
+          restocked:[{code:'A', qty:2}], reversedPayments:1, persistKeys:['sales','parts','accounts']}});
+      }};
+    }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){ globalThis._sv = true; }
+    function recordStockMove(){}
+    var parts = [{code:'A', qty:8}];
+    var accounts = [{id:'ACC-1', balance:200, transactions:[{amount:200, refId:'SL-0001', refType:'sale'}]}];
+    var sales = [{id:'SL-0001', status:'final', name:'خریدار', phone:'0912', items:[{partCode:'A', qty:2}], docs:[{name:'x.png', data:'AAA'}]}];
+    var r = deleteSaleAt(0);
+    return {ok:r&&r.ok!==false, n:sales.length, qty:parts[0].qty, payloadHadNoDocs: true};
+  `)();
+  assertEqual(r.ok, true, 'حذف باید موفق باشد');
+  assertEqual(r.n, 0, 'فروش قطعه باید از فهرست حذف شود حتی اگر Host فیلد removedId را ندهد');
+  assertEqual(r.qty, 10, 'موجودی باید از هسته اعمال شود');
+});
+
+test('TEST2 حذف فاکتور فروشگاه معمولی همچنان رکورد را برمی‌دارد', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function recordStockMove(){}
+    var inventory = {P1:{code:'P1', qty:9}};
+    var accounts = [{id:'ACC-1', balance:100, transactions:[{amount:100, refId:'INV-A', refType:'invoice', type:'deposit'}]}];
+    var invoices = [{num:'INV-A', status:'closed', items:[{code:'P1'}]}];
+    var r = deleteInvoiceAt(0);
+    return {ok:r&&r.ok!==false, n:invoices.length, qty:inventory.P1.qty, bal:accounts[0].balance};
+  `)();
+  assertEqual(r.ok, true, 'حذف فاکتور معمولی باید موفق باشد');
+  assertEqual(r.n, 0, 'فاکتور باید حذف شود');
+  assertEqual(r.qty, 10, 'موجودی کالای فاکتور باید برگردد');
+  assertEqual(r.bal, 0, 'مبلغ فاکتور باید از حساب برگردد');
+});
+
+test('TEST3 حذف فروش چندقطعه باید همه ردیف‌ها را بردارد', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){}
+    function recordStockMove(){}
+    var parts = [{code:'A', qty:8},{code:'B', qty:17}];
+    var accounts = [{id:'ACC-1', balance:0, transactions:[]}];
+    var sales = [{id:'SL-M', status:'final', items:[{partCode:'A', qty:2},{partCode:'B', qty:3}]}];
+    var r = deleteSaleAt(0);
+    return {ok:r&&r.ok!==false, n:sales.length, a:parts[0].qty, b:parts[1].qty};
+  `)();
+  assertEqual(r.ok, true, 'حذف فروش چندقطعه باید موفق باشد');
+  assertEqual(r.n, 0, 'فروش چندقطعه باید حذف شود');
+  assertEqual(r.a, 10, 'قطعه A باید برگردد');
+  assertEqual(r.b, 20, 'قطعه B باید برگردد');
+});
+
+test('TEST4 حذف نامعتبر باید پیام کنترل‌شده بدهد نه سکوت', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){
+      return { RunBusiness: function(){ return JSON.stringify({ok:false, error:'business-failed', message:'محاسبه انجام نشد'}); } };
+    }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){}
+    function recordStockMove(){}
+    var parts = [{code:'A', qty:8}];
+    var accounts = [];
+    var sales = [{id:'SL-0001', status:'final', items:[{partCode:'A', qty:1}]}];
+    var notes = [];
+    function ntf(msg, type){ notes.push({msg:msg, type:type||'ok'}); }
+    function confirm(){ return true; }
+    function renderSales(){}
+    delSale(0);
+    return {n:sales.length, notes:notes, hasErr: notes.some(function(x){ return x.type==='err' && String(x.msg||'').length>0; })};
+  `)();
+  assertEqual(r.n, 1, 'اگر هسته رد کند فروش نباید حذف شود');
+  assertEqual(r.hasErr, true, 'باید پیام خطا به UI برسد');
+});
+
+test('TEST5 حذف دوباره فروش نتیجه کنترل‌شده می‌دهد و کرش نمی‌کند', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){}
+    function recordStockMove(){}
+    var parts = [{code:'A', qty:9}];
+    var accounts = [];
+    var sales = [{id:'SL-0001', status:'final', items:[{partCode:'A', qty:1}]}];
+    var r1 = deleteSaleAt(0);
+    var r2 = deleteSaleAt(0);
+    return {n:sales.length, ok1:r1&&r1.ok!==false, already:!!(r2&&r2.alreadyReversed), ok2:r2&&r2.ok!==false};
+  `)();
+  assertEqual(r.n, 0, 'بعد از حذف اول فروش نباید بماند');
+  assertEqual(r.ok1, true, 'حذف اول باید موفق باشد');
+  assertEqual(r.already, true, 'حذف دوم alreadyReversed');
+  assertEqual(r.ok2, true, 'حذف دوم نباید کرش کند');
+});
+
+test('خطای Host دیگر بلعیده نمی‌شود و به حذف فروش می‌رسد', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){
+      return { RunBusiness: function(){ throw new Error('COM size limit'); } };
+    }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){}
+    function recordStockMove(){}
+    var parts = [{code:'A', qty:8}];
+    var accounts = [];
+    var sales = [{id:'SL-0001', status:'final', items:[{partCode:'A', qty:1}]}];
+    var r = deleteSaleAt(0);
+    return {n:sales.length, ok:r&&r.ok, err:r&&r.error, kind:r&&r.kind};
+  `)();
+  assertEqual(r.ok, false, 'شکست Host باید ok:false باشد');
+  assertEqual(r.n, 1, 'فروش نباید در شکست Host حذف شود');
+  assertTrue(String(r.err||'').indexOf('COM size limit')>=0, 'متن خطای Host باید به UI برسد نه پیام کلی خالی');
+});
+
+test('اگر applyReversalSnapshot پرتاب شود delSale پیام می‌دهد و فروش را برمی‌دارد', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){}
+    function recordStockMove(){ throw new Error('stockMoves boom'); }
+    var parts = [{code:'A', qty:8}];
+    var accounts = [];
+    var sales = [{id:'SL-0001', status:'final', items:[{partCode:'A', qty:1}]}];
+    var notes = [];
+    function ntf(msg, type){ notes.push({msg:msg, type:type||'ok'}); }
+    function confirm(){ return true; }
+    function renderSales(){}
+    var threw = null;
+    try{ delSale(0); }catch(e){ threw = String(e.message||e); }
+    return {n:sales.length, threw:threw, notes:notes, hasMsg: notes.length>0};
+  `)();
+  assertEqual(r.threw, null, 'delSale نباید exception را خاموش به UI ندهد');
+  assertEqual(r.n, 0, 'فروش باید حتی اگر ثبت حرکت انبار پرتاب شود حذف شود');
+  assertEqual(r.hasMsg, true, 'باید پیام موفقیت یا خطا نمایش داده شود');
+});
+
+test('runBusinessCore اگر Host بدون wrapper جواب بدهد حذف فروش را جلو می‌برد', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){
+      return { RunBusiness: function(){
+        return JSON.stringify({ok:true, removedId:'SL-0001', sales:[], parts:[{code:'A', qty:10}], persistKeys:['sales','parts']});
+      }};
+    }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){}
+    function recordStockMove(){}
+    var parts = [{code:'A', qty:8}];
+    var accounts = [];
+    var sales = [{id:'SL-0001', status:'final', items:[{partCode:'A', qty:1}]}];
+    var r = deleteSaleAt(0);
+    return {n:sales.length, ok:r&&r.ok!==false};
+  `)();
+  assertEqual(r.ok, true, 'DTO بدون wrapper باید حذف را جلو ببرد');
+  assertEqual(r.n, 0, 'فروش باید حذف شود');
+});
+
+test('واریز با شماره سند حتی اگر نوعش فرق کند با حذف سند برمی‌گردد', () => {
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const persistSrc = extractFunctionSource(html, 'persistCoreSnapshot');
+  const applySrc = extractFunctionSource(html, 'applyReversalSnapshot');
+  const ownSrc = extractFunctionSource(html, 'reverseOwnedAccountTrx');
+  const linkSrc = extractFunctionSource(html, 'reverseLinkedAccountTrx');
+  const locSrc = extractFunctionSource(html, 'reverseInvoiceLocal');
+  const delSrc = extractFunctionSource(html, 'deleteInvoiceAt');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const r = new Function(recSrc+'\n'+persistSrc+'\n'+applySrc+'\n'+ownSrc+'\n'+linkSrc+'\n'+locSrc+'\n'+delSrc+'\n'+hasSrc+'\n'+takeSrc+'\n'+runSrc+`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function recordStockMove(){}
+    var inventory = {A:{code:'A', qty:9}};
+    var accounts = [{id:'ACC-1', balance:150, transactions:[
+      {amount:50, refId:'LEP-0007', refType:'service', type:'deposit'},
+      {amount:100, refId:'', refType:'manual', type:'deposit', subject:'دستی'}
+    ]}];
+    var invoices = [{num:'LEP-0007', status:'closed', items:[{code:'A'}]}];
+    deleteInvoiceAt(0);
+    return {bal:accounts[0].balance, n:accounts[0].transactions.length, sub:accounts[0].transactions[0].subject};
+  `)();
+  assertEqual(r.bal, 100, 'فقط مبلغ همان سند باید برگردد');
+  assertEqual(r.n, 1, 'واریز دستی باید بماند');
+  assertEqual(r.sub, 'دستی', 'تراکنش باقی‌مانده باید واریز دستی باشد');
+});
+
+test('شماره فروش بعد از حذف نباید از روی length دوباره ساخته شود', () => {
+  const seqSrc = extractFunctionSource(html, 'saleIdSeq');
+  const maxSrc = extractFunctionSource(html, 'maxSaleSeq');
+  const ensSrc = extractFunctionSource(html, 'ensureSaleCtr');
+  const takenSrc = extractFunctionSource(html, 'saleIdTaken');
+  const peekSrc = extractFunctionSource(html, 'peekNextSaleId');
+  const nextSrc = extractFunctionSource(html, 'nextSaleId');
+  assertTrue(!!seqSrc && !!maxSrc && !!ensSrc && !!peekSrc && !!nextSrc && !!takenSrc, 'توابع شماره‌دهی فروش پیدا نشد');
+  assertContainsString(getSrc = extractFunctionSource(html, 'getSaleData'), 'peekNextSaleId', 'getSaleData نباید از sales.length+1 شماره بسازد');
+  assertTrue(getSrc.indexOf('sales.length+1') === -1, 'getSaleData دیگر نباید SL را از تعداد ردیف بسازد');
+  const r = new Function(seqSrc+'\n'+maxSrc+'\n'+ensSrc+'\n'+takenSrc+'\n'+peekSrc+'\n'+nextSrc+`
+    var saleCtr = 0;
+    var sales = [{id:'SL-0002', name:'قدیمی'}];
+    var store = {};
+    var localStorage = { getItem:function(k){ return store[k]||null; }, setItem:function(k,v){ store[k]=String(v); } };
+    ensureSaleCtr();
+    var afterDeletePeek = peekNextSaleId();
+    var first = nextSaleId();
+    var second = nextSaleId();
+    return {ctrAfterEnsure:saleCtr-2, peek:afterDeletePeek, first:first, second:second, stored:store.laegh_sale_ctr};
+  `)();
+  assertEqual(r.peek, 'SL-0003', 'بعد از ماندن SL-0002 شماره بعدی باید SL-0003 باشد نه SL-0002');
+  assertEqual(r.first, 'SL-0003', 'nextSaleId باید SL-0003 بدهد');
+  assertEqual(r.second, 'SL-0004', 'شماره دوم باید SL-0004 باشد');
+});
+
+test('حذف فاکتور فروش با شماره تکراری فقط همان ردیف کلیک‌شده را برمی‌دارد', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){}
+    function recordStockMove(){}
+    var parts = [{code:'A', qty:7}];
+    var accounts = [{id:'ACC-1', balance:300, transactions:[
+      {amount:100, refId:'SL-0002', refType:'sale', type:'deposit'},
+      {amount:200, refId:'SL-0002', refType:'sale', type:'deposit'}
+    ]}];
+    var oldS = {id:'SL-0002', status:'final', total:100, name:'قدیمی', items:[{partCode:'A', qty:1}]};
+    var newS = {id:'SL-0002', status:'final', total:200, name:'جدید', items:[{partCode:'A', qty:2}]};
+    var sales = [oldS, newS];
+    var seen = null;
+    var r = deleteSaleAt(1);
+    return {
+      ok:r&&r.ok!==false, n:sales.length, kept:sales[0]&&sales[0].name,
+      qty:parts[0].qty, bal:accounts[0].balance, trx:accounts[0].transactions.length,
+      stillOld: sales.indexOf(oldS)>=0, stillNew: sales.indexOf(newS)>=0
+    };
+  `)();
+  assertEqual(r.ok, true, 'حذف ردیف جدید باید موفق باشد');
+  assertEqual(r.n, 1, 'فقط یک فروش باید بماند');
+  assertEqual(r.kept, 'قدیمی', 'فاکتور قبلی باید بماند');
+  assertEqual(r.stillOld, true, 'آبجکت فاکتور قبلی باید در آرایه بماند');
+  assertEqual(r.stillNew, false, 'آبجکت فاکتور جدید باید حذف شود');
+  assertEqual(r.qty, 9, 'فقط قطعات همان فاکتور جدید باید برگردد (7+2)');
+  assertEqual(r.trx, 1, 'فقط یک تراکنش هم‌شماره باید برگردد نه هر دو');
+  assertEqual(r.bal, 100, 'مانده فاکتور قبلی باید بماند');
+});
+
+test('حذف فروش در exe باید saleIndex ردیف کلیک‌شده را بفرستد و فقط همان را بردارد', () => {
+  const r = saleDeleteSandbox(`
+    var seen = null;
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        seen = JSON.parse(json);
+        var idx = seen.saleIndex;
+        var list = (seen.sales||[]).slice();
+        if(idx>=0 && idx<list.length) list.splice(idx,1);
+        return JSON.stringify({ok:true, result:{ok:true, alreadyReversed:false, sales:list,
+          parts:[{code:'A', qty:9}], accounts:[{id:'ACC-1', balance:100, transactions:[{amount:100, refId:'SL-0002'}]}],
+          persistKeys:['sales','parts','accounts']}});
+      }};
+    }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){}
+    function recordStockMove(){}
+    var parts = [{code:'A', qty:7}];
+    var accounts = [{id:'ACC-1', balance:300, transactions:[]}];
+    var sales = [
+      {id:'SL-0002', status:'final', name:'قدیمی', items:[{partCode:'A', qty:1}]},
+      {id:'SL-0002', status:'final', name:'جدید', items:[{partCode:'A', qty:2}]}
+    ];
+    var r = deleteSaleAt(1);
+    return {ok:r&&r.ok!==false, n:sales.length, kept:sales[0]&&sales[0].name, idx:seen&&seen.saleIndex, sentId:seen&&seen.sale&&seen.sale.id};
+  `)();
+  assertEqual(r.ok, true, 'حذف با Host باید موفق باشد');
+  assertEqual(r.idx, 1, 'هسته باید اندیس ردیف کلیک‌شده را بگیرد نه اولین شماره مطابق');
+  assertEqual(r.n, 1, 'بعد از حذف فقط فاکتور قبلی بماند');
+  assertEqual(r.kept, 'قدیمی', 'فاکتور قبلی نباید با حذف فاکتور جدید پاک شود');
+});
+
+test('بک‌آپ و migrateBackup باید saleCtr داشته باشند تا شماره فروش بعد از بازگردانی تکرار نشود', () => {
+  const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
+  assertContainsString(buildSrc, 'saleCtr', 'بک‌آپ باید شمارنده فروش را ذخیره کند');
+  const migrateSrc = extractFunctionSource(html, 'migrateBackup');
+  const schemasSrc = extractFunctionSource(html, 'SCHEMAS') || 'var SCHEMAS = {};';
+  const migrateRecSrc = extractFunctionSource(html, 'migrateRecord') || 'function migrateRecord(r){return r;}';
+  const migrateSecSrc = extractFunctionSource(html, 'migrateSection') || 'function migrateSection(a){return a;}';
+  const runner = new Function('return (function(){ ' + schemasSrc + '\n' + migrateRecSrc + '\n' + migrateSecSrc + '\n return ' + migrateSrc + ' })();');
+  const migrateBackup = runner();
+  const result = migrateBackup({ version:'10.4.3', invoices:[], products:[], inventory:{}, phonebook:[], sales:[{id:'SL-0002'}] });
+  assertTrue(result.data.saleCtr >= 3, 'بدون saleCtr باید از SL-0002 شماره بعدی ۳ حدس زده شود، نه ۲');
+});
+
+test('اگر Host آرایه فروش را خالی برگرداند فقط ردیف کلیک‌شده حذف شود نه فاکتور هم‌شماره', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){
+      return { RunBusiness: function(){
+        return JSON.stringify({ok:true, result:{ok:true, alreadyReversed:false, sales:[],
+          parts:[{code:'A', qty:9}], accounts:[], persistKeys:['sales','parts']}});
+      }};
+    }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){}
+    function recordStockMove(){}
+    var parts = [{code:'A', qty:7}];
+    var accounts = [];
+    var oldS = {id:'SL-0002', status:'final', name:'قدیمی', items:[{partCode:'A', qty:1}]};
+    var newS = {id:'SL-0002', status:'final', name:'جدید', items:[{partCode:'A', qty:2}]};
+    var sales = [oldS, newS];
+    var r = deleteSaleAt(1);
+    return {ok:r&&r.ok!==false, n:sales.length, kept:sales[0]&&sales[0].name, stillOld:sales.indexOf(oldS)>=0, stillNew:sales.indexOf(newS)>=0};
+  `)();
+  assertEqual(r.ok, true, 'حذف باید موفق باشد');
+  assertEqual(r.n, 1, 'Host با sales:[] نباید هر دو فاکتور را پاک کند');
+  assertEqual(r.kept, 'قدیمی', 'فاکتور قبلی باید بماند');
+  assertEqual(r.stillOld, true, 'آبجکت فاکتور قبلی باید در آرایه بماند');
+  assertEqual(r.stillNew, false, 'فقط فاکتور کلیک‌شده باید حذف شود');
+});
+
+test('شماره فروش نباید با شماره موجود در لیست تصادم کند', () => {
+  const seqSrc = extractFunctionSource(html, 'saleIdSeq');
+  const maxSrc = extractFunctionSource(html, 'maxSaleSeq');
+  const ensSrc = extractFunctionSource(html, 'ensureSaleCtr');
+  const takenSrc = extractFunctionSource(html, 'saleIdTaken');
+  const peekSrc = extractFunctionSource(html, 'peekNextSaleId');
+  const nextSrc = extractFunctionSource(html, 'nextSaleId');
+  const r = new Function(seqSrc+'\n'+maxSrc+'\n'+ensSrc+'\n'+takenSrc+'\n'+peekSrc+'\n'+nextSrc+`
+    var saleCtr = 3;
+    var sales = [{id:'SL-0002'},{id:'SL-0003'}];
+    var store = {};
+    var localStorage = { getItem:function(k){ return store[k]||null; }, setItem:function(k,v){ store[k]=String(v); } };
+    return {peek:peekNextSaleId(), next:nextSaleId()};
+  `)();
+  assertEqual(r.peek, 'SL-0004', 'اگر SL-0003 زنده است شماره بعدی باید SL-0004 باشد');
+  assertEqual(r.next, 'SL-0004', 'nextSaleId هم باید از روی شماره موجود بپرد');
+});
+
+test('فرم پنجره باید داخل win-body اسکرول شود نه body قفل‌شده', () => {
+  assertContainsString(html, 'grid-auto-rows:minmax(0,1fr)', 'ردیف میزکار باید ارتفاع محدود داشته باشد تا win-body اسکرول شود');
+  assertContainsString(html, 'function scrollActiveWinBody(', 'تابع اسکرول بدنه پنجره باید وجود داشته باشد');
+  assertTrue(html.indexOf('window.scrollTo({top:document.body.scrollHeight') === -1, 'دکمه افزودن دستگاه نباید body قفل‌شده را اسکرول کند');
+  const src = extractFunctionSource(html, 'scrollActiveWinBody');
+  assertTrue(!!src, 'منبع scrollActiveWinBody پیدا نشد');
+  const r = new Function(src+`
+    var body = { scrollTop: 0, scrollHeight: 800 };
+    var document = {
+      querySelector: function(sel){ return String(sel).indexOf('win-body')>=0 ? body : null; },
+      getElementById: function(){ return null; },
+      scrollingElement: { scrollTop: 0, scrollHeight: 10 }
+    };
+    scrollActiveWinBody('bottom');
+    return {win: body.scrollTop, page: document.scrollingElement.scrollTop};
+  `)();
+  assertEqual(r.win, 800, 'اسکرول باید روی .win-body برود');
+  assertEqual(r.page, 0, 'document قفل‌شده نباید اسکرول شود');
 });
 
 // نتیجه نهایی
