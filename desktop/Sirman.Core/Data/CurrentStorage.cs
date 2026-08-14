@@ -11,8 +11,11 @@ public static class CurrentStorage
     public const string Phase3 = "فقط پیاده‌سازی همین قرارداد عوض می‌شود؛ Domain دست نمی‌خورد.";
 }
 
-/// <summary>قرارداد خواندن/نوشتن موجودی — پیاده‌سازی واقعی در فاز ۳. الان داده با JSON از UI می‌آید.</summary>
-public interface IInventoryRepository { }
+/// <summary>قرارداد موجودی — persist هنوز HTML است؛ Core فقط snapshot JSON را ادغام می‌کند.</summary>
+public interface IInventoryRepository
+{
+    System.Text.Json.Nodes.JsonObject MergeItem(System.Text.Json.Nodes.JsonObject? live, System.Text.Json.Nodes.JsonObject? coreItem);
+}
 
 /// <summary>قرارداد فاکتور — فاز ۳.</summary>
 public interface IInvoiceRepository { }

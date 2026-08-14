@@ -3966,13 +3966,13 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳ι باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳κ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.23ι', 'نسخه محصول باید 1405.5.23ι باشد');
-  assertEqual(ver.assembly, '1405.5.23.10', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (ι=10)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳ι', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.23κ', 'نسخه محصول باید 1405.5.23κ باشد');
+  assertEqual(ver.assembly, '1405.5.23.11', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (κ=11)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳κ', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -8308,34 +8308,92 @@ test('Host Object باید دروازه مجوز و متدهای امنیت را
 console.log('');
 console.log('📋 گروه: هسته کسب‌وکار فاز ۲ (محاسبه C# از همان فرمول‌ها)');
 
-test('پل RunBusiness و dualPrefer باید موجود باشند و HTML-only بدون Host همان نتیجه قبلی را بدهد', () => {
+test('پل RunBusiness باید موجود باشد و HTML-only بدون Host همان نتیجه قبلی را بدهد', () => {
   assertTrue(!!extractFunctionSource(html, 'runBusinessCore'), 'runBusinessCore پیدا نشد');
-  assertTrue(!!extractFunctionSource(html, 'dualPrefer'), 'dualPrefer پیدا نشد');
+  assertTrue(!!extractFunctionSource(html, 'takeBusinessCore'), 'takeBusinessCore پیدا نشد');
   assertTrue(!!extractFunctionSource(html, 'calcInvoiceLine'), 'calcInvoiceLine پیدا نشد');
   const host = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs'), 'utf8');
   assertContainsString(host, 'RunBusiness', 'Host باید RunBusiness را روی همان sirmanHost داشته باشد');
   const rules = fs.readFileSync(path.join(path.dirname(filePath), 'docs', 'ARCHITECTURE_RULES.md'), 'utf8');
   assertContainsString(rules, 'RunBusiness', 'لیست مجاز معماری باید RunBusiness را ثبت کند');
   const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
-  const dualSrc = extractFunctionSource(html, 'dualPrefer');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
   const runSrc = extractFunctionSource(html, 'runBusinessCore');
-  const runner = new Function(runSrc + '\n' + dualSrc + '\n' + lineSrc + `
+  const runner = new Function(runSrc + '\n' + takeSrc + '\n' + lineSrc + `
     function getSirmanHostSync(){ return null; }
     var a = calcInvoiceLine(1000, 10, 9999);
     var b = calcInvoiceLine(1000, 0, 800);
-    var d = dualPrefer(160, 160, 'x');
-    var mismatch = dualPrefer(160, 161, 'x');
-    return {a:a, b:b, d:d, mismatch:mismatch};
+    return {a:a, b:b};
   `);
   const r = runner();
   assertEqual(r.a.fin, 900, 'تخفیف ۱۰٪ روی ۱۰۰۰ باید ۹۰۰ باشد');
   assertEqual(r.a.da, 100, 'مبلغ تخفیف باید ۱۰۰ باشد');
   assertEqual(r.b.fin, 800, 'بدون تخفیف باید fin دستی بماند');
-  assertEqual(r.d, 160, 'اگر JS و C# یکی باشند همان نتیجه است');
-  assertEqual(r.mismatch, 160, 'در اختلاف باید نتیجه JS (رفتار فعلی) حفظ شود');
   assertContainsString(extractFunctionSource(html, 'calcT'), 'disc>0', 'calcT نباید شرط تخفیف را از دست بدهد');
   assertContainsString(html, 'var InventoryEngine = {', 'InventoryEngine نباید حذف شود');
   assertContainsString(html, 'var SmartCore = {', 'SmartCore نباید حذف شود');
+});
+
+console.log('');
+console.log('📋 گروه: هسته کسب‌وکار فاز ۲B (C# منبع حقیقت در exe)');
+
+test('در exe نتیجه Host باید منبع حقیقت باشد و HTML-only به fallback JS برگردد', () => {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  const balSrc = extractFunctionSource(html, 'calcBalance');
+  const wdSrc = extractFunctionSource(html, 'withdrawFromAccount');
+  assertTrue(!!takeSrc && !!hasSrc && !!lineSrc && !!balSrc, 'توابع فاز ۲B پیدا نشد');
+  assertContainsString(lineSrc, 'takeBusinessCore', 'calcInvoiceLine باید اول هسته C# را بخواند');
+  assertContainsString(wdSrc, 'hasBusinessCore', 'برداشت در exe نباید قانون موازی JS را بعد از هسته دوباره اعمال کند');
+  const htmlOnly = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + '\n' + balSrc + `
+    function getSirmanHostSync(){ return null; }
+    return {fin: calcInvoiceLine(1000,10,9999).fin, bal: calcBalance(1000,300), host: hasBusinessCore()};
+  `)();
+  assertEqual(htmlOnly.host, false, 'بدون Host نباید هسته فعال باشد');
+  assertEqual(htmlOnly.fin, 900, 'HTML-only باید همان فرمول قبلی را بدهد');
+  assertEqual(htmlOnly.bal, 700, 'مانده HTML-only باید ۷۰۰ باشد');
+  const exeCore = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        return JSON.stringify({ok:true, result:{est:1000, disc:10, da:100, fin:777}});
+      }};
+    }
+    return calcInvoiceLine(1000, 10, 9999);
+  `)();
+  assertEqual(exeCore.fin, 777, 'اگر Host جواب بدهد باید همان منبع حقیقت باشد نه فرمول JS (۹۰۰)');
+});
+
+test('رزرو در exe فقط Writer هسته باشد و بدون Host همان جهش JS بماند', () => {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const applySrc = extractFunctionSource(html, 'applyCoreItemOnto');
+  const resSrc = extractFunctionSource(html, 'invReserveOnItem');
+  assertTrue(!!applySrc && !!resSrc, 'آداپتر رزرو پیدا نشد');
+  const jsPath = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + applySrc + '\n' + resSrc + `
+    function getSirmanHostSync(){ return null; }
+    function invStockSnapshot(item){ return {qty:item.qty||0, reserved:item.reserved||0, available:Math.max(0,(item.qty||0)-(item.reserved||0))}; }
+    var item = {qty:10, reserved:0};
+    var r = invReserveOnItem(item, 4, '');
+    return {ok:r.ok, reserved:item.reserved};
+  `)();
+  assertEqual(jsPath.ok, true, 'HTML-only باید رزرو کند');
+  assertEqual(jsPath.reserved, 4, 'HTML-only باید reserved را ۴ کند');
+  const exePath = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + applySrc + '\n' + resSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        return JSON.stringify({ok:true, result:{ok:true, item:{qty:10, reserved:3, reservedByWh:{}}, stock:{qty:10, reserved:3, available:7}}});
+      }};
+    }
+    var item = {qty:10, reserved:0};
+    var r = invReserveOnItem(item, 4, '');
+    return {ok:r.ok, reserved:item.reserved, avail:r.stock.available};
+  `)();
+  assertEqual(exePath.ok, true, 'exe باید رزرو هسته را بپذیرد');
+  assertEqual(exePath.reserved, 3, 'آداپتر باید reserved هسته را روی کالا بنویسد نه محاسبه JS');
+  assertEqual(exePath.avail, 7, 'موجودی قابل‌استفاده باید از هسته بیاید');
 });
 
 // نتیجه نهایی
