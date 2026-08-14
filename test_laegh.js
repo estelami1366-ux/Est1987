@@ -3965,14 +3965,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳γ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳δ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.23γ', 'نسخه meta باید 1405.5.23γ باشد');
+  assertEqual(metaVer, '1405.5.23δ', 'نسخه meta باید 1405.5.23δ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/23', 'app-date باید 1405/05/23 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۳γ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۳γ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۳δ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۳δ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.23γ'", 'فیلد version بک‌آپ باید 1405.5.23γ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.23δ'", 'فیلد version بک‌آپ باید 1405.5.23δ باشد');
 });
 
 
@@ -7477,7 +7477,7 @@ test('گزارش مشکل باید نسخه، کاربر، ماژول و کد خ
   assertTrue(!!src, 'تابع submitHelpProblem پیدا نشد');
   assertContainsString(html, 'id="help-report-modal"', 'مودال گزارش مشکل لازم است');
   const runner = new Function('document','localStorage','ntf','closeMod', src + `
-    var APP_VERSION = '1405.5.23γ';
+    var APP_VERSION = '1405.5.23δ';
     var currentRole = {name:'علی', id:'u1'};
     function getMachineAuditInfo(){ return {computerName:'PC-TEST'}; }
     submitHelpProblem();
@@ -7500,7 +7500,7 @@ test('گزارش مشکل باید نسخه، کاربر، ماژول و کد خ
   assertTrue(Array.isArray(tickets) && tickets.length === 1, 'باید یک گزارش محلی ذخیره شود');
   assertEqual(tickets[0].module, 'warranty', 'ماژول باید ذخیره شود');
   assertEqual(tickets[0].code, 'ERR-AUTH-001', 'کد خطا باید ذخیره شود');
-  assertEqual(tickets[0].version, '1405.5.23γ', 'نسخه نرم‌افزار باید ضمیمه شود');
+  assertEqual(tickets[0].version, '1405.5.23δ', 'نسخه نرم‌افزار باید ضمیمه شود');
   assertEqual(tickets[0].computerName, 'PC-TEST', 'نام سیستم باید ضمیمه شود');
   assertTrue(tickets[0].user.indexOf('علی') >= 0, 'نام کاربر باید ضمیمه شود');
   assertTrue(JSON.stringify(tickets[0]).indexOf('http') === -1, 'گزارش نباید به بیرون ارسال شود');
@@ -7551,6 +7551,143 @@ test('قانون ۷: مرکز راهنما باید شروع سریع، فرآی
   assertTrue(!!inv && inv[0].indexOf('به‌زودی') === -1, 'راهنمای فاکتور نباید ناتمام بماند');
   const prod = html.match(/راهنمای بخش کالا و انبار[\s\S]{0,900}/);
   assertTrue(!!prod && prod[0].indexOf('به‌زودی') === -1, 'راهنمای کالا و انبار نباید ناتمام بماند');
+});
+
+
+console.log('');
+console.log('📋 گروه: هسته هوشمند — محاسبه، گردش‌کار، پیشنهاد قطعه');
+
+test('موتور محاسبه باید فرمول‌های قطعی گارانتی/مانده/مبلغ نهایی/موجودی/نقطه سفارش را بدهد', () => {
+  const addSrc = extractFunctionSource(html, 'addJalaliMonths');
+  const endSrc = extractFunctionSource(html, 'calcWarrantyEndDate');
+  const balSrc = extractFunctionSource(html, 'calcBalance');
+  const finSrc = extractFunctionSource(html, 'calcFinalAmount');
+  const avSrc = extractFunctionSource(html, 'calcAvailableStock');
+  const reSrc = extractFunctionSource(html, 'calcReorderPoint');
+  assertTrue(!!addSrc && !!endSrc && !!balSrc && !!finSrc && !!avSrc && !!reSrc, 'توابع موتور محاسبه پیدا نشد');
+  assertContainsString(endSrc, 'addJalaliMonths', 'تاریخ پایان گارانتی باید همان addJalaliMonths موجود را صدا بزند نه فرمول موازی');
+  const runner = new Function(addSrc + '\n' + endSrc + '\n' + balSrc + '\n' + finSrc + '\n' + avSrc + '\n' + reSrc + `
+    return {
+      end: calcWarrantyEndDate('1405/05/05', 24),
+      bal: calcBalance(1000, 300),
+      fin: calcFinalAmount(100, 50, 20, 10),
+      av: calcAvailableStock(10, 3),
+      avNeg: calcAvailableStock(2, 5),
+      rp: calcReorderPoint(5, 4, 10)
+    };
+  `);
+  const r = runner();
+  assertEqual(r.end, '1407/05/05', 'WarrantyEndDate = PurchaseDate + 24 ماه');
+  assertEqual(r.bal, 700, 'Balance = TotalAmount - PaidAmount');
+  assertEqual(r.fin, 160, 'FinalAmount = قطعات + اجرت + سایر - تخفیف');
+  assertEqual(r.av, 7, 'AvailableStock = CurrentStock - ReservedStock');
+  assertEqual(r.avNeg, 0, 'موجودی قابل‌استفاده نباید منفی شود');
+  assertEqual(r.rp, 30, 'ReorderPoint = AverageUsage × LeadTime + SafetyStock');
+});
+
+test('وضعیت SLA باید آستانه ۲۴/۴۸/۷۲ ساعت موجود را به normal/warning/critical/overdue نگاشت کند', () => {
+  const src = extractFunctionSource(html, 'calcSlaStatusFromAgeHours');
+  assertTrue(!!src, 'تابع calcSlaStatusFromAgeHours پیدا نشد');
+  const runner = new Function(src + `
+    return {
+      n: calcSlaStatusFromAgeHours(10),
+      w: calcSlaStatusFromAgeHours(24),
+      c: calcSlaStatusFromAgeHours(48),
+      o: calcSlaStatusFromAgeHours(72)
+    };
+  `);
+  const r = runner();
+  assertEqual(r.n, 'normal', 'کمتر از ۲۴ ساعت باید عادی باشد');
+  assertEqual(r.w, 'warning', '۲۴ ساعت باید هشدار باشد');
+  assertEqual(r.c, 'critical', '۴۸ ساعت باید بحرانی باشد');
+  assertEqual(r.o, 'overdue', '۷۲ ساعت باید سررسیدگذشته باشد');
+  const slaSrc = extractFunctionSource(html, 'checkWarrantySlaAlerts');
+  assertContainsString(slaSrc, 'calcSlaStatusFromAgeHours', 'هشدار SLA موجود باید از موتور محاسبه استفاده کند نه آستانه موازی');
+});
+
+test('پیشنهاد قطعه باید فقط از کاتالوگ موجود بیاید و دلیل فارسی بدهد', () => {
+  const src = extractFunctionSource(html, 'suggestPartsForCase');
+  assertTrue(!!src, 'تابع suggestPartsForCase پیدا نشد');
+  const runner = new Function(src + `
+    var catalog = [
+      {code:'P-HEAT', name:'هیتر', prodCode:'402003', cat:'گرمایش', qty:4},
+      {code:'P-OTHER', name:'واشر', prodCode:'999', cat:'متفرقه', qty:2}
+    ];
+    var hits = suggestPartsForCase({prodCode:'402003', model:'چای‌ساز', problem:'هیتر', parts:catalog});
+    var invented = suggestPartsForCase({prodCode:'NO-SUCH', problem:'xyz', parts:catalog});
+    return {hits:hits, invented:invented};
+  `);
+  const r = runner();
+  assertTrue(Array.isArray(r.hits) && r.hits.length >= 1, 'باید حداقل یک قطعه مرتبط برگردد');
+  assertEqual(r.hits[0].code, 'P-HEAT', 'باید همان کد کاتالوگ برگردد نه کد ساختگی');
+  assertTrue(String(r.hits[0].explain||'').indexOf('کالای مرتبط') >= 0, 'باید دلیل «کالای مرتبط» داشته باشد');
+  assertTrue(r.hits.every(function(h){ return h.code==='P-HEAT' || h.code==='P-OTHER'; }), 'نباید قطعه خارج از کاتالوگ ساخته شود');
+  assertTrue(Array.isArray(r.invented) && r.invented.length === 0, 'بدون تطبیق نباید قطعه‌ای اختراع شود');
+});
+
+test('گذار وضعیت گارانتی باید فقط open→closed مجاز باشد و پرونده را بازنویسی نکند', () => {
+  const canSrc = extractFunctionSource(html, 'canWarrantyTransition');
+  const appSrc = extractFunctionSource(html, 'applyWarrantyTransition');
+  assertTrue(!!canSrc && !!appSrc, 'توابع گردش‌کار گارانتی پیدا نشد');
+  const runner = new Function(canSrc + '\n' + appSrc + `
+    var rec = {id:'W-1', status:'open', name:'علی'};
+    var ok = applyWarrantyTransition(rec, 'closed');
+    var bad = applyWarrantyTransition({status:'closed'}, 'open');
+    return {
+      can: canWarrantyTransition('open','closed'),
+      cannot: canWarrantyTransition('closed','open'),
+      same: rec.status,
+      next: ok.record && ok.record.status,
+      ok: ok.ok,
+      badOk: bad.ok
+    };
+  `);
+  const r = runner();
+  assertEqual(r.can, true, 'open به closed باید مجاز باشد');
+  assertEqual(r.cannot, false, 'باز کردن دوباره پرونده بسته نباید از هسته مجاز شود');
+  assertEqual(r.same, 'open', 'رکورد ورودی نباید mutate شود');
+  assertEqual(r.next, 'closed', 'خروجی باید وضعیت بسته داشته باشد');
+  assertEqual(r.ok, true, 'گذار مجاز باید ok باشد');
+  assertEqual(r.badOk, false, 'گذار غیرمجاز باید رد شود');
+});
+
+test('SmartCore باید Event Bus و InventoryEngine و ErrorEngine موجود را بپوشاند نه جایگزین کند', () => {
+  assertContainsString(html, 'var SmartCore = {', 'شیء SmartCore پیدا نشد');
+  assertContainsString(html, 'var CalculationEngine = {', 'CalculationEngine پیدا نشد');
+  assertContainsString(html, 'var InventoryEngine = {', 'InventoryEngine نباید حذف شود');
+  assertContainsString(html, 'var ErrorEngine = {', 'ErrorEngine نباید حذف شود');
+  assertContainsString(html, 'var _busListeners', 'Event Bus موجود نباید با باس دوم عوض شود');
+  const coreChunk = html.match(/var SmartCore = \{[\s\S]{0,1200}/);
+  assertTrue(!!coreChunk, 'بدنه SmartCore پیدا نشد');
+  assertTrue(coreChunk[0].indexOf('InventoryEngine') >= 0, 'SmartCore باید InventoryEngine موجود را ارجاع دهد');
+  assertTrue(coreChunk[0].indexOf('ErrorEngine') >= 0, 'SmartCore باید ErrorEngine موجود را ارجاع دهد');
+  assertTrue(coreChunk[0].indexOf('emit') >= 0, 'SmartCore باید emit موجود را ارجاع دهد');
+  const saveInv = extractFunctionSource(html, 'saveInv');
+  const saveSale = extractFunctionSource(html, 'saveSale');
+  const saveWar = extractFunctionSource(html, 'saveWar');
+  assertContainsString(saveInv, "emit('invoice:saved'", 'saveInv باید همچنان invoice:saved بفرستد');
+  assertContainsString(saveSale, "emit('sale:saved'", 'saveSale باید همچنان sale:saved بفرستد');
+  assertContainsString(saveWar, "emit('warranty:saved'", 'saveWar باید همچنان warranty:saved بفرستد');
+});
+
+test('قانون ۷: راهنمای هسته هوشمند، محاسبه و پیشنهاد قطعه باید موجود باشد', () => {
+  assertContainsString(html, 'هسته هوشمند', 'راهنما باید هسته هوشمند را بگوید');
+  assertContainsString(html, 'پیشنهاد قطعه', 'راهنما باید پیشنهاد قطعه را بگوید');
+  assertContainsString(html, 'محاسبه', 'راهنما باید محاسبه را بگوید');
+  const exp = extractFunctionSource(html, 'expandHelpQuery');
+  assertTrue(!!exp, 'expandHelpQuery پیدا نشد');
+  const runner = new Function(exp + `; return expandHelpQuery('پیشنهاد قطعه');`);
+  const q = runner();
+  assertTrue(/هسته|پیشنهاد|قطعه/.test(q), 'جستجوی پیشنهاد قطعه باید به مقاله هسته برسد');
+});
+
+test('دکمه پیشنهاد هوشمند باید قطعه را از کاتالوگ به درخواست موجود اضافه کند', () => {
+  assertTrue(extractFunctionSource(html, 'applySuggestedWarParts') !== null, 'تابع applySuggestedWarParts پیدا نشد');
+  assertTrue(extractFunctionSource(html, 'getWarSuggestContext') !== null, 'تابع getWarSuggestContext پیدا نشد');
+  assertContainsString(html, "applySuggestedWarParts('agency')", 'دکمه پیشنهاد نمایندگی لازم است');
+  assertContainsString(html, "applySuggestedWarParts('company')", 'دکمه پیشنهاد کارشناس لازم است');
+  const src = extractFunctionSource(html, 'applySuggestedWarParts');
+  assertContainsString(src, 'suggestPartsForCase', 'باید از موتور پیشنهاد موجود استفاده کند');
 });
 
 
