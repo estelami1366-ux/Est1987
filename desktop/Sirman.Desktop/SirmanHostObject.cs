@@ -24,6 +24,9 @@ public class SirmanHostObject
 
     public void Notify(string title, string body) => _form.RequestNotify(title, body);
 
+    /// <summary>پورت واقعی پل اعلان (اگر ۸۷۶۶ اشغال بود پورت بعدی).</summary>
+    public int GetNotifyPort() => _form.GetNotifyBridgePort();
+
     public string Ping() => "sirman-host-ok";
 
     public string GetBackupDir()

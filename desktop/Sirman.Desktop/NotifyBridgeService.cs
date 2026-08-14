@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 
@@ -22,31 +23,57 @@ public sealed class NotifyBridgeService : IDisposable
     public bool IsRunning => _started && _listener is { IsListening: true };
     public int Port { get; private set; } = DefaultPort;
 
-    public bool Start(int port = DefaultPort)
+    public static bool IsTcpPortFree(int port)
     {
-        if (_started) return IsRunning;
-        Port = port;
-
-        EnsureTray();
-
+        TcpListener? probe = null;
         try
         {
-            var listener = new HttpListener();
-            listener.Prefixes.Add($"http://127.0.0.1:{port}/");
-            listener.Prefixes.Add($"http://localhost:{port}/");
-            listener.Start();
-            _listener = listener;
-            _cts = new CancellationTokenSource();
-            _loop = Task.Run(() => ListenLoopAsync(_cts.Token));
-            _started = true;
+            probe = new TcpListener(IPAddress.Loopback, port);
+            probe.Start();
             return true;
         }
         catch
         {
-            // پورت اشغال است (مثلاً Sirman_Start.bat) — باز هم Toast مستقیم کار می‌کند
-            _started = true;
             return false;
         }
+        finally
+        {
+            try { probe?.Stop(); } catch { /* ignore */ }
+        }
+    }
+
+    public bool Start(int preferredPort = DefaultPort)
+    {
+        if (_started) return IsRunning;
+        Port = preferredPort;
+
+        EnsureTray();
+
+        for (int p = preferredPort; p < preferredPort + 20; p++)
+        {
+            if (!IsTcpPortFree(p)) continue;
+            try
+            {
+                var listener = new HttpListener();
+                listener.Prefixes.Add($"http://127.0.0.1:{p}/");
+                listener.Prefixes.Add($"http://localhost:{p}/");
+                listener.Start();
+                _listener = listener;
+                Port = p;
+                _cts = new CancellationTokenSource();
+                _loop = Task.Run(() => ListenLoopAsync(_cts.Token));
+                _started = true;
+                return true;
+            }
+            catch
+            {
+                // پورت در فاصلهٔ چک تا bind اشغال شد — بعدی
+            }
+        }
+
+        // پورت‌ها اشغال‌اند (مثلاً Sirman_Start.bat) — Toast مستقیم هنوز کار می‌کند
+        _started = true;
+        return false;
     }
 
     public void ShowToast(string? title, string? body)

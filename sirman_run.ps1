@@ -6,7 +6,7 @@ $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $Root
 
 # === ALWAYS keep this version equal to the latest Sirman HTML release ===
-$SirmanVersion = '1405.5.23ζ'
+$SirmanVersion = '1405.5.23η'
 $Port = 8765
 $NotifyPort = 8766
 $DefaultFile = 'Sirman_Final.html'
@@ -166,15 +166,30 @@ function Handle-HttpRequest([System.Net.Sockets.TcpClient]$client, [string]$mode
   }
 }
 
+function Test-SirmanPortFree([int]$TestPort) {
+  try {
+    $probe = [Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback, $TestPort)
+    $probe.Start()
+    $probe.Stop()
+    return $true
+  } catch {
+    return $false
+  }
+}
+
 # Start notify listener
 $notifyListener = $null
-try {
-  $notifyListener = [Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback, $NotifyPort)
-  $notifyListener.Start()
-  Write-Host "[OK] Notify bridge on http://127.0.0.1:$NotifyPort/notify"
-} catch {
-  Write-Host "[WARN] Notify port $NotifyPort busy - continuing without bridge"
-  $notifyListener = $null
+if (-not (Test-SirmanPortFree $NotifyPort)) {
+  Write-Host "[WARN] Notify port $NotifyPort in use (probably Sirman.exe) - skipping PS1 bridge"
+} else {
+  try {
+    $notifyListener = [Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback, $NotifyPort)
+    $notifyListener.Start()
+    Write-Host "[OK] Notify bridge on http://127.0.0.1:$NotifyPort/notify"
+  } catch {
+    Write-Host "[WARN] Notify port $NotifyPort busy - continuing without bridge"
+    $notifyListener = $null
+  }
 }
 
 # Start file server (default loopback; LAN bind if marker or SIRMAN_LAN=1)
