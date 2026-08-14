@@ -79,10 +79,25 @@ def pack() -> None:
         rel = p.relative_to(PUBLISH)
         copy_file(p, app_dir / rel)
 
+    pending = must_exist(ROOT / "Sirman_Pending_Update.json")
+    upd = must_exist(ROOT / "updates" / f"Sirman_Update_{APP}.json")
+    apply_ps = must_exist(ROOT / "apply_sirman_update.ps1")
+    if pending.stat().st_size < 500_000 or upd.stat().st_size < 500_000:
+        raise SystemExit("update JSON too small — kit must ship the full HTML update, not a 1KB setVersion file")
+    pend_ver = json.loads(pending.read_text(encoding="utf-8")).get("version")
+    upd_ver = json.loads(upd.read_text(encoding="utf-8")).get("version")
+    if pend_ver != APP or upd_ver != APP:
+        raise SystemExit(f"update version mismatch: pending={pend_ver} upd={upd_ver} app={APP}")
+
     copy_file(html, app_dir / "Sirman_Final.html")
+    copy_file(html, app_dir / f"Sirman_Final_{APP}.html")
     copy_file(ROOT / "Sirman_Start.bat", app_dir / "Sirman_Start.bat")
     copy_file(ROOT / "OPEN_SIRMAN.bat", app_dir / "OPEN_SIRMAN.bat")
     copy_file(ROOT / "sirman_run.ps1", app_dir / "sirman_run.ps1")
+    copy_file(apply_ps, app_dir / "apply_sirman_update.ps1")
+    copy_file(pending, app_dir / "Sirman_Pending_Update.json")
+    copy_file(upd, app_dir / "updates" / f"Sirman_Update_{APP}.json")
+    copy_file(upd, OUT_DIR / "updates" / f"Sirman_Update_{APP}.json")
     copy_file(ROOT / "desktop" / "Uninstall-Sirman.bat", app_dir / "Uninstall-Sirman.bat")
     if (ROOT / "نصب_میانبر_سیرمان.bat").is_file():
         copy_file(ROOT / "نصب_میانبر_سیرمان.bat", app_dir / "نصب_میانبر_سیرمان.bat")
@@ -103,7 +118,10 @@ def pack() -> None:
         "۴) میانبر دسکتاپ را تأیید کنید.\n"
         "۵) از منوی Start یا آیکون دسکتاپ «Sirman» را باز کنید.\n\n"
         "برنامه واقعی Sirman_Final.html است (حدود ۱٫۶ مگابایت) به‌همراه Sirman.exe.\n"
-        "فایل یک‌کیلوبایتی JSON برنامه نیست و داخل این کیت عمداً گذاشته نشده.\n\n"
+        f"این کیت خودش نسخه {APP_FA} است — بعد از نصب آپدیت جدا لازم نیست.\n"
+        f"فایل آپدیت همین نسخه داخل App\\updates\\Sirman_Update_{APP}.json است\n"
+        "(حدود ۱٫۶ مگابایت، کل برنامه). فایل یک‌کیلوبایتی برنامه نیست.\n"
+        "اگر روی پوشه نصب قدیمی نصب کنید، همان فایل Pending قدیمی ۱ کیلوبایتی را عوض می‌کند.\n\n"
         "اگر .NET 8 Desktop Runtime روی ویندوز نباشد، Sirman.exe باز نمی‌شود.\n"
         "در آن صورت از داخل پوشه نصب Sirman_Start.bat را بزنید،\n"
         "یا Runtime را از سایت مایکروسافت نصب کنید:\n"

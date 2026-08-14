@@ -3967,13 +3967,13 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳π باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳ρ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.23π', 'نسخه محصول باید 1405.5.23π باشد');
-  assertEqual(ver.assembly, '1405.5.23.17', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (π=17)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳π', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.23ρ', 'نسخه محصول باید 1405.5.23ρ باشد');
+  assertEqual(ver.assembly, '1405.5.23.18', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (ρ=18)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳ρ', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -4004,6 +4004,22 @@ test('نسخه ۱۴۰۵.۵.۲۳π باید Year.Month.Day شمسی با حرف �
   assertTrue(fs.statSync(kitHtml).size > 500000, 'HTML داخل کیت باید برنامه واقعی باشد نه فایل کوچک');
   assertTrue(fs.existsSync(kitExe), 'کیت نصب باید Sirman.exe آماده داشته باشد');
   assertTrue(fs.statSync(kitZip).size > 1000000, 'zip کیت نباید خالی باشد');
+  const kitUpd = path.join(kitDir, 'App', 'updates', 'Sirman_Update_'+ver.app+'.json');
+  const kitPending = path.join(kitDir, 'App', 'Sirman_Pending_Update.json');
+  const kitApply = path.join(kitDir, 'App', 'apply_sirman_update.ps1');
+  assertTrue(fs.existsSync(kitUpd), 'کیت باید از اول فایل آپدیت همین نسخه را داخل App/updates داشته باشد');
+  assertTrue(fs.statSync(kitUpd).size > 500000, 'آپدیت داخل کیت باید HTML کامل باشد نه فایل ۱ کیلوبایتی');
+  assertTrue(fs.existsSync(kitPending), 'کیت باید Sirman_Pending_Update.json هم‌نسخه داشته باشد تا Pending قدیمی نصب قبلی را بازنویسی کند');
+  assertTrue(fs.statSync(kitPending).size > 500000, 'Pending داخل کیت نباید فایل ۱ کیلوبایتی قدیمی باشد');
+  assertTrue(fs.existsSync(kitApply), 'کیت باید apply_sirman_update.ps1 داشته باشد');
+  const kitUpdPkg = JSON.parse(fs.readFileSync(kitUpd, 'utf8'));
+  const kitPendPkg = JSON.parse(fs.readFileSync(kitPending, 'utf8'));
+  const kitVer = JSON.parse(fs.readFileSync(path.join(kitDir, 'App', 'SIRMAN_VERSION.json'), 'utf8'));
+  assertEqual(kitUpdPkg.version, ver.app, 'نسخه فایل آپدیت داخل کیت باید با خود کیت یکی باشد — کیت عقب‌تر از آپدیت نیست');
+  assertEqual(kitPendPkg.version, ver.app, 'Pending داخل کیت باید همان نسخه برنامه باشد');
+  assertEqual(kitVer.app, ver.app, 'SIRMAN_VERSION داخل کیت باید همان نسخه جاری باشد');
+  const kitHtmlTxt = fs.readFileSync(kitHtml, 'utf8');
+  assertTrue(kitHtmlTxt.indexOf("var APP_VERSION = '"+ver.app+"'") >= 0, 'HTML داخل کیت باید همان نسخه جاری باشد');
   const updJsonPath = path.join(path.dirname(filePath), 'updates', 'Sirman_Update_'+ver.app+'.json');
   const pendingPath = path.join(path.dirname(filePath), 'Sirman_Pending_Update.json');
   assertTrue(fs.existsSync(updJsonPath), 'فایل آپدیت همین نسخه باید موجود باشد');
@@ -8332,7 +8348,8 @@ test('Host Object باید دروازه مجوز و متدهای امنیت را
   assertContainsString(html, 'Sirman_Start.bat', 'راهنمای نصب باید لانچر را نام ببرد');
   assertContainsString(html, 'exe جدید', 'راهنمای این نسخه باید بگوید exe هم عوض شود');
   assertContainsString(html, 'فایل یک‌کیلوبایتی برنامه نیست', 'راهنمای نصب از صفر باید بگوید JSON یک‌کیلوبایتی برنامه نیست');
-  assertContainsString(html, 'نصب.bat', 'راهنما باید کیت نصب یک‌کلیکی را نام ببرد');
+  assertContainsString(html, 'آپدیت جدا لازم نیست', 'راهنما باید بگوید کیت خودش نسخه جاری است و آپدیت جدا نمی‌خواهد');
+  assertContainsString(html, 'فایل آپدیت همین نسخه', 'راهنما باید بگوید فایل آپدیت داخل کیت است');
   assertContainsString(html, 'بدون کپی‌پیست', 'راهنما باید بگوید فایل‌ها را یکی‌یکی کپی نکنید');
   const guideTxt = path.join(path.dirname(filePath), 'راهنمای_نصب_از_صفر.txt');
   assertTrue(fs.existsSync(guideTxt), 'فایل راهنمای_نصب_از_صفر.txt باید کنار برنامه باشد');
