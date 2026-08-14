@@ -26,12 +26,12 @@ public static class PartsAdvisor
             if (problem.Length > 0 && blob.Contains(problem, StringComparison.Ordinal))
                 why.Add("چون شرح مشکل با نام یا دسته قطعه هم‌خوان است");
             if (why.Count == 0) continue;
-            var qty = p["qty"];
+            var snap = InventoryCore.Stock(p, null);
             outList.Add(new JsonObject
             {
                 ["code"] = code,
                 ["name"] = JsonVal.Str(p, "name"),
-                ["qty"] = qty is null ? 0 : CalculationEngine.ToNum(JsonVal.Str(qty)),
+                ["qty"] = snap.Available,
                 ["explain"] = string.Join("؛ ", why)
             });
         }

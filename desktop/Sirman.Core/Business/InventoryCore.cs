@@ -107,10 +107,107 @@ public static class InventoryCore
 
     public static InventoryMutateResult AddStock(JsonObject? item, int qty)
     {
+        return AddStock(item, qty, null);
+    }
+
+    public static InventoryMutateResult AddStock(JsonObject? item, int qty, string? whId)
+    {
+        if (qty <= 0) return new InventoryMutateResult { Ok = false, Error = "مقدار نامعتبر" };
+        if (!string.IsNullOrEmpty(whId))
+            return ApplyByWarehouse(item, "in", qty, whId);
         item = Clone(item);
-        if (item is null || qty <= 0) return new InventoryMutateResult { Ok = false, Error = "مقدار نامعتبر" };
+        if (item is null) return new InventoryMutateResult { Ok = false, Error = "مقدار نامعتبر" };
         item["qty"] = ToInt(item["qty"]) + qty;
         return new InventoryMutateResult { Ok = true, Item = item, Stock = Stock(item, null) };
+    }
+
+    public static InventoryMutateResult RemoveStock(JsonObject? item, int qty, string? whId)
+    {
+        if (qty <= 0) return new InventoryMutateResult { Ok = false, Error = "مقدار نامعتبر" };
+        if (!string.IsNullOrEmpty(whId))
+            return ApplyByWarehouse(item, "out", qty, whId);
+        item = Clone(item);
+        if (item is null) return new InventoryMutateResult { Ok = false, Error = "مقدار نامعتبر" };
+        var snap = Stock(item, null);
+        if (snap.Available < qty)
+            return new InventoryMutateResult { Ok = false, Error = "موجودی قابل‌استفاده کافی نیست (قابل استفاده: " + snap.Available + ")" };
+        item["qty"] = Math.Max(0, ToInt(item["qty"]) - qty);
+        return new InventoryMutateResult { Ok = true, Item = item, Stock = Stock(item, null) };
+    }
+
+    /// <summary>همان applyStockByWarehouse در HTML — byWh و qty با هم به‌روز می‌شوند.</summary>
+    public static InventoryMutateResult ApplyByWarehouse(JsonObject? item, string? type, int qty, string? whId)
+    {
+        type = (type ?? "").Trim().ToLowerInvariant();
+        if (type is not ("in" or "out"))
+            return new InventoryMutateResult { Ok = false, Error = "نوع حرکت نامعتبر است" };
+        if (qty == 0) return new InventoryMutateResult { Ok = true, Item = Clone(item) ?? new JsonObject(), Stock = Stock(item, whId) };
+        if (qty < 0) return new InventoryMutateResult { Ok = false, Error = "مقدار نامعتبر" };
+        item = Clone(item);
+        if (item is null) return new InventoryMutateResult { Ok = false, Error = "مقدار نامعتبر" };
+
+        if (IsDefective(item))
+            return ApplyDefective(item, type, qty, whId);
+
+        if (type == "out")
+        {
+            var avail = Stock(item, string.IsNullOrEmpty(whId) ? null : whId).Available;
+            if (avail < qty)
+                return new InventoryMutateResult
+                {
+                    Ok = false,
+                    Error = "موجودی قابل‌استفاده کافی نیست (قابل استفاده: " + avail + "، درخواست: " + qty + ")"
+                };
+        }
+
+        var delta = type == "in" ? qty : -qty;
+        if (!string.IsNullOrEmpty(whId))
+        {
+            EnsureMap(item, "byWh");
+            var by = (JsonObject)item["byWh"]!;
+            by[whId] = Math.Max(0, IntFromMap(by, whId) + delta);
+            item["qty"] = SumByWh(by);
+        }
+        else
+        {
+            item["qty"] = Math.Max(0, ToInt(item["qty"]) + delta);
+        }
+        return new InventoryMutateResult { Ok = true, Item = item, Stock = Stock(item, string.IsNullOrEmpty(whId) ? null : whId) };
+    }
+
+    public static InventoryMutateResult AdjustStock(JsonObject? item, int targetQty, string? whId)
+    {
+        if (targetQty < 0) return new InventoryMutateResult { Ok = false, Error = "مقدار نامعتبر" };
+        var current = Stock(item, string.IsNullOrEmpty(whId) ? null : whId).Qty;
+        var diff = targetQty - current;
+        if (diff == 0)
+            return new InventoryMutateResult { Ok = true, Item = Clone(item) ?? new JsonObject(), Stock = Stock(item, whId) };
+        return ApplyByWarehouse(item, diff > 0 ? "in" : "out", Math.Abs(diff), whId);
+    }
+
+    private static bool IsDefective(JsonObject item)
+    {
+        var code = JsonVal.Str(item, "id");
+        if (code.Length == 0) code = JsonVal.Str(item, "code");
+        return code.StartsWith("DEF-", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static InventoryMutateResult ApplyDefective(JsonObject item, string type, int qty, string? whId)
+    {
+        if (type == "out")
+        {
+            item["status"] = "returned";
+            item["returnedAt"] = JsonVal.Str(item, "returnedAt");
+            item["qty"] = 0;
+        }
+        else
+        {
+            item["status"] = "in_stock";
+            item["returnedAt"] = null;
+            item["qty"] = ToInt(item["qty"]) + qty;
+        }
+        if (!string.IsNullOrEmpty(whId)) item["warehouseId"] = whId;
+        return new InventoryMutateResult { Ok = true, Item = item, Stock = Stock(item, whId) };
     }
 
     public static List<JsonObject> Kardex(JsonArray? moves, string? code, string? whId)

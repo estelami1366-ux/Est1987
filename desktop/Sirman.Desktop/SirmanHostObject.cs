@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Drawing.Printing;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;

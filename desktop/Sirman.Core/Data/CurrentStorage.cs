@@ -1,8 +1,10 @@
+using System.Text.Json.Nodes;
+
 namespace Sirman.Core.Data;
 
 /// <summary>
 /// منبع دادهٔ فعلی هنوز localStorage/IndexedDB داخل HTML است.
-/// این فاز Database نمی‌سازد؛ فقط مرز را جدا می‌کند تا فاز ۳ آداپتر عوض کند.
+/// این فاز Database نمی‌سازد؛ Core از آداپتر JSON استفاده می‌کند.
 /// </summary>
 public static class CurrentStorage
 {
@@ -11,14 +13,28 @@ public static class CurrentStorage
     public const string Phase3 = "فقط پیاده‌سازی همین قرارداد عوض می‌شود؛ Domain دست نمی‌خورد.";
 }
 
-/// <summary>قرارداد موجودی — persist هنوز HTML است؛ Core فقط snapshot JSON را ادغام می‌کند.</summary>
 public interface IInventoryRepository
 {
-    System.Text.Json.Nodes.JsonObject MergeItem(System.Text.Json.Nodes.JsonObject? live, System.Text.Json.Nodes.JsonObject? coreItem);
+    JsonObject MergeItem(JsonObject? live, JsonObject? coreItem);
+    JsonObject MergeMap(JsonObject? liveMap, JsonObject? coreMap);
 }
 
-/// <summary>قرارداد فاکتور — فاز ۳.</summary>
-public interface IInvoiceRepository { }
+public interface IInvoiceRepository
+{
+    JsonObject MergeItem(JsonObject? live, JsonObject? coreItem);
+}
 
-/// <summary>قرارداد مشتری — فاز ۳.</summary>
-public interface ICustomerRepository { }
+public interface ICustomerRepository
+{
+    JsonObject MergeItem(JsonObject? live, JsonObject? coreItem);
+}
+
+public interface IWarrantyRepository
+{
+    JsonObject MergeItem(JsonObject? live, JsonObject? coreItem);
+}
+
+public interface IPaymentRepository
+{
+    JsonObject MergeItem(JsonObject? live, JsonObject? coreItem);
+}

@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23κ">
+<meta name="app-version" content="1405.5.23ξ">
 <meta name="app-date" content="1405/05/23">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -2183,7 +2183,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۳κ — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۳ξ — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-sm" id="btn-lock-app" onclick="lockApp()" style="width:100%;margin-top:8px;font-weight:700" title="قفل برنامه در حالی که باز است — Ctrl+Shift+L">🔒 قفل برنامه <small style="opacity:.7">Ctrl+Shift+L</small></button>
   <button class="btn btn-r btn-sm" id="btn-exit-safe" onclick="promptExitBackup()" style="width:100%;margin-top:8px;font-weight:700">🚪 خروج امن (پرسش بک‌آپ)</button>
   <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;padding:0 2px">اگر ✕ پنجره را بزنید، مرورگر اول هشدار می‌دهد؛ برای بک‌آپ از این دکمه استفاده کنید.</div>
@@ -4927,9 +4927,27 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 
 <div class="help-cat-header">⬆️ آپدیت نرم‌افزار</div>
+<div class="card help-card help-collapsed" data-help-id="install-update-guide">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>📦 نصب از صفر — کیت کامل Setup بدون کپی‌پیست</span><span class="help-chev">▾</span></div>
+  <div style="background:var(--amber-l);color:var(--amber);padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.9;margin:8px 0">
+    ⚠️ <b>فایل یک‌کیلوبایتی برنامه نیست.</b> فایل‌هایی مثل <code>updates/Sirman_Update_….json</code> حدود ۱ کیلوبایت‌اند و فقط شماره نسخه را عوض می‌کنند. با بارگذاری‌شان نرم‌افزار نصب نمی‌شود. برنامه واقعی داخل کیت نصب است: <b>Sirman_Final.html</b> (حدود ۱٫۶ مگابایت) به‌همراه <b>Sirman.exe</b>.
+  </div>
+  <p style="font-size:13px;line-height:2;color:var(--text2);margin:8px 4px">اگر تا حالا این برنامه را روی این کامپیوتر نداشته‌اید، از کیت نصب استفاده کنید. فایل‌ها را یکی‌یکی کپی نکنید.</p>
+  <ol style="font-size:13px;line-height:2.2;color:var(--text);padding-right:22px">
+    <li><b>کیت کامل (پیشنهادی — بدون کپی‌پیست):</b> فایل <code>Sirman_Setup_….zip</code> را بگیرید. روی zip راست‌کلیک → Extract All. داخل پوشه فقط روی <b>نصب.bat</b> (یا <b>SETUP.bat</b>) دوبار کلیک کنید. پوشه نصب را انتخاب کنید (مثلاً Documents\\Sirman). میانبر دسکتاپ ساخته می‌شود. از منوی Start «Sirman» را باز کنید.</li>
+    <li><b>داخل کیت چیست:</b> خود برنامه (<code>Sirman_Final.html</code> حدود ۱٫۶ مگابایت) + <code>Sirman.exe</code> + لانچر <code>Sirman_Start.bat</code>. فایل JSON یک‌کیلوبایتی عمداً داخل کیت نیست.</li>
+    <li><b>اگر exe باز نشد:</b> .NET 8 Desktop Runtime روی ویندوز لازم است. در آن صورت از پوشه نصب <b>Sirman_Start.bat</b> را بزنید. WebView2 معمولاً با Edge هست.</li>
+    <li><b>روش دستی (اگر zip نداشتید):</b> پوشه را کپی کنید و روی <b>Sirman_Start.bat</b> یا <b>Sirman_Final.html</b> دوبار کلیک کنید. برای آیکون: <b>نصب_میانبر_سیرمان.bat</b> گزینه ۲. این روش کپی دستی است؛ کیت Setup همان کار را خودکار می‌کند.</li>
+    <li><b>داده کجاست:</b> فاکتور و گارانتی داخل HTML نیست؛ در حافظه همین مرورگر/exe روی همین کامپیوتر است. فقط کپی فایل، داده را نمی‌برد. اول از «ورود/خروج داده» بک‌آپ بگیرید.</li>
+    <li><b>اگر از قبل برنامه دارید (آپدیت):</b> بک‌آپ بگیرید. همان کیت Setup را دوباره اجرا کنید و همان پوشه نصب قبلی را انتخاب کنید تا HTML و <b>exe جدید</b> جایگزین شوند. JSON یک‌کیلوبایتی را به‌جای برنامه بارگذاری نکنید.</li>
+    <li><b>آپدیت کوچک بعدی:</b> تنظیمات → تب ⬆️ آپدیت → «بارگذاری فایل آپدیت». یا فایل را با نام <code>Sirman_Pending_Update.json</code> کنار <b>Sirman_Start.bat</b> بگذارید. اگر به‌هم ریخت، دانگرید به هسته قبلی. داده پاک نمی‌شود.</li>
+    <li><b>فایل چاپی از صفر:</b> در کیت و پوشه برنامه <b>راهنمای_نصب_از_صفر.txt</b> یا <b>راهنمای_نصب_و_آپدیت.docx</b> را باز کنید.</li>
+  </ol>
+</div>
 <div class="card help-card help-collapsed">
   <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>⬆️ مرکز آپدیت — بارگذاری فایل به‌روزرسانی</span><span class="help-chev">▾</span></div>
   <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>هشدار:</b> فایل JSON حدود ۱ کیلوبایت برنامه نیست. برای نصب از صفر یا نسخه‌ای که خود فایل HTML عوض شده، باید <b>Sirman_Final.html</b> بزرگ را جایگزین کنید — راهنمای «نصب از صفر» را بخوانید.</li>
     <li><b>هدف:</b> دیگر لازم نیست هر بار کل فایل نرم‌افزار را عوض کنید. یک فایل کوچک آپدیت می‌گیرید و از تنظیمات بارگذاری می‌کنید.</li>
     <li><b>مسیر:</b> تنظیمات → تب <b>⬆️ آپدیت</b> → دکمه <b>📂 بارگذاری فایل آپدیت</b>.</li>
     <li><b>فرمت فایل:</b> فایل‌هایی با پسوند <code>.json</code> یا <code>.sirman-update.json</code> که از پشتیبانی/توسعه‌دهنده می‌رسند.</li>
@@ -5748,6 +5766,10 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 <div class="card help-card help-collapsed" data-help-id="whats-new">
   <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>تغییرات نسخه — What's New</span><span class="help-chev">▾</span></div>
   <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>۱۴۰۵.۵.۲۳ξ:</b> کیت نصب کامل: یک فایل zip و دکمه نصب. فایل‌ها را یکی‌یکی کپی نکنید.</li>
+    <li><b>۱۴۰۵.۵.۲۳ν:</b> راهنمای نصب از صفر بازنویسی شد: فایل یک‌کیلوبایتی برنامه نیست؛ برنامه واقعی Sirman_Final.html حدود ۱٫۶ مگابایت است.</li>
+    <li><b>۱۴۰۵.۵.۲۳μ:</b> راهنمای نصب و آپدیت در صفحه راهنما و فایل جدا.</li>
+    <li><b>۱۴۰۵.۵.۲۳λ:</b> تکمیل فاز ۲: در نسخه ویندوز تصمیم کسب‌وکار (فاکتور، فروش، پرداخت، موجودی، حواله، ثبت و بستن گارانتی) از هسته C# است. HTML فقط ورودی و ذخیره را نگه می‌دارد. دیتابیس ساخته نشد.</li>
     <li><b>۱۴۰۵.۵.۲۳κ:</b> هسته کسب‌وکار در نسخه ویندوز منبع حقیقت است (جمع فاکتور، قیمت، برداشت، موجودی خواندنی، رزرو/مصرف فروش). HTML مستقیم همان فرمول قبلی را نگه می‌دارد. ذخیره پرونده گارانتی هنوز مثل قبل است.</li>
     <li><b>۱۴۰۵.۵.۲۳ι:</b> هسته کسب‌وکار: محاسبات، موجودی، قیمت فاکتور/فروش و برداشت حساب در C# با همان فرمول‌های فعلی؛ در صورت اختلاف نتیجه قبلی حفظ می‌شود.</li>
     <li><b>۱۴۰۵.۵.۲۳θ:</b> تثبیت معماری: لایه امنیت Host، مجوز واقعی روی عملیات حساس، هش رمز حذف فاکتور، و همگام‌سازی نشست exe بعد از ورود.</li>
@@ -5770,15 +5792,15 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <li><b>پشتیبان‌گیری:</b> ورود/خروج داده + پوشه ذخیره خودکار. قانون ۳-۲-۱ در همین راهنما.</li>
     <li><b>چاپگر:</b> تنظیمات → مرکز پرینت. در exe فهرست چاپگر ویندوز می‌آید.</li>
     <li><b>گزارش فعالیت:</b> ورود ناموفق و تغییر دسترسی را ببینید. خروجی اکسل از فیلتر فعلی.</li>
-    <li><b>به‌روزرسانی:</b> تنظیمات → آپدیت → فایل JSON. نصب دوباره لازم نیست.</li>
+    <li><b>به‌روزرسانی:</b> تنظیمات → آپدیت → فایل JSON برای آپدیت کوچک. برای این نسخه هسته، HTML را عوض کنید؛ اگر exe دارید خود exe را هم عوض کنید.</li>
     <li><b>خطاها:</b> تنظیمات → عیب‌یابی. کد پیگیری را از کاربر بگیرید.</li>
     <li><b>شبکه داخلی:</b> تنظیمات → شبکه. یک رایانه سرور، پوشه مشترک، ایستگاه‌ها همان فایل را باز می‌کنند. اینترنت و API جدا لازم نیست.</li>
-    <li><b>هسته کسب‌وکار:</b> در نسخه ویندوز محاسبه فاکتور، فروش، برداشت و موجودی خواندنی از هسته C# است. باز کردن مستقیم HTML همان فرمول قبلی را بدون هسته اجرا می‌کند. ثبت/بستن پرونده گارانتی و حواله انبار هنوز در همین صفحه ذخیره می‌شوند.</li>
+    <li><b>هسته کسب‌وکار:</b> در نسخه ویندوز جمع فاکتور، فروش، پرداخت، موجودی، حواله انبار و ثبت/بستن گارانتی از هسته C# است. باز کردن مستقیم HTML همان فرمول قبلی را بدون هسته اجرا می‌کند. دیتابیس جدا لازم نیست.</li>
   </ul>
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۳κ
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۳ξ
 </div>
 </div>
 
@@ -6601,9 +6623,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 })();
 
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.23κ';
-var APP_BASE_VERSION = '1405.5.23κ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۲۳κ';
+var APP_VERSION = '1405.5.23ξ';
+var APP_BASE_VERSION = '1405.5.23ξ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۲۳ξ';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -7099,8 +7121,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.23κ'; }
-  catch(_e){ return '1405.5.23κ'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.23ξ'; }
+  catch(_e){ return '1405.5.23ξ'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -7727,8 +7749,8 @@ function _buildFullBackupData(){
   var data = {
     magic: (typeof SIRMAN_BACKUP_MAGIC!=='undefined'?SIRMAN_BACKUP_MAGIC:'SIRMAN_BACKUP'),
     schemaVersion: (typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1),
-    version: '1405.5.23κ',
-    applicationVersion: '1405.5.23κ',
+    version: '1405.5.23ξ',
+    applicationVersion: '1405.5.23ξ',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -7995,14 +8017,28 @@ function takeBusinessCore(name, payload){
   if(core==null || typeof core==='undefined') return null;
   return core;
 }
-function applyCoreItemOnto(target, coreItem){
+function applyCoreRecordOnto(target, coreItem){
   if(!target || !coreItem || typeof coreItem!=='object') return target;
-  ['qty','reserved','min','reorder','price'].forEach(function(k){
-    if(coreItem[k]!=null && typeof coreItem[k]!=='undefined') target[k]=coreItem[k];
+  Object.keys(coreItem).forEach(function(k){
+    if(typeof coreItem[k]==='undefined') return;
+    target[k]=coreItem[k];
   });
-  if(coreItem.byWh && typeof coreItem.byWh==='object') target.byWh = coreItem.byWh;
-  if(coreItem.reservedByWh && typeof coreItem.reservedByWh==='object') target.reservedByWh = coreItem.reservedByWh;
   return target;
+}
+function applyCoreItemOnto(target, coreItem){
+  return applyCoreRecordOnto(target, coreItem);
+}
+function persistCoreSnapshot(keys){
+  keys = keys || [];
+  keys.forEach(function(k){
+    if(k==='parts' && typeof svParts==='function') svParts();
+    else if(k==='inventory' && typeof sv==='function') sv();
+    else if(k==='warranties' && typeof svWars==='function') svWars();
+    else if(k==='invoices' && typeof sv==='function') sv();
+    else if(k==='accounts' && typeof svAccounts==='function') svAccounts();
+    else if(k==='warehouseDocs' && typeof svWarehouse==='function') svWarehouse();
+    else if(k==='stockMoves' && typeof svStockMoves==='function') svStockMoves();
+  });
 }
 var PREF_KEYS = ['laegh_desktop_notify_on','laegh_autosave_enabled','laegh_autosave_mode','laegh_autosave_interval','laegh_autosave_ok_name','laegh_autosave_file_name','laegh_autosave_dir_name','laegh_theme','laegh_skin','laegh_depth3d','laegh_color_theme','laegh_sb_mode','laegh_sb_collapsed','laegh_nav_shape','laegh_text_color','laegh_heading_color','laegh_sb_heading_size','laegh_app_font','laegh_text_size','laegh_tz','laegh_last_page','laegh_ai_float_x','laegh_ai_float_y'];
 function collectPrefsBundle(){
@@ -8175,7 +8211,7 @@ async function restoreAutoSaveHandlesOnBoot(){
   }catch(_e2){ return false; }
 }
 
-// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.23κ ═══════════════════
+// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.23ξ ═══════════════════
 // عکس پس‌زمینه، لوگو و ضمیمه‌ها فقط در پوشهٔ بک‌آپ روی دیسک نوشته می‌شوند.
 // در حافظهٔ مرورگر فقط ارجاع کوتاه disk://sirman_media/... نگه داشته می‌شود.
 window._diskUrlCache = window._diskUrlCache || {};
@@ -11482,24 +11518,25 @@ function codeToName(n){
 function calcT(){
   let tE=0,tD=0,tF=0;
   var totLines=[];
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
   for(let i=1;i<=devCnt;i++){
     const ee=document.getElementById('d'+i+'_est');
     if(!ee) continue;
     const est=parseFloat(ee.value)||0, disc=parseFloat(document.getElementById('d'+i+'_disc').value)||0;
     const da=Math.round(est*disc/100), finRaw=parseFloat(document.getElementById('d'+i+'_fin').value)||0;
-    // 🔑 رفع باگ تخفیف: اگر کاربر درصد تخفیف داده، همیشه از (est-da) استفاده کن،
-    // حتی اگر fin قبلاً از فاکتور ذخیره‌شده لود شده باشد.
-    // اگر تخفیف صفر باشد و fin دستی وارد شده باشد، از همان fin استفاده کن.
     const line = (typeof calcInvoiceLine==='function') ? calcInvoiceLine(est, disc, finRaw) : {da:da, fin: disc>0 ? (est-da) : (finRaw||(est-da))};
     const fin = line.fin;
-    tE+=est; tD+=line.da; tF+=fin;
     totLines.push({est:est, disc:disc, finRaw:finRaw});
+    if(!hostOn){ tE+=est; tD+=line.da; tF+=fin; }
     document.getElementById('d'+i+'_el').textContent='برآورد: '+fmt(est)+' ریال';
     document.getElementById('d'+i+'_dl').textContent='تخفیف: '+fmt(line.da)+' ریال';
     document.getElementById('d'+i+'_fl').textContent='نهایی: '+fmt(fin)+' ریال';
   }
-  var coreTot = (typeof takeBusinessCore==='function') ? takeBusinessCore('invoice.totals', {lines:totLines}) : null;
-  if(coreTot && coreTot.tF!=null){ tE=coreTot.tE; tD=coreTot.tD; tF=coreTot.tF; }
+  if(hostOn){
+    var coreTot = takeBusinessCore('invoice.totals', {lines:totLines});
+    if(!coreTot){ ntf('محاسبه فاکتور انجام نشد','err'); return {tE:0,tD:0,tF:0}; }
+    tE=coreTot.tE; tD=coreTot.tD; tF=coreTot.tF;
+  }
   document.getElementById('t-est').textContent=fmt(tE)+' ریال';
   document.getElementById('t-disc').textContent=fmt(tD)+' ریال';
   document.getElementById('t-fin').textContent=fmt(tF)+' ریال';
@@ -11529,15 +11566,21 @@ function getData(){
     items.push({num:items.length+1,code:gf(i,'code'),model:gf(i,'model'),date:gf(i,'date'),
       carton:gf(i,'carton'),body:gf(i,'body'),acc:gf(i,'acc'),warranty:gf(i,'warr'),
       color:gf(i,'color'),dmg:gf(i,'dmg'),miss:gf(i,'miss'),perf:gf(i,'perf'),
-      svc:gf(i,'svc'),pd:gf(i,'pd'),est,disc,da:line.da,fin,
+      svc:gf(i,'svc'),pd:gf(i,'pd'),est,disc,da:line.da,fin,finRaw,
       // فیلدهای تعویض دستگاه (فاز ۱ — ورژن ۱۰.۵.۱۸)
       swapped: gf(i,'perf')==='تعویض شد',
       newSerial: gf(i,'newserial'),
       swapReason: gf(i,'swreason')});
   }
-  var tF=items.reduce((s,r)=>s+r.fin,0), tE=items.reduce((s,r)=>s+r.est,0), tD=items.reduce((s,r)=>s+r.da,0);
-  var coreTot = (typeof takeBusinessCore==='function') ? takeBusinessCore('invoice.totals', {lines: items.map(function(r){ return {est:r.est, disc:r.disc, finRaw:r.fin}; })}) : null;
-  if(coreTot && coreTot.tF!=null){ tE=coreTot.tE; tD=coreTot.tD; tF=coreTot.tF; }
+  var tF=0, tE=0, tD=0;
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var coreTot = takeBusinessCore('invoice.totals', {lines: items.map(function(r){ return {est:r.est, disc:r.disc, finRaw:r.finRaw!=null?r.finRaw:r.fin}; })});
+    if(!coreTot){ ntf('محاسبه فاکتور انجام نشد','err'); }
+    else { tE=coreTot.tE; tD=coreTot.tD; tF=coreTot.tF; }
+  } else {
+    tF=items.reduce((s,r)=>s+r.fin,0); tE=items.reduce((s,r)=>s+r.est,0); tD=items.reduce((s,r)=>s+r.da,0);
+  }
   return{num:document.getElementById('inv-num').textContent, seller:document.getElementById('inv-seller').value,
     date:document.getElementById('inv-date').value, phone:document.getElementById('inv-phone').value,
     notes:document.getElementById('inv-notes').value, status:invStatus, items, tE, tD, tF};
@@ -11546,6 +11589,51 @@ function getData(){
 function closeInv(){
   return withSaveLock('closeInv', function(){
     var d = getData();
+    var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+    if(hostOn){
+      var stockMap = {};
+      (d.items||[]).forEach(function(it){
+        if(it.code && typeof inventory!=='undefined' && inventory[it.code]) stockMap[it.code]=inventory[it.code];
+      });
+      var closed = takeBusinessCore('invoice.close', {invoice:d, inventory:stockMap, now:(typeof fdt==='function'?fdt():'')});
+      if(!closed){ ntf('تکمیل فاکتور انجام نشد','err'); return; }
+      if(closed.ok===false){ ntf(closed.error||closed.err||'فاکتور تکمیل نشد','err'); return; }
+      if(closed.invoice) applyCoreRecordOnto(d, closed.invoice);
+      var stockChanged = false;
+      Object.keys(closed.inventory||{}).forEach(function(code){
+        if(inventory[code]) applyCoreRecordOnto(inventory[code], closed.inventory[code]);
+        stockChanged = true;
+        if(typeof recordStockMove==='function') recordStockMove('out', code, '', 1, 'invoice', d.num);
+      });
+      var swapCount = 0;
+      d.items.forEach(function(it){
+        if(it.swapped && typeof addDefectiveFromInvoice==='function'){ addDefectiveFromInvoice(d, it); swapCount++; }
+      });
+      invStatus='closed';
+      if(editingInvIdx>=0 && invoices[editingInvIdx]){
+        invoices[editingInvIdx]=d;
+        auditUser('تکمیل/ویرایش فاکتور', d.num+' — '+d.seller);
+      } else {
+        invoices.push(d); invCtr++;
+        editingInvIdx = invoices.length - 1;
+        auditUser('تکمیل فاکتور', d.num+' — '+d.seller);
+      }
+      if(typeof persistCoreSnapshot==='function') persistCoreSnapshot(closed.persistKeys||['invoices','inventory']);
+      else sv();
+      if(typeof safePersist==='function') safePersist('invoice');
+      document.getElementById('inv-st').className='badge badge-closed';
+      document.getElementById('inv-st').textContent='✓ تکمیل';
+      document.getElementById('btn-close').style.display='none';
+      ntf('فاکتور تکمیل شد' + (stockChanged?' — موجودی انبار به‌روز شد':'') + (swapCount>0?(' — '+swapCount+' تعویض به انبار معیوب'):''));
+      var total = d.tF || 0;
+      if(total > 0 && typeof accounts!=='undefined' && accounts.length > 0){
+        promptDepositPick(total, 'فاکتور '+d.num+' — '+(d.seller||''), d.num, 'invoice');
+      }
+      if(typeof emit==='function') emit('invoice:closed', {id:d.num});
+      try{ clearInv(); }catch(_c){}
+      if(typeof leaveFormToList==='function') leaveFormToList('saved');
+      return;
+    }
     if(!d.seller){ntf('نام فروشنده را وارد کنید','err');return;}
     if(!d.items.length){ntf('حداقل یک دستگاه اضافه کنید','err');return;}
     // اگر همین فاکتور قبلاً تکمیل شده، دوباره کسر انبار نکن
@@ -11716,7 +11804,7 @@ function buildPH(list){
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 window._pcActiveDocId='invoice';
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23κ">
+<meta name="app-version" content="1405.5.23ξ">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -11733,7 +11821,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23κ">
+<meta name="app-version" content="1405.5.23ξ">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -11793,7 +11881,7 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23κ">
+<meta name="app-version" content="1405.5.23ξ">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -11813,11 +11901,11 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23κ">
+<meta name="app-version" content="1405.5.23ξ">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23κ">
+<meta name="app-version" content="1405.5.23ξ">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -12466,7 +12554,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23κ">
+<meta name="app-version" content="1405.5.23ξ">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -16145,10 +16233,36 @@ function svStockMoves(){ localStorage.setItem('laegh_stockmoves', JSON.stringify
 // این تابع موجودی رو تغییر میده و حرکت رو در لاگ ثبت می‌کنه.
 // نکته‌ی compat: اگر whId ست باشد و applyStockByWarehouse موجود باشد، آن مسیر استفاده می‌شود
 // که byWh را هم به‌روز می‌کند؛ در غیر این‌صورت رفتار قدیمی (فقط qty) حفظ می‌شود.
+function recordStockMove(type, itemCode, itemName, qty, source, refDoc, whId, meta){
+  qty = parseInt(qty)||0;
+  if(!qty) return;
+  meta = meta || {};
+  var delta = (type==='in') ? qty : -qty;
+  if(typeof stockMoves==='undefined') return;
+  stockMoves.push({
+    id:'SM-'+String(stockMoves.length+1).padStart(4,'0'),
+    date:(typeof fdt==='function'?fdt():''), type:type, itemCode:itemCode, itemName:itemName||'',
+    qty:delta, source:source||'manual', refDoc:refDoc||'',
+    whId: whId || '',
+    warehouse: (typeof _whTag==='function') ? _whTag(itemCode, whId) : '',
+    user: meta.user || (typeof invCurrentUser==='function'?invCurrentUser():''),
+    reason: meta.reason || '',
+    serial: meta.serial || '',
+    batch: meta.batch || '',
+    price: meta.price || 0
+  });
+  if(typeof svStockMoves==='function') svStockMoves();
+}
 function _applyStockMovement(type, itemCode, itemName, qty, source, refDoc, whId){
   qty = parseInt(qty)||0;
   if(!qty) return;
-  // 🔑 فاز ۲: اگر whId ست شده و ماژول انبار موجود است، از مسیر چندانباری استفاده کن
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn && typeof applyStockByWarehouse==='function'){
+    var useWh = whId || (typeof getDefaultWhId==='function'?getDefaultWhId():'');
+    var res = applyStockByWarehouse(type, itemCode, itemName, qty, useWh, source, refDoc);
+    if(res && res.ok===false) return res;
+    return {ok:true};
+  }
   if(whId && typeof applyStockByWarehouse === 'function'){
     applyStockByWarehouse(type, itemCode, itemName, qty, whId, source, refDoc);
     return;
@@ -16430,6 +16544,50 @@ function saveWarehouseDoc(){
     status:'confirmed', createdAt: fdt(), user: (typeof invCurrentUser==='function'?invCurrentUser():'')
   };
   var meta = {reason:reason, user:doc.user, price:price};
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var stockByCode = {};
+    for(var hi=0;hi<validItems.length;hi++){
+      var hit = validItems[hi];
+      if(type==='in' || type==='return'){
+        if(typeof ensureWhInboundItem==='function') ensureWhInboundItem(hit, hit.catalog||currentWhCatalog(), (type==='out'||type==='reserve')?fromWh:toWh);
+        if(doc.items[hi]) doc.items[hi].code = hit.code;
+      }
+      var foundH = (typeof invFindStockItem==='function') ? invFindStockItem(hit.code) : null;
+      if(foundH) stockByCode[hit.code] = foundH.item;
+    }
+    var applied = takeBusinessCore('inventory.applyWarehouseDoc', {doc:doc, items:validItems, stockByCode:stockByCode, now:(typeof fdt==='function'?fdt():'')});
+    if(!applied){ ntf('ثبت سند انبار انجام نشد','err'); return; }
+    if(applied.ok===false){ ntf(applied.error||applied.err||'سند ثبت نشد','err'); return; }
+    if(applied.doc) applyCoreRecordOnto(doc, applied.doc);
+    Object.keys(applied.mutated||{}).forEach(function(code){
+      var foundM = invFindStockItem(code);
+      if(foundM) applyCoreRecordOnto(foundM.item, applied.mutated[code]);
+    });
+    for(var hj=0;hj<validItems.length;hj++){
+      var jit = validItems[hj];
+      var jwh = (type==='out'||type==='reserve') ? fromWh : toWh;
+      if(type==='reserve'){
+        if(typeof recordStockMove==='function') recordStockMove('reserve', jit.code, jit.name, jit.qty, 'reserve', doc.id, jwh, meta);
+      } else if(type==='adjust'){
+        var cur = invFindStockItem(jit.code);
+        var snap = cur ? invStockSnapshot(cur.item, jwh) : {qty:0};
+        var diff = jit.qty - snap.qty;
+        if(diff!==0) recordStockMove(diff>0?'in':'out', jit.code, jit.name, Math.abs(diff), 'adjust', doc.id, jwh, meta);
+      } else {
+        recordStockMove(type==='out'?'out':'in', jit.code, jit.name, jit.qty, type==='return'?'return':'warehouse', doc.id, jwh, meta);
+      }
+    }
+    warehouseDocs.push(doc);
+    persistCoreSnapshot(applied.persistKeys||['warehouseDocs','parts']);
+    closeMod('wh-modal');
+    ntf('سند '+doc.id+' ثبت شد — موجودی انبار به‌روز شد ✅');
+    auditUser(type==='in'?'ثبت حواله ورود':(type==='out'?'ثبت حواله خروج':(type==='return'?'برگشت به انبار':(type==='reserve'?'رزرو موجودی':'اصلاح موجودی'))), doc.id+' — '+party+' — '+(reason||''));
+    if(typeof emit==='function') emit('warehouse:saved', {id:doc.id, type:type});
+    if(typeof renderWarehouseDocs==='function') renderWarehouseDocs();
+    if(typeof checkStarredAlarms==='function') checkStarredAlarms();
+    return;
+  }
   for(var i=0;i<validItems.length;i++){
     var it = validItems[i];
     var whId = (type === 'out' || type === 'reserve') ? fromWh : toWh;
@@ -16570,7 +16728,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23κ">'+
+    '<meta name="app-version" content="1405.5.23ξ">'+
     '<meta name="app-date" content="1405/05/23">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -16754,7 +16912,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.23κ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.23ξ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -17033,6 +17191,24 @@ function applyStockByWarehouse(type, code, name, qty, whId, source, refDoc, meta
   if(!qty) return {ok:true};
   if(!whId) whId = getDefaultWhId();
   meta = meta || {};
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var found = (typeof invFindStockItem==='function') ? invFindStockItem(code) : null;
+    var item = found ? found.item : null;
+    if(!item && typeof defectiveStock!=='undefined' && code && String(code).indexOf('DEF-')===0){
+      item = defectiveStock.find(function(d){return d.id===code;}) || null;
+    }
+    if(!item) item = {code:code, qty:0};
+    var core = takeBusinessCore('inventory.applyByWarehouse', {item:item, type:type, qty:qty, whId:whId||''});
+    if(!core) return {ok:false, err:'محاسبه انجام نشد'};
+    if(core.ok===false) return {ok:false, err: core.err||core.error||'موجودی اعمال نشد'};
+    applyCoreRecordOnto(item, core.item);
+    if(found && found.kind==='part' && typeof svParts==='function') svParts();
+    else if(found && found.kind==='product' && typeof sv==='function') sv();
+    else if(item && item.id && String(item.id).indexOf('DEF-')===0 && typeof svDefective==='function') svDefective();
+    if(typeof recordStockMove==='function') recordStockMove(type, code, name, qty, source, refDoc, whId, meta);
+    return {ok:true};
+  }
   var delta = (type === 'in') ? qty : -qty;
 
   // بررسی موجودی کافی در انبار مبدا (فقط برای خروج) — قابل‌استفاده = موجودی − رزرو
@@ -18885,6 +19061,13 @@ function saveWar(){
   return withSaveLock('war', function(){
     if(typeof requirePermission==='function' && !requirePermission((typeof wEditIdx!=='undefined' && wEditIdx===-1)?'ServiceCase.Create':'ServiceCase.Edit')) return;
     const d=getWarData();
+    var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+    if(hostOn){
+      var saved = takeBusinessCore('warranty.save', {record:d, isNew: wEditIdx===-1, now:(typeof fdt==='function'?fdt():'')});
+      if(!saved){ ntf('ثبت پرونده انجام نشد','err'); return; }
+      if(saved.ok===false){ ntf(saved.error||saved.err||'ثبت نشد','err'); return; }
+      if(saved.record) applyCoreRecordOnto(d, saved.record);
+    } else {
     var shortPath = d.initialService==='activate' || d.initialService==='phone_fix' || d.initialService==='no_follow';
     if(!d.name||!d.phone||!d.devices.length){ntf('نام، تلفن و حداقل یک دستگاه الزامی است','err');return;}
     if(!shortPath && !d.problem){ntf('شرح مشکل الزامی است','err');return;}
@@ -18895,6 +19078,7 @@ function saveWar(){
     if(d.initialService==='phone_fix' || d.initialService==='no_follow'){
       d.status='closed'; d.closedAt=d.closedAt||fdt();
       if(d.initialService==='no_follow') d.closeReason='no_follow';
+    }
     }
 
     // کسر قطعات / حواله داغی (فقط برای ردیف‌های جدید اعمال‌نشده)
@@ -18911,10 +19095,19 @@ function saveWar(){
         if(idx===-1){ ntf('قطعه '+it.partCode+' در انبار پیدا نشد','err'); return false; }
         var available=parts[idx].qty||0;
         var qty=parseInt(it.qty)||1;
+        if(hostOn){
+          var corePart = takeBusinessCore('inventory.consume', {item: parts[idx], qty:qty});
+          if(!corePart){ ntf('محاسبه موجودی انجام نشد','err'); return false; }
+          if(corePart.wouldGoNegative){
+            if(!confirm('موجودی «'+(it.partName||it.partCode)+'» ('+available+') کمتر از درخواست ('+qty+') است. ادامه؟')) return false;
+          }
+          applyCoreRecordOnto(parts[idx], corePart.item);
+        } else {
         if(available<qty){
           if(!confirm('موجودی «'+(it.partName||it.partCode)+'» ('+available+') کمتر از درخواست ('+qty+') است. ادامه؟')) return false;
         }
         parts[idx].qty=Math.max(0, available-qty);
+        }
         if(typeof _applyStockMovement==='function') _applyStockMovement('out', it.partCode, it.partName||'', qty, 'warranty', d.id);
         items.push({code:it.partCode, name:it.partName||'', qty:qty});
       }
@@ -19035,6 +19228,11 @@ function saveWar(){
   });
 }
 function warrantyCloseMissingFields(w){
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var missingCore = takeBusinessCore('warranty.closeMissing', {record:w, deviceCount:(typeof warDevices==='function'?warDevices(w).length:0), problem:w.problem||''});
+    if(Array.isArray(missingCore)) return missingCore;
+  }
   var missing=[];
   if(!w.name) missing.push('نام مشتری');
   if(!w.phone) missing.push('شماره تماس');
@@ -19066,6 +19264,45 @@ function warrantyCloseMissingFields(w){
 }
 function closeWar(idx){
   const w=warranties[idx];
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    const inDefPre=defectiveStock.filter(x=>x.warrantyId===w.id && defIsInWarehouse(x));
+    if(inDefPre.length && !confirm('این پرونده '+inDefPre.length+' کالا در انبار معیوب دارد. با بستن پرونده، همه به‌عنوان «عودت به مشتری» از انبار کم می‌شوند. ادامه؟')) return;
+    var closed = takeBusinessCore('warranty.close', {record:w, deviceCount:(typeof warDevices==='function'?warDevices(w).length:0), problem:w.problem||'', closedAt:(typeof fdt==='function'?fdt():'')});
+    if(!closed){ ntf('بستن پرونده انجام نشد','err'); return; }
+    if(closed.ok===false){
+      if(closed.missing && closed.missing.length){
+        alert('برای بستن پرونده، این موارد را تکمیل کنید:\n\n• '+closed.missing.join('\n• '));
+        showWarForm(idx);
+        ntf('پرونده تا تکمیل فرم داخلی بسته نمی‌شود','err');
+        return;
+      }
+      ntf(closed.error||closed.err||'پرونده بسته نشد','err'); return;
+    }
+    applyCoreRecordOnto(w, closed.record);
+    inDefPre.forEach(d=>{
+      if(typeof applyStockByWarehouse==='function'){
+        applyStockByWarehouse('out', d.id, d.name||'', Math.max(1, parseInt(d.qty)||1), d.warehouseId||'', 'warranty', w.id);
+      } else {
+        d.status='returned'; d.returnedAt=fdt(); d.qty=0;
+      }
+    });
+    if(inDefPre.length) svDefective();
+    persistCoreSnapshot(closed.persistKeys||['warranties']);
+    renderWar();
+    auditUser('بستن پرونده گارانتی', w.id);
+    ntf('پرونده بسته شد');
+    var serviceTotal = 0;
+    var devs = warDevices(w);
+    devs.forEach(function(dev){ serviceTotal += (parseFloat(dev.est)||0); });
+    if(serviceTotal > 0 && typeof accounts!=='undefined' && accounts.length > 0){
+      if(typeof promptDepositPick==='function'){
+        promptDepositPick(serviceTotal, 'گارانتی '+w.id+' — '+(w.name||'مشتری'), w.id, 'service');
+      }
+    }
+    if(typeof emit==='function') emit('warranty:closed', {id:w.id});
+    return;
+  }
   const missing=warrantyCloseMissingFields(w);
   if(missing.length){
     alert('برای بستن پرونده، این موارد را تکمیل کنید:\n\n• '+missing.join('\n• '));
@@ -19524,7 +19761,7 @@ function doPrint(paperSize){
   const wbg=bgMap[pw.bg||'none']||'#fff';
   const effPaper = pw.paper || paperSize;
   var htmlDoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23κ">
+<meta name="app-version" content="1405.5.23ξ">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -19657,7 +19894,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23κ"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.23ξ"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -19686,7 +19923,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23κ"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.23ξ"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -19723,7 +19960,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23κ">'+
+    '<meta name="app-version" content="1405.5.23ξ">'+
     '<meta name="app-date" content="1405/05/23">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -20201,13 +20438,18 @@ function calcSaleTotal(){
       if(discEl) saleItems[i].disc = parseFloat(discEl.value)||0;
     }
   });
-  const grandTotal = saleItems.reduce((sum,item) => {
-    const discAmt = Math.round(item.price * item.disc / 100);
-    return sum + Math.round((item.qty||1) * ((item.price||0) - discAmt));
-  }, 0);
-  var localTotal = grandTotal;
-  var coreSale = (typeof takeBusinessCore==='function') ? takeBusinessCore('sale.total', {items: saleItems.map(function(it){ return {qty:it.qty||1, price:it.price||0, disc:it.disc||0}; })}) : null;
-  if(coreSale!=null && typeof coreSale!=='undefined') localTotal = coreSale;
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  var localTotal;
+  if(hostOn){
+    var coreSale = takeBusinessCore('sale.total', {items: saleItems.map(function(it){ return {qty:it.qty||1, price:it.price||0, disc:it.disc||0}; })});
+    if(coreSale==null || typeof coreSale==='undefined'){ ntf('محاسبه فروش انجام نشد','err'); localTotal = 0; }
+    else localTotal = coreSale;
+  } else {
+    localTotal = saleItems.reduce((sum,item) => {
+      const discAmt = Math.round(item.price * item.disc / 100);
+      return sum + Math.round((item.qty||1) * ((item.price||0) - discAmt));
+    }, 0);
+  }
   const lbl = document.getElementById('sale-total-lbl');
   if(lbl) lbl.textContent = localTotal.toLocaleString('fa-IR') + ' ریال';
   const cnt = document.getElementById('sale-item-count');
@@ -20230,8 +20472,8 @@ function getSaleData(){
         qty: item.qty||1,
         price: item.price||0,
         disc: item.disc||0,
-        discAmt: discAmt,
-        total: (function(){ var cl = (typeof takeBusinessCore==='function') ? takeBusinessCore('sale.line', {qty:item.qty||1, price:item.price||0, disc:item.disc||0}) : null; return (cl && cl.total!=null) ? cl.total : Math.round((item.qty||1) * ((item.price||0) - discAmt)); })()
+        discAmt: (function(){ var cl = (typeof hasBusinessCore==='function' && hasBusinessCore()) ? takeBusinessCore('sale.line', {qty:item.qty||1, price:item.price||0, disc:item.disc||0}) : null; return (cl && cl.discAmt!=null) ? cl.discAmt : Math.round((item.price||0) * (item.disc||0) / 100); })(),
+        total: (function(){ var cl = (typeof hasBusinessCore==='function' && hasBusinessCore()) ? takeBusinessCore('sale.line', {qty:item.qty||1, price:item.price||0, disc:item.disc||0}) : null; return (cl && cl.total!=null) ? cl.total : Math.round((item.qty||1) * ((item.price||0) - Math.round((item.price||0) * (item.disc||0) / 100))); })()
       };
     }),
     total: grandTotal,
@@ -20260,12 +20502,13 @@ function _deductStock(items, refDoc){
       var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
       if(hostOn){
         var core = takeBusinessCore('inventory.consume', {item: parts[idx], qty: it.qty});
-        if(!core){ return; }
+        if(!core){ ntf('محاسبه موجودی انجام نشد','err'); return; }
         if(core.wouldGoNegative){
           if(!confirm('موجودی انبار قطعه '+(it.partName||it.partCode)+' ('+(parts[idx].qty||0)+') کمتر از تعداد درخواست ('+it.qty+') است. ادامه می‌دهید؟')) return;
         }
         if(typeof applyCoreItemOnto==='function') applyCoreItemOnto(parts[idx], core.item);
-        if(typeof _applyStockMovement==='function') _applyStockMovement('out', it.partCode, it.partName||'', it.qty, 'sale', refDoc||'فروش');
+        if(typeof recordStockMove==='function') recordStockMove('out', it.partCode, it.partName||'', it.qty, 'sale', refDoc||'فروش');
+        else if(typeof _applyStockMovement==='function') _applyStockMovement('out', it.partCode, it.partName||'', it.qty, 'sale', refDoc||'فروش');
         return;
       }
       var available = parts[idx].qty || 0;
@@ -20283,11 +20526,19 @@ function _deductStock(items, refDoc){
 // restockFromSale: برگرداندن تعداد به انبار (برای حذف یا ویرایش)
 function _restockFromSale(old){
   var list = old.items || (old.partCode ? [{partCode:old.partCode, qty:old.qty||1, partName:old.partName}] : []);
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
   list.forEach(function(it){
     var idx = parts.findIndex(function(p){return p.code === it.partCode;});
-    if(idx !== -1) parts[idx].qty = (parts[idx].qty||0) + (it.qty||1);
-    // ثبت حرکت برگشت
-    if(typeof _applyStockMovement==='function') _applyStockMovement('in', it.partCode, it.partName||'', it.qty||1, 'sale', 'برگشت '+old.id||'');
+    if(idx !== -1){
+      if(hostOn){
+        var core = takeBusinessCore('inventory.addStock', {item: parts[idx], qty: it.qty||1});
+        if(core && core.ok!==false && core.item) applyCoreRecordOnto(parts[idx], core.item);
+      } else {
+        parts[idx].qty = (parts[idx].qty||0) + (it.qty||1);
+      }
+    }
+    if(typeof recordStockMove==='function') recordStockMove('in', it.partCode, it.partName||'', it.qty||1, 'sale', 'برگشت '+(old.id||''));
+    else if(typeof _applyStockMovement==='function') _applyStockMovement('in', it.partCode, it.partName||'', it.qty||1, 'sale', 'برگشت '+old.id||'');
   });
 }
 
@@ -20445,8 +20696,9 @@ function printSaleDoc(saleId){
   var title = isProforma ? 'پیش‌فاکتور فروش قطعات' : 'فاکتور فروش قطعات';
   var docNo = s.id + (isProforma ? ' (پیش‌فاکتور)' : ' (نهایی)');
   var rows = (s.items||[]).map(function(it,idx){
-    var discAmt = Math.round((it.price||0) * (it.disc||0) / 100);
-    var lineNet = Math.round((it.qty||1) * ((it.price||0) - discAmt));
+    var cl = (typeof hasBusinessCore==='function' && hasBusinessCore()) ? takeBusinessCore('sale.line', {qty:it.qty||1, price:it.price||0, disc:it.disc||0}) : null;
+    var discAmt = (it.discAmt!=null)?it.discAmt:(cl&&cl.discAmt!=null?cl.discAmt:Math.round((it.price||0) * (it.disc||0) / 100));
+    var lineNet = (it.total!=null)?it.total:(cl&&cl.total!=null?cl.total:Math.round((it.qty||1) * ((it.price||0) - discAmt)));
     return '<tr>' +
       '<td style="text-align:center">'+(idx+1)+'</td>' +
       '<td>'+(it.partCode||'—')+'</td>' +
@@ -20466,7 +20718,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23κ">'+
+    '<meta name="app-version" content="1405.5.23ξ">'+
     '<meta name="app-date" content="1405/05/23">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -21565,12 +21817,17 @@ function depositToAccount(accId, amount, subject, refId, refType){
   if(!acc) return 'حساب پیدا نشد';
   amount = parseInt(amount)||0;
   var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
-  var dchk = (typeof takeBusinessCore==='function') ? takeBusinessCore('payment.deposit', {amount:amount}) : null;
   if(hostOn){
-    if(!dchk) return 'محاسبه انجام نشد';
-    if(dchk.ok===false) return dchk.error || dchk.err || 'مبلغ نامعتبر';
-    amount = parseInt(dchk.amount)||amount;
-  } else if(amount <= 0) return 'مبلغ نامعتبر';
+    var applied = takeBusinessCore('payment.applyDeposit', {account:acc, amount:amount, subject:subject||'واریز', refId:refId||'', refType:refType||'manual', date:(typeof fdt==='function'?fdt():'')});
+    if(!applied) return 'محاسبه انجام نشد';
+    if(applied.ok===false) return applied.error || applied.err || 'مبلغ نامعتبر';
+    applyCoreRecordOnto(acc, applied.account);
+    persistCoreSnapshot(applied.persistKeys||['accounts']);
+    if(typeof emit==='function') emit('account:deposit', {accId:accId, amount:applied.amount||amount, refId:refId, refType:refType});
+    return null;
+  }
+  var dchk = (typeof takeBusinessCore==='function') ? takeBusinessCore('payment.deposit', {amount:amount}) : null;
+  if(amount <= 0) return 'مبلغ نامعتبر';
   var trx = {
     id: 'TRX-'+String((acc.transactions||[]).length+1).padStart(4,'0'),
     type: 'deposit',
@@ -21595,15 +21852,16 @@ function withdrawFromAccount(accId, amount, subject){
   if(!acc) return 'حساب پیدا نشد';
   amount = parseInt(amount)||0;
   var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
-  var chk = (typeof takeBusinessCore==='function') ? takeBusinessCore('payment.withdraw', {balance: acc.balance||0, amount:amount}) : null;
   if(hostOn){
-    if(!chk) return 'محاسبه انجام نشد';
-    if(chk.ok===false) return chk.error || chk.err || 'مبلغ نامعتبر';
-    amount = parseInt(chk.amount)||amount;
-  } else {
-    if(amount <= 0) return 'مبلغ نامعتبر';
-    if(amount > (acc.balance||0)) return 'موجودی کافی نیست';
+    var applied = takeBusinessCore('payment.applyWithdraw', {account:acc, amount:amount, subject:subject||'برداشت', date:(typeof fdt==='function'?fdt():'')});
+    if(!applied) return 'محاسبه انجام نشد';
+    if(applied.ok===false) return applied.error || applied.err || 'مبلغ نامعتبر';
+    applyCoreRecordOnto(acc, applied.account);
+    persistCoreSnapshot(applied.persistKeys||['accounts']);
+    return null;
   }
+  if(amount <= 0) return 'مبلغ نامعتبر';
+  if(amount > (acc.balance||0)) return 'موجودی کافی نیست';
   var trx = {
     id: 'TRX-'+String((acc.transactions||[]).length+1).padStart(4,'0'),
     type: 'withdraw',
@@ -21616,7 +21874,7 @@ function withdrawFromAccount(accId, amount, subject){
   };
   if(!acc.transactions) acc.transactions = [];
   acc.transactions.push(trx);
-  acc.balance = (hostOn && chk && chk.newBalance!=null) ? chk.newBalance : ((acc.balance||0) - amount);
+  acc.balance = (acc.balance||0) - amount;
   svAccounts();
   return null; // success
 }
@@ -21946,8 +22204,22 @@ function saveTransactionEdit(){
   var acc = accounts[accIdx];
   if(!acc || !acc.transactions || !acc.transactions[trxIdx]) return;
   var t = acc.transactions[trxIdx];
-  var oldAmt = t.amount;
   var newAmt = parseInt(document.getElementById('trx-edit-amount').value)||0;
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var edited = takeBusinessCore('payment.editTransaction', {account:acc, trxIndex:trxIdx, amount:newAmt, date:document.getElementById('trx-edit-date').value||'', subject:document.getElementById('trx-edit-subject').value||'', category:document.getElementById('trx-edit-cat').value||'', refNo:document.getElementById('trx-edit-refno').value||''});
+    if(!edited || edited.ok===false){ ntf((edited&&(edited.error||edited.err))||'ویرایش انجام نشد','err'); return; }
+    applyCoreRecordOnto(acc, edited.account);
+    persistCoreSnapshot(edited.persistKeys||['accounts']);
+    document.getElementById('trx-edit-modal').classList.remove('open');
+    ntf('تراکنش ویرایش شد ✅');
+    auditUser('ویرایش تراکنش', t.id);
+    renderAccounts();
+    if(window._accViewIdx !== undefined) viewAccount(window._accViewIdx);
+    if(typeof renderFinancialReport==='function') renderFinancialReport();
+    return;
+  }
+  var oldAmt = t.amount;
   if(newAmt <= 0){ ntf('مبلغ نامعتبر','err'); return; }
   // برگرداندن مبلغ قدیمی از مانده
   acc.balance -= oldAmt;
@@ -21978,6 +22250,19 @@ function delTransaction(accIdx, trxIdx){
   if(!acc || !acc.transactions || !acc.transactions[trxIdx]) return;
   var t = acc.transactions[trxIdx];
   if(!confirm('حذف این تراکنش؟ مبلغ آن از مانده حساب برگردانده می‌شود.')) return;
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var deleted = takeBusinessCore('payment.deleteTransaction', {account:acc, trxIndex:trxIdx});
+    if(!deleted || deleted.ok===false){ ntf((deleted&&(deleted.error||deleted.err))||'حذف انجام نشد','err'); return; }
+    applyCoreRecordOnto(acc, deleted.account);
+    persistCoreSnapshot(deleted.persistKeys||['accounts']);
+    ntf('تراکنش حذف شد');
+    auditUser('حذف تراکنش', t.id);
+    renderAccounts();
+    if(window._accViewIdx !== undefined) viewAccount(window._accViewIdx);
+    if(typeof renderFinancialReport==='function') renderFinancialReport();
+    return;
+  }
   // برگرداندن مبلغ از مانده
   acc.balance -= t.amount;
   acc.transactions.splice(trxIdx, 1);
@@ -22004,7 +22289,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23κ">'+
+    '<meta name="app-version" content="1405.5.23ξ">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
@@ -24806,6 +25091,11 @@ function suggestPartsForCase(opts){
   var prodCode = String(opts.prodCode||'').trim();
   var model = String(opts.model||'').trim();
   var problem = String(opts.problem||opts.fault||'').trim().toLowerCase();
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var core = takeBusinessCore('rules.suggestParts', {parts:catalog, prodCode:prodCode, model:model, problem:problem});
+    if(Array.isArray(core)) return core;
+  }
   var out = [];
   catalog.forEach(function(p){
     if(!p || !p.code) return;
@@ -24833,6 +25123,12 @@ function canWarrantyTransition(from, to){
 }
 function applyWarrantyTransition(record, toStatus){
   record = record || {};
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var core = takeBusinessCore('warranty.applyTransition', {record:record, to:toStatus, closedAt:(typeof fdt==='function'?fdt():'')});
+    if(!core) return {ok:false, err:'محاسبه انجام نشد', record:record};
+    return core;
+  }
   var from = record.status || 'open';
   if(!canWarrantyTransition(from, toStatus)) return {ok:false, err:'گذار وضعیت مجاز نیست', record:record};
   var next = {};

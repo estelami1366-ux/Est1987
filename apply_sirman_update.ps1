@@ -55,7 +55,34 @@ if (-not $info) {
   exit 0
 }
 
+$verFile = Join-Path $Root 'SIRMAN_VERSION.json'
+if (Test-Path -LiteralPath $verFile) {
+  try {
+    $canon = Get-Content -LiteralPath $verFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($canon.app -and $info.Version -and ($canon.app -ne $info.Version)) {
+      Write-Host ("[Sirman] Skip stale pending " + $info.Version + " — current is " + $canon.app)
+      exit 0
+    }
+  } catch {}
+}
+
 $target = Join-Path $Root $info.FileName
+if (Test-Path -LiteralPath $target) {
+  try {
+    $head = Get-Content -LiteralPath $target -TotalCount 12 -Encoding UTF8
+    $headText = [string]::Join("`n", $head)
+    $mark = 'content="' + $info.Version + '"'
+    if ($info.Version -and $headText.Contains($mark)) {
+      Write-Host ("[Sirman] " + $info.FileName + " already at " + $info.Version + " — skip")
+      if ([IO.Path]::GetFileName($updPath) -eq 'Sirman_Pending_Update.json') {
+        $done = Join-Path $Root ('Sirman_Pending_Update.applied.' + ($info.Version -replace '[^\w\.\-]', '_') + '.json')
+        try { Move-Item -LiteralPath $updPath -Destination $done -Force } catch {}
+      }
+      exit 0
+    }
+  } catch {}
+}
+
 $utf8NoBom = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllText($target, $info.Html, $utf8NoBom)
 
