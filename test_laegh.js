@@ -3967,13 +3967,13 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳τ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳υ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.23τ', 'نسخه محصول باید 1405.5.23τ باشد');
-  assertEqual(ver.assembly, '1405.5.23.20', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (τ=20)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳τ', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.23υ', 'نسخه محصول باید 1405.5.23υ باشد');
+  assertEqual(ver.assembly, '1405.5.23.21', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (υ=21)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳υ', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -9002,13 +9002,13 @@ test('شماره فروش بعد از حذف نباید از روی length دو�
   const seqSrc = extractFunctionSource(html, 'saleIdSeq');
   const maxSrc = extractFunctionSource(html, 'maxSaleSeq');
   const ensSrc = extractFunctionSource(html, 'ensureSaleCtr');
+  const takenSrc = extractFunctionSource(html, 'saleIdTaken');
   const peekSrc = extractFunctionSource(html, 'peekNextSaleId');
   const nextSrc = extractFunctionSource(html, 'nextSaleId');
-  const getSrc = extractFunctionSource(html, 'getSaleData');
-  assertTrue(!!seqSrc && !!maxSrc && !!ensSrc && !!peekSrc && !!nextSrc, 'توابع شماره‌دهی فروش پیدا نشد');
-  assertContainsString(getSrc, 'peekNextSaleId', 'getSaleData نباید از sales.length+1 شماره بسازد');
+  assertTrue(!!seqSrc && !!maxSrc && !!ensSrc && !!peekSrc && !!nextSrc && !!takenSrc, 'توابع شماره‌دهی فروش پیدا نشد');
+  assertContainsString(getSrc = extractFunctionSource(html, 'getSaleData'), 'peekNextSaleId', 'getSaleData نباید از sales.length+1 شماره بسازد');
   assertTrue(getSrc.indexOf('sales.length+1') === -1, 'getSaleData دیگر نباید SL را از تعداد ردیف بسازد');
-  const r = new Function(seqSrc+'\n'+maxSrc+'\n'+ensSrc+'\n'+peekSrc+'\n'+nextSrc+`
+  const r = new Function(seqSrc+'\n'+maxSrc+'\n'+ensSrc+'\n'+takenSrc+'\n'+peekSrc+'\n'+nextSrc+`
     var saleCtr = 0;
     var sales = [{id:'SL-0002', name:'قدیمی'}];
     var store = {};
@@ -9107,6 +9107,74 @@ test('بک‌آپ و migrateBackup باید saleCtr داشته باشند تا �
   const migrateBackup = runner();
   const result = migrateBackup({ version:'10.4.3', invoices:[], products:[], inventory:{}, phonebook:[], sales:[{id:'SL-0002'}] });
   assertTrue(result.data.saleCtr >= 3, 'بدون saleCtr باید از SL-0002 شماره بعدی ۳ حدس زده شود، نه ۲');
+});
+
+test('اگر Host آرایه فروش را خالی برگرداند فقط ردیف کلیک‌شده حذف شود نه فاکتور هم‌شماره', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){
+      return { RunBusiness: function(){
+        return JSON.stringify({ok:true, result:{ok:true, alreadyReversed:false, sales:[],
+          parts:[{code:'A', qty:9}], accounts:[], persistKeys:['sales','parts']}});
+      }};
+    }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){}
+    function recordStockMove(){}
+    var parts = [{code:'A', qty:7}];
+    var accounts = [];
+    var oldS = {id:'SL-0002', status:'final', name:'قدیمی', items:[{partCode:'A', qty:1}]};
+    var newS = {id:'SL-0002', status:'final', name:'جدید', items:[{partCode:'A', qty:2}]};
+    var sales = [oldS, newS];
+    var r = deleteSaleAt(1);
+    return {ok:r&&r.ok!==false, n:sales.length, kept:sales[0]&&sales[0].name, stillOld:sales.indexOf(oldS)>=0, stillNew:sales.indexOf(newS)>=0};
+  `)();
+  assertEqual(r.ok, true, 'حذف باید موفق باشد');
+  assertEqual(r.n, 1, 'Host با sales:[] نباید هر دو فاکتور را پاک کند');
+  assertEqual(r.kept, 'قدیمی', 'فاکتور قبلی باید بماند');
+  assertEqual(r.stillOld, true, 'آبجکت فاکتور قبلی باید در آرایه بماند');
+  assertEqual(r.stillNew, false, 'فقط فاکتور کلیک‌شده باید حذف شود');
+});
+
+test('شماره فروش نباید با شماره موجود در لیست تصادم کند', () => {
+  const seqSrc = extractFunctionSource(html, 'saleIdSeq');
+  const maxSrc = extractFunctionSource(html, 'maxSaleSeq');
+  const ensSrc = extractFunctionSource(html, 'ensureSaleCtr');
+  const takenSrc = extractFunctionSource(html, 'saleIdTaken');
+  const peekSrc = extractFunctionSource(html, 'peekNextSaleId');
+  const nextSrc = extractFunctionSource(html, 'nextSaleId');
+  const r = new Function(seqSrc+'\n'+maxSrc+'\n'+ensSrc+'\n'+takenSrc+'\n'+peekSrc+'\n'+nextSrc+`
+    var saleCtr = 3;
+    var sales = [{id:'SL-0002'},{id:'SL-0003'}];
+    var store = {};
+    var localStorage = { getItem:function(k){ return store[k]||null; }, setItem:function(k,v){ store[k]=String(v); } };
+    return {peek:peekNextSaleId(), next:nextSaleId()};
+  `)();
+  assertEqual(r.peek, 'SL-0004', 'اگر SL-0003 زنده است شماره بعدی باید SL-0004 باشد');
+  assertEqual(r.next, 'SL-0004', 'nextSaleId هم باید از روی شماره موجود بپرد');
+});
+
+test('فرم پنجره باید داخل win-body اسکرول شود نه body قفل‌شده', () => {
+  assertContainsString(html, 'grid-auto-rows:minmax(0,1fr)', 'ردیف میزکار باید ارتفاع محدود داشته باشد تا win-body اسکرول شود');
+  assertContainsString(html, 'function scrollActiveWinBody(', 'تابع اسکرول بدنه پنجره باید وجود داشته باشد');
+  assertTrue(html.indexOf('window.scrollTo({top:document.body.scrollHeight') === -1, 'دکمه افزودن دستگاه نباید body قفل‌شده را اسکرول کند');
+  const src = extractFunctionSource(html, 'scrollActiveWinBody');
+  assertTrue(!!src, 'منبع scrollActiveWinBody پیدا نشد');
+  const r = new Function(src+`
+    var body = { scrollTop: 0, scrollHeight: 800 };
+    var document = {
+      querySelector: function(sel){ return String(sel).indexOf('win-body')>=0 ? body : null; },
+      getElementById: function(){ return null; },
+      scrollingElement: { scrollTop: 0, scrollHeight: 10 }
+    };
+    scrollActiveWinBody('bottom');
+    return {win: body.scrollTop, page: document.scrollingElement.scrollTop};
+  `)();
+  assertEqual(r.win, 800, 'اسکرول باید روی .win-body برود');
+  assertEqual(r.page, 0, 'document قفل‌شده نباید اسکرول شود');
 });
 
 // نتیجه نهایی

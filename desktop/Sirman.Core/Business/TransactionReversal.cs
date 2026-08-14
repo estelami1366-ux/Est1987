@@ -387,10 +387,22 @@ public static class TransactionReversal
 
     private static int IndexFrom(JsonObject payload, string key, int count)
     {
-        if (payload[key] is null) return -1;
-        var idx = CalculationEngine.ToInt(JsonVal.Str(payload, key));
-        if (idx < 0 || idx >= count) return -1;
-        return idx;
+        foreach (var k in IndexKeys(key))
+        {
+            if (payload[k] is null) continue;
+            var idx = CalculationEngine.ToInt(JsonVal.Str(payload, k));
+            if (idx < 0 || idx >= count) continue;
+            return idx;
+        }
+        return -1;
+    }
+
+    private static IEnumerable<string> IndexKeys(string key)
+    {
+        if (string.IsNullOrEmpty(key)) yield break;
+        yield return key;
+        var pascal = char.ToUpperInvariant(key[0]) + key.Substring(1);
+        if (pascal != key) yield return pascal;
     }
 
     private static string RecordId(JsonNode? n, params string[] keys)

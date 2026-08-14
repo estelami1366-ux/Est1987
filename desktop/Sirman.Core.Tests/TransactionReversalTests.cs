@@ -158,6 +158,24 @@ public class TransactionReversalTests
     }
 
     [Fact]
+    public void SaleDelete_DuplicateId_AcceptsPascalSaleIndex()
+    {
+        var del = Res("sale.delete", """
+        {"sale":{"id":"SL-0002","status":"final","name":"جدید","total":200,"items":[{"partCode":"A","qty":2}]},
+         "SaleIndex":1,
+         "sales":[
+           {"id":"SL-0002","status":"final","name":"قدیمی","total":100,"items":[{"partCode":"A","qty":1}]},
+           {"id":"SL-0002","status":"final","name":"جدید","total":200,"items":[{"partCode":"A","qty":2}]}
+         ],
+         "parts":[{"code":"A","qty":7}],
+         "now":"1405/05/23"}
+        """);
+        Assert.True(del.GetProperty("ok").GetBoolean());
+        Assert.Equal(1, del.GetProperty("sales").GetArrayLength());
+        Assert.Equal("قدیمی", del.GetProperty("sales")[0].GetProperty("name").GetString());
+    }
+
+    [Fact]
     public void Test6_RestartSnapshot_KeepsReversedState()
     {
         var del = Res("invoice.delete", """
