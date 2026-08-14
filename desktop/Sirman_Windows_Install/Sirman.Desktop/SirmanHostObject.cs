@@ -1,4 +1,6 @@
 using System.Drawing.Printing;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -116,11 +118,12 @@ public class SirmanHostObject
     {
         try
         {
+            var ips = CollectLanIpv4();
             return JsonSerializer.Serialize(new Dictionary<string, object?>
             {
                 ["computerName"] = Environment.MachineName,
                 ["userName"] = Environment.UserName,
-                ["ipAddress"] = ""
+                ["ipAddress"] = ips.Count > 0 ? ips[0] : ""
             });
         }
         catch (Exception ex)
@@ -132,6 +135,176 @@ public class SirmanHostObject
                 ["error"] = ex.Message
             });
         }
+    }
+
+    /// <summary>هویت LAN: IPها، پورت ۸۷۶۵، پوشه مشترک. API کسب‌وکار نیست.</summary>
+    public string GetNetworkInfo()
+    {
+        try
+        {
+            var ips = CollectLanIpv4();
+            return JsonSerializer.Serialize(new Dictionary<string, object?>
+            {
+                ["computerName"] = Environment.MachineName,
+                ["userName"] = Environment.UserName,
+                ["ipAddress"] = ips.Count > 0 ? ips[0] : "",
+                ["ipv4"] = ips,
+                ["lanEnabled"] = File.Exists(LanMarkerPath()),
+                ["lanPort"] = 8765,
+                ["backupDir"] = GetBackupDir(),
+                ["sharedWorkspaceDir"] = ReadNetworkSharedDir(),
+                ["workspaceFile"] = "sirman-workspace.json",
+                ["businessApi"] = false
+            });
+        }
+        catch (Exception ex)
+        {
+            return JsonSerializer.Serialize(new Dictionary<string, object?>
+            {
+                ["computerName"] = Environment.MachineName,
+                ["ipAddress"] = "",
+                ["ipv4"] = Array.Empty<string>(),
+                ["lanEnabled"] = false,
+                ["lanPort"] = 8765,
+                ["businessApi"] = false,
+                ["error"] = ex.Message
+            });
+        }
+    }
+
+    /// <summary>فعال‌سازی اشتراک LAN و مسیر پوشه مشترک (فایل AppData، نه دیتابیس جدا).</summary>
+    public string SetNetworkConfig(string json)
+    {
+        try
+        {
+            using var incoming = JsonDocument.Parse(string.IsNullOrWhiteSpace(json) ? "{}" : json);
+            var lan = false;
+            var shared = "";
+            if (incoming.RootElement.TryGetProperty("lanEnabled", out var le))
+            {
+                lan = le.ValueKind == JsonValueKind.True
+                    || (le.ValueKind == JsonValueKind.String && (le.GetString() == "1" || string.Equals(le.GetString(), "true", StringComparison.OrdinalIgnoreCase)))
+                    || (le.ValueKind == JsonValueKind.Number && le.GetInt32() != 0);
+            }
+            if (incoming.RootElement.TryGetProperty("sharedWorkspaceDir", out var sd) && sd.ValueKind == JsonValueKind.String)
+                shared = (sd.GetString() ?? "").Trim();
+            if (!IsSafeSharedDir(shared))
+                return "{\"ok\":false,\"error\":\"shared-folder\"}";
+            Directory.CreateDirectory(SirmanAppDir());
+            if (lan) File.WriteAllText(LanMarkerPath(), "1");
+            else if (File.Exists(LanMarkerPath())) File.Delete(LanMarkerPath());
+            var cfg = new Dictionary<string, object?>
+            {
+                ["lanEnabled"] = lan,
+                ["sharedWorkspaceDir"] = shared
+            };
+            File.WriteAllText(NetworkConfigPath(), JsonSerializer.Serialize(cfg), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            return "{\"ok\":true,\"lanEnabled\":" + (lan ? "true" : "false") + "}";
+        }
+        catch (Exception ex)
+        {
+            return "{\"ok\":false,\"error\":" + JsonSerializer.Serialize(ex.Message) + "}";
+        }
+    }
+
+    /// <summary>نوشتن بسته بک‌آپ موجود روی پوشه مشترک. CRUD جدا نیست.</summary>
+    public string WriteWorkspaceFile(string content)
+    {
+        try
+        {
+            var dir = ResolveWorkspaceDir();
+            Directory.CreateDirectory(dir);
+            var path = Path.Combine(dir, "sirman-workspace.json");
+            File.WriteAllText(path, content ?? "", new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            return "{\"ok\":true,\"path\":" + JsonSerializer.Serialize(path) + "}";
+        }
+        catch (Exception ex)
+        {
+            return "{\"ok\":false,\"error\":" + JsonSerializer.Serialize(ex.Message) + "}";
+        }
+    }
+
+    /// <summary>خواندن فضای کاری مشترک برای ادغام با import موجود.</summary>
+    public string ReadWorkspaceFile()
+    {
+        try
+        {
+            var path = Path.Combine(ResolveWorkspaceDir(), "sirman-workspace.json");
+            if (!File.Exists(path))
+                return "{\"ok\":false,\"error\":\"missing\"}";
+            var text = File.ReadAllText(path);
+            return JsonSerializer.Serialize(new Dictionary<string, object?>
+            {
+                ["ok"] = true,
+                ["path"] = path,
+                ["content"] = text
+            });
+        }
+        catch (Exception ex)
+        {
+            return "{\"ok\":false,\"error\":" + JsonSerializer.Serialize(ex.Message) + "}";
+        }
+    }
+
+    private static string SirmanAppDir() =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Sirman");
+
+    private static string LanMarkerPath() => Path.Combine(SirmanAppDir(), "lan-share.on");
+
+    private static string NetworkConfigPath() => Path.Combine(SirmanAppDir(), "network.json");
+
+    private static List<string> CollectLanIpv4()
+    {
+        var ips = new List<string>();
+        try
+        {
+            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (ni.OperationalStatus != OperationalStatus.Up) continue;
+                if (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
+                foreach (var ua in ni.GetIPProperties().UnicastAddresses)
+                {
+                    if (ua.Address.AddressFamily != AddressFamily.InterNetwork) continue;
+                    var ip = ua.Address.ToString();
+                    if (ip.StartsWith("127.", StringComparison.Ordinal) || ip.StartsWith("169.254.", StringComparison.Ordinal)) continue;
+                    if (!ips.Contains(ip)) ips.Add(ip);
+                }
+            }
+        }
+        catch { /* HTML-only / restricted */ }
+        return ips;
+    }
+
+    private static bool IsSafeSharedDir(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return true;
+        path = path.Trim();
+        if (path.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            return false;
+        if (path.Contains("..", StringComparison.Ordinal)) return false;
+        return path.StartsWith("\\\\", StringComparison.Ordinal) || Path.IsPathRooted(path);
+    }
+
+    private string ReadNetworkSharedDir()
+    {
+        try
+        {
+            var path = NetworkConfigPath();
+            if (!File.Exists(path)) return "";
+            using var doc = JsonDocument.Parse(File.ReadAllText(path));
+            if (doc.RootElement.TryGetProperty("sharedWorkspaceDir", out var sd) && sd.ValueKind == JsonValueKind.String)
+                return (sd.GetString() ?? "").Trim();
+        }
+        catch { }
+        return "";
+    }
+
+    private string ResolveWorkspaceDir()
+    {
+        var shared = ReadNetworkSharedDir();
+        if (!string.IsNullOrWhiteSpace(shared) && IsSafeSharedDir(shared)) return shared;
+        return GetBackupDir();
     }
 
     /// <summary>چاپ HTML روی چاپگر نام‌دار یا دستور print پیش‌فرض ویندوز.</summary>

@@ -3965,14 +3965,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳ε باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳ζ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.23ε', 'نسخه meta باید 1405.5.23ε باشد');
+  assertEqual(metaVer, '1405.5.23ζ', 'نسخه meta باید 1405.5.23ζ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/23', 'app-date باید 1405/05/23 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۳ε', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۳ε را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۳ζ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۳ζ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.23ε'", 'فیلد version بک‌آپ باید 1405.5.23ε باشد');
+  assertContainsString(buildSrc, "version: '1405.5.23ζ'", 'فیلد version بک‌آپ باید 1405.5.23ζ باشد');
 });
 
 
@@ -7832,6 +7832,176 @@ test('قانون ۷: راهنمای امنیت باید رمز قوی، ۲FA، �
   const runner = new Function(exp + `; return expandHelpQuery('رمز قوی');`);
   const q = runner();
   assertTrue(/رمز|امنیت|قوی/.test(q), 'جستجوی رمز قوی باید به مقاله امنیت برسد');
+});
+
+console.log('');
+console.log('📋 گروه: شبکه داخلی LAN (بدون API کسب‌وکار موازی)');
+
+test('نقش شبکه باید سرور/ایستگاه/مستقل باشد و آدرس LAN ساخته شود', () => {
+  const roleSrc = extractFunctionSource(html, 'normalizeNetworkRole');
+  const ipSrc = extractFunctionSource(html, 'isLanIpv4');
+  const urlSrc = extractFunctionSource(html, 'buildLanAppUrl');
+  const pickSrc = extractFunctionSource(html, 'pickPrimaryLanIp');
+  assertTrue(!!roleSrc && !!ipSrc && !!urlSrc && !!pickSrc, 'توابع نقش/IP شبکه پیدا نشد');
+  const runner = new Function(roleSrc + '\n' + ipSrc + '\n' + urlSrc + '\n' + pickSrc + `
+    var SIRMAN_LAN_PORT = 8765;
+    return {
+      server: normalizeNetworkRole('سرور'),
+      station: normalizeNetworkRole('client'),
+      alone: normalizeNetworkRole(''),
+      loop: isLanIpv4('127.0.0.1'),
+      apipa: isLanIpv4('169.254.1.1'),
+      lan: isLanIpv4('192.168.1.20'),
+      bad: isLanIpv4('not-an-ip'),
+      url: buildLanAppUrl('192.168.1.20', 8765, 'Sirman_Final.html'),
+      empty: buildLanAppUrl('127.0.0.1', 8765, 'Sirman_Final.html'),
+      pick: pickPrimaryLanIp(['10.0.0.5','192.168.1.20'])
+    };
+  `);
+  const r = runner();
+  assertEqual(r.server, 'server', 'سرور باید server شود');
+  assertEqual(r.station, 'station', 'client باید station شود');
+  assertEqual(r.alone, 'standalone', 'نقش خالی باید standalone باشد');
+  assertEqual(r.loop, false, 'لوپ‌بک LAN نیست');
+  assertEqual(r.apipa, false, 'APIPA نباید LAN معتبر باشد');
+  assertEqual(r.lan, true, '192.168 باید LAN باشد');
+  assertEqual(r.bad, false, 'رشته نامعتبر نباید IP باشد');
+  assertEqual(r.url, 'http://192.168.1.20:8765/Sirman_Final.html', 'آدرس اشتراک LAN باید از IP و پورت فعلی ساخته شود');
+  assertEqual(r.empty, '', 'لوپ‌بک نباید لینک اشتراک بسازد');
+  assertEqual(r.pick, '192.168.1.20', 'ترجیح با 192.168 است');
+});
+
+test('پوشه مشترک باید مسیر فایل باشد نه URL عمومی، و فقط سرور اجازه انتشار دارد', () => {
+  const parseSrc = extractFunctionSource(html, 'parseNetworkSettings');
+  const valSrc = extractFunctionSource(html, 'validateSharedFolderPath');
+  const pubSrc = extractFunctionSource(html, 'canPublishWorkspace');
+  const pullSrc = extractFunctionSource(html, 'canPullWorkspace');
+  assertTrue(!!parseSrc && !!valSrc && !!pubSrc && !!pullSrc, 'توابع پوشه مشترک پیدا نشد');
+  const runner = new Function(parseSrc + '\n' + valSrc + '\n' + pubSrc + '\n' + pullSrc + `
+    var SIRMAN_LAN_PORT = 8765;
+    function normalizeNetworkRole(role){
+      var r = String(role||'').toLowerCase().trim();
+      if(r==='server' || r==='سرور') return 'server';
+      if(r==='station' || r==='client' || r==='ایستگاه') return 'station';
+      return 'standalone';
+    }
+    var http = validateSharedFolderPath('https://example.com/api');
+    var unc = validateSharedFolderPath('\\\\\\\\OFFICE\\\\SirmanShare');
+    var drv = validateSharedFolderPath('D:\\\\Share\\\\Sirman');
+    var empty = validateSharedFolderPath('');
+    var pubOk = canPublishWorkspace({role:'server', sharedFolder:'\\\\\\\\OFFICE\\\\SirmanShare'});
+    var pubStation = canPublishWorkspace({role:'station', sharedFolder:'\\\\\\\\OFFICE\\\\SirmanShare'});
+    var pull = canPullWorkspace({role:'station', sharedFolder:'Z:\\\\Sirman'});
+    var parsed = parseNetworkSettings({role:'سرور', port:'0', lanEnabled:1, sharedFolder:'  C:\\\\Data  '});
+    return {http:http, unc:unc, drv:drv, empty:empty, pubOk:pubOk, pubStation:pubStation, pull:pull, parsed:parsed};
+  `);
+  const r = runner();
+  assertEqual(r.http.ok, false, 'URL اینترنتی نباید پوشه مشترک باشد');
+  assertEqual(r.unc.ok, true, 'مسیر UNC باید قبول شود');
+  assertEqual(r.drv.ok, true, 'درایو ویندوز باید قبول شود');
+  assertEqual(r.empty.ok, false, 'پوشه خالی برای اشتراک کافی نیست');
+  assertEqual(r.pubOk.ok, true, 'سرور با پوشه UNC باید بتواند منتشر کند');
+  assertEqual(r.pubStation.ok, false, 'ایستگاه نباید منتشرکننده باشد');
+  assertEqual(r.pull.ok, true, 'ایستگاه با درایو شبکه باید بتواند دریافت کند');
+  assertEqual(r.parsed.role, 'server', 'نقش فارسی باید نرمال شود');
+  assertEqual(r.parsed.port, 8765, 'پورت نامعتبر باید به ۸۷۶۵ برگردد');
+  assertEqual(r.parsed.lanEnabled, true, 'lanEnabled باید بولین شود');
+});
+
+test('مسیر HTTP مجاز LAN فقط سلامت/هویت است نه CRUD کسب‌وکار', () => {
+  const allowSrc = extractFunctionSource(html, 'isAllowedLanHttpPath');
+  const bizSrc = extractFunctionSource(html, 'isBusinessHttpPathForbidden');
+  const healthSrc = extractFunctionSource(html, 'buildNetworkHealthPayload');
+  const stageSrc = extractFunctionSource(html, 'describeNetworkStage');
+  const bindSrc = extractFunctionSource(html, 'classifyLanBindMode');
+  assertTrue(!!allowSrc && !!bizSrc && !!healthSrc && !!stageSrc && !!bindSrc, 'توابع مسیر LAN پیدا نشد');
+  const runner = new Function(allowSrc + '\n' + bizSrc + '\n' + healthSrc + '\n' + stageSrc + '\n' + bindSrc + `
+    function normalizeNetworkRole(role){
+      var r = String(role||'').toLowerCase().trim();
+      if(r==='server' || r==='سرور') return 'server';
+      if(r==='station' || r==='client' || r==='ایستگاه') return 'station';
+      return 'standalone';
+    }
+    var h = buildNetworkHealthPayload({version:'1405.5.23ζ', role:'server', hostname:'OFFICE-PC'});
+    var st = describeNetworkStage();
+    return {
+      health: isAllowedLanHttpPath('/health'),
+      ident: isAllowedLanHttpPath('/sirman-net.json'),
+      html: isAllowedLanHttpPath('/Sirman_Final.html'),
+      api: isAllowedLanHttpPath('/api/invoices'),
+      bizApi: isBusinessHttpPathForbidden('/api/invoices'),
+      bizWar: isBusinessHttpPathForbidden('/warranty/12'),
+      healthOk: h.ok,
+      bizFlag: h.businessApi,
+      stage: st.current,
+      https: st.publicHttps,
+      rest: st.restCrud,
+      lan: classifyLanBindMode('1'),
+      loop: classifyLanBindMode('')
+    };
+  `);
+  const r = runner();
+  assertEqual(r.health, true, '/health باید مجاز باشد');
+  assertEqual(r.ident, true, '/sirman-net.json باید مجاز باشد');
+  assertEqual(r.html, true, 'فایل UI باید از سرور فایل سرو شود');
+  assertEqual(r.api, false, '/api/invoices نباید مسیر مجاز LAN باشد');
+  assertEqual(r.bizApi, true, 'CRUD فاکتور روی HTTP باید ممنوع باشد');
+  assertEqual(r.bizWar, true, 'پرونده گارانتی روی HTTP باید ممنوع باشد');
+  assertEqual(r.healthOk, true, 'health باید ok باشد');
+  assertEqual(r.bizFlag, false, 'health نباید API کسب‌وکار معرفی شود');
+  assertEqual(r.stage, 3, 'مرحله فعلی باید شبکه داخلی باشد');
+  assertEqual(r.https, false, 'این نسخه HTTPS عمومی ندارد');
+  assertEqual(r.rest, false, 'این نسخه REST CRUD ندارد');
+  assertEqual(r.lan, 'lan', 'فلگ ۱ یعنی bind روی LAN');
+  assertEqual(r.loop, 'loopback', 'پیش‌فرض باید فقط همین رایانه باشد');
+});
+
+test('فهرست ایستگاه‌ها باید با IP به‌روز شود نه رکورد تکراری بسازد', () => {
+  const src = extractFunctionSource(html, 'upsertWorkstation');
+  const roleSrc = extractFunctionSource(html, 'normalizeNetworkRole');
+  assertTrue(!!src && !!roleSrc, 'تابع upsertWorkstation پیدا نشد');
+  const runner = new Function(roleSrc + '\n' + src + `
+    var a = upsertWorkstation([], {name:'میز1', ip:'192.168.1.10', role:'station'});
+    var b = upsertWorkstation(a, {name:'میز1-ب', ip:'192.168.1.10', role:'server'});
+    var c = upsertWorkstation(b, {name:'میز2', ip:'192.168.1.11', role:'station'});
+    return {len:c.length, first:c[0], second:c[1], origLen:a.length};
+  `);
+  const r = runner();
+  assertEqual(r.origLen, 1, 'اولین ایستگاه باید اضافه شود');
+  assertEqual(r.len, 2, 'IP جدید باید ردیف جدا باشد');
+  assertEqual(r.first.name, 'میز1-ب', 'همان IP باید به‌روز شود');
+  assertEqual(r.first.role, 'server', 'نقش همان ایستگاه باید عوض شود');
+  assertEqual(r.second.ip, '192.168.1.11', 'ایستگاه دوم باید IP جدا داشته باشد');
+});
+
+test('تب شبکه، راهنما و مسیر Host Object باید وجود داشته باشند بدون API موازی', () => {
+  assertContainsString(html, 'id="stg-network"', 'تب تنظیمات شبکه لازم است');
+  assertContainsString(html, 'showStgTab(\'network\'', 'دکمه تب شبکه لازم است');
+  assertContainsString(html, 'function publishNetworkWorkspace(', 'انتشار فضای کاری لازم است');
+  assertContainsString(html, 'function pullNetworkWorkspace(', 'دریافت فضای کاری لازم است');
+  assertContainsString(html, 'WriteWorkspaceFile', 'باید از Host برای نوشتن فضای کاری استفاده شود');
+  assertContainsString(html, 'GetNetworkInfo', 'باید مشخصات شبکه را از Host بخواند');
+  assertContainsString(html, 'شبکه داخلی دفتر', 'راهنما باید شبکه داخلی را توضیح دهد');
+  assertContainsString(html, 'پوشه مشترک', 'راهنما باید پوشه مشترک را بگوید');
+  const exp = extractFunctionSource(html, 'expandHelpQuery');
+  const q = new Function(exp + `; return expandHelpQuery('شبکه داخلی');`)();
+  assertTrue(/شبکه|پوشه|لانچر/.test(q), 'جستجوی شبکه باید به مقاله شبکه برسد');
+  assertTrue(html.indexOf('fetch(\'/api/') === -1 && html.indexOf('fetch("/api/') === -1, 'نباید fetch به API کسب‌وکار اضافه شود');
+  const hostPath = path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs');
+  assertTrue(fs.existsSync(hostPath), 'SirmanHostObject.cs باید وجود داشته باشد');
+  const host = fs.readFileSync(hostPath, 'utf8');
+  assertContainsString(host, 'GetNetworkInfo', 'میزبان باید GetNetworkInfo داشته باشد');
+  assertContainsString(host, 'WriteWorkspaceFile', 'میزبان باید فضای کاری مشترک بنویسد');
+  assertContainsString(host, 'ReadWorkspaceFile', 'میزبان باید فضای کاری مشترک بخواند');
+  assertContainsString(host, 'SetNetworkConfig', 'میزبان باید تنظیم LAN را ذخیره کند');
+  const ps1 = fs.readFileSync(path.join(path.dirname(filePath), 'sirman_run.ps1'), 'utf8');
+  assertContainsString(ps1, '/health', 'سرور فایل باید health داشته باشد');
+  assertContainsString(ps1, '/sirman-net.json', 'سرور فایل باید هویت شبکه بدهد');
+  assertContainsString(ps1, 'IPAddress]::Any', 'اشتراک LAN باید بتواند روی همه کارت‌ها bind شود');
+  assertContainsString(ps1, 'lan-share.on', 'فعال‌سازی LAN باید از نشانگر موجود AppData خوانده شود');
+  const rules = fs.readFileSync(path.join(path.dirname(filePath), 'docs', 'ARCHITECTURE_RULES.md'), 'utf8');
+  assertContainsString(rules, 'GetNetworkInfo', 'تصمیم معماری باید متد شبکه را در لیست مجاز ثبت کند');
+  assertContainsString(rules, 'health/identity', 'باید استثنای health ثبت شود');
 });
 
 test('ورود فعلی و مقایسه رمز پروفایل با رمز کلی نباید بشکند', () => {
