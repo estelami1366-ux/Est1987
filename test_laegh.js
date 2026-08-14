@@ -3965,14 +3965,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳β باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳γ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.23β', 'نسخه meta باید 1405.5.23β باشد');
+  assertEqual(metaVer, '1405.5.23γ', 'نسخه meta باید 1405.5.23γ باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/23', 'app-date باید 1405/05/23 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۳β', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۳β را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۳γ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۳γ را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.23β'", 'فیلد version بک‌آپ باید 1405.5.23β باشد');
+  assertContainsString(buildSrc, "version: '1405.5.23γ'", 'فیلد version بک‌آپ باید 1405.5.23γ باشد');
 });
 
 
@@ -7429,6 +7429,128 @@ test('saveRole همچنان نباید رمز کاربر را با رمز کلی
   const saveRoleSrc = extractFunctionSource(html, 'saveRole');
   assertTrue(saveRoleSrc !== null, 'تابع saveRole پیدا نشد');
   assertContainsString(saveRoleSrc, 'pw === loginPw', 'باید رمز پروفایل را با رمز کلی نرم‌افزار مقایسه کند تا تداخل پیش نیاید');
+});
+
+
+console.log('');
+console.log('📋 گروه: مرکز راهنمای جامع');
+
+test('جستجوی راهنما باید پرسش طبیعی مثل چاپ فاکتور را بفهمد', () => {
+  const src = extractFunctionSource(html, 'expandHelpQuery');
+  assertTrue(!!src, 'تابع expandHelpQuery پیدا نشد');
+  const runner = new Function(src + `
+    return {
+      print: expandHelpQuery('چطور فاکتور چاپ کنم؟'),
+      closed: expandHelpQuery('پذیرش بسته نمی‌شود'),
+      pw: expandHelpQuery('چگونه رمز عبور را تغییر دهم'),
+      empty: expandHelpQuery('')
+    };
+  `);
+  const r = runner();
+  assertTrue(/چاپ|پرینت|فاکتور/i.test(r.print), 'پرسش چاپ فاکتور باید به مقاله چاپ برسد');
+  assertTrue(/بستن|پذیرش|گارانتی|پرونده/i.test(r.closed), 'پذیرش بسته نمی‌شود باید عیب‌یابی پذیرش را پیدا کند');
+  assertTrue(/رمز|کاربر|نقش/i.test(r.pw), 'تغییر رمز باید به کاربران برسد');
+  assertEqual(r.empty, '', 'جستجوی خالی باید خالی بماند');
+});
+
+test('راهنمای این صفحه باید صفحه جاری را به مقاله مرتبط ببرد', () => {
+  ['openPageHelp','ensurePageHelpButtons','focusHelpTopic'].forEach(fn => {
+    assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
+  });
+  const openSrc = extractFunctionSource(html, 'openPageHelp');
+  assertTrue(openSrc.indexOf('winHelpMeta') >= 0 || openSrc.indexOf('focusHelpTopic') >= 0, 'openPageHelp باید موضوع همان صفحه را باز کند');
+  assertContainsString(html, 'راهنمای این صفحه', 'دکمه راهنمای این صفحه لازم است');
+});
+
+test('آموزش تعاملی اولین استفاده باید قابل شروع و رد شدن باشد', () => {
+  const startSrc = extractFunctionSource(html, 'startHelpTour');
+  const skipSrc = extractFunctionSource(html, 'skipHelpTour');
+  const nextSrc = extractFunctionSource(html, 'nextHelpTourStep');
+  assertTrue(!!startSrc && !!skipSrc && !!nextSrc, 'توابع آموزش تعاملی پیدا نشد');
+  assertContainsString(html, 'id="help-tour-overlay"', 'پوسته آموزش تعاملی لازم است');
+  assertTrue(startSrc.indexOf('dashboard') >= 0 && startSrc.indexOf('phonebook') >= 0, 'آموزش باید از محیط و ثبت مشتری بگذرد');
+  assertTrue(skipSrc.indexOf('laegh_help_tour_done') >= 0, 'رد کردن باید ذخیره شود تا دوباره مزاحم نشود');
+});
+
+test('گزارش مشکل باید نسخه، کاربر، ماژول و کد خطا را بدون ارسال بیرون ذخیره کند', () => {
+  const src = extractFunctionSource(html, 'submitHelpProblem');
+  assertTrue(!!src, 'تابع submitHelpProblem پیدا نشد');
+  assertContainsString(html, 'id="help-report-modal"', 'مودال گزارش مشکل لازم است');
+  const runner = new Function('document','localStorage','ntf','closeMod', src + `
+    var APP_VERSION = '1405.5.23γ';
+    var currentRole = {name:'علی', id:'u1'};
+    function getMachineAuditInfo(){ return {computerName:'PC-TEST'}; }
+    submitHelpProblem();
+    var raw = localStorage.getItem('laegh_help_tickets');
+    return JSON.parse(raw || '[]');
+  `);
+  const store = {};
+  const ls = { getItem:k=>store[k]||null, setItem:(k,v)=>{ store[k]=String(v); } };
+  const doc = {
+    getElementById: function(id){
+      const vals = {
+        'help-report-module': {value:'warranty'},
+        'help-report-text': {value:'پرونده ذخیره نشد'},
+        'help-report-code': {value:'ERR-AUTH-001'}
+      };
+      return vals[id] || {value:''};
+    }
+  };
+  const tickets = runner(doc, ls, function(){}, function(){});
+  assertTrue(Array.isArray(tickets) && tickets.length === 1, 'باید یک گزارش محلی ذخیره شود');
+  assertEqual(tickets[0].module, 'warranty', 'ماژول باید ذخیره شود');
+  assertEqual(tickets[0].code, 'ERR-AUTH-001', 'کد خطا باید ذخیره شود');
+  assertEqual(tickets[0].version, '1405.5.23γ', 'نسخه نرم‌افزار باید ضمیمه شود');
+  assertEqual(tickets[0].computerName, 'PC-TEST', 'نام سیستم باید ضمیمه شود');
+  assertTrue(tickets[0].user.indexOf('علی') >= 0, 'نام کاربر باید ضمیمه شود');
+  assertTrue(JSON.stringify(tickets[0]).indexOf('http') === -1, 'گزارش نباید به بیرون ارسال شود');
+});
+
+test('پیام خطا باید به مقاله راهنمای حل مشکل وصل شود', () => {
+  const src = extractFunctionSource(html, 'openHelpForError');
+  const crit = extractFunctionSource(html, 'showCriticalErrorModal');
+  assertTrue(!!src, 'تابع openHelpForError پیدا نشد');
+  assertTrue(crit.indexOf('openHelpForError') >= 0 || html.indexOf('openHelpForError(') >= 0, 'پنجره خطا باید دکمه راهنما داشته باشد');
+  assertContainsString(html, 'راهنمای حل مشکل', 'دکمه راهنمای حل مشکل لازم است');
+  const runner = new Function(src + `
+    var last = '';
+    function showPage(id){ last += 'page:'+id+';'; }
+    function focusHelpTopic(m){ last += 'topic:'+(m && (m.q||m.h||m))+';'; }
+    function expandHelpQuery(q){ return q; }
+    openHelpForError('ERR-AUTH-001');
+    return last;
+  `);
+  const r = runner();
+  assertTrue(r.indexOf('page:help') >= 0, 'باید صفحه راهنما باز شود');
+  assertTrue(/رمز|ورود|AUTH/i.test(r), 'خطای ورود باید مقاله رمز را باز کند');
+});
+
+test('بازخورد مفید بودن مقاله راهنما باید محلی ذخیره شود', () => {
+  const src = extractFunctionSource(html, 'rateHelpArticle');
+  assertTrue(!!src, 'تابع rateHelpArticle پیدا نشد');
+  const runner = new Function('localStorage', src + `
+    rateHelpArticle('faq-new-customer', true);
+    rateHelpArticle('faq-new-customer', false);
+    return JSON.parse(localStorage.getItem('laegh_help_feedback')||'{}');
+  `);
+  const store = {};
+  const fb = runner({ getItem:k=>store[k]||null, setItem:(k,v)=>{ store[k]=String(v); } });
+  assertEqual(fb['faq-new-customer'].useful, false, 'آخرین رأی باید ذخیره شود');
+  assertTrue(fb['faq-new-customer'].no >= 1, 'رأی خیر باید شمارش شود');
+});
+
+test('قانون ۷: مرکز راهنما باید شروع سریع، فرآیند، FAQ، واژه‌نامه و راهنمای مدیر داشته باشد', () => {
+  assertContainsString(html, 'شروع سریع', 'شروع سریع لازم است');
+  assertContainsString(html, 'چگونه یک مشتری جدید ثبت کنم', 'FAQ مشتری جدید لازم است');
+  assertContainsString(html, 'چرا فاکتور چاپ نمی‌شود', 'FAQ چاپ فاکتور لازم است');
+  assertContainsString(html, 'واژه‌نامه', 'واژه‌نامه لازم است');
+  assertContainsString(html, 'راهنمای مدیر سیستم', 'راهنمای مدیر سیستم لازم است');
+  assertContainsString(html, 'آموزش تعاملی', 'آموزش تعاملی لازم است');
+  assertContainsString(html, 'گزارش مشکل', 'گزارش مشکل لازم است');
+  const inv = html.match(/راهنمای بخش فاکتور[\s\S]{0,800}/);
+  assertTrue(!!inv && inv[0].indexOf('به‌زودی') === -1, 'راهنمای فاکتور نباید ناتمام بماند');
+  const prod = html.match(/راهنمای بخش کالا و انبار[\s\S]{0,900}/);
+  assertTrue(!!prod && prod[0].indexOf('به‌زودی') === -1, 'راهنمای کالا و انبار نباید ناتمام بماند');
 });
 
 
