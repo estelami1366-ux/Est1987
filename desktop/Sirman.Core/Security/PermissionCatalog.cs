@@ -56,7 +56,7 @@ public static class PermissionCatalog
         "LoadAppPref", "SaveAppPref", "GetWarrantyBrowseCatalog", "GetWarrantyBrowseCss", "ApplyUiSkin",
         "GetPrinters", "GetMachineInfo", "GetNetworkInfo",
         "Login", "Logout", "BindSession", "CheckPermission", "HashPassword", "VerifyPassword",
-        "ValidateEntity", "GetSecurityStatus", "SaveSecret", "LoadSecret"
+        "ValidateEntity", "GetSecurityStatus", "SaveSecret", "LoadSecret", "RunBusiness"
     };
 
     public static string? PageFor(string permission) =>

@@ -47,6 +47,7 @@ public class SirmanHostObject
     public string GetSecurityStatus() => DesktopSecurity.Current.GetSecurityStatus();
     public string SaveSecret(string name, string value) => DesktopSecurity.Current.SaveSecret(name, value);
     public string LoadSecret(string name) => DesktopSecurity.Current.LoadSecret(name);
+    public string RunBusiness(string name, string json) => DesktopSecurity.Business.Run(name, json);
 
     /// <summary>بستن فوری پنجرهٔ exe (بعد از بک‌آپ/خروج HTML).</summary>
     public void CloseApp() => _form.RequestForceClose();
