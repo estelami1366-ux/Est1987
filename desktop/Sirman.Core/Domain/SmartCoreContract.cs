@@ -12,5 +12,5 @@ public static class SmartCoreContract
     public const string WorkflowEngine = "WorkflowEngine / canWarrantyTransition, applyWarrantyTransition";
     public const string RulesEngine = "RulesEngine / suggestPartsForCase";
     public const string Events = "موجود Event Bus (on/off/emit) — EventBus جدید ساخته نمی‌شود";
-    public const string Phase2Path = "Host Object متدهای محاسبه قطعی را از همین قرارداد صدا بزند؛ UI فقط نمایش دهد.";
+    public const string Phase2Path = "Host.RunBusiness همان توابع را با JSON اجرا می‌کند؛ UI در exe مقایسه dual-run می‌کند و HTML-only همان JS را نگه می‌دارد.";
 }

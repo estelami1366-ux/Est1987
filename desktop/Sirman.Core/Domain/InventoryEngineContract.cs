@@ -9,5 +9,5 @@ public static class InventoryEngineContract
     public const string Location = "Sirman_Final.html";
     public const string ObjectName = "InventoryEngine";
     public const string Functions = "registerKind, normalizeWarehouse, stock, reserve, release, kardex, lowStock, search, value, deadStock, consumed";
-    public const string Phase2Path = "Inventory Core در .NET همان توابع را با دادهٔ مشترک پیاده کند؛ HTML فقط UI بماند.";
+    public const string Phase2Path = "InventoryCore در C# همان توابع را روی JSON اجرا می‌کند؛ ذخیره هنوز HTML است. سیستم انبار جدید ساخته نشد.";
 }

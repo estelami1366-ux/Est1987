@@ -6,4 +6,5 @@ namespace Sirman.Desktop;
 public static class DesktopSecurity
 {
     public static SecurityFacade Current { get; } = new();
+    public static BusinessFacade Business { get; } = new();
 }
