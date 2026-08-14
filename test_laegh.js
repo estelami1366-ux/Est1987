@@ -3965,14 +3965,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۲μ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.22μ', 'نسخه meta باید 1405.5.22μ باشد');
+  assertEqual(metaVer, '1405.5.23α', 'نسخه meta باید 1405.5.23α باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
-  assertEqual(metaDate, '1405/05/22', 'app-date باید 1405/05/22 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۲μ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۲μ را نشان دهد');
+  assertEqual(metaDate, '1405/05/23', 'app-date باید 1405/05/23 باشد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۳α', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۳α را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.22μ'", 'فیلد version بک‌آپ باید 1405.5.22μ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.23α'", 'فیلد version بک‌آپ باید 1405.5.23α باشد');
 });
 
 
@@ -7014,6 +7014,163 @@ test('بخش ستاره‌دار باید اهمیت، فاصله زمانی و 
   assertContainsString(html, 'starredAlarms', 'بک‌آپ باید بخش ستاره‌دار را نگه دارد');
   assertContainsString(html, 'بخش ستاره‌دار', 'راهنما باید بخش ستاره‌دار را توضیح دهد');
   assertContainsString(html, 'بخش خدمات', 'راهنما باید بخش خدمات را توضیح دهد');
+});
+
+console.log('');
+console.log('── گروه: تاریخ نامشخص، سایر، بدنه، گزارش داخلی، ذخیره خودکار، فاکتور، کشویی قابل‌جستجو ──');
+
+test('تقویم همه تاریخ‌ها باید گزینه نامشخص داشته باشد و مدت تعمیر آن را صفر ببیند', () => {
+  const dpSrc = extractFunctionSource(html, 'openDatePicker');
+  assertTrue(!!dpSrc, 'openDatePicker پیدا نشد');
+  assertTrue(dpSrc.indexOf('_dpUnknown') >= 0 && dpSrc.indexOf('نامشخص') >= 0, 'دکمه نامشخص باید در تقویم باشد');
+  const unkSrc = extractFunctionSource(html, 'isUnknownDate');
+  const msSrc = extractFunctionSource(html, '_jalaliDateToMs');
+  assertTrue(!!unkSrc && !!msSrc, 'isUnknownDate / _jalaliDateToMs پیدا نشد');
+  const runner = new Function(unkSrc + '\n' + msSrc + `
+    return {
+      u1: isUnknownDate('نامشخص'),
+      u2: isUnknownDate('unknown'),
+      u3: isUnknownDate('1405/05/23'),
+      z: _jalaliDateToMs('نامشخص')
+    };
+  `);
+  const r = runner();
+  assertEqual(r.u1, true, 'نامشخص باید ناشناخته باشد');
+  assertEqual(r.u2, true, 'unknown باید ناشناخته باشد');
+  assertEqual(r.u3, false, 'تاریخ واقعی نباید ناشناخته باشد');
+  assertEqual(r.z, 0, 'نامشخص نباید به میلی‌ثانیه تبدیل شود');
+});
+
+test('گزینه سایر باید فیلد توضیح کنار خودش باز کند', () => {
+  const otherSrc = extractFunctionSource(html, 'isOtherSelectValue');
+  const noteSrc = extractFunctionSource(html, 'ensureOtherNote');
+  assertTrue(!!otherSrc && !!noteSrc, 'توابع سایر پیدا نشد');
+  const runner = new Function(otherSrc + `
+    return {
+      a: isOtherSelectValue('other'),
+      b: isOtherSelectValue('سایر'),
+      c: isOtherSelectValue('custom'),
+      d: isOtherSelectValue('post'),
+      e: isOtherSelectValue('inperson')
+    };
+  `);
+  const r = runner();
+  assertEqual(r.a, true, 'other باید سایر باشد');
+  assertEqual(r.b, true, 'متن سایر باید شناخته شود');
+  assertEqual(r.c, true, 'custom باید سایر باشد');
+  assertEqual(r.d, false, 'پست نباید سایر باشد');
+  assertEqual(r.e, false, 'حضوری نباید سایر باشد');
+  assertContainsString(html, 'ensureOtherNote', 'باید فیلد توضیح سایر ساخته شود');
+  assertContainsString(html, 'getOtherNote', 'باید توضیح سایر خوانده شود');
+});
+
+test('وضعیت بدنه باید خش جزئی و خش‌دار را جدا داشته باشد', () => {
+  assertTrue(/id="wc-cond-body"[^>]*>[\s\S]*?خش جزئی[\s\S]*?خش‌دار[\s\S]*?<\/select>/.test(html), 'وضع بدنه گارانتی باید خش جزئی و خش‌دار جدا باشد');
+  assertTrue(html.indexOf('<option>خش‌دار</option>') >= 0, 'گزینه خش‌دار لازم است');
+  assertTrue(html.indexOf('wd${n}_cond') >= 0 && html.indexOf('خش‌دار') >= 0, 'وضعیت ظاهری دستگاه باید خش‌دار داشته باشد');
+  const bodyBlock = html.match(/id="d\$\{n\}_body"[^>]*>[\s\S]*?<\/select>/);
+  assertTrue(!!bodyBlock, 'وضعیت بدنه فاکتور فروشگاه پیدا نشد');
+  assertTrue(bodyBlock[0].indexOf('خش جزئی') >= 0 && bodyBlock[0].indexOf('خش‌دار') >= 0, 'فاکتور فروشگاه هم باید خش جزئی و خش‌دار جدا باشد');
+  assertTrue(bodyBlock[0].indexOf('خش دارد') < 0, 'گزینه مخلوط «خش دارد» نباید بماند');
+});
+
+test('مدت تعمیر گزارش داخلی باید تاریخ رسیدن همان صفحه را بخواند', () => {
+  const report = html.match(/id="company-report-section"[\s\S]*?id="cr-repair-dur"/);
+  assertTrue(!!report, 'گزارش داخلی پیدا نشد');
+  assertTrue(report[0].indexOf('wc-arrive-date') >= 0 || report[0].indexOf('cr-arrive-date') >= 0, 'تاریخ رسیدن باید کنار مدت تعمیر در گزارش داخلی باشد');
+  const durSrc = extractFunctionSource(html, 'calcWarrantyRepairDuration');
+  const getSrc = extractFunctionSource(html, 'getWarArriveDate');
+  assertTrue(!!durSrc && !!getSrc, 'calcWarrantyRepairDuration / getWarArriveDate پیدا نشد');
+  assertTrue(getSrc.indexOf('cr-arrive-date') >= 0 && getSrc.indexOf('wc-arrive-date') >= 0, 'باید هر دو فیلد رسیدن خوانده شود');
+});
+
+test('ذخیره خودکار با پوشه/میزبان فعال بماند و الارم‌ها گردش زمانی داشته باشند', () => {
+  const readySrc = extractFunctionSource(html, 'isBackupFolderReady');
+  const loopSrc = extractFunctionSource(html, 'startStarredAlarmLoop');
+  const persistSrc = extractFunctionSource(html, '_persistJsonSafe');
+  const reqSrc = extractFunctionSource(html, 'requireDiskOrAbort');
+  const autoSrc = extractFunctionSource(html, 'doAutoSave');
+  const loadSrc = extractFunctionSource(html, 'loadAutoSaveUI');
+  const dueSrc = extractFunctionSource(html, 'starredAlarmDue');
+  assertTrue(!!readySrc && !!loopSrc && !!persistSrc && !!reqSrc && !!autoSrc && !!loadSrc, 'توابع ذخیره خودکار/الارم پیدا نشد');
+  const runner = new Function(readySrc + `
+    var localStorage = {
+      _s: { laegh_autosave_dir_name: 'SirmanBackup', laegh_autosave_enabled: '1' },
+      getItem: function(k){ return this._s[k] || null; }
+    };
+    var autoSaveDirHandle = null, autoSaveFileHandle = null;
+    function getSirmanHostSync(){ return { WriteBackupText: function(){ return '{"ok":true}'; } }; }
+    return isBackupFolderReady();
+  `);
+  assertEqual(runner(), true, 'پوشه ذخیره‌شده یا میزبان باید ذخیره را آماده نشان دهد');
+  assertTrue(loopSrc.indexOf('setInterval') >= 0 && loopSrc.indexOf('checkStarredAlarms') >= 0, 'الارم ستاره‌دار باید روی تایمر گردش کند');
+  assertTrue(persistSrc.indexOf('isBackupFolderReady') >= 0, 'اخطار حجم گارانتی نباید با پوشه انتخاب‌شده تکرار شود');
+  assertTrue(reqSrc.indexOf('isBackupFolderReady') >= 0, 'اگر پوشه انتخاب شده درخواست دوباره پوشه نیاید');
+  assertTrue(autoSrc.indexOf('isBackupFolderReady') >= 0 || autoSrc.indexOf('WriteBackupText') >= 0, 'ذخیره خودکار باید محل پایدار را هم بنویسد');
+  assertTrue(loadSrc.indexOf('isBackupFolderReady') >= 0, 'وضعیت ذخیره خودکار باید پوشه ذخیره‌شده را فعال نشان دهد');
+  assertTrue(html.indexOf('runFullDiag') >= 0 && extractFunctionSource(html, 'runFullDiag').indexOf('isBackupFolderReady') >= 0, 'اخطار سقف حافظه با پوشه بک‌آپ نباید تکرار شود');
+  const dueRunner = new Function(dueSrc + `
+    var hourly = starredAlarmDue({on:true, days:3, hours:1, lastFired: 0}, 2*3600000);
+    var notYet = starredAlarmDue({on:true, hours:6, lastFired: 1000}, 1000 + 2*3600000);
+    return {hourly:hourly, notYet: notYet};
+  `);
+  const d = dueRunner();
+  assertEqual(d.hourly, true, 'گردش ساعتی باید الارم را دوباره نشان دهد');
+  assertEqual(d.notYet, false, 'قبل از گردش ساعتی نباید تکرار شود');
+});
+
+test('گزینه‌های پستی باید حضوری و تحویل از طریق شخص داشته باشند و کد نخواهند', () => {
+  const ship = html.match(/id="wc-cust-ship-method"[^>]*>[\s\S]*?<\/select>/);
+  assertTrue(!!ship, 'نحوه ارسال مشتری پیدا نشد');
+  assertTrue(ship[0].indexOf('inperson') >= 0 && ship[0].indexOf('حضوری') >= 0, 'حضوری باید در ارسال گارانتی باشد');
+  assertTrue(ship[0].indexOf('person') >= 0 && ship[0].indexOf('تحویل از طریق شخص') >= 0, 'تحویل از طریق شخص باید در ارسال گارانتی باشد');
+  const sale = html.match(/id="sale-ship"[^>]*>[\s\S]*?<\/select>/);
+  assertTrue(!!sale && sale[0].indexOf('تحویل از طریق شخص') >= 0, 'فروش قطعات هم باید تحویل از طریق شخص داشته باشد');
+  const src = extractFunctionSource(html, 'isInPersonShip');
+  const syncSrc = extractFunctionSource(html, 'syncShipTrackingFields');
+  assertTrue(!!src && !!syncSrc, 'isInPersonShip / syncShipTrackingFields پیدا نشد');
+  const runner = new Function(src + `
+    return {
+      a: isInPersonShip('inperson'),
+      b: isInPersonShip('person'),
+      c: isInPersonShip('post'),
+      d: isInPersonShip('in_person')
+    };
+  `);
+  const r = runner();
+  assertEqual(r.a, true, 'حضوری باید بدون کد باشد');
+  assertEqual(r.b, true, 'تحویل شخص باید بدون کد باشد');
+  assertEqual(r.c, false, 'پست باید کد بخواهد');
+  assertEqual(r.d, true, 'تحویل حضوری نمایندگی باید بدون کد باشد');
+});
+
+test('دکمه جمع‌کردن سایدبار راست باید رنگ متمایز داشته باشد', () => {
+  const css = html.match(/\.sb-rail-toggle\{[\s\S]*?\}/);
+  assertTrue(!!css, 'استایل دکمه کشویی سایدبار پیدا نشد');
+  assertTrue(/#([0-9a-fA-F]{3,8})|rgb\(\s*\d+/.test(css[0]) && css[0].indexOf('rgba(255,255,255') < 0, 'رنگ دکمه باید از سفید شفاف جدا باشد');
+  assertTrue(css[0].indexOf('#1d4ed8') >= 0 || css[0].indexOf('#2563eb') >= 0 || css[0].indexOf('#f59e0b') >= 0, 'رنگ دکمه باید آبی/کهربایی مشخص باشد');
+});
+
+test('بعد از ذخیره فاکتور باید فرم بسته شود و به لیست برگردد', () => {
+  const leaveSrc = extractFunctionSource(html, 'leaveFormToList');
+  const saveSrc = extractFunctionSource(html, 'saveInv');
+  const closeSrc = extractFunctionSource(html, 'closeInv');
+  const saleSrc = extractFunctionSource(html, 'saveSale');
+  const clearSrc = extractFunctionSource(html, 'closeSaleForm');
+  assertTrue(!!leaveSrc, 'leaveFormToList پیدا نشد');
+  assertTrue(saveSrc.indexOf('leaveFormToList') >= 0 && saveSrc.indexOf('saved') >= 0, 'ذخیره فاکتور فروشگاه باید به لیست برگردد');
+  assertTrue(closeSrc.indexOf('leaveFormToList') >= 0, 'تکمیل فاکتور باید فرم را ببندد');
+  assertTrue(saleSrc.indexOf('closeSaleForm') >= 0, 'فروش قطعات باید به لیست برگردد');
+  assertTrue(clearSrc.indexOf('sale-name') >= 0 || saleSrc.indexOf('leaveFormToList') >= 0, 'فرم فروش نباید اطلاعات فاکتور قبلی را نگه دارد');
+});
+
+test('لیست‌های کشویی باید با تایپ قابل جستجو باشند', () => {
+  const enhSrc = extractFunctionSource(html, 'enhanceSearchableSelects');
+  const oneSrc = extractFunctionSource(html, 'enhanceOneSelect');
+  assertTrue(!!enhSrc && !!oneSrc, 'enhanceSearchableSelects پیدا نشد');
+  assertTrue(oneSrc.indexOf('srch-sel') >= 0 && oneSrc.indexOf('filter') >= 0 || oneSrc.indexOf('q') >= 0, 'باید ورودی جستجو روی select ساخته شود');
+  assertContainsString(html, '.srch-sel', 'استایل کشویی قابل‌جستجو لازم است');
+  assertContainsString(html, 'جستجو در لیست', 'راهنما باید جستجوی کشویی را توضیح دهد');
 });
 
 
