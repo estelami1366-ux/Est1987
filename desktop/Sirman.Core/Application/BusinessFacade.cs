@@ -53,12 +53,14 @@ public sealed class BusinessFacade
         "invoice.delete" => InvoiceDeleteDto(o),
         "sale.line" => SaleLineDto(InvoicePricing.SaleLine(Num(o, "qty") == 0 ? 1 : Num(o, "qty"), Num(o, "price"), Num(o, "disc"))),
         "sale.total" => SaleTotalFrom(o),
+        "sale.delete" => SaleDeleteDto(o),
         "payment.withdraw" => PaymentDto(PaymentRules.Withdraw(Num(o, "balance"), Num(o, "amount"))),
         "payment.deposit" => PaymentDto(PaymentRules.Deposit(Num(o, "amount"))),
         "payment.remaining" => PaymentRules.Remaining(Num(o, "total"), Num(o, "paid")),
         "payment.applyDeposit" => PaymentAccountDto(PaymentRules.ApplyDeposit(o["account"] as JsonObject, Num(o, "amount"), JsonVal.Str(o, "subject"), JsonVal.Str(o, "refId"), JsonVal.Str(o, "refType"), JsonVal.Str(o, "date"))),
         "payment.applyWithdraw" => PaymentAccountDto(PaymentRules.ApplyWithdraw(o["account"] as JsonObject, Num(o, "amount"), JsonVal.Str(o, "subject"), JsonVal.Str(o, "date"), JsonVal.Str(o, "refId"), JsonVal.Str(o, "refType"))),
         "payment.reverseLinked" => PaymentAccountDto(PaymentRules.ReverseLinked(o["account"] as JsonObject, JsonVal.Str(o, "refId"), JsonVal.Str(o, "refType"))),
+        "payment.reverseOwned" => PaymentAccountDto(PaymentRules.ReverseOwned(o["account"] as JsonObject, JsonVal.Str(o, "refId").Length > 0 ? JsonVal.Str(o, "refId") : JsonVal.Str(o, "documentId"))),
         "payment.editTransaction" => PaymentAccountDto(PaymentRules.EditTransaction(o["account"] as JsonObject, CalculationEngine.ToInt(JsonVal.Str(o, "trxIndex")), Num(o, "amount"), JsonVal.Str(o, "date"), JsonVal.Str(o, "subject"), JsonVal.Str(o, "category"), JsonVal.Str(o, "refNo"))),
         "payment.deleteTransaction" => PaymentAccountDto(PaymentRules.DeleteTransaction(o["account"] as JsonObject, CalculationEngine.ToInt(JsonVal.Str(o, "trxIndex")))),
         "inventory.stock" => InventoryCore.Stock(o["item"] as JsonObject ?? o, JsonVal.Str(o, "whId")).ToJson(),
@@ -207,6 +209,28 @@ public sealed class BusinessFacade
             reversedPayments = r.ReversedPayments,
             audit = r.Audit,
             persistKeys = r.Ok ? new[] { "invoices", "inventory", "accounts" } : Array.Empty<string>()
+        };
+    }
+
+    private object SaleDeleteDto(JsonObject o)
+    {
+        var r = TransactionReversal.DeleteSale(o);
+        return new
+        {
+            ok = r.Ok,
+            alreadyReversed = r.AlreadyReversed,
+            kind = r.Kind,
+            error = r.Error,
+            err = r.Error,
+            inventory = r.Inventory,
+            accounts = r.Accounts,
+            sales = r.Records,
+            parts = r.Parts,
+            removedId = r.RemovedId,
+            restocked = r.Restocked,
+            reversedPayments = r.ReversedPayments,
+            audit = r.Audit,
+            persistKeys = r.Ok ? new[] { "sales", "parts", "accounts" } : Array.Empty<string>()
         };
     }
 

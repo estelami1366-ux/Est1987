@@ -81,6 +81,41 @@ public static class PaymentRules
         };
     }
 
+    /// <summary>قانون ساده: هر تراکنش مالی که مال همین سند است (refId) با حذف سند برمی‌گردد. نوع واریز/برداشت مهم نیست.</summary>
+    public static PaymentAccountResult ReverseOwned(JsonObject? account, string? documentId)
+    {
+        account = Clone(account);
+        if (account is null) return AccountFail("validation", "حساب پیدا نشد");
+        if (string.IsNullOrWhiteSpace(documentId))
+            return new PaymentAccountResult { Ok = true, Account = account, RemovedCount = 0, NewBalance = CalculationEngine.ToNum(account["balance"]?.ToString()) };
+        var arr = EnsureTrx(account);
+        var removed = 0;
+        for (var i = arr.Count - 1; i >= 0; i--)
+        {
+            if (arr[i] is not JsonObject t) continue;
+            if (!OwnsDocument(t, documentId)) continue;
+            var oldAmt = CalculationEngine.ToNum(t["amount"]?.ToString());
+            account["balance"] = CalculationEngine.ToNum(account["balance"]?.ToString()) - oldAmt;
+            arr.RemoveAt(i);
+            removed++;
+        }
+        return new PaymentAccountResult
+        {
+            Ok = true,
+            Account = account,
+            RemovedCount = removed,
+            NewBalance = CalculationEngine.ToNum(account["balance"]?.ToString())
+        };
+    }
+
+    private static bool OwnsDocument(JsonObject t, string documentId)
+    {
+        if (JsonVal.Str(t, "refId") == documentId) return true;
+        if (JsonVal.Str(t, "refId").Length > 0) return false;
+        var subject = JsonVal.Str(t, "subject");
+        return documentId.Length >= 3 && subject.Contains(documentId, StringComparison.Ordinal);
+    }
+
     /// <summary>برگشت یک برداشت قدیمی بدون refId — فقط اگر مبلغ و موضوع به همان منبع بخورد.</summary>
     public static PaymentAccountResult ReverseMatchingWithdraw(JsonObject? account, double amount, string? subjectContains)
     {

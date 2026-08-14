@@ -210,10 +210,82 @@ public class TransactionReversalTests
     public void DoesNotTouchUnrelatedManualDeposit()
     {
         var acc = PaymentRules.ApplyDeposit(new JsonObject { ["id"] = "ACC-1", ["balance"] = 0, ["transactions"] = new JsonArray() }, 70, "دستی", "", "manual", "1405/05/23");
-        var r = PaymentRules.ReverseLinked(acc.Account, "INV-X", "invoice");
+        var r = PaymentRules.ReverseOwned(acc.Account, "INV-X");
         Assert.True(r.Ok);
         Assert.Equal(0, r.RemovedCount);
         Assert.Equal(70, r.NewBalance);
+    }
+
+    [Fact]
+    public void FinancialReversal_UsesRefIdEvenIfRefTypeDiffers()
+    {
+        var del = Res("invoice.delete", """
+        {"invoice":{"num":"LEP-0007","status":"closed","items":[{"code":"A"}]},
+         "invoices":[{"num":"LEP-0007","status":"closed","items":[{"code":"A"}]}],
+         "inventory":{"A":{"code":"A","qty":9}},
+         "accounts":[{"id":"ACC-1","balance":150,"transactions":[
+           {"amount":50,"refId":"LEP-0007","refType":"service","type":"deposit"},
+           {"amount":100,"refId":"","refType":"manual","type":"deposit","subject":"دستی"}
+         ]}],
+         "now":"1405/05/23"}
+        """);
+        Assert.Equal(100, del.GetProperty("accounts")[0].GetProperty("balance").GetDouble());
+        Assert.Equal(1, del.GetProperty("accounts")[0].GetProperty("transactions").GetArrayLength());
+        Assert.Equal("دستی", del.GetProperty("accounts")[0].GetProperty("transactions")[0].GetProperty("subject").GetString());
+    }
+
+    [Fact]
+    public void SaleDelete_RestoresPartsAndReversesPayment()
+    {
+        var del = Res("sale.delete", """
+        {"sale":{"id":"SL-0001","status":"final","items":[{"partCode":"A","qty":1}]},
+         "sales":[{"id":"SL-0001","status":"final","items":[{"partCode":"A","qty":1}]}],
+         "parts":[{"code":"A","qty":9}],
+         "accounts":[{"id":"ACC-1","balance":100,"transactions":[{"amount":100,"refId":"SL-0001","refType":"sale","type":"deposit"}]}],
+         "now":"1405/05/23"}
+        """);
+        Assert.True(del.GetProperty("ok").GetBoolean());
+        Assert.Equal(10, Qty(del.GetProperty("parts")[0]));
+        Assert.Equal(0, del.GetProperty("accounts")[0].GetProperty("balance").GetDouble());
+        Assert.Equal(0, del.GetProperty("accounts")[0].GetProperty("transactions").GetArrayLength());
+        Assert.Equal(0, del.GetProperty("sales").GetArrayLength());
+    }
+
+    [Fact]
+    public void SaleDelete_LeavesOtherSaleUntouched()
+    {
+        var del = Res("sale.delete", """
+        {"sale":{"id":"SL-A","status":"final","items":[{"partCode":"A","qty":2}]},
+         "sales":[
+           {"id":"SL-A","status":"final","items":[{"partCode":"A","qty":2}]},
+           {"id":"SL-B","status":"final","items":[{"partCode":"A","qty":3}]}
+         ],
+         "parts":[{"code":"A","qty":5}],
+         "accounts":[{"id":"ACC-1","balance":300,"transactions":[
+           {"amount":100,"refId":"SL-A","refType":"sale","type":"deposit"},
+           {"amount":200,"refId":"SL-B","refType":"sale","type":"deposit"}
+         ]}],
+         "now":"1405/05/23"}
+        """);
+        Assert.Equal(7, Qty(del.GetProperty("parts")[0]));
+        Assert.Equal(200, del.GetProperty("accounts")[0].GetProperty("balance").GetDouble());
+        Assert.Equal("SL-B", del.GetProperty("accounts")[0].GetProperty("transactions")[0].GetProperty("refId").GetString());
+        Assert.Equal("SL-B", del.GetProperty("sales")[0].GetProperty("id").GetString());
+    }
+
+    [Fact]
+    public void SaleProforma_DoesNotRestockOrReverseMoney()
+    {
+        var del = Res("sale.delete", """
+        {"sale":{"id":"SL-P","status":"proforma","items":[{"partCode":"A","qty":2}]},
+         "sales":[{"id":"SL-P","status":"proforma","items":[{"partCode":"A","qty":2}]}],
+         "parts":[{"code":"A","qty":10}],
+         "accounts":[{"id":"ACC-1","balance":0,"transactions":[]}],
+         "now":"1405/05/23"}
+        """);
+        Assert.Equal(10, Qty(del.GetProperty("parts")[0]));
+        Assert.Equal(0, del.GetProperty("accounts")[0].GetProperty("balance").GetDouble());
+        Assert.Equal(0, del.GetProperty("sales").GetArrayLength());
     }
 
     private JsonElement Res(string op, string json)

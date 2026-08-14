@@ -1898,13 +1898,14 @@ test('saveSale باید برای همه اقلام از انبار کسر کند
 
 test('delSale باید اقلام فروش نهایی را به انبار برگرداند (نه پیش‌فاکتور)', () => {
   const fnSrc = extractFunctionSource(html, 'delSale');
+  const atSrc = extractFunctionSource(html, 'deleteSaleAt');
+  const locSrc = extractFunctionSource(html, 'reverseSaleLocal');
   assertTrue(fnSrc !== null, 'تابع delSale پیدا نشد');
-  // نسخه‌ی جدید: delSale از _restockFromSale(s) استفاده می‌کند (که داخلش s.items را می‌خواند)
-  // پس یا مستقیم s.items یا از طریق _restockFromSale
-  const hasRestock = fnSrc.indexOf('_restockFromSale') !== -1 || fnSrc.indexOf('s.items') !== -1;
-  assertTrue(hasRestock, 'delSale باید اقلام را برای برگرداندن موجودی بررسی کند (مستقیم یا از طریق _restockFromSale)');
-  // نسخه‌ی جدید: فقط فروش نهایی (final) به انبار برمی‌گردد؛ پیش‌فاکتور انبار را تغییر نداده
-  assertContainsString(fnSrc, 'proforma', 'delSale باید وضعیت proforma را بررسی کند (پیش‌فاکتور نباید به انبار برگردد چون کسر نشده بود)');
+  assertContainsString(fnSrc, 'deleteSaleAt', 'delSale باید حذف را با برگشت موجودی و حساب انجام دهد');
+  assertTrue(atSrc !== null, 'تابع deleteSaleAt پیدا نشد');
+  assertTrue(locSrc !== null, 'تابع reverseSaleLocal پیدا نشد');
+  assertContainsString(locSrc, 'proforma', 'پیش‌فاکتور نباید به انبار برگردد چون کسر نشده بود');
+  assertContainsString(locSrc, 'reverseLinkedAccountTrx', 'حذف فروش نهایی باید مبلغ همان فروش را از حساب برگرداند');
 });
 
 test('renderSales باید تعداد اقلام (s.items.length) را در جدول نمایش دهد', () => {
@@ -2335,8 +2336,8 @@ test('واقعی: delSelSales باید نزولی splice کنه و برای نه
   // باید confirm بگیره
   assertContainsString(src, 'confirm', 'delSelSales باید قبل از حذف تأیید بگیره');
   // باید restock برای نهایی‌ها (نه proforma)
-  assertContainsString(src, '_restockFromSale', 'delSelSales باید برای فروش‌های نهایی موجودی رو به انبار برگردونه');
-  assertContainsString(src, 'proforma', 'delSelSales باید وضعیت proforma رو بررسی کنه (پیش‌فاکتور به انبار برنمی‌گرده)');
+  assertContainsString(src, 'deleteSaleAt', 'delSelSales باید حذف را با برگشت موجودی و حساب انجام دهد');
+  assertContainsString(src, 'proforma', 'delSelSales باید وضعیت proforma را در تأیید به کاربر بگوید');
 });
 
 // تست ۵: واقعی — delSelProds باید inventory[code] رو هم پاک کنه
@@ -3966,13 +3967,13 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳ο باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳π باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.23ο', 'نسخه محصول باید 1405.5.23ο باشد');
-  assertEqual(ver.assembly, '1405.5.23.16', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (ο=16)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳ο', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.23π', 'نسخه محصول باید 1405.5.23π باشد');
+  assertEqual(ver.assembly, '1405.5.23.17', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (π=17)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳π', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -8690,8 +8691,79 @@ test('در exe حذف فاکتور موجودی را از نتیجه هسته م
 });
 
 test('راهنمای برگشت حذف فاکتور/گارانتی باید در صفحه راهنما باشد (قانون ۷)', () => {
-  assertContainsString(html, 'برگشت با حذف فاکتور/گارانتی', 'راهنمای حسابداری باید برگشت حذف را توضیح دهد');
+  assertContainsString(html, 'برگشت با حذف سند', 'راهنمای حسابداری باید برگشت حذف سند را توضیح دهد');
   assertContainsString(html, 'حذف پرونده', 'راهنمای گارانتی باید حذف با برگشت قطعه را توضیح دهد');
+});
+
+test('حذف فروش باید مبلغ همان فروش را هم از حساب برگرداند', () => {
+  const delSrc = extractFunctionSource(html, 'delSale');
+  const atSrc = extractFunctionSource(html, 'deleteSaleAt');
+  assertContainsString(delSrc, 'deleteSaleAt', 'delSale نباید فقط splice کند');
+  assertContainsString(atSrc, 'sale.delete', 'حذف فروش در exe باید از هسته باشد');
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const persistSrc = extractFunctionSource(html, 'persistCoreSnapshot');
+  const applySrc = extractFunctionSource(html, 'applyReversalSnapshot');
+  const ownSrc = extractFunctionSource(html, 'reverseOwnedAccountTrx');
+  const linkSrc = extractFunctionSource(html, 'reverseLinkedAccountTrx');
+  const locSrc = extractFunctionSource(html, 'reverseSaleLocal');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const r = new Function(recSrc+'\n'+persistSrc+'\n'+applySrc+'\n'+ownSrc+'\n'+linkSrc+'\n'+locSrc+'\n'+atSrc+'\n'+hasSrc+'\n'+takeSrc+'\n'+runSrc+`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){}
+    function recordStockMove(){}
+    var parts = [{code:'A', qty:9}];
+    var accounts = [{id:'ACC-1', balance:100, transactions:[{amount:100, refId:'SL-0001', refType:'sale', type:'deposit'}]}];
+    var sales = [{id:'SL-0001', status:'final', items:[{partCode:'A', qty:1}]}];
+    deleteSaleAt(0);
+    var after1 = {qty:parts[0].qty, bal:accounts[0].balance, n:sales.length};
+    var r2 = deleteSaleAt(0);
+    return {q:after1.qty, b:after1.bal, n:after1.n, q2:parts[0].qty, b2:accounts[0].balance, already:r2.alreadyReversed};
+  `)();
+  assertEqual(r.q, 10, 'قطعه باید برگردد');
+  assertEqual(r.b, 0, 'مبلغ فروش باید از حساب برگشت شود');
+  assertEqual(r.n, 0, 'فروش باید حذف شود');
+  assertEqual(r.q2, 10, 'حذف دوباره موجودی را زیاد نکند');
+  assertEqual(r.b2, 0, 'حذف دوباره حساب را دوباره کم نکند');
+  assertEqual(r.already, true, 'بار دوم alreadyReversed');
+});
+
+test('واریز با شماره سند حتی اگر نوعش فرق کند با حذف سند برمی‌گردد', () => {
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const persistSrc = extractFunctionSource(html, 'persistCoreSnapshot');
+  const applySrc = extractFunctionSource(html, 'applyReversalSnapshot');
+  const ownSrc = extractFunctionSource(html, 'reverseOwnedAccountTrx');
+  const linkSrc = extractFunctionSource(html, 'reverseLinkedAccountTrx');
+  const locSrc = extractFunctionSource(html, 'reverseInvoiceLocal');
+  const delSrc = extractFunctionSource(html, 'deleteInvoiceAt');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const r = new Function(recSrc+'\n'+persistSrc+'\n'+applySrc+'\n'+ownSrc+'\n'+linkSrc+'\n'+locSrc+'\n'+delSrc+'\n'+hasSrc+'\n'+takeSrc+'\n'+runSrc+`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function recordStockMove(){}
+    var inventory = {A:{code:'A', qty:9}};
+    var accounts = [{id:'ACC-1', balance:150, transactions:[
+      {amount:50, refId:'LEP-0007', refType:'service', type:'deposit'},
+      {amount:100, refId:'', refType:'manual', type:'deposit', subject:'دستی'}
+    ]}];
+    var invoices = [{num:'LEP-0007', status:'closed', items:[{code:'A'}]}];
+    deleteInvoiceAt(0);
+    return {bal:accounts[0].balance, n:accounts[0].transactions.length, sub:accounts[0].transactions[0].subject};
+  `)();
+  assertEqual(r.bal, 100, 'فقط مبلغ همان سند باید برگردد');
+  assertEqual(r.n, 1, 'واریز دستی باید بماند');
+  assertEqual(r.sub, 'دستی', 'تراکنش باقی‌مانده باید واریز دستی باشد');
 });
 
 // نتیجه نهایی

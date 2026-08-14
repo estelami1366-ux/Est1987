@@ -76,7 +76,7 @@ public static class TransactionReversal
 
         if (!finDone)
         {
-            payCount += ReverseAllLinked(accounts, id, "invoice");
+            payCount += ReverseAllOwned(accounts, id);
         }
 
         if (idx >= 0) invoices.RemoveAt(idx);
@@ -158,7 +158,7 @@ public static class TransactionReversal
 
         if (!finDone)
         {
-            payCount += ReverseAllLinked(accounts, id, "service");
+            payCount += ReverseAllOwned(accounts, id);
             if (record["_agencyPayApplied"] is JsonObject pay && Flag(pay, "applied"))
             {
                 var accId = JsonVal.Str(pay, "accountId");
@@ -177,13 +177,104 @@ public static class TransactionReversal
         return OkResult("warranty.delete", "warranty", id, user, now, inventory, accounts, parts, warranties, restocked, payCount);
     }
 
-    private static int ReverseAllLinked(JsonArray accounts, string refId, string refType)
+    public static ReversalResult DeleteSale(JsonObject? payload)
+    {
+        payload ??= new JsonObject();
+        var sales = CloneArr(payload["sales"] as JsonArray);
+        var inventory = CloneObj(payload["inventory"] as JsonObject) ?? new JsonObject();
+        var accounts = CloneArr(payload["accounts"] as JsonArray);
+        var parts = CloneArr(payload["parts"] as JsonArray);
+        var now = JsonVal.Str(payload, "now");
+        var user = JsonVal.Str(payload, "user");
+
+        var sale = CloneObj(payload["sale"] as JsonObject) ?? CloneObj(payload["record"] as JsonObject);
+        var id = FirstNonEmpty(JsonVal.Str(payload, "saleId"), JsonVal.Str(sale, "id"));
+        int idx = IndexOf(sales, id, "id");
+        if (idx < 0)
+            idx = IndexFrom(payload, "saleIndex", sales.Count);
+        if (sale is null && idx >= 0)
+            sale = CloneObj(sales[idx] as JsonObject);
+        if (string.IsNullOrEmpty(id))
+            id = JsonVal.Str(sale, "id");
+        if (idx < 0 && !string.IsNullOrEmpty(id))
+            idx = IndexOf(sales, id, "id");
+
+        if (idx < 0 && payload.ContainsKey("sales"))
+            return Already(id, "sale.delete", "sale", user, now, inventory, accounts, parts, sales);
+
+        if (sale is null || string.IsNullOrEmpty(id))
+            return Already(id, "sale.delete", "sale", user, now, inventory, accounts, parts, sales);
+
+        if (Flag(sale, "_reversed"))
+        {
+            if (idx >= 0) sales.RemoveAt(idx);
+            return Already(id, "sale.delete", "sale", user, now, inventory, accounts, parts, sales);
+        }
+
+        var restocked = new JsonArray();
+        var payCount = 0;
+        var isProforma = JsonVal.Str(sale, "status") == "proforma";
+        var stockDone = Flag(sale, "_stockReversed");
+        var finDone = Flag(sale, "_financeReversed");
+
+        if (!isProforma && !stockDone)
+        {
+            JsonArray? items = sale["items"] as JsonArray;
+            if (items is null && JsonVal.Str(sale, "partCode").Length > 0)
+            {
+                items = new JsonArray
+                {
+                    new JsonObject
+                    {
+                        ["partCode"] = JsonVal.Str(sale, "partCode"),
+                        ["partName"] = JsonVal.Str(sale, "partName"),
+                        ["qty"] = Math.Max(1, CalculationEngine.ToInt(sale["qty"]?.ToString()))
+                    }
+                };
+            }
+            if (items is not null)
+            {
+                foreach (var n in items)
+                {
+                    if (n is not JsonObject it) continue;
+                    var code = FirstNonEmpty(JsonVal.Str(it, "partCode"), JsonVal.Str(it, "code"));
+                    if (code.Length == 0) continue;
+                    var qty = Math.Max(1, CalculationEngine.ToInt(it["qty"]?.ToString()));
+                    var part = FindPart(parts, code);
+                    if (part is null)
+                    {
+                        part = new JsonObject { ["code"] = code, ["name"] = JsonVal.Str(it, "partName"), ["qty"] = 0 };
+                        parts.Add(part);
+                    }
+                    var add = InventoryCore.AddStock(part, qty);
+                    if (!add.Ok || add.Item is null)
+                        return Fail("business-rule", add.Error, inventory, accounts, parts, sales);
+                    ReplacePart(parts, code, add.Item);
+                    restocked.Add(Line(code, JsonVal.Str(it, "partName"), qty, "part"));
+                }
+            }
+        }
+
+        if (!isProforma && !finDone)
+            payCount += ReverseAllOwned(accounts, id);
+
+        if (idx >= 0) sales.RemoveAt(idx);
+        else
+        {
+            var found = IndexOf(sales, id, "id");
+            if (found >= 0) sales.RemoveAt(found);
+        }
+
+        return OkResult("sale.delete", "sale", id, user, now, inventory, accounts, parts, sales, restocked, payCount);
+    }
+
+    private static int ReverseAllOwned(JsonArray accounts, string docId)
     {
         var n = 0;
         for (var i = 0; i < accounts.Count; i++)
         {
             if (accounts[i] is not JsonObject acc) continue;
-            var r = PaymentRules.ReverseLinked(acc, refId, refType);
+            var r = PaymentRules.ReverseOwned(acc, docId);
             if (r.Account is not null) accounts[i] = r.Account;
             n += r.RemovedCount;
         }
