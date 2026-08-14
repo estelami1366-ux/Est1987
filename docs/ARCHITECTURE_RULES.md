@@ -17,10 +17,11 @@
    - مسیر JS: `chrome.webview.hostObjects.sync.sirmanHost`
    - پیاده‌سازی: `desktop/Sirman.Desktop/SirmanHostObject.cs`
 2. **مسیرهای غیرمجاز:** Local API روی localhost + `fetch`/`XHR` برای منطق کسب‌وکار. Blazor Hybrid انتخاب نشده است.
-3. **لیست مجاز فعلی Host Object:** `Ping`, `CloseApp`, `Notify`, `GetBackupDir`, `SaveAppPref`, `LoadAppPref`, `WriteBackupText`, `GetWarrantyBrowseCatalog`, `GetWarrantyBrowseCss`, `ApplyUiSkin`, `GetPrinters`, `PrintHtml`, `GetMachineInfo`. هر متد جدید باید به همین شیء اضافه شود، نه با مسیر موازی.
+3. **لیست مجاز فعلی Host Object:** `Ping`, `CloseApp`, `Notify`, `GetBackupDir`, `SaveAppPref`, `LoadAppPref`, `WriteBackupText`, `GetWarrantyBrowseCatalog`, `GetWarrantyBrowseCss`, `ApplyUiSkin`, `GetPrinters`, `PrintHtml`, `GetMachineInfo`, `GetNetworkInfo`, `SetNetworkConfig`, `WriteWorkspaceFile`, `ReadWorkspaceFile`. هر متد جدید باید به همین شیء اضافه شود، نه با مسیر موازی.
 4. **محصول UI:** فایل HTML تک‌تکه (`Sirman_Final.html`) همچنان رابط کاربری و مسیر اجرای بدون نصب است. HTML حذف نمی‌شود.
 5. **هستهٔ هدف:** منطق کسب‌وکار، دیتابیس، بک‌آپ، چاپ، امنیت و گزارش در .NET. انتقال تدریجی است، نه بازنویسی یک‌شبه.
 6. **سازگاری مسیر HTML-only:** تا وقتی داده هنوز در مرورگر/HTML است، باز کردن مستقیم HTML نباید بشکند. منطق جدید مهم باید طوری اضافه شود که در exe از Core عبور کند و در HTML-only یا کار کند یا با پیام واضح غیرفعال شود — نه اینکه کل برنامه از کار بیفتد.
+7. **شبکه داخلی (مرحله ۳ سند معماری شبکه):** Application Server همین لانچر موجود است (`sirman_run.ps1`، پورت ۸۷۶۵). پیش‌فرض فقط Loopback. اشتراک LAN با نشانگر `%AppData%\Sirman\lan-share.on` یا `SIRMAN_LAN=1` روی `0.0.0.0` bind می‌شود. مسیرهای HTTP مجاز روی این سرور: فایل UI + `/health` + `/sirman-net.json` (health/identity). `fetch`/`XHR` برای این دو مسیر هویت/سلامت مجاز است و منطق کسب‌وکار نیست. CRUD فاکتور/گارانتی/مشتری روی HTTP، REST API موازی، ASP.NET جدا، و HTTPS عمومی/Gateway هنوز مرحلهٔ ۶ است و در این نسخه ساخته نمی‌شود. همگام‌سازی داده بین ایستگاه‌ها از پوشهٔ مشترک فایل (UNC/درایو شبکه) با همان بستهٔ بک‌آپ موجود است، از مسیر Host `ReadWorkspaceFile`/`WriteWorkspaceFile` — نه دیتابیس جدا و نه اتصال مستقیم Client به Database.
 
 ### وضعیت فعلی در برابر هدف
 

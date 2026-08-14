@@ -6,7 +6,7 @@ $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $Root
 
 # === ALWAYS keep this version equal to the latest Sirman HTML release ===
-$SirmanVersion = '1405.5.23ε'
+$SirmanVersion = '1405.5.23ζ'
 $Port = 8765
 $NotifyPort = 8766
 $DefaultFile = 'Sirman_Final.html'
@@ -124,6 +124,24 @@ function Handle-HttpRequest([System.Net.Sockets.TcpClient]$client, [string]$mode
       $client.Close(); return
     }
 
+    # LAN identity / health only — not a business API
+    if ($pathOnly -eq '/health' -or $pathOnly -eq '/sirman-net.json') {
+      $payload = @{
+        ok = $true
+        service = 'sirman-lan'
+        version = $SirmanVersion
+        hostname = $env:COMPUTERNAME
+        file = $DefaultFile
+        businessApi = $false
+      } | ConvertTo-Json -Compress
+      $bb = [Text.Encoding]::UTF8.GetBytes($payload)
+      $resp = "HTTP/1.1 200 OK`r`nContent-Type: application/json; charset=utf-8`r`nContent-Length: $($bb.Length)`r`nCache-Control: no-cache`r`nConnection: close`r`n`r`n"
+      $hb = [Text.Encoding]::ASCII.GetBytes($resp)
+      $stream.Write($hb, 0, $hb.Length)
+      $stream.Write($bb, 0, $bb.Length)
+      $client.Close(); return
+    }
+
     # file server mode
     $rel = [Uri]::UnescapeDataString($pathOnly.TrimStart('/'))
     if ([string]::IsNullOrWhiteSpace($rel)) { $rel = $DefaultFile }
@@ -159,12 +177,19 @@ try {
   $notifyListener = $null
 }
 
-# Start file server
+# Start file server (default loopback; LAN bind if marker or SIRMAN_LAN=1)
+$lanMarker = Join-Path $env:APPDATA 'Sirman\lan-share.on'
+$bindAny = ($env:SIRMAN_LAN -eq '1') -or (Test-Path -LiteralPath $lanMarker)
+$bindIp = if ($bindAny) { [Net.IPAddress]::Any } else { [Net.IPAddress]::Loopback }
 $fileListener = $null
 try {
-  $fileListener = [Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback, $Port)
+  $fileListener = [Net.Sockets.TcpListener]::new($bindIp, $Port)
   $fileListener.Start()
-  Write-Host "[OK] File server on http://127.0.0.1:$Port/$DefaultFile"
+  if ($bindAny) {
+    Write-Host "[OK] LAN file server on http://0.0.0.0:$Port/$DefaultFile (health: /health)"
+  } else {
+    Write-Host "[OK] File server on http://127.0.0.1:$Port/$DefaultFile"
+  }
 } catch {
   Write-Host "[WARN] Port $Port busy - file:// open from BAT is enough"
   $fileListener = $null
