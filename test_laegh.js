@@ -3966,13 +3966,13 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳ν باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳ξ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.23ν', 'نسخه محصول باید 1405.5.23ν باشد');
-  assertEqual(ver.assembly, '1405.5.23.14', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (ν=14)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳ν', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.23ξ', 'نسخه محصول باید 1405.5.23ξ باشد');
+  assertEqual(ver.assembly, '1405.5.23.15', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (ξ=15)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳ξ', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -3991,10 +3991,21 @@ test('نسخه ۱۴۰۵.۵.۲۳ν باید Year.Month.Day شمسی با حرف �
     const cs = fs.readFileSync(path.join(path.dirname(filePath), rel), 'utf8');
     assertTrue(!/<Version>1405\.5\.21/.test(cs), rel+' نباید نسخه قدیمی جدا داشته باشد');
   });
+  const kitDir = path.join(path.dirname(filePath), 'deliveries', 'Sirman_Setup_'+ver.app);
+  const kitZip = path.join(path.dirname(filePath), 'Sirman_Setup_'+ver.app+'.zip');
+  const kitHtml = path.join(kitDir, 'App', 'Sirman_Final.html');
+  const kitExe = path.join(kitDir, 'App', 'Sirman.exe');
+  const kitSetup = path.join(kitDir, 'SETUP.bat');
+  assertTrue(fs.existsSync(kitDir), 'پوشه کیت نصب کامل باید در deliveries باشد');
+  assertTrue(fs.existsSync(kitZip), 'فایل zip کیت نصب باید در ریشه پروژه باشد');
+  assertTrue(fs.existsSync(kitSetup), 'SETUP.bat باید در کیت نصب باشد');
+  assertTrue(fs.existsSync(kitHtml), 'کیت نصب باید Sirman_Final.html داشته باشد');
+  assertTrue(fs.statSync(kitHtml).size > 500000, 'HTML داخل کیت باید برنامه واقعی باشد نه فایل کوچک');
+  assertTrue(fs.existsSync(kitExe), 'کیت نصب باید Sirman.exe آماده داشته باشد');
+  assertTrue(fs.statSync(kitZip).size > 1000000, 'zip کیت نباید خالی باشد');
   const bat = fs.readFileSync(path.join(path.dirname(filePath), 'Sirman_Start.bat'), 'utf8');
   assertContainsString(bat, ver.app, 'لانچر BAT باید همان نسخه منبع واحد را داشته باشد');
 });
-
 
 test('رفع Name is not allowed: safeFsFileName و writeTextToAutoSaveFolder باید نام ASCII/.txt امن بسازند', () => {
   assertContainsString(html, 'function safeFsFileName(', 'safeFsFileName پیدا نشد');
@@ -8306,7 +8317,8 @@ test('Host Object باید دروازه مجوز و متدهای امنیت را
   assertContainsString(html, 'Sirman_Start.bat', 'راهنمای نصب باید لانچر را نام ببرد');
   assertContainsString(html, 'exe جدید', 'راهنمای این نسخه باید بگوید exe هم عوض شود');
   assertContainsString(html, 'فایل یک‌کیلوبایتی برنامه نیست', 'راهنمای نصب از صفر باید بگوید JSON یک‌کیلوبایتی برنامه نیست');
-  assertContainsString(html, 'نصب از صفر', 'راهنما باید نصب از صفر را توضیح دهد');
+  assertContainsString(html, 'نصب.bat', 'راهنما باید کیت نصب یک‌کلیکی را نام ببرد');
+  assertContainsString(html, 'بدون کپی‌پیست', 'راهنما باید بگوید فایل‌ها را یکی‌یکی کپی نکنید');
   const guideTxt = path.join(path.dirname(filePath), 'راهنمای_نصب_از_صفر.txt');
   assertTrue(fs.existsSync(guideTxt), 'فایل راهنمای_نصب_از_صفر.txt باید کنار برنامه باشد');
   const guideBody = fs.readFileSync(guideTxt, 'utf8');

@@ -14,8 +14,8 @@ COPIES = [
     Path("/workspace/desktop/Sirman_Windows_Install"),
 ]
 
-VERSION = "۱۴۰۵.۵.۲۳ν"
-VERSION_LATIN = "1405.5.23ν"
+VERSION = "۱۴۰۵.۵.۲۳ξ"
+VERSION_LATIN = "1405.5.23ξ"
 
 TXT = f"""راهنمای نصب سیرمان از صفر
 لایق الکترونیک پارسیان

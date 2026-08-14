@@ -1,0 +1,21 @@
+{
+  "magic": "SIRMAN_UPDATE",
+  "format": 1,
+  "id": "sirman-1405.5.23ξ",
+  "version": "1405.5.23ξ",
+  "versionFa": "۱۴۰۵.۵.۲۳ξ",
+  "minBaseVersion": "1405.5.18ε",
+  "title": "کیت نصب کامل",
+  "changelog": [
+    "این فایل برنامه نیست",
+    "نصب از کیت Sirman_Setup_1405.5.23ξ.zip با نصب.bat",
+    "فایل‌ها را یکی‌یکی کپی نکنید"
+  ],
+  "patches": [
+    {
+      "op": "setVersion",
+      "version": "1405.5.23ξ",
+      "versionFa": "۱۴۰۵.۵.۲۳ξ"
+    }
+  ]
+}

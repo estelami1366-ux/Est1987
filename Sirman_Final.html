@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23ν">
+<meta name="app-version" content="1405.5.23ξ">
 <meta name="app-date" content="1405/05/23">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -2183,7 +2183,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۳ν — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۳ξ — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-sm" id="btn-lock-app" onclick="lockApp()" style="width:100%;margin-top:8px;font-weight:700" title="قفل برنامه در حالی که باز است — Ctrl+Shift+L">🔒 قفل برنامه <small style="opacity:.7">Ctrl+Shift+L</small></button>
   <button class="btn btn-r btn-sm" id="btn-exit-safe" onclick="promptExitBackup()" style="width:100%;margin-top:8px;font-weight:700">🚪 خروج امن (پرسش بک‌آپ)</button>
   <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;padding:0 2px">اگر ✕ پنجره را بزنید، مرورگر اول هشدار می‌دهد؛ برای بک‌آپ از این دکمه استفاده کنید.</div>
@@ -4928,29 +4928,20 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 
 <div class="help-cat-header">⬆️ آپدیت نرم‌افزار</div>
 <div class="card help-card help-collapsed" data-help-id="install-update-guide">
-  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>📦 نصب از صفر — شروع سریع کل برنامه</span><span class="help-chev">▾</span></div>
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>📦 نصب از صفر — کیت کامل Setup بدون کپی‌پیست</span><span class="help-chev">▾</span></div>
   <div style="background:var(--amber-l);color:var(--amber);padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.9;margin:8px 0">
-    ⚠️ <b>فایل یک‌کیلوبایتی برنامه نیست.</b> فایل‌هایی مثل <code>updates/Sirman_Update_….json</code> حدود ۱ کیلوبایت‌اند و فقط شماره نسخه را عوض می‌کنند. با بارگذاری‌شان نرم‌افزار نصب نمی‌شود. برنامه واقعی <b>Sirman_Final.html</b> است (حدود ۱٫۶ مگابایت). اگر چند کیلوبایت بود، فایل اشتباه است.
+    ⚠️ <b>فایل یک‌کیلوبایتی برنامه نیست.</b> فایل‌هایی مثل <code>updates/Sirman_Update_….json</code> حدود ۱ کیلوبایت‌اند و فقط شماره نسخه را عوض می‌کنند. با بارگذاری‌شان نرم‌افزار نصب نمی‌شود. برنامه واقعی داخل کیت نصب است: <b>Sirman_Final.html</b> (حدود ۱٫۶ مگابایت) به‌همراه <b>Sirman.exe</b>.
   </div>
-  <p style="font-size:13px;line-height:2;color:var(--text2);margin:8px 4px">اگر تا حالا این برنامه را روی این کامپیوتر نداشته‌اید، از همین‌جا شروع کنید. لازم نیست برنامه‌نویس باشید.</p>
+  <p style="font-size:13px;line-height:2;color:var(--text2);margin:8px 4px">اگر تا حالا این برنامه را روی این کامپیوتر نداشته‌اید، از کیت نصب استفاده کنید. فایل‌ها را یکی‌یکی کپی نکنید.</p>
   <ol style="font-size:13px;line-height:2.2;color:var(--text);padding-right:22px">
-    <li><b>کل پوشه را بگیرید، نه یک فایل تکی.</b> از گیت‌هاب Download ZIP کل مخزن، یا کپی کل پوشه. فقط فایل داخل <code>updates</code> را دانلود نکنید.</li>
-    <li><b>حداقل این فایل‌ها باید باشد:</b> <code>Sirman_Final.html</code> (حدود ۱٫۶ مگابایت) و <code>Sirman_Start.bat</code>. برای آیکون دسکتاپ: <code>نصب_میانبر_سیرمان.bat</code>.</li>
-    <li><b>روش ۱ — ساده‌ترین (شروع سریع):</b>
-      <ul>
-        <li>پوشه را مثلاً در Documents\\Sirman یا D:\\Sirman کپی کنید.</li>
-        <li>روی <b>Sirman_Start.bat</b> یا <b>Sirman_Final.html</b> دوبار کلیک کنید.</li>
-        <li>اگر اولین بار است، رمز مدیر سیستم را بگذارید.</li>
-        <li>برای آیکون دسکتاپ یک‌بار <b>نصب_میانبر_سیرمان.bat</b> را بزنید و گزینه ۲ را انتخاب کنید.</li>
-        <li>پایین منوی راست نسخه را ببینید — باید همین نسخه جاری باشد.</li>
-      </ul>
-    </li>
-    <li><b>روش ۲ — پنجره ویندوز (Sirman.exe):</b> وقتی می‌خواهید برنامه در پنجره خودش باز شود. هسته حساب داخل exe است، پس <b>exe جدید</b> لازم است. پوشه <code>desktop\\Sirman_Windows_Install</code> را کپی کنید → <code>build-win.bat</code> (نیاز به .NET 8 SDK) → <code>نصب_سیرمان.bat</code> → پوشه نصب را انتخاب کنید → از منوی Start «سیرمان» را باز کنید. WebView2 معمولاً با Edge هست.</li>
-    <li><b>روش ۳ — اگر Sirman.exe آماده دادند:</b> باید <b>Sirman.exe</b> و <b>Sirman_Final.html</b> کنار هم باشند. روی exe دوبار کلیک کنید.</li>
+    <li><b>کیت کامل (پیشنهادی — بدون کپی‌پیست):</b> فایل <code>Sirman_Setup_….zip</code> را بگیرید. روی zip راست‌کلیک → Extract All. داخل پوشه فقط روی <b>نصب.bat</b> (یا <b>SETUP.bat</b>) دوبار کلیک کنید. پوشه نصب را انتخاب کنید (مثلاً Documents\\Sirman). میانبر دسکتاپ ساخته می‌شود. از منوی Start «Sirman» را باز کنید.</li>
+    <li><b>داخل کیت چیست:</b> خود برنامه (<code>Sirman_Final.html</code> حدود ۱٫۶ مگابایت) + <code>Sirman.exe</code> + لانچر <code>Sirman_Start.bat</code>. فایل JSON یک‌کیلوبایتی عمداً داخل کیت نیست.</li>
+    <li><b>اگر exe باز نشد:</b> .NET 8 Desktop Runtime روی ویندوز لازم است. در آن صورت از پوشه نصب <b>Sirman_Start.bat</b> را بزنید. WebView2 معمولاً با Edge هست.</li>
+    <li><b>روش دستی (اگر zip نداشتید):</b> پوشه را کپی کنید و روی <b>Sirman_Start.bat</b> یا <b>Sirman_Final.html</b> دوبار کلیک کنید. برای آیکون: <b>نصب_میانبر_سیرمان.bat</b> گزینه ۲. این روش کپی دستی است؛ کیت Setup همان کار را خودکار می‌کند.</li>
     <li><b>داده کجاست:</b> فاکتور و گارانتی داخل HTML نیست؛ در حافظه همین مرورگر/exe روی همین کامپیوتر است. فقط کپی فایل، داده را نمی‌برد. اول از «ورود/خروج داده» بک‌آپ بگیرید.</li>
-    <li><b>اگر از قبل برنامه دارید (آپدیت، نه نصب اول):</b> بک‌آپ بگیرید. HTML جدید ۱٫۶ مگابایتی را جایگزین کنید. اگر با exe کار می‌کنید HTML به‌تنهایی کافی نیست — <b>exe جدید</b> هم بسازید/جایگزین کنید. JSON یک‌کیلوبایتی را به‌جای برنامه بارگذاری نکنید.</li>
+    <li><b>اگر از قبل برنامه دارید (آپدیت):</b> بک‌آپ بگیرید. همان کیت Setup را دوباره اجرا کنید و همان پوشه نصب قبلی را انتخاب کنید تا HTML و <b>exe جدید</b> جایگزین شوند. JSON یک‌کیلوبایتی را به‌جای برنامه بارگذاری نکنید.</li>
     <li><b>آپدیت کوچک بعدی:</b> تنظیمات → تب ⬆️ آپدیت → «بارگذاری فایل آپدیت». یا فایل را با نام <code>Sirman_Pending_Update.json</code> کنار <b>Sirman_Start.bat</b> بگذارید. اگر به‌هم ریخت، دانگرید به هسته قبلی. داده پاک نمی‌شود.</li>
-    <li><b>فایل چاپی از صفر:</b> در پوشه برنامه <b>راهنمای_نصب_از_صفر.txt</b> یا <b>راهنمای_نصب_و_آپدیت.docx</b> را باز کنید.</li>
+    <li><b>فایل چاپی از صفر:</b> در کیت و پوشه برنامه <b>راهنمای_نصب_از_صفر.txt</b> یا <b>راهنمای_نصب_و_آپدیت.docx</b> را باز کنید.</li>
   </ol>
 </div>
 <div class="card help-card help-collapsed">
@@ -5775,6 +5766,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 <div class="card help-card help-collapsed" data-help-id="whats-new">
   <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>تغییرات نسخه — What's New</span><span class="help-chev">▾</span></div>
   <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>۱۴۰۵.۵.۲۳ξ:</b> کیت نصب کامل: یک فایل zip و دکمه نصب. فایل‌ها را یکی‌یکی کپی نکنید.</li>
     <li><b>۱۴۰۵.۵.۲۳ν:</b> راهنمای نصب از صفر بازنویسی شد: فایل یک‌کیلوبایتی برنامه نیست؛ برنامه واقعی Sirman_Final.html حدود ۱٫۶ مگابایت است.</li>
     <li><b>۱۴۰۵.۵.۲۳μ:</b> راهنمای نصب و آپدیت در صفحه راهنما و فایل جدا.</li>
     <li><b>۱۴۰۵.۵.۲۳λ:</b> تکمیل فاز ۲: در نسخه ویندوز تصمیم کسب‌وکار (فاکتور، فروش، پرداخت، موجودی، حواله، ثبت و بستن گارانتی) از هسته C# است. HTML فقط ورودی و ذخیره را نگه می‌دارد. دیتابیس ساخته نشد.</li>
@@ -5808,7 +5800,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۳ν
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۳ξ
 </div>
 </div>
 
@@ -6631,9 +6623,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 })();
 
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.23ν';
-var APP_BASE_VERSION = '1405.5.23ν'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۲۳ν';
+var APP_VERSION = '1405.5.23ξ';
+var APP_BASE_VERSION = '1405.5.23ξ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۲۳ξ';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -7129,8 +7121,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.23ν'; }
-  catch(_e){ return '1405.5.23ν'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.23ξ'; }
+  catch(_e){ return '1405.5.23ξ'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -7757,8 +7749,8 @@ function _buildFullBackupData(){
   var data = {
     magic: (typeof SIRMAN_BACKUP_MAGIC!=='undefined'?SIRMAN_BACKUP_MAGIC:'SIRMAN_BACKUP'),
     schemaVersion: (typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1),
-    version: '1405.5.23ν',
-    applicationVersion: '1405.5.23ν',
+    version: '1405.5.23ξ',
+    applicationVersion: '1405.5.23ξ',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -8219,7 +8211,7 @@ async function restoreAutoSaveHandlesOnBoot(){
   }catch(_e2){ return false; }
 }
 
-// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.23ν ═══════════════════
+// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.23ξ ═══════════════════
 // عکس پس‌زمینه، لوگو و ضمیمه‌ها فقط در پوشهٔ بک‌آپ روی دیسک نوشته می‌شوند.
 // در حافظهٔ مرورگر فقط ارجاع کوتاه disk://sirman_media/... نگه داشته می‌شود.
 window._diskUrlCache = window._diskUrlCache || {};
@@ -11812,7 +11804,7 @@ function buildPH(list){
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 window._pcActiveDocId='invoice';
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23ν">
+<meta name="app-version" content="1405.5.23ξ">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -11829,7 +11821,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23ν">
+<meta name="app-version" content="1405.5.23ξ">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -11889,7 +11881,7 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23ν">
+<meta name="app-version" content="1405.5.23ξ">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -11909,11 +11901,11 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23ν">
+<meta name="app-version" content="1405.5.23ξ">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23ν">
+<meta name="app-version" content="1405.5.23ξ">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -12562,7 +12554,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23ν">
+<meta name="app-version" content="1405.5.23ξ">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -16736,7 +16728,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23ν">'+
+    '<meta name="app-version" content="1405.5.23ξ">'+
     '<meta name="app-date" content="1405/05/23">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -16920,7 +16912,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.23ν"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.23ξ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -19769,7 +19761,7 @@ function doPrint(paperSize){
   const wbg=bgMap[pw.bg||'none']||'#fff';
   const effPaper = pw.paper || paperSize;
   var htmlDoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23ν">
+<meta name="app-version" content="1405.5.23ξ">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -19902,7 +19894,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23ν"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.23ξ"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -19931,7 +19923,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23ν"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.23ξ"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -19968,7 +19960,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23ν">'+
+    '<meta name="app-version" content="1405.5.23ξ">'+
     '<meta name="app-date" content="1405/05/23">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -20726,7 +20718,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23ν">'+
+    '<meta name="app-version" content="1405.5.23ξ">'+
     '<meta name="app-date" content="1405/05/23">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -22297,7 +22289,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23ν">'+
+    '<meta name="app-version" content="1405.5.23ξ">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
