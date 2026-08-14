@@ -249,6 +249,7 @@ public class TransactionReversalTests
         Assert.Equal(0, del.GetProperty("accounts")[0].GetProperty("balance").GetDouble());
         Assert.Equal(0, del.GetProperty("accounts")[0].GetProperty("transactions").GetArrayLength());
         Assert.Equal(0, del.GetProperty("sales").GetArrayLength());
+        Assert.Equal("SL-0001", del.GetProperty("removedId").GetString());
     }
 
     [Fact]
@@ -285,7 +286,89 @@ public class TransactionReversalTests
         """);
         Assert.Equal(10, Qty(del.GetProperty("parts")[0]));
         Assert.Equal(0, del.GetProperty("accounts")[0].GetProperty("balance").GetDouble());
+        Assert.Equal("SL-P", del.GetProperty("removedId").GetString());
         Assert.Equal(0, del.GetProperty("sales").GetArrayLength());
+    }
+
+    [Fact]
+    public void SaleDelete_SaveSaleShapedPayload_RemovesRecord()
+    {
+        var del = Res("sale.delete", """
+        {"sale":{"id":"SL-0001","status":"final","name":"خریدار","phone":"0912",
+          "items":[{"partCode":"A","partName":"قطعه آ","qty":2,"price":100,"disc":0,"discAmt":0,"total":200}],
+          "total":200,"docs":[{"name":"x.png","data":"data:image/png;base64,AAA","mime":"image/png"}],
+          "accountSel":"ACC-1","date":"1405/05/23"},
+         "sales":[{"id":"SL-0001","status":"final","name":"خریدار","phone":"0912",
+          "items":[{"partCode":"A","partName":"قطعه آ","qty":2,"price":100,"disc":0,"total":200}],
+          "total":200,"docs":[{"name":"x.png","data":"data:image/png;base64,AAA"}],
+          "accountSel":"ACC-1"}],
+         "parts":[{"code":"A","qty":8}],
+         "accounts":[{"id":"ACC-1","balance":200,"transactions":[{"amount":200,"refId":"SL-0001","refType":"sale","type":"deposit"}]}],
+         "now":"1405/05/23","user":"tester"}
+        """);
+        Assert.True(del.GetProperty("ok").GetBoolean());
+        Assert.False(del.GetProperty("alreadyReversed").GetBoolean());
+        Assert.Equal("SL-0001", del.GetProperty("removedId").GetString());
+        Assert.Equal(0, del.GetProperty("sales").GetArrayLength());
+        Assert.Equal(10, Qty(del.GetProperty("parts")[0]));
+        Assert.Equal(0, del.GetProperty("accounts")[0].GetProperty("balance").GetDouble());
+    }
+
+    [Fact]
+    public void SaleDelete_MultipleParts_RemovesSale()
+    {
+        var del = Res("sale.delete", """
+        {"sale":{"id":"SL-M","status":"final","items":[{"partCode":"A","qty":2},{"partCode":"B","qty":3}]},
+         "sales":[{"id":"SL-M","status":"final","items":[{"partCode":"A","qty":2},{"partCode":"B","qty":3}]}],
+         "parts":[{"code":"A","qty":8},{"code":"B","qty":17}],
+         "accounts":[],
+         "now":"1405/05/23"}
+        """);
+        Assert.True(del.GetProperty("ok").GetBoolean());
+        Assert.Equal(0, del.GetProperty("sales").GetArrayLength());
+        Assert.Equal("SL-M", del.GetProperty("removedId").GetString());
+        Assert.Equal(10, Qty(Part(del, "A")));
+        Assert.Equal(20, Qty(Part(del, "B")));
+    }
+
+    [Fact]
+    public void SaleDelete_MissingRecord_IsAlreadyReversed()
+    {
+        var del = Res("sale.delete", """
+        {"sale":{"id":"SL-GONE","status":"final","items":[{"partCode":"A","qty":1}]},
+         "sales":[],
+         "parts":[{"code":"A","qty":10}],
+         "accounts":[],
+         "now":"1405/05/23"}
+        """);
+        Assert.True(del.GetProperty("ok").GetBoolean());
+        Assert.True(del.GetProperty("alreadyReversed").GetBoolean());
+        Assert.Equal(0, del.GetProperty("sales").GetArrayLength());
+    }
+
+    [Fact]
+    public void SaleDelete_DoubleDelete_IsIdempotent()
+    {
+        const string firstJson = """
+        {"sale":{"id":"SL-D","status":"final","items":[{"partCode":"A","qty":1}]},
+         "sales":[{"id":"SL-D","status":"final","items":[{"partCode":"A","qty":1}]}],
+         "parts":[{"code":"A","qty":9}],
+         "accounts":[{"id":"ACC-1","balance":100,"transactions":[{"amount":100,"refId":"SL-D","refType":"sale","type":"deposit"}]}],
+         "now":"1405/05/23"}
+        """;
+        var first = Res("sale.delete", firstJson);
+        Assert.Equal(0, first.GetProperty("sales").GetArrayLength());
+        Assert.Equal(10, Qty(first.GetProperty("parts")[0]));
+
+        var second = Res("sale.delete",
+            "{\"sale\":{\"id\":\"SL-D\",\"status\":\"final\",\"items\":[{\"partCode\":\"A\",\"qty\":1}]}," +
+            "\"sales\":[]," +
+            "\"parts\":[{\"code\":\"A\",\"qty\":10}]," +
+            "\"accounts\":[" + first.GetProperty("accounts")[0].GetRawText() + "]," +
+            "\"now\":\"1405/05/23\"}");
+        Assert.True(second.GetProperty("alreadyReversed").GetBoolean());
+        Assert.Equal(10, Qty(second.GetProperty("parts")[0]));
+        Assert.Equal(0, second.GetProperty("accounts")[0].GetProperty("balance").GetDouble());
     }
 
     private JsonElement Res(string op, string json)
