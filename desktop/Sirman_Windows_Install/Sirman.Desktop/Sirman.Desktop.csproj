@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+    <ProjectReference Include="..\..\Sirman.Core\Sirman.Core.csproj" />
   </ItemGroup>
 
   <!-- کپی HTML کنار خروجی بیلد (برای تست محلی) -->

@@ -1,9 +1,9 @@
 {
-  "app": "1405.5.23η",
-  "appFa": "۱۴۰۵.۵.۲۳η",
-  "assembly": "1405.5.23.8",
+  "app": "1405.5.23θ",
+  "appFa": "۱۴۰۵.۵.۲۳θ",
+  "assembly": "1405.5.23.9",
   "date": "1405/05/23",
-  "letter": "η",
-  "letterIndex": 8,
-  "note": "منبع واحد شماره نسخه. HTML از app، پوسته ویندوز از assembly (Directory.Build.props). حرف یونانی η یعنی هشتمین انتشار همان روز شمسی."
+  "letter": "θ",
+  "letterIndex": 9,
+  "note": "منبع واحد شماره نسخه. HTML از app، پوسته ویندوز از assembly (Directory.Build.props). حرف یونانی θ یعنی نهمین انتشار همان روز شمسی."
 }
