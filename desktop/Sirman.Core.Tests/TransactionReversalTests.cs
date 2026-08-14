@@ -132,6 +132,32 @@ public class TransactionReversalTests
     }
 
     [Fact]
+    public void SaleDelete_DuplicateId_UsesSaleIndex_RemovesOnlyClicked()
+    {
+        var del = Res("sale.delete", """
+        {"sale":{"id":"SL-0002","status":"final","name":"جدید","total":200,"items":[{"partCode":"A","qty":2}]},
+         "saleIndex":1,
+         "sales":[
+           {"id":"SL-0002","status":"final","name":"قدیمی","total":100,"items":[{"partCode":"A","qty":1}]},
+           {"id":"SL-0002","status":"final","name":"جدید","total":200,"items":[{"partCode":"A","qty":2}]}
+         ],
+         "parts":[{"code":"A","qty":7}],
+         "accounts":[{"id":"ACC-1","balance":300,"transactions":[
+           {"amount":100,"refId":"SL-0002","refType":"sale","type":"deposit"},
+           {"amount":200,"refId":"SL-0002","refType":"sale","type":"deposit"}
+         ]}],
+         "now":"1405/05/23"}
+        """);
+        Assert.True(del.GetProperty("ok").GetBoolean());
+        Assert.Equal(1, del.GetProperty("sales").GetArrayLength());
+        Assert.Equal("قدیمی", del.GetProperty("sales")[0].GetProperty("name").GetString());
+        Assert.Equal(9, Qty(del.GetProperty("parts")[0]));
+        Assert.Equal(100, del.GetProperty("accounts")[0].GetProperty("balance").GetDouble());
+        Assert.Equal(1, del.GetProperty("accounts")[0].GetProperty("transactions").GetArrayLength());
+        Assert.Equal(100, del.GetProperty("accounts")[0].GetProperty("transactions")[0].GetProperty("amount").GetDouble());
+    }
+
+    [Fact]
     public void Test6_RestartSnapshot_KeepsReversedState()
     {
         var del = Res("invoice.delete", """

@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23σ">
+<meta name="app-version" content="1405.5.23τ">
 <meta name="app-date" content="1405/05/23">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -2183,7 +2183,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۳σ — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۳τ — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-sm" id="btn-lock-app" onclick="lockApp()" style="width:100%;margin-top:8px;font-weight:700" title="قفل برنامه در حالی که باز است — Ctrl+Shift+L">🔒 قفل برنامه <small style="opacity:.7">Ctrl+Shift+L</small></button>
   <button class="btn btn-r btn-sm" id="btn-exit-safe" onclick="promptExitBackup()" style="width:100%;margin-top:8px;font-weight:700">🚪 خروج امن (پرسش بک‌آپ)</button>
   <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;padding:0 2px">اگر ✕ پنجره را بزنید، مرورگر اول هشدار می‌دهد؛ برای بک‌آپ از این دکمه استفاده کنید.</div>
@@ -5039,6 +5039,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <li><b>✅ ثبت نهایی:</b> با دکمه‌ی «✅ ثبت نهایی فروش»، فاکتور نهایی ثبت می‌شود: <b>موجودی از انبار کسر می‌شود</b>، مبلغ به حساب انتخابی واریز می‌شود، و فاکتور نهایی چاپ می‌گردد.</li>
     <li><b>🔄 تبدیل پیش‌فاکتور به نهایی:</b> هر پیش‌فاکتور در لیست، دکمه‌ی سبز ✅ دارد که آن را به فروش نهایی تبدیل می‌کند (کسر انبار + واریز). می‌توانید با فیلتر «وضعیت» فقط پیش‌فاکتورها یا فقط نهایی‌ها را ببینید.</li>
     <li><b>🏦 شماره حساب گیرنده:</b> فیلد «شماره کارت/حساب گیرنده» در فرم فروش و گارانتی، برای درج در پیش‌فاکتور و فاکتور چاپی است (شماره حساب مشتری برای واریز).</li>
+    <li><b>🔢 شماره فاکتور:</b> شماره فروش (مثل SL-0003) یک‌بار صادر می‌شود و بعد از حذف دوباره استفاده نمی‌شود. حذف فقط همان ردیفی را که زده‌اید برمی‌دارد — فاکتور قبلی با همان شماره اگر هنوز در لیست باشد سر جایش می‌ماند.</li>
     <li><b>📦 موجودی انبار:</b> هنگام <b>ثبت نهایی</b>، موجودی همه‌ی قطعات از انبار کسر می‌شود. هنگام حذف فروش نهایی، قطعه به انبار و مبلغ به حساب برمی‌گردد. اگر حذف انجام نشود پیام خطا نشان داده می‌شود. (پیش‌فاکتور انبار و حساب را تغییر نمی‌دهد.)</li>
     <li><b>💰 واریز به حساب:</b> می‌توانید مبلغ فروش را مستقیماً به یکی از حساب‌های تعریف‌شده (در بخش حساب‌ها و مالی) واریز کنید. این واریز با <b>شماره فاکتور منبع</b> ثبت می‌شود تا در گزارش مالی قابل ردیابی باشد.</li>
     <li><b>📋 لیست فروش:</b> در جدول فروش‌ها، ستون «وضعیت» (نهایی/پیش‌فاکتور)، ستون «تعداد» و جمع کل نمایش داده می‌شوند. با دکمه‌ی 🖨 می‌توانید هر فروش را دوباره چاپ کنید.</li>
@@ -5769,6 +5770,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 <div class="card help-card help-collapsed" data-help-id="whats-new">
   <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>تغییرات نسخه — What's New</span><span class="help-chev">▾</span></div>
   <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>۱۴۰۵.۵.۲۳τ:</b> شماره فاکتور فروش قطعات بعد از حذف دوباره استفاده نمی‌شود. اگر دو فاکتور شماره یکسان داشتند، حذف یکی دیگری را پاک نمی‌کند.</li>
     <li><b>۱۴۰۵.۵.۲۳σ:</b> حذف فاکتور فروش قطعات دیگر ساکت شکست نمی‌خورد. اگر حذف مجاز باشد سند حذف می‌شود؛ اگر رد شود پیام خطا نشان داده می‌شود.</li>
     <li><b>۱۴۰۵.۵.۲۳ρ:</b> کیت نصب از اول فایل آپدیت همین نسخه را داخل خودش دارد. بعد از نصب آپدیت جدا لازم نیست؛ نسخه کیت عقب نیست.</li>
     <li><b>۱۴۰۵.۵.۲۳π:</b> حذف هر سند (فاکتور، گارانتی، فروش) همه آثار همان سند را برمی‌گرداند — از جمله مبلغ حساب مالی. تراکنش مال همان شماره سند است؛ واریز دستی و سندهای دیگر دست نمی‌خورند.</li>
@@ -5807,7 +5809,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۳σ
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۳τ
 </div>
 </div>
 
@@ -6630,9 +6632,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 })();
 
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.23σ';
-var APP_BASE_VERSION = '1405.5.23σ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۲۳σ';
+var APP_VERSION = '1405.5.23τ';
+var APP_BASE_VERSION = '1405.5.23τ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۲۳τ';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -7128,8 +7130,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.23σ'; }
-  catch(_e){ return '1405.5.23σ'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.23τ'; }
+  catch(_e){ return '1405.5.23τ'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -7756,14 +7758,15 @@ function _buildFullBackupData(){
   var data = {
     magic: (typeof SIRMAN_BACKUP_MAGIC!=='undefined'?SIRMAN_BACKUP_MAGIC:'SIRMAN_BACKUP'),
     schemaVersion: (typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1),
-    version: '1405.5.23σ',
-    applicationVersion: '1405.5.23σ',
+    version: '1405.5.23τ',
+    applicationVersion: '1405.5.23τ',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
     products: _safeArr(products),
     inventory: _safeObj(inventory),
     invCtr: invCtr||1,
+    saleCtr: (typeof saleCtr!=='undefined' && saleCtr>0) ? saleCtr : 1,
     phonebook: _safeArr(phonebook), // (pb حذف شد — فقط phonebook)
     parts: _safeArr(parts),
     services: _safeArr(services),
@@ -8091,26 +8094,14 @@ function applyReversalSnapshot(kind, core){
   if(kind==='invoice' && typeof invoices!=='undefined'){
     if(Array.isArray(core.invoices)) invoices = core.invoices;
     else if(Array.isArray(core.Invoices)) invoices = core.Invoices;
-    else if(id){
-      var ii = invoices.findIndex(function(x){ return x && (x.num===id || x.id===id); });
-      if(ii>=0) invoices.splice(ii,1);
-    }
   }
   if(kind==='warranty' && typeof warranties!=='undefined'){
     if(Array.isArray(core.warranties)) warranties = core.warranties;
     else if(Array.isArray(core.Warranties)) warranties = core.Warranties;
-    else if(id){
-      var wi = warranties.findIndex(function(x){ return x && x.id===id; });
-      if(wi>=0) warranties.splice(wi,1);
-    }
   }
   if(kind==='sale' && typeof sales!=='undefined'){
     if(Array.isArray(core.sales)) sales = core.sales;
     else if(Array.isArray(core.Sales)) sales = core.Sales;
-    else if(id){
-      var si = sales.findIndex(function(x){ return x && x.id===id; });
-      if(si>=0) sales.splice(si,1);
-    }
   }
   try{
     if(typeof persistCoreSnapshot==='function') persistCoreSnapshot(core.persistKeys||core.PersistKeys||[]);
@@ -8126,23 +8117,32 @@ function applyReversalSnapshot(kind, core){
     }
   }catch(_m){}
 }
-function reverseLinkedAccountTrx(refId, refType){
+function reverseLinkedAccountTrx(refId, refType, maxCount, amountHint){
   var n = 0;
   var docId = refId;
   if(!docId || typeof accounts==='undefined') return n;
-  accounts.forEach(function(acc){
-    if(!acc || !acc.transactions) return;
-    for(var i=acc.transactions.length-1;i>=0;i--){
-      var t = acc.transactions[i];
-      if(!t) continue;
-      var owned = t.refId===docId;
-      if(!owned && !t.refId && String(docId).length>=3 && String(t.subject||'').indexOf(docId)>=0) owned = true;
-      if(!owned) continue;
-      acc.balance = (acc.balance||0) - (t.amount||0);
-      acc.transactions.splice(i,1);
-      n++;
-    }
-  });
+  var limited = (maxCount!=null && maxCount!==undefined && maxCount < 1e9);
+  var left = limited ? maxCount : 1e12;
+  var hint = (amountHint!=null && isFinite(amountHint) && Number(amountHint)>0) ? Number(amountHint) : 0;
+  function take(matchAmt){
+    accounts.forEach(function(acc){
+      if(!acc || !acc.transactions || left<=0) return;
+      for(var i=acc.transactions.length-1;i>=0 && left>0;i--){
+        var t = acc.transactions[i];
+        if(!t) continue;
+        var owned = t.refId===docId;
+        if(!owned && !t.refId && String(docId).length>=3 && String(t.subject||'').indexOf(docId)>=0) owned = true;
+        if(!owned) continue;
+        if(matchAmt && Math.abs(Math.abs(t.amount||0)-hint)>0.0001) continue;
+        acc.balance = (acc.balance||0) - (t.amount||0);
+        acc.transactions.splice(i,1);
+        n++;
+        left--;
+      }
+    });
+  }
+  if(hint>0 && limited) take(true);
+  if(left>0) take(false);
   return n;
 }
 function reverseOwnedAccountTrx(docId){
@@ -8217,6 +8217,7 @@ function deleteInvoiceAt(i){
       result = takeBusinessCore('invoice.delete', {
         invoice: inv, invoices: invoices, inventory: inventory,
         accounts: typeof accounts!=='undefined'?accounts:[],
+        invoiceIndex: i,
         now: typeof fdt==='function'?fdt():'',
         user: (typeof getAuditActor==='function' && getAuditActor()) ? (getAuditActor().username||'') : ''
       });
@@ -8231,8 +8232,8 @@ function deleteInvoiceAt(i){
     }
     try{ applyReversalSnapshot('invoice', result); }catch(_a){}
     var rid = (result && (result.removedId||result.RemovedId)) || (inv && (inv.num||inv.id)) || '';
-    if(typeof invoices!=='undefined' && rid){
-      var ii = invoices.findIndex(function(x){ return x && (x.num===rid || x.id===rid); });
+    if(typeof invoices!=='undefined'){
+      var ii = invoices.indexOf(inv);
       if(ii>=0) invoices.splice(ii,1);
     }
     try{ if(typeof persistCoreSnapshot==='function') persistCoreSnapshot(['invoices']); else if(typeof sv==='function') sv(); }catch(_p){}
@@ -8260,6 +8261,7 @@ function deleteWarrantyAt(idx){
       result = takeBusinessCore('warranty.delete', {
         record: w, warranties: warranties, parts: typeof parts!=='undefined'?parts:[],
         accounts: typeof accounts!=='undefined'?accounts:[],
+        warrantyIndex: idx,
         now: typeof fdt==='function'?fdt():'',
         user: (typeof getAuditActor==='function' && getAuditActor()) ? (getAuditActor().username||'') : ''
       });
@@ -8274,8 +8276,8 @@ function deleteWarrantyAt(idx){
     }
     try{ applyReversalSnapshot('warranty', result); }catch(_a){}
     var rid = (result && (result.removedId||result.RemovedId||result.removedWarrantyId)) || (w && w.id) || '';
-    if(typeof warranties!=='undefined' && rid){
-      var wi = warranties.findIndex(function(x){ return x && x.id===rid; });
+    if(typeof warranties!=='undefined'){
+      var wi = warranties.indexOf(w);
       if(wi>=0) warranties.splice(wi,1);
     }
     try{ if(typeof persistCoreSnapshot==='function') persistCoreSnapshot(['warranties']); else if(typeof svWars==='function') svWars(); }catch(_p){}
@@ -8307,7 +8309,15 @@ function reverseSaleLocal(s){
       restocked.push({code:code, name:it.partName||parts[idx].name||'', qty:qty, kind:'part'});
     });
   }
-  var pay = (!isProforma && s && !s._financeReversed) ? reverseLinkedAccountTrx(s.id) : 0;
+  var pay = 0;
+  if(!isProforma && s && !s._financeReversed){
+    var others = 0;
+    if(typeof sales!=='undefined'){
+      sales.forEach(function(x){ if(x && x!==s && x.id===s.id) others++; });
+    }
+    if(others>0) pay = reverseLinkedAccountTrx(s.id, null, 1, s.total);
+    else pay = reverseLinkedAccountTrx(s.id);
+  }
   return {ok:true, alreadyReversed:false, parts:parts, accounts:accounts, removedId:(s&&s.id)||'', restocked:restocked, reversedPayments:pay, persistKeys:['sales','parts','accounts']};
 }
 function deleteSaleAt(idx){
@@ -8330,6 +8340,7 @@ function deleteSaleAt(idx){
       result = takeBusinessCore('sale.delete', {
         sale: salePay, sales: salesPay, parts: typeof parts!=='undefined'?parts:[],
         accounts: typeof accounts!=='undefined'?accounts:[],
+        saleIndex: idx,
         now: typeof fdt==='function'?fdt():'',
         user: (typeof getAuditActor==='function' && getAuditActor()) ? (getAuditActor().username||'') : ''
       });
@@ -8344,8 +8355,8 @@ function deleteSaleAt(idx){
     }
     try{ applyReversalSnapshot('sale', result); }catch(_a){}
     var rid = (result && (result.removedId||result.RemovedId||result.removedSaleId)) || (s && s.id) || '';
-    if(typeof sales!=='undefined' && rid){
-      var si = sales.findIndex(function(x){ return x && x.id===rid; });
+    if(typeof sales!=='undefined'){
+      var si = sales.indexOf(s);
       if(si>=0) sales.splice(si,1);
     }
     try{ if(typeof persistCoreSnapshot==='function') persistCoreSnapshot(['sales']); else if(typeof svSales==='function') svSales(); }catch(_p){}
@@ -8533,7 +8544,7 @@ async function restoreAutoSaveHandlesOnBoot(){
   }catch(_e2){ return false; }
 }
 
-// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.23σ ═══════════════════
+// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.23τ ═══════════════════
 // عکس پس‌زمینه، لوگو و ضمیمه‌ها فقط در پوشهٔ بک‌آپ روی دیسک نوشته می‌شوند.
 // در حافظهٔ مرورگر فقط ارجاع کوتاه disk://sirman_media/... نگه داشته می‌شود.
 window._diskUrlCache = window._diskUrlCache || {};
@@ -12130,7 +12141,7 @@ function buildPH(list){
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 window._pcActiveDocId='invoice';
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23σ">
+<meta name="app-version" content="1405.5.23τ">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -12147,7 +12158,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23σ">
+<meta name="app-version" content="1405.5.23τ">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -12225,10 +12236,10 @@ function delSel(){
 function delInv(i){
   try{
     if(!confirm('حذف این فاکتور؟ موجودی و مبلغ مربوط به همین فاکتور برمی‌گردد.')) return;
-    var before = (typeof invoices!=='undefined' && invoices[i]) ? (invoices[i].num||invoices[i].id) : '';
+    var target = (typeof invoices!=='undefined') ? invoices[i] : null;
     var r=deleteInvoiceAt(i);
     if(r && r.ok===false){ ntf(r.error||r.err||'حذف نشد','err'); try{renderSaved();}catch(_r){} return; }
-    var still = before && typeof invoices!=='undefined' && invoices.some(function(x){ return x && (x.num===before || x.id===before); });
+    var still = target && typeof invoices!=='undefined' && invoices.indexOf(target)>=0;
     if(still){ ntf('حذف فاکتور انجام نشد','err'); try{renderSaved();}catch(_r2){} return; }
     try{ renderSaved(); }catch(_rs){ ntf('فاکتور حذف شد ولی فهرست تازه نشد','err'); return; }
     ntf(r && r.alreadyReversed ? 'این فاکتور قبلاً حذف شده' : 'حذف شد — موجودی و حساب برگشت داده شد');
@@ -12237,7 +12248,7 @@ function delInv(i){
   }
 }
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23σ">
+<meta name="app-version" content="1405.5.23τ">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -12257,11 +12268,11 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23σ">
+<meta name="app-version" content="1405.5.23τ">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23σ">
+<meta name="app-version" content="1405.5.23τ">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -12910,7 +12921,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23σ">
+<meta name="app-version" content="1405.5.23τ">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -13328,6 +13339,20 @@ function migrateBackup(d) {
     log.push('📋 شماره فاکتور بعدی: '+d.invCtr+' (حدس زده شد)');
   }
 
+  // === شماره فروش قطعات — هرگز از روی length دوباره استفاده نشود ===
+  var maxSaleNum = 0;
+  (d.sales||[]).forEach(function(s){
+    var m = String((s&&s.id)||'').match(/^SL-(\d+)$/i);
+    if(m){ var n=parseInt(m[1],10); if(n>maxSaleNum) maxSaleNum=n; }
+  });
+  if (!d.saleCtr || d.saleCtr < 1) {
+    d.saleCtr = maxSaleNum + 1;
+    log.push('🛒 شماره فروش بعدی: '+d.saleCtr+' (حدس زده شد)');
+  } else if (d.saleCtr <= maxSaleNum) {
+    d.saleCtr = maxSaleNum + 1;
+    log.push('🛒 شماره فروش بعدی اصلاح شد: '+d.saleCtr);
+  }
+
   // === ID های missing ===
   var fixedIds = 0;
   d.invoices.forEach(function(inv,i){ if(!inv.id){ inv.id='mig_inv_'+i+'_'+Date.now(); fixedIds++; } });
@@ -13596,6 +13621,11 @@ function applyBackupReplaceSections(d, selectedKeys){
   }
   if(_restoreWants(selectedKeys,'warranties')) warranties = Array.isArray(d.warranties) ? d.warranties : [];
   if(_restoreWants(selectedKeys,'sales')) sales = Array.isArray(d.sales) ? d.sales : [];
+  if(_restoreWants(selectedKeys,'sales') || _restoreWants(selectedKeys,'saleCtr')){
+    if (d.saleCtr && d.saleCtr > 0) saleCtr = d.saleCtr;
+    if(typeof ensureSaleCtr==='function') ensureSaleCtr();
+    else try{ localStorage.setItem('laegh_sale_ctr', String(saleCtr||1)); }catch(_e){}
+  }
   if(_restoreWants(selectedKeys,'tasks')) tasks = Array.isArray(d.tasks) ? d.tasks : [];
   if(_restoreWants(selectedKeys,'accounts')) accounts = Array.isArray(d.accounts) ? d.accounts : [];
   if(_restoreWants(selectedKeys,'defectiveStock')) defectiveStock = Array.isArray(d.defectiveStock) ? d.defectiveStock : [];
@@ -13715,6 +13745,10 @@ function applyBackupMergeSections(d, selectedKeys){
   if(_restoreWants(selectedKeys,'services')) (d.services||d.svcs||[]).forEach(function(x){ if(!services.find(function(p){return p.id===x.id||p.code===x.code;})){ services.push(x); svcs=services; added.svc++; } });
   if(_restoreWants(selectedKeys,'warranties')) (d.warranties||[]).forEach(function(x){ if(!warranties.find(function(p){return p.id===x.id;})){ warranties.push(x); added.war++; } });
   if(_restoreWants(selectedKeys,'sales')) (d.sales||[]).forEach(function(x){ if(!sales.find(function(p){return p.id===x.id;})){ sales.push(x); added.sale++; } });
+  if(_restoreWants(selectedKeys,'sales') || _restoreWants(selectedKeys,'saleCtr')){
+    if(d.saleCtr && d.saleCtr > (saleCtr||0)) saleCtr = d.saleCtr;
+    if(typeof ensureSaleCtr==='function') ensureSaleCtr();
+  }
   if(_restoreWants(selectedKeys,'tasks')) (d.tasks||[]).forEach(function(x){ if(!tasks.find(function(p){return p.id===x.id;})){ tasks.push(x); added.task++; } });
   if(_restoreWants(selectedKeys,'defectiveStock')) (d.defectiveStock||[]).forEach(function(x){ if(!defectiveStock.find(function(p){return p.id===x.id;})){ defectiveStock.push(x); } });
   if(_restoreWants(selectedKeys,'accounts') && Array.isArray(d.accounts)){
@@ -13957,6 +13991,8 @@ async function resetAll(){
 
   // ریست متغیرهای حافظه (in-memory)
   invoices=[];products=[];inventory={};phonebook=[];invCtr=1;
+  if(typeof saleCtr!=='undefined') saleCtr=1;
+  try{ localStorage.setItem('laegh_sale_ctr','1'); }catch(_e){}
   if(typeof parts!=='undefined') parts=[];
   if(typeof services!=='undefined') services=[];
   if(typeof svcs!=='undefined') svcs=(typeof services!=='undefined'?services:[]);
@@ -17084,7 +17120,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23σ">'+
+    '<meta name="app-version" content="1405.5.23τ">'+
     '<meta name="app-date" content="1405/05/23">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -17268,7 +17304,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.23σ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.23τ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -20128,7 +20164,7 @@ function doPrint(paperSize){
   const wbg=bgMap[pw.bg||'none']||'#fff';
   const effPaper = pw.paper || paperSize;
   var htmlDoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23σ">
+<meta name="app-version" content="1405.5.23τ">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -20261,7 +20297,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23σ"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.23τ"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -20290,7 +20326,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23σ"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.23τ"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -20327,7 +20363,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23σ">'+
+    '<meta name="app-version" content="1405.5.23τ">'+
     '<meta name="app-date" content="1405/05/23">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -20536,7 +20572,37 @@ function printCompanyReport(idx){
 
 // ══ فروش قطعات ═══════════════════════════════════════════════
 let sales = JSON.parse(localStorage.getItem('laegh_sales')||'[]');
-function svSales(){ _persistJsonSafe('laegh_sales', sales, 'فروش‌ها'); markDirty(); }
+let saleCtr = parseInt(localStorage.getItem('laegh_sale_ctr')||'0', 10);
+function saleIdSeq(id){
+  var m = String(id||'').match(/^SL-(\d+)$/i);
+  return m ? parseInt(m[1], 10) : 0;
+}
+function maxSaleSeq(){
+  var max = 0;
+  (typeof sales!=='undefined' ? sales : []).forEach(function(s){
+    var n = saleIdSeq(s && s.id);
+    if(n > max) max = n;
+  });
+  return max;
+}
+function ensureSaleCtr(){
+  var need = maxSaleSeq() + 1;
+  if(!(saleCtr > 0) || saleCtr < need) saleCtr = need;
+  try{ localStorage.setItem('laegh_sale_ctr', String(saleCtr)); }catch(_e){}
+  return saleCtr;
+}
+function peekNextSaleId(){
+  ensureSaleCtr();
+  return 'SL-'+String(saleCtr).padStart(4,'0');
+}
+function nextSaleId(){
+  var id = peekNextSaleId();
+  saleCtr++;
+  try{ localStorage.setItem('laegh_sale_ctr', String(saleCtr)); }catch(_e){}
+  return id;
+}
+ensureSaleCtr();
+function svSales(){ _persistJsonSafe('laegh_sales', sales, 'فروش‌ها'); try{ localStorage.setItem('laegh_sale_ctr', String(saleCtr||1)); }catch(_e){} markDirty(); }
 
 function openSaleForm(idx){
   window._saleEditIdx = idx==undefined ? -1 : idx;
@@ -20830,7 +20896,7 @@ function getSaleData(){
   const accRefEl = document.getElementById('sale-acc-ref');
   const accountSel = document.getElementById('sale-account-sel');
   return {
-    id: window._saleEditIdx===-1 ? 'SL-'+String(sales.length+1).padStart(4,'0') : sales[window._saleEditIdx].id,
+    id: window._saleEditIdx===-1 ? peekNextSaleId() : sales[window._saleEditIdx].id,
     items: saleItems.map(function(item){
       var discAmt = Math.round((item.price||0) * (item.disc||0) / 100);
       return {
@@ -20929,6 +20995,7 @@ function saveSale(mode){
     // کسر از انبار
     if(window._saleEditIdx === -1){
       if(!_deductStock(d.items)){ return; } // کاربر منصرف شد
+      d.id = nextSaleId();
     } else {
       var oldSale = sales[window._saleEditIdx];
       // اگر قبلاً final بوده، قبلی رو برگردان و دوباره کسر کن. اگر proforma بوده، فقط کسر کن.
@@ -20951,7 +21018,7 @@ function saveSale(mode){
     setTimeout(function(){ printSaleDoc(d.id); }, 200);
   } else {
     // پیش‌فاکتور: بدون تغییر انبار
-    if(window._saleEditIdx === -1) sales.push(d);
+    if(window._saleEditIdx === -1){ d.id = nextSaleId(); sales.push(d); }
     else sales[window._saleEditIdx] = d;
     svSales();
     auditUser('صدور پیش‌فاکتور قطعات', d.id+' — '+(d.name||'خریدار'));
@@ -20984,10 +21051,11 @@ function finalizeProforma(idx){
 function delSale(idx){
   try{
     if(!confirm('حذف این فروش؟ موجودی و مبلغ مربوط به همین فروش برمی‌گردد.')) return;
-    var before = (typeof sales!=='undefined' && sales[idx]) ? sales[idx].id : '';
+    var target = (typeof sales!=='undefined') ? sales[idx] : null;
+    var before = target ? target.id : '';
     var r = deleteSaleAt(idx);
     if(r && r.ok===false){ ntf(r.error||r.err||'حذف نشد','err'); try{renderSales();}catch(_r){} return; }
-    var still = before && typeof sales!=='undefined' && sales.some(function(x){ return x && x.id===before; });
+    var still = target && typeof sales!=='undefined' && sales.indexOf(target)>=0;
     if(still){ ntf('حذف فروش انجام نشد','err'); try{renderSales();}catch(_r2){} return; }
     try{ renderSales(); }catch(_rs){ ntf('فروش حذف شد ولی فهرست تازه نشد','err'); return; }
     ntf(r && r.alreadyReversed ? 'این فروش قبلاً حذف شده' : 'حذف شد — موجودی و حساب برگشت داده شد');
@@ -21087,7 +21155,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23σ">'+
+    '<meta name="app-version" content="1405.5.23τ">'+
     '<meta name="app-date" content="1405/05/23">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -22658,7 +22726,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23σ">'+
+    '<meta name="app-version" content="1405.5.23τ">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
@@ -26003,6 +26071,7 @@ function runFullDiag() {
   // 6. Invoice numbering
   if (typeof invCtr !== 'undefined' && invCtr > 0) addDbgEntry('ok', 'شماره‌دهی فاکتور', '', 'شماره فاکتور بعدی: '+invCtr, '');
   else addDbgEntry('warn', 'شماره‌دهی فاکتور', '', 'شمارنده فاکتور صفر یا نامعتبر است', 'در صفحه فاکتورها یک فاکتور آزمایشی بسازید');
+  if (typeof saleCtr !== 'undefined' && saleCtr > 0) addDbgEntry('ok', 'شماره‌دهی فروش قطعات', '', 'شماره فروش بعدی: '+saleCtr, '');
 
   // 7. Code analysis
   codeAnalysisSteps();

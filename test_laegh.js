@@ -3967,13 +3967,13 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳σ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳τ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.23σ', 'نسخه محصول باید 1405.5.23σ باشد');
-  assertEqual(ver.assembly, '1405.5.23.19', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (σ=19)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳σ', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.23τ', 'نسخه محصول باید 1405.5.23τ باشد');
+  assertEqual(ver.assembly, '1405.5.23.20', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (τ=20)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳τ', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -8996,6 +8996,117 @@ test('واریز با شماره سند حتی اگر نوعش فرق کند ب�
   assertEqual(r.bal, 100, 'فقط مبلغ همان سند باید برگردد');
   assertEqual(r.n, 1, 'واریز دستی باید بماند');
   assertEqual(r.sub, 'دستی', 'تراکنش باقی‌مانده باید واریز دستی باشد');
+});
+
+test('شماره فروش بعد از حذف نباید از روی length دوباره ساخته شود', () => {
+  const seqSrc = extractFunctionSource(html, 'saleIdSeq');
+  const maxSrc = extractFunctionSource(html, 'maxSaleSeq');
+  const ensSrc = extractFunctionSource(html, 'ensureSaleCtr');
+  const peekSrc = extractFunctionSource(html, 'peekNextSaleId');
+  const nextSrc = extractFunctionSource(html, 'nextSaleId');
+  const getSrc = extractFunctionSource(html, 'getSaleData');
+  assertTrue(!!seqSrc && !!maxSrc && !!ensSrc && !!peekSrc && !!nextSrc, 'توابع شماره‌دهی فروش پیدا نشد');
+  assertContainsString(getSrc, 'peekNextSaleId', 'getSaleData نباید از sales.length+1 شماره بسازد');
+  assertTrue(getSrc.indexOf('sales.length+1') === -1, 'getSaleData دیگر نباید SL را از تعداد ردیف بسازد');
+  const r = new Function(seqSrc+'\n'+maxSrc+'\n'+ensSrc+'\n'+peekSrc+'\n'+nextSrc+`
+    var saleCtr = 0;
+    var sales = [{id:'SL-0002', name:'قدیمی'}];
+    var store = {};
+    var localStorage = { getItem:function(k){ return store[k]||null; }, setItem:function(k,v){ store[k]=String(v); } };
+    ensureSaleCtr();
+    var afterDeletePeek = peekNextSaleId();
+    var first = nextSaleId();
+    var second = nextSaleId();
+    return {ctrAfterEnsure:saleCtr-2, peek:afterDeletePeek, first:first, second:second, stored:store.laegh_sale_ctr};
+  `)();
+  assertEqual(r.peek, 'SL-0003', 'بعد از ماندن SL-0002 شماره بعدی باید SL-0003 باشد نه SL-0002');
+  assertEqual(r.first, 'SL-0003', 'nextSaleId باید SL-0003 بدهد');
+  assertEqual(r.second, 'SL-0004', 'شماره دوم باید SL-0004 باشد');
+});
+
+test('حذف فاکتور فروش با شماره تکراری فقط همان ردیف کلیک‌شده را برمی‌دارد', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){}
+    function recordStockMove(){}
+    var parts = [{code:'A', qty:7}];
+    var accounts = [{id:'ACC-1', balance:300, transactions:[
+      {amount:100, refId:'SL-0002', refType:'sale', type:'deposit'},
+      {amount:200, refId:'SL-0002', refType:'sale', type:'deposit'}
+    ]}];
+    var oldS = {id:'SL-0002', status:'final', total:100, name:'قدیمی', items:[{partCode:'A', qty:1}]};
+    var newS = {id:'SL-0002', status:'final', total:200, name:'جدید', items:[{partCode:'A', qty:2}]};
+    var sales = [oldS, newS];
+    var seen = null;
+    var r = deleteSaleAt(1);
+    return {
+      ok:r&&r.ok!==false, n:sales.length, kept:sales[0]&&sales[0].name,
+      qty:parts[0].qty, bal:accounts[0].balance, trx:accounts[0].transactions.length,
+      stillOld: sales.indexOf(oldS)>=0, stillNew: sales.indexOf(newS)>=0
+    };
+  `)();
+  assertEqual(r.ok, true, 'حذف ردیف جدید باید موفق باشد');
+  assertEqual(r.n, 1, 'فقط یک فروش باید بماند');
+  assertEqual(r.kept, 'قدیمی', 'فاکتور قبلی باید بماند');
+  assertEqual(r.stillOld, true, 'آبجکت فاکتور قبلی باید در آرایه بماند');
+  assertEqual(r.stillNew, false, 'آبجکت فاکتور جدید باید حذف شود');
+  assertEqual(r.qty, 9, 'فقط قطعات همان فاکتور جدید باید برگردد (7+2)');
+  assertEqual(r.trx, 1, 'فقط یک تراکنش هم‌شماره باید برگردد نه هر دو');
+  assertEqual(r.bal, 100, 'مانده فاکتور قبلی باید بماند');
+});
+
+test('حذف فروش در exe باید saleIndex ردیف کلیک‌شده را بفرستد و فقط همان را بردارد', () => {
+  const r = saleDeleteSandbox(`
+    var seen = null;
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        seen = JSON.parse(json);
+        var idx = seen.saleIndex;
+        var list = (seen.sales||[]).slice();
+        if(idx>=0 && idx<list.length) list.splice(idx,1);
+        return JSON.stringify({ok:true, result:{ok:true, alreadyReversed:false, sales:list,
+          parts:[{code:'A', qty:9}], accounts:[{id:'ACC-1', balance:100, transactions:[{amount:100, refId:'SL-0002'}]}],
+          persistKeys:['sales','parts','accounts']}});
+      }};
+    }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/23'; }
+    function sv(){}
+    function svAccounts(){}
+    function svParts(){}
+    function svSales(){}
+    function recordStockMove(){}
+    var parts = [{code:'A', qty:7}];
+    var accounts = [{id:'ACC-1', balance:300, transactions:[]}];
+    var sales = [
+      {id:'SL-0002', status:'final', name:'قدیمی', items:[{partCode:'A', qty:1}]},
+      {id:'SL-0002', status:'final', name:'جدید', items:[{partCode:'A', qty:2}]}
+    ];
+    var r = deleteSaleAt(1);
+    return {ok:r&&r.ok!==false, n:sales.length, kept:sales[0]&&sales[0].name, idx:seen&&seen.saleIndex, sentId:seen&&seen.sale&&seen.sale.id};
+  `)();
+  assertEqual(r.ok, true, 'حذف با Host باید موفق باشد');
+  assertEqual(r.idx, 1, 'هسته باید اندیس ردیف کلیک‌شده را بگیرد نه اولین شماره مطابق');
+  assertEqual(r.n, 1, 'بعد از حذف فقط فاکتور قبلی بماند');
+  assertEqual(r.kept, 'قدیمی', 'فاکتور قبلی نباید با حذف فاکتور جدید پاک شود');
+});
+
+test('بک‌آپ و migrateBackup باید saleCtr داشته باشند تا شماره فروش بعد از بازگردانی تکرار نشود', () => {
+  const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
+  assertContainsString(buildSrc, 'saleCtr', 'بک‌آپ باید شمارنده فروش را ذخیره کند');
+  const migrateSrc = extractFunctionSource(html, 'migrateBackup');
+  const schemasSrc = extractFunctionSource(html, 'SCHEMAS') || 'var SCHEMAS = {};';
+  const migrateRecSrc = extractFunctionSource(html, 'migrateRecord') || 'function migrateRecord(r){return r;}';
+  const migrateSecSrc = extractFunctionSource(html, 'migrateSection') || 'function migrateSection(a){return a;}';
+  const runner = new Function('return (function(){ ' + schemasSrc + '\n' + migrateRecSrc + '\n' + migrateSecSrc + '\n return ' + migrateSrc + ' })();');
+  const migrateBackup = runner();
+  const result = migrateBackup({ version:'10.4.3', invoices:[], products:[], inventory:{}, phonebook:[], sales:[{id:'SL-0002'}] });
+  assertTrue(result.data.saleCtr >= 3, 'بدون saleCtr باید از SL-0002 شماره بعدی ۳ حدس زده شود، نه ۲');
 });
 
 // نتیجه نهایی

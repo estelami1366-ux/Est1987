@@ -20,9 +20,7 @@ public static class TransactionReversal
 
         var invoice = CloneObj(payload["invoice"] as JsonObject);
         var id = FirstNonEmpty(JsonVal.Str(payload, "invoiceId"), JsonVal.Str(invoice, "num"), JsonVal.Str(invoice, "id"));
-        int idx = IndexOf(invoices, id, "num", "id");
-        if (idx < 0)
-            idx = IndexFrom(payload, "invoiceIndex", invoices.Count);
+        int idx = ResolveClickedIndex(invoices, payload, "invoiceIndex", id, "num", "id");
         if (invoice is null && idx >= 0)
             invoice = CloneObj(invoices[idx] as JsonObject);
         if (string.IsNullOrEmpty(id))
@@ -76,7 +74,7 @@ public static class TransactionReversal
 
         if (!finDone)
         {
-            payCount += ReverseAllOwned(accounts, id);
+            payCount += ReverseOwnedForClicked(accounts, invoices, idx, id, invoice, "num", "id");
         }
 
         if (idx >= 0) invoices.RemoveAt(idx);
@@ -101,9 +99,7 @@ public static class TransactionReversal
 
         var record = CloneObj(payload["record"] as JsonObject) ?? CloneObj(payload["warranty"] as JsonObject);
         var id = FirstNonEmpty(JsonVal.Str(payload, "warrantyId"), JsonVal.Str(record, "id"));
-        int idx = IndexOf(warranties, id, "id");
-        if (idx < 0)
-            idx = IndexFrom(payload, "warrantyIndex", warranties.Count);
+        int idx = ResolveClickedIndex(warranties, payload, "warrantyIndex", id, "id");
         if (record is null && idx >= 0)
             record = CloneObj(warranties[idx] as JsonObject);
         if (string.IsNullOrEmpty(id))
@@ -158,7 +154,7 @@ public static class TransactionReversal
 
         if (!finDone)
         {
-            payCount += ReverseAllOwned(accounts, id);
+            payCount += ReverseOwnedForClicked(accounts, warranties, idx, id, record, "id");
             if (record["_agencyPayApplied"] is JsonObject pay && Flag(pay, "applied"))
             {
                 var accId = JsonVal.Str(pay, "accountId");
@@ -189,9 +185,7 @@ public static class TransactionReversal
 
         var sale = CloneObj(payload["sale"] as JsonObject) ?? CloneObj(payload["record"] as JsonObject);
         var id = FirstNonEmpty(JsonVal.Str(payload, "saleId"), JsonVal.Str(sale, "id"));
-        int idx = IndexOf(sales, id, "id");
-        if (idx < 0)
-            idx = IndexFrom(payload, "saleIndex", sales.Count);
+        int idx = ResolveClickedIndex(sales, payload, "saleIndex", id, "id");
         if (sale is null && idx >= 0)
             sale = CloneObj(sales[idx] as JsonObject);
         if (string.IsNullOrEmpty(id))
@@ -256,7 +250,7 @@ public static class TransactionReversal
         }
 
         if (!isProforma && !finDone)
-            payCount += ReverseAllOwned(accounts, id);
+            payCount += ReverseOwnedForClicked(accounts, sales, idx, id, sale, "id");
 
         if (idx >= 0) sales.RemoveAt(idx);
         else
@@ -268,15 +262,32 @@ public static class TransactionReversal
         return OkResult("sale.delete", "sale", id, user, now, inventory, accounts, parts, sales, restocked, payCount);
     }
 
-    private static int ReverseAllOwned(JsonArray accounts, string docId)
+    private static int ReverseAllOwned(JsonArray accounts, string docId) =>
+        ReverseOwnedAcross(accounts, docId, int.MaxValue, null);
+
+    private static int ReverseOwnedForClicked(JsonArray accounts, JsonArray records, int idx, string id, JsonObject? record, params string[] idKeys)
+    {
+        var others = CountSameId(records, id, idx, idKeys);
+        if (others > 0)
+        {
+            var hint = record is null ? 0d : CalculationEngine.ToNum(record["total"]?.ToString());
+            return ReverseOwnedAcross(accounts, id, 1, hint > 0 ? hint : null);
+        }
+        return ReverseAllOwned(accounts, id);
+    }
+
+    private static int ReverseOwnedAcross(JsonArray accounts, string docId, int maxCount, double? amountHint)
     {
         var n = 0;
+        var left = maxCount;
         for (var i = 0; i < accounts.Count; i++)
         {
+            if (left <= 0) break;
             if (accounts[i] is not JsonObject acc) continue;
-            var r = PaymentRules.ReverseOwned(acc, docId);
+            var r = PaymentRules.ReverseOwnedMax(acc, docId, left, amountHint);
             if (r.Account is not null) accounts[i] = r.Account;
             n += r.RemovedCount;
+            left -= r.RemovedCount;
         }
         return n;
     }
@@ -380,6 +391,37 @@ public static class TransactionReversal
         var idx = CalculationEngine.ToInt(JsonVal.Str(payload, key));
         if (idx < 0 || idx >= count) return -1;
         return idx;
+    }
+
+    private static string RecordId(JsonNode? n, params string[] keys)
+    {
+        if (n is not JsonObject o) return "";
+        foreach (var k in keys)
+        {
+            var s = JsonVal.Str(o, k);
+            if (!string.IsNullOrEmpty(s)) return s;
+        }
+        return "";
+    }
+
+    /// <summary>اول ردیفی که کاربر روی حذفش زده؛ اگر اندیس نبود، اولین شماره مطابق.</summary>
+    private static int ResolveClickedIndex(JsonArray list, JsonObject payload, string indexKey, string id, params string[] idKeys)
+    {
+        var fromIdx = IndexFrom(payload, indexKey, list.Count);
+        if (fromIdx >= 0) return fromIdx;
+        return IndexOf(list, id, idKeys);
+    }
+
+    private static int CountSameId(JsonArray list, string id, int exceptIdx, params string[] keys)
+    {
+        if (string.IsNullOrEmpty(id)) return 0;
+        var n = 0;
+        for (var i = 0; i < list.Count; i++)
+        {
+            if (i == exceptIdx) continue;
+            if (RecordId(list[i], keys) == id) n++;
+        }
+        return n;
     }
 
     private static bool Flag(JsonObject? o, string k)

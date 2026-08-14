@@ -82,15 +82,47 @@ public static class PaymentRules
     }
 
     /// <summary>قانون ساده: هر تراکنش مالی که مال همین سند است (refId) با حذف سند برمی‌گردد. نوع واریز/برداشت مهم نیست.</summary>
-    public static PaymentAccountResult ReverseOwned(JsonObject? account, string? documentId)
+    public static PaymentAccountResult ReverseOwned(JsonObject? account, string? documentId) =>
+        ReverseOwnedMax(account, documentId, int.MaxValue, null);
+
+    /// <summary>
+    /// برگشت تراکنش‌های همین شماره سند، حداکثر maxCount تا.
+    /// اگر دو سند زنده شماره یکسان داشته باشند، فقط یک تراکنش (ترجیحاً با همان مبلغ) برمی‌گردد.
+    /// </summary>
+    public static PaymentAccountResult ReverseOwnedMax(JsonObject? account, string? documentId, int maxCount, double? amountHint)
     {
         account = Clone(account);
         if (account is null) return AccountFail("validation", "حساب پیدا نشد");
-        if (string.IsNullOrWhiteSpace(documentId))
+        if (string.IsNullOrWhiteSpace(documentId) || maxCount <= 0)
             return new PaymentAccountResult { Ok = true, Account = account, RemovedCount = 0, NewBalance = CalculationEngine.ToNum(account["balance"]?.ToString()) };
         var arr = EnsureTrx(account);
         var removed = 0;
-        for (var i = arr.Count - 1; i >= 0; i--)
+        var limited = maxCount < int.MaxValue;
+        var hint = amountHint is double h && h > 0 ? h : 0d;
+        if (limited && hint > 0)
+        {
+            for (var i = arr.Count - 1; i >= 0 && removed < maxCount; i--)
+            {
+                if (arr[i] is not JsonObject t) continue;
+                if (!OwnsDocument(t, documentId)) continue;
+                var oldAmt = CalculationEngine.ToNum(t["amount"]?.ToString());
+                if (Math.Abs(Math.Abs(oldAmt) - hint) > 0.0001) continue;
+                account["balance"] = CalculationEngine.ToNum(account["balance"]?.ToString()) - oldAmt;
+                arr.RemoveAt(i);
+                removed++;
+            }
+            if (removed > 0)
+            {
+                return new PaymentAccountResult
+                {
+                    Ok = true,
+                    Account = account,
+                    RemovedCount = removed,
+                    NewBalance = CalculationEngine.ToNum(account["balance"]?.ToString())
+                };
+            }
+        }
+        for (var i = arr.Count - 1; i >= 0 && removed < maxCount; i--)
         {
             if (arr[i] is not JsonObject t) continue;
             if (!OwnsDocument(t, documentId)) continue;
