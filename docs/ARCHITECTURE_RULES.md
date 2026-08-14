@@ -17,7 +17,7 @@
    - مسیر JS: `chrome.webview.hostObjects.sync.sirmanHost`
    - پیاده‌سازی: `desktop/Sirman.Desktop/SirmanHostObject.cs`
 2. **مسیرهای غیرمجاز:** Local API روی localhost + `fetch`/`XHR` برای منطق کسب‌وکار. Blazor Hybrid انتخاب نشده است.
-3. **لیست مجاز فعلی Host Object:** `Ping`, `CloseApp`, `Notify`, `GetWarrantyBrowseCatalog`, `GetWarrantyBrowseCss`, `ApplyUiSkin`, `GetPrinters`, `PrintHtml`. هر متد جدید باید به همین شیء اضافه شود، نه با مسیر موازی.
+3. **لیست مجاز فعلی Host Object:** `Ping`, `CloseApp`, `Notify`, `GetBackupDir`, `SaveAppPref`, `LoadAppPref`, `WriteBackupText`, `GetWarrantyBrowseCatalog`, `GetWarrantyBrowseCss`, `ApplyUiSkin`, `GetPrinters`, `PrintHtml`, `GetMachineInfo`. هر متد جدید باید به همین شیء اضافه شود، نه با مسیر موازی.
 4. **محصول UI:** فایل HTML تک‌تکه (`Sirman_Final.html`) همچنان رابط کاربری و مسیر اجرای بدون نصب است. HTML حذف نمی‌شود.
 5. **هستهٔ هدف:** منطق کسب‌وکار، دیتابیس، بک‌آپ، چاپ، امنیت و گزارش در .NET. انتقال تدریجی است، نه بازنویسی یک‌شبه.
 6. **سازگاری مسیر HTML-only:** تا وقتی داده هنوز در مرورگر/HTML است، باز کردن مستقیم HTML نباید بشکند. منطق جدید مهم باید طوری اضافه شود که در exe از Core عبور کند و در HTML-only یا کار کند یا با پیام واضح غیرفعال شود — نه اینکه کل برنامه از کار بیفتد.

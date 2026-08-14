@@ -111,6 +111,29 @@ public class SirmanHostObject
         }
     }
 
+    /// <summary>نام رایانه و کاربر ویندوز برای ثبت فعالیت (HTML-only این را ندارد).</summary>
+    public string GetMachineInfo()
+    {
+        try
+        {
+            return JsonSerializer.Serialize(new Dictionary<string, object?>
+            {
+                ["computerName"] = Environment.MachineName,
+                ["userName"] = Environment.UserName,
+                ["ipAddress"] = ""
+            });
+        }
+        catch (Exception ex)
+        {
+            return JsonSerializer.Serialize(new Dictionary<string, object?>
+            {
+                ["computerName"] = "",
+                ["ipAddress"] = "",
+                ["error"] = ex.Message
+            });
+        }
+    }
+
     /// <summary>چاپ HTML روی چاپگر نام‌دار یا دستور print پیش‌فرض ویندوز.</summary>
     public string PrintHtml(string html, string printerName, string paper, string orientation, int copies)
     {

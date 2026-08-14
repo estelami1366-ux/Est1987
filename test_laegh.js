@@ -3965,14 +3965,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳β باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.23α', 'نسخه meta باید 1405.5.23α باشد');
+  assertEqual(metaVer, '1405.5.23β', 'نسخه meta باید 1405.5.23β باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/23', 'app-date باید 1405/05/23 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۳α', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۳α را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۳β', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۳β را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.23α'", 'فیلد version بک‌آپ باید 1405.5.23α باشد');
+  assertContainsString(buildSrc, "version: '1405.5.23β'", 'فیلد version بک‌آپ باید 1405.5.23β باشد');
 });
 
 
@@ -7171,6 +7171,264 @@ test('لیست‌های کشویی باید با تایپ قابل جستجو ب
   assertTrue(oneSrc.indexOf('srch-sel') >= 0 && oneSrc.indexOf('filter') >= 0 || oneSrc.indexOf('q') >= 0, 'باید ورودی جستجو روی select ساخته شود');
   assertContainsString(html, '.srch-sel', 'استایل کشویی قابل‌جستجو لازم است');
   assertContainsString(html, 'جستجو در لیست', 'راهنما باید جستجوی کشویی را توضیح دهد');
+});
+
+
+console.log('');
+console.log('📋 گروه: کاربران، نقش‌ها و گزارش فعالیت');
+
+function extractConstSource(srcHtml, name) {
+  const re = new RegExp('(?:const|let|var)\\s+' + name + '\\s*=');
+  const m = srcHtml.match(re);
+  if (!m) return null;
+  const start = m.index;
+  let i = start + m[0].length;
+  while (i < srcHtml.length && /\s/.test(srcHtml[i])) i++;
+  const open = srcHtml[i];
+  if (open !== '{' && open !== '[') return null;
+  const close = open === '{' ? '}' : ']';
+  let depth = 0;
+  let started = false;
+  for (; i < srcHtml.length; i++) {
+    if (srcHtml[i] === open) { depth++; started = true; }
+    else if (srcHtml[i] === close) { depth--; if (started && depth === 0) { i++; break; } }
+  }
+  return srcHtml.substring(start, i) + ';';
+}
+
+test('نقش‌های استاندارد باید پنج کلید admin/manager/operator/service/viewer داشته باشند', () => {
+  const catSrc = extractConstSource(html, 'ROLE_CATALOG');
+  assertTrue(!!catSrc, 'ROLE_CATALOG پیدا نشد');
+  const cat = new Function('var ALL_PAGE_KEYS=["dashboard","tasks","invoice","saved","products","inventory","defective","warehouse","warehouse-entities","phonebook","postal","parts","daqi","services","sales","accounts","warranty","dataio","datetime","audit","settings","help"]; ' + catSrc + ' return ROLE_CATALOG;')();
+  ['admin','manager','operator','service','viewer'].forEach(k => {
+    assertTrue(!!cat[k], 'نقش «'+k+'» باید در ROLE_CATALOG باشد');
+    assertTrue(Array.isArray(cat[k].pages) && cat[k].pages.length > 0, 'نقش '+k+' باید صفحات پیش‌فرض داشته باشد');
+  });
+  assertEqual(Object.keys(cat).length, 5, 'باید دقیقاً پنج نقش استاندارد باشد');
+});
+
+test('normalizeAppUser باید پروفایل قدیمی name/pw/pages را به کاربر کامل ارتقا دهد', () => {
+  const catSrc = extractConstSource(html, 'ROLE_CATALOG');
+  const normSrc = extractFunctionSource(html, 'normalizeAppUser');
+  const inferSrc = extractFunctionSource(html, 'inferRoleKey') || 'function inferRoleKey(p){ return "operator"; }';
+  assertTrue(!!normSrc, 'تابع normalizeAppUser پیدا نشد');
+  const runner = new Function('var ALL_PAGE_KEYS = ["dashboard","tasks","invoice","saved","products","inventory","help"];\n' + catSrc + '\n' + inferSrc + '\n' + normSrc + `
+    var u = normalizeAppUser({name:'علی', pw:'secret1', pages:['dashboard','help']});
+    return u;
+  `);
+  const u = runner();
+  assertTrue(!!u.id, 'کاربر باید شناسه داشته باشد');
+  assertEqual(u.name, 'علی', 'نام نمایشی باید حفظ شود');
+  assertEqual(u.username, 'علی', 'نام کاربری از نام قدیمی پر شود');
+  assertEqual(u.pw, 'secret1', 'رمز باید حفظ شود');
+  assertEqual(u.active, true, 'کاربر قدیمی باید فعال باشد');
+  assertTrue(!!u.roleKey, 'باید نقش استنباط شود');
+  assertEqual(u.forcePwChange, false, 'اجبار تعویض رمز پیش‌فرض خاموش است');
+});
+
+test('کاربر غیرفعال نباید بتواند وارد شود', () => {
+  const src = extractFunctionSource(html, 'matchAppUserForLogin');
+  assertTrue(!!src, 'تابع matchAppUserForLogin پیدا نشد');
+  const runner = new Function(src + `
+    var roles = [
+      {id:'u1', name:'علی', username:'ali', pw:'p1', active:false, pages:['dashboard']},
+      {id:'u2', name:'مینا', username:'mina', pw:'p2', active:true, pages:['dashboard']}
+    ];
+    return {
+      inactivePw: matchAppUserForLogin('', 'p1', roles, 'master'),
+      inactiveUser: matchAppUserForLogin('ali', 'p1', roles, 'master'),
+      ok: matchAppUserForLogin('mina', 'p2', roles, 'master'),
+      master: matchAppUserForLogin('', 'master', roles, 'master'),
+      bad: matchAppUserForLogin('', 'nope', roles, 'master')
+    };
+  `);
+  const r = runner();
+  assertEqual(r.inactivePw.ok, false, 'رمز کاربر غیرفعال نباید ورود بدهد');
+  assertEqual(r.inactivePw.reason, 'inactive', 'دلیل باید حساب غیرفعال باشد');
+  assertEqual(r.inactiveUser.ok, false, 'نام کاربری غیرفعال نباید ورود بدهد');
+  assertEqual(r.ok.ok, true, 'کاربر فعال باید وارد شود');
+  assertEqual(r.ok.user.username, 'mina', 'کاربر فعال باید برگردد');
+  assertEqual(r.master.ok, true, 'رمز مدیر کل باید ورود بدهد');
+  assertEqual(r.master.kind, 'master', 'ورود مدیر کل باید kind=master باشد');
+  assertEqual(r.bad.ok, false, 'رمز غلط باید رد شود');
+});
+
+test('auditActivity باید شناسه، ماژول، مقادیر قدیم/جدید بنویسد و رمز را ماسک کند', () => {
+  const maskSrc = extractFunctionSource(html, 'maskAuditValue');
+  const actSrc = extractFunctionSource(html, 'auditActivity');
+  const actorSrc = extractFunctionSource(html, 'getAuditActor') || 'function getAuditActor(){ return {userId:"admin", username:"مدیر سیستم"}; }';
+  const machSrc = extractFunctionSource(html, 'getMachineAuditInfo') || 'function getMachineAuditInfo(){ return {computerName:"HTML", ipAddress:""}; }';
+  const inferSrc = extractFunctionSource(html, 'inferAuditModule') || 'function inferAuditModule(){ return "app"; }';
+  const sensSrc = extractFunctionSource(html, 'isSensitiveAuditAction') || 'function isSensitiveAuditAction(){ return false; }';
+  assertTrue(!!maskSrc && !!actSrc, 'maskAuditValue / auditActivity پیدا نشد');
+  const runner = new Function(maskSrc + '\n' + actorSrc + '\n' + machSrc + '\n' + inferSrc + '\n' + sensSrc + '\n' + actSrc + `
+    var userAuditLog = [];
+    var currentRole = {id:'u9', name:'مینا'};
+    var saved = [];
+    function nowISO(){ return '2026-08-14T10:00:00.000Z'; }
+    function nowFa(){ return '1405/05/23'; }
+    function saveAudit(){ saved.push(userAuditLog.slice()); }
+    auditActivity({
+      action:'user_edit',
+      module:'users',
+      entityType:'user',
+      entityId:'u1',
+      description:'ویرایش کاربر',
+      oldValues:{name:'علی', pw:'old-secret'},
+      newValues:{name:'علی', pw:'new-secret'}
+    });
+    return { rec: userAuditLog[0], saved: saved.length };
+  `);
+  const r = runner();
+  assertTrue(!!r.rec, 'رکورد فعالیت باید ثبت شود');
+  assertTrue(!!r.rec.id, 'ActivityId لازم است');
+  assertEqual(r.rec.module, 'users', 'ماژول باید users باشد');
+  assertEqual(r.rec.entityType, 'user', 'EntityType باید user باشد');
+  assertEqual(r.rec.username, 'مینا', 'Username باید از نشست خوانده شود نه از فرم');
+  assertEqual(r.rec.oldValues.pw, '***', 'رمز قدیم نباید ذخیره شود');
+  assertEqual(r.rec.newValues.pw, '***', 'رمز جدید نباید ذخیره شود');
+  assertEqual(r.rec.oldValues.name, 'علی', 'نام نباید ماسک شود');
+  assertTrue(r.saved >= 1, 'باید ذخیره شود');
+  assertTrue(JSON.stringify(r.rec).indexOf('old-secret') === -1, 'متن رمز نباید در رکورد باشد');
+});
+
+test('auditUser باید همچنان به userAuditLog اضافه کند (سازگاری با کد فعلی)', () => {
+  const maskSrc = extractFunctionSource(html, 'maskAuditValue');
+  const actSrc = extractFunctionSource(html, 'auditActivity');
+  const userSrc = extractFunctionSource(html, 'auditUser');
+  const actorSrc = extractFunctionSource(html, 'getAuditActor') || 'function getAuditActor(){ return {userId:"admin", username:"مدیر"}; }';
+  const machSrc = extractFunctionSource(html, 'getMachineAuditInfo') || 'function getMachineAuditInfo(){ return {computerName:"HTML", ipAddress:""}; }';
+  const inferSrc = extractFunctionSource(html, 'inferAuditModule') || 'function inferAuditModule(a){ return "app"; }';
+  const sensSrc = extractFunctionSource(html, 'isSensitiveAuditAction') || 'function isSensitiveAuditAction(){ return false; }';
+  assertTrue(!!userSrc && !!actSrc, 'auditUser باید به auditActivity وصل شود');
+  const runner = new Function(maskSrc + '\n' + actorSrc + '\n' + machSrc + '\n' + inferSrc + '\n' + sensSrc + '\n' + actSrc + '\n' + userSrc + `
+    var userAuditLog = [];
+    var currentRole = null;
+    function nowISO(){ return Date.now(); }
+    function nowFa(){ return '1405/05/23'; }
+    function saveAudit(){}
+    auditUser('ذخیره فاکتور', 'F-100');
+    return userAuditLog[0];
+  `);
+  const rec = runner();
+  assertTrue(!!rec, 'auditUser باید رکورد بسازد');
+  assertTrue(rec.action === 'ذخیره فاکتور' || rec.description === 'F-100' || (rec.detail === 'F-100'), 'عملیات و جزئیات باید ثبت شوند');
+  assertTrue((rec.username||rec.user||'').length > 0, 'نام کاربر باید در لاگ باشد');
+});
+
+test('ورود ناموفق باید بدون ذخیره رمز در گزارش ثبت شود', () => {
+  const src = extractFunctionSource(html, 'attemptLogin');
+  const matchSrc = extractFunctionSource(html, 'matchAppUserForLogin');
+  assertTrue(!!src && !!matchSrc, 'attemptLogin / matchAppUserForLogin پیدا نشد');
+  const runner = new Function(
+    'document',
+    matchSrc + '\n' + src + `
+      var loginPw = 'master-pw';
+      var userRoles = [{id:'u1', name:'علی', username:'ali', pw:'p1', active:true, pages:['dashboard']}];
+      var currentRole = null;
+      var events = [];
+      function auditActivity(e){ events.push(e); }
+      function finishLogin(){}
+      function presentAppError(){}
+      function ntf(){}
+      function svRoles(){}
+      function nowISO(){ return Date.now(); }
+      function nowFa(){ return ''; }
+      attemptLogin();
+      return { events: events, pwVal: document.getElementById('login-pw-input').value, currentRole: currentRole };
+    `
+  );
+  const fakeDoc = {
+    getElementById: function(id){
+      if (id === 'login-pw-input') return { value: 'wrong-password-xyz' };
+      if (id === 'login-user-input') return { value: '' };
+      if (id === 'login-error-msg') return { textContent: '' };
+      return { value: '', textContent: '', style: {} };
+    }
+  };
+  const r = runner(fakeDoc);
+  assertTrue(r.events.some(e => e.action === 'login_failed'), 'ورود ناموفق باید login_failed ثبت شود');
+  const blob = JSON.stringify(r.events);
+  assertTrue(blob.indexOf('wrong-password-xyz') === -1, 'رمز واردشده نباید در لاگ باشد');
+  assertTrue(blob.indexOf('master-pw') === -1, 'رمز مدیر نباید در لاگ باشد');
+  assertEqual(r.currentRole, null, 'نشست نباید برای ورود ناموفق ست شود');
+});
+
+test('پاک کردن گزارش فعالیت فقط برای مدیر سیستم مجاز است', () => {
+  const canSrc = extractFunctionSource(html, 'canClearAuditLog');
+  const clrSrc = extractFunctionSource(html, 'clearAuditLog');
+  assertTrue(!!canSrc && !!clrSrc, 'canClearAuditLog / clearAuditLog پیدا نشد');
+  const canRun = new Function('currentRole', canSrc + '; return canClearAuditLog();');
+  assertEqual(canRun(null), true, 'مدیر کل باید بتواند لاگ را پاک کند');
+  assertEqual(canRun({roleKey:'admin', name:'ادمین'}), true, 'نقش admin باید بتواند پاک کند');
+  assertEqual(canRun({roleKey:'manager', name:'مدیر'}), false, 'مدیر عملیاتی نباید لاگ را پاک کند');
+  assertEqual(canRun({roleKey:'operator', name:'اپراتور'}), false, 'اپراتور نباید لاگ را پاک کند');
+  assertTrue(clrSrc.indexOf('canClearAuditLog') >= 0, 'clearAuditLog باید مجوز را چک کند');
+});
+
+test('فیلتر گزارش فعالیت باید کاربر، ماژول و رویدادهای حساس را جدا کند', () => {
+  const normSrc = extractFunctionSource(html, 'normalizeAuditRec');
+  const filSrc = extractFunctionSource(html, 'filterAuditRecords');
+  const inferSrc = extractFunctionSource(html, 'inferAuditModule') || 'function inferAuditModule(a){ return a==="login"||a==="user_edit"?"auth":"app"; }';
+  const sensSrc = extractFunctionSource(html, 'isSensitiveAuditAction') || 'function isSensitiveAuditAction(a){ return a==="login"||a==="user_edit"; }';
+  assertTrue(!!normSrc && !!filSrc, 'normalizeAuditRec / filterAuditRecords پیدا نشد');
+  const runner = new Function(inferSrc + '\n' + sensSrc + '\n' + normSrc + '\n' + filSrc + `
+    var log = [
+      {id:'a1', username:'علی', user:'علی', action:'login', module:'auth', description:'ورود', sensitive:true, ts:100},
+      {id:'a2', username:'مینا', action:'ذخیره فاکتور', module:'invoice', description:'F-1', sensitive:false, ts:200},
+      {id:'a3', username:'علی', action:'user_edit', module:'users', description:'نقش', sensitive:true, ts:300, detail:'نقش'}
+    ];
+    return {
+      ali: filterAuditRecords(log, {user:'علی'}).map(function(e){return e.id;}),
+      inv: filterAuditRecords(log, {module:'invoice'}).map(function(e){return e.id;}),
+      sens: filterAuditRecords(log, {sensitiveOnly:true}).map(function(e){return e.id;}),
+      q: filterAuditRecords(log, {q:'فاکتور'}).map(function(e){return e.id;})
+    };
+  `);
+  const r = runner();
+  assertEqual(r.ali, ['a1','a3'], 'فیلتر کاربر باید فقط رویدادهای علی را بدهد');
+  assertEqual(r.inv, ['a2'], 'فیلتر ماژول باید فاکتور را جدا کند');
+  assertEqual(r.sens, ['a1','a3'], 'فیلتر حساس باید ورود و تغییر دسترسی را بدهد');
+  assertEqual(r.q, ['a2'], 'جستجوی متنی باید روی شرح/عملیات کار کند');
+});
+
+test('رابط کاربران و گزارش باید فیلد نقش، وضعیت، فیلترها و جزئیات رویداد داشته باشد', () => {
+  ['role-key','role-active','role-force-pw','role-last-login','audit-filter-user','audit-filter-module','audit-filter-action','audit-filter-sensitive','audit-detail-modal','force-pw-modal','login-user-input'].forEach(id => {
+    assertContainsString(html, 'id="'+id+'"', 'عنصر '+id+' لازم است');
+  });
+  assertContainsString(html, 'function exportAuditExcel(', 'خروجی اکسل گزارش لازم است');
+  assertContainsString(html, 'function printAuditReport(', 'خروجی PDF/چاپ گزارش لازم است');
+  assertContainsString(html, 'function openAuditDetail(', 'جزئیات رویداد لازم است');
+  assertContainsString(html, 'function toggleUserActive(', 'فعال/غیرفعال کردن کاربر لازم است');
+  const exp = extractFunctionSource(html, 'exportAuditExcel');
+  assertTrue(exp.indexOf('ماژول') >= 0 || exp.indexOf('module') >= 0, 'اکسل باید ستون ماژول داشته باشد');
+  assertTrue(exp.indexOf('OldValues') >= 0 || exp.indexOf('مقدار قبلی') >= 0 || exp.indexOf('oldValues') >= 0, 'اکسل باید مقادیر قبلی را داشته باشد');
+});
+
+test('میزبان دات‌نت باید نام رایانه را برای ثبت فعالیت بدهد و HTML-only نشکند', () => {
+  const hostPath = path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs');
+  assertTrue(fs.existsSync(hostPath), 'SirmanHostObject.cs باید وجود داشته باشد');
+  const host = fs.readFileSync(hostPath, 'utf8');
+  assertContainsString(host, 'GetMachineInfo', 'میزبان باید GetMachineInfo داشته باشد');
+  assertContainsString(host, 'Environment.MachineName', 'باید نام رایانه ویندوز خوانده شود');
+  const machSrc = extractFunctionSource(html, 'getMachineAuditInfo');
+  assertTrue(!!machSrc, 'getMachineAuditInfo پیدا نشد');
+  assertTrue(machSrc.indexOf('GetMachineInfo') >= 0, 'HTML باید در exe از Host Object نام رایانه بگیرد');
+  assertTrue(machSrc.indexOf('HTML') >= 0, 'بدون exe باید نام رایانه HTML باشد نه اینکه کرش کند');
+});
+
+test('قانون ۷: راهنمای نقش‌ها و گزارش فعالیت باید موجود باشد', () => {
+  assertContainsString(html, 'نقش‌ها', 'راهنما باید نقش‌ها را توضیح دهد');
+  assertContainsString(html, 'گزارش فعالیت', 'راهنما باید گزارش فعالیت را توضیح دهد');
+  assertContainsString(html, 'مدیر سیستم', 'راهنما باید نقش مدیر سیستم را بگوید');
+  assertContainsString(html, 'بازدیدکننده', 'راهنما باید نقش بازدیدکننده را بگوید');
+  assertContainsString(html, 'رویدادهای حساس', 'راهنما باید فیلتر حساس را بگوید');
+});
+
+test('saveRole همچنان نباید رمز کاربر را با رمز کلی نرم‌افزار یکی کند', () => {
+  const saveRoleSrc = extractFunctionSource(html, 'saveRole');
+  assertTrue(saveRoleSrc !== null, 'تابع saveRole پیدا نشد');
+  assertContainsString(saveRoleSrc, 'pw === loginPw', 'باید رمز پروفایل را با رمز کلی نرم‌افزار مقایسه کند تا تداخل پیش نیاید');
 });
 
 
