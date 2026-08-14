@@ -35,7 +35,10 @@ public static class PaymentRules
         return new PaymentAccountResult { Ok = true, Account = account, Amount = amount, Transaction = trx };
     }
 
-    public static PaymentAccountResult ApplyWithdraw(JsonObject? account, double amount, string? subject, string? date)
+    public static PaymentAccountResult ApplyWithdraw(JsonObject? account, double amount, string? subject, string? date) =>
+        ApplyWithdraw(account, amount, subject, date, "", "manual");
+
+    public static PaymentAccountResult ApplyWithdraw(JsonObject? account, double amount, string? subject, string? date, string? refId, string? refType)
     {
         if (account is null) return AccountFail("validation", "حساب پیدا نشد");
         var balance = CalculationEngine.ToNum(account["balance"]?.ToString());
@@ -43,10 +46,75 @@ public static class PaymentRules
         if (!chk.Ok) return AccountFail(chk.Error == "موجودی کافی نیست" ? "business-rule" : "validation", chk.Error);
         account = Clone(account)!;
         amount = chk.Amount;
-        var trx = NewTrx(account, "withdraw", -amount, subject ?? "برداشت", "", "manual", date);
+        var type = string.IsNullOrWhiteSpace(refType) ? "manual" : refType;
+        var trx = NewTrx(account, "withdraw", -amount, subject ?? "برداشت", refId ?? "", type, date);
         EnsureTrx(account).Add(trx);
         account["balance"] = chk.NewBalance;
         return new PaymentAccountResult { Ok = true, Account = account, Amount = amount, NewBalance = chk.NewBalance, Transaction = trx };
+    }
+
+    /// <summary>حذف همه تراکنش‌های همین منبع (refId+refType) و برگشت مانده از روی مبلغ همان تراکنش‌ها.</summary>
+    public static PaymentAccountResult ReverseLinked(JsonObject? account, string? refId, string? refType)
+    {
+        account = Clone(account);
+        if (account is null) return AccountFail("validation", "حساب پیدا نشد");
+        if (string.IsNullOrWhiteSpace(refId) || string.IsNullOrWhiteSpace(refType))
+            return new PaymentAccountResult { Ok = true, Account = account, RemovedCount = 0, NewBalance = CalculationEngine.ToNum(account["balance"]?.ToString()) };
+        var arr = EnsureTrx(account);
+        var removed = 0;
+        for (var i = arr.Count - 1; i >= 0; i--)
+        {
+            if (arr[i] is not JsonObject t) continue;
+            if (JsonVal.Str(t, "refId") != refId) continue;
+            if (JsonVal.Str(t, "refType") != refType) continue;
+            var oldAmt = CalculationEngine.ToNum(t["amount"]?.ToString());
+            account["balance"] = CalculationEngine.ToNum(account["balance"]?.ToString()) - oldAmt;
+            arr.RemoveAt(i);
+            removed++;
+        }
+        return new PaymentAccountResult
+        {
+            Ok = true,
+            Account = account,
+            RemovedCount = removed,
+            NewBalance = CalculationEngine.ToNum(account["balance"]?.ToString())
+        };
+    }
+
+    /// <summary>برگشت یک برداشت قدیمی بدون refId — فقط اگر مبلغ و موضوع به همان منبع بخورد.</summary>
+    public static PaymentAccountResult ReverseMatchingWithdraw(JsonObject? account, double amount, string? subjectContains)
+    {
+        account = Clone(account);
+        if (account is null) return AccountFail("validation", "حساب پیدا نشد");
+        if (amount <= 0) return new PaymentAccountResult { Ok = true, Account = account, RemovedCount = 0 };
+        var arr = EnsureTrx(account);
+        var needle = subjectContains ?? "";
+        for (var i = arr.Count - 1; i >= 0; i--)
+        {
+            if (arr[i] is not JsonObject t) continue;
+            var type = JsonVal.Str(t, "type");
+            var oldAmt = CalculationEngine.ToNum(t["amount"]?.ToString());
+            var isWithdraw = type == "withdraw" || oldAmt < 0;
+            if (!isWithdraw) continue;
+            if (Math.Abs(Math.Abs(oldAmt) - amount) > 0.0001) continue;
+            if (needle.Length > 0 && !JsonVal.Str(t, "subject").Contains(needle, StringComparison.Ordinal)) continue;
+            account["balance"] = CalculationEngine.ToNum(account["balance"]?.ToString()) - oldAmt;
+            arr.RemoveAt(i);
+            return new PaymentAccountResult
+            {
+                Ok = true,
+                Account = account,
+                RemovedCount = 1,
+                NewBalance = CalculationEngine.ToNum(account["balance"]?.ToString())
+            };
+        }
+        return new PaymentAccountResult
+        {
+            Ok = true,
+            Account = account,
+            RemovedCount = 0,
+            NewBalance = CalculationEngine.ToNum(account["balance"]?.ToString())
+        };
     }
 
     public static PaymentAccountResult EditTransaction(JsonObject? account, int trxIndex, double newAmount, string? date, string? subject, string? category, string? refNo)
@@ -137,6 +205,7 @@ public sealed class PaymentAccountResult
     public JsonObject? Transaction { get; init; }
     public double Amount { get; init; }
     public double NewBalance { get; init; }
+    public int RemovedCount { get; init; }
 }
 
 public sealed class PaymentCheck

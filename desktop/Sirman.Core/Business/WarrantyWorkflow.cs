@@ -152,6 +152,8 @@ public static class WarrantyWorkflow
         };
     }
 
+    public static ReversalResult Delete(JsonObject? payload) => TransactionReversal.DeleteWarranty(payload);
+
     public static bool IsInPersonShip(string? v)
     {
         v = (v ?? "").Trim().ToLowerInvariant();
