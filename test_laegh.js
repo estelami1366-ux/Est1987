@@ -3965,14 +3965,14 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳δ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۳ε باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
-  assertEqual(metaVer, '1405.5.23δ', 'نسخه meta باید 1405.5.23δ باشد');
+  assertEqual(metaVer, '1405.5.23ε', 'نسخه meta باید 1405.5.23ε باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
   assertEqual(metaDate, '1405/05/23', 'app-date باید 1405/05/23 باشد');
-  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۳δ', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۳δ را نشان دهد');
+  assertContainsString(html, 'نسخه ۱۴۰۵.۵.۲۳ε', 'سایدبار باید نسخه فارسی ۱۴۰۵.۵.۲۳ε را نشان دهد');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
-  assertContainsString(buildSrc, "version: '1405.5.23δ'", 'فیلد version بک‌آپ باید 1405.5.23δ باشد');
+  assertContainsString(buildSrc, "version: '1405.5.23ε'", 'فیلد version بک‌آپ باید 1405.5.23ε باشد');
 });
 
 
@@ -7204,7 +7204,7 @@ test('نقش‌های استاندارد باید پنج کلید admin/manager/
     assertTrue(!!cat[k], 'نقش «'+k+'» باید در ROLE_CATALOG باشد');
     assertTrue(Array.isArray(cat[k].pages) && cat[k].pages.length > 0, 'نقش '+k+' باید صفحات پیش‌فرض داشته باشد');
   });
-  assertEqual(Object.keys(cat).length, 5, 'باید دقیقاً پنج نقش استاندارد باشد');
+  assertTrue(Object.keys(cat).length >= 5, 'پنج نقش استاندارد باید بمانند');
 });
 
 test('normalizeAppUser باید پروفایل قدیمی name/pw/pages را به کاربر کامل ارتقا دهد', () => {
@@ -7477,7 +7477,7 @@ test('گزارش مشکل باید نسخه، کاربر، ماژول و کد خ
   assertTrue(!!src, 'تابع submitHelpProblem پیدا نشد');
   assertContainsString(html, 'id="help-report-modal"', 'مودال گزارش مشکل لازم است');
   const runner = new Function('document','localStorage','ntf','closeMod', src + `
-    var APP_VERSION = '1405.5.23δ';
+    var APP_VERSION = '1405.5.23ε';
     var currentRole = {name:'علی', id:'u1'};
     function getMachineAuditInfo(){ return {computerName:'PC-TEST'}; }
     submitHelpProblem();
@@ -7500,7 +7500,7 @@ test('گزارش مشکل باید نسخه، کاربر، ماژول و کد خ
   assertTrue(Array.isArray(tickets) && tickets.length === 1, 'باید یک گزارش محلی ذخیره شود');
   assertEqual(tickets[0].module, 'warranty', 'ماژول باید ذخیره شود');
   assertEqual(tickets[0].code, 'ERR-AUTH-001', 'کد خطا باید ذخیره شود');
-  assertEqual(tickets[0].version, '1405.5.23δ', 'نسخه نرم‌افزار باید ضمیمه شود');
+  assertEqual(tickets[0].version, '1405.5.23ε', 'نسخه نرم‌افزار باید ضمیمه شود');
   assertEqual(tickets[0].computerName, 'PC-TEST', 'نام سیستم باید ضمیمه شود');
   assertTrue(tickets[0].user.indexOf('علی') >= 0, 'نام کاربر باید ضمیمه شود');
   assertTrue(JSON.stringify(tickets[0]).indexOf('http') === -1, 'گزارش نباید به بیرون ارسال شود');
@@ -7688,6 +7688,162 @@ test('دکمه پیشنهاد هوشمند باید قطعه را از کاتا�
   assertContainsString(html, "applySuggestedWarParts('company')", 'دکمه پیشنهاد کارشناس لازم است');
   const src = extractFunctionSource(html, 'applySuggestedWarParts');
   assertContainsString(src, 'suggestPartsForCase', 'باید از موتور پیشنهاد موجود استفاده کند');
+});
+
+
+console.log('');
+console.log('📋 گروه: توصیه‌نامه امنیتی — رمز، نشست، ۲FA، حریم خصوصی');
+
+test('رمز قوی باید رمز کوتاه یا بدون عدد را رد کند و رمز مخلوط را بپذیرد', () => {
+  const src = extractFunctionSource(html, 'checkPasswordStrength');
+  assertTrue(!!src, 'تابع checkPasswordStrength پیدا نشد');
+  const runner = new Function(src + `
+    return {
+      short: checkPasswordStrength('ab1'),
+      letters: checkPasswordStrength('abcdefgh'),
+      ok: checkPasswordStrength('Abcd1234'),
+      fa: checkPasswordStrength('سلام۱۲۳۴۵۶')
+    };
+  `);
+  const r = runner();
+  assertEqual(r.short.ok, false, 'رمز ۳ حرفی باید رد شود');
+  assertEqual(r.letters.ok, false, 'رمز بدون عدد باید رد شود');
+  assertEqual(r.ok.ok, true, 'رمز ۸ کاراکتری با حرف و عدد باید قبول شود');
+  assertEqual(r.fa.ok, true, 'رمز فارسی با رقم باید قبول شود');
+});
+
+test('تعویض دوره‌ای رمز مدیر باید بعد از ۹۰ روز اجباری شود', () => {
+  const src = extractFunctionSource(html, 'shouldForcePwChange');
+  assertTrue(!!src, 'تابع shouldForcePwChange پیدا نشد');
+  const runner = new Function(src + `
+    var now = Date.UTC(2026,7,14);
+    var day = 24*3600*1000;
+    return {
+      fresh: shouldForcePwChange({roleKey:'admin', pwChangedAt: now-10*day, forcePwChange:false}, now),
+      old: shouldForcePwChange({roleKey:'admin', pwChangedAt: now-91*day, forcePwChange:false}, now),
+      op: shouldForcePwChange({roleKey:'operator', pwChangedAt: now-200*day, forcePwChange:false}, now),
+      flag: shouldForcePwChange({roleKey:'viewer', forcePwChange:true, pwChangedAt: now}, now)
+    };
+  `);
+  const r = runner();
+  assertEqual(r.fresh, false, 'رمز تازه‌ی مدیر نباید منقضی باشد');
+  assertEqual(r.old, true, 'رمز مدیر بعد از ۹۰ روز باید تعویض اجباری شود');
+  assertEqual(r.op, false, 'اپراتور بدون پرچم نباید از روی سن رمز قفل شود');
+  assertEqual(r.flag, true, 'پرچم forcePwChange باید همیشه اعمال شود');
+});
+
+test('TOTP محلی باید بردار RFC را تأیید کند و کد غلط را رد کند', () => {
+  const sha = extractFunctionSource(html, 'secSha1');
+  const hmac = extractFunctionSource(html, 'secHmacSha1');
+  const b32 = extractFunctionSource(html, 'secBase32Decode');
+  const totp = extractFunctionSource(html, 'totpCodeAt');
+  const ver = extractFunctionSource(html, 'verifyTotpCode');
+  assertTrue(!!sha && !!hmac && !!b32 && !!totp && !!ver, 'توابع TOTP پیدا نشد');
+  const runner = new Function(sha+'\n'+hmac+'\n'+b32+'\n'+totp+'\n'+ver+`
+    var secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
+    var t = 1111111109 * 1000;
+    return {
+      code: totpCodeAt(secret, t),
+      ok: verifyTotpCode(secret, '081804', t),
+      bad: verifyTotpCode(secret, '000000', t)
+    };
+  `);
+  const r = runner();
+  assertEqual(r.code, '081804', 'بردار RFC 6238 برای ۶ رقم باید 081804 باشد');
+  assertEqual(r.ok, true, 'کد درست باید قبول شود');
+  assertEqual(r.bad, false, 'کد غلط باید رد شود');
+});
+
+test('بعد از ۵ ورود ناموفق باید ورود برای ۶۰ ثانیه قفل شود و با موفقیت پاک شود', () => {
+  const rec = extractFunctionSource(html, 'registerLoginFailure');
+  const back = extractFunctionSource(html, 'loginBackoffMs');
+  const clr = extractFunctionSource(html, 'clearLoginFailures');
+  assertTrue(!!rec && !!back && !!clr, 'توابع محدودیت ورود پیدا نشد');
+  const runner = new Function(
+    'var _loginFails = [];\n' + rec + '\n' + back + '\n' + clr + `
+    var t0 = 1000000;
+    for (var i=0;i<5;i++) registerLoginFailure(t0+i);
+    var locked = loginBackoffMs(t0+4);
+    clearLoginFailures();
+    var after = loginBackoffMs(t0+4);
+    return {locked:locked, after:after};
+  `);
+  const r = runner();
+  assertTrue(r.locked > 0, 'بعد از ۵ شکست باید backoff داشته باشد');
+  assertEqual(r.after, 0, 'ورود موفق باید قفل موقت را بردارد');
+});
+
+test('قفل بی‌فعالیتی باید دقیقه‌های تنظیم را بخواند و صفر یعنی خاموش', () => {
+  const getSrc = extractFunctionSource(html, 'getIdleLockMinutes');
+  const resetSrc = extractFunctionSource(html, 'resetIdleLockTimer');
+  assertTrue(!!getSrc && !!resetSrc, 'توابع قفل بی‌فعالیتی پیدا نشد');
+  const runner = new Function(getSrc + `
+    var store = {'laegh_idle_lock_min':'20'};
+    var localStorage = { getItem:function(k){ return store[k]||null; }, setItem:function(k,v){ store[k]=String(v); } };
+    var a = getIdleLockMinutes();
+    store['laegh_idle_lock_min'] = '0';
+    var b = getIdleLockMinutes();
+    store['laegh_idle_lock_min'] = 'bad';
+    var c = getIdleLockMinutes();
+    return {a:a,b:b,c:c};
+  `);
+  const r = runner();
+  assertEqual(r.a, 20, 'باید دقیقه ذخیره‌شده را بخواند');
+  assertEqual(r.b, 0, 'صفر یعنی قفل خودکار خاموش');
+  assertEqual(r.c, 15, 'مقدار نامعتبر باید به ۱۵ دقیقه پیش‌فرض برگردد');
+});
+
+test('نقش مدیر انبار باید در کاتالوگ باشد و پنج نقش قبلی حذف نشوند', () => {
+  const catSrc = extractConstSource(html, 'ROLE_CATALOG');
+  assertTrue(!!catSrc, 'ROLE_CATALOG پیدا نشد');
+  const cat = new Function('var ALL_PAGE_KEYS=["dashboard","tasks","invoice","saved","products","inventory","defective","warehouse","warehouse-entities","phonebook","postal","parts","daqi","services","sales","accounts","warranty","dataio","datetime","audit","settings","help"]; ' + catSrc + ' return ROLE_CATALOG;')();
+  ['admin','manager','operator','service','viewer','warehouse'].forEach(k => {
+    assertTrue(!!cat[k], 'نقش «'+k+'» باید باشد');
+  });
+  assertTrue((cat.warehouse.pages||[]).indexOf('warehouse')>=0, 'مدیر انبار باید به انبار دسترسی داشته باشد');
+  assertTrue((cat.warehouse.pages||[]).indexOf('settings')<0, 'مدیر انبار نباید تنظیمات کل سیستم را داشته باشد');
+});
+
+test('ناشناس‌سازی مخاطب باید تلفن و آدرس را پاک کند و شناسه را نگه دارد', () => {
+  const src = extractFunctionSource(html, 'anonymizeContactRecord');
+  assertTrue(!!src, 'تابع anonymizeContactRecord پیدا نشد');
+  const runner = new Function(src + `
+    var c = {fn:'علی', ln:'محمدی', shop:'فروشگاه', addr:'تهران', zip:'123', phones:['0912'], nid:'0012345678', cat:'customer'};
+    var out = anonymizeContactRecord(c);
+    return {out:out, same: c===out ? null : 'copied'};
+  `);
+  const r = runner();
+  assertEqual(r.out.fn, 'حذف‌شده', 'نام باید ناشناس شود');
+  assertEqual((r.out.phones||[]).length, 0, 'تلفن باید پاک شود');
+  assertEqual(r.out.addr, '', 'آدرس باید پاک شود');
+  assertEqual(r.out.nid, '', 'کد ملی باید پاک شود');
+  assertEqual(r.out.privacyAnonymized, true, 'پرچم ناشناس باید باشد');
+  assertEqual(r.out.cat, 'customer', 'دسته برای آمار باید بماند');
+});
+
+test('قانون ۷: راهنمای امنیت باید رمز قوی، ۲FA، قفل نشست، رضایت و واکنش به رخداد را بگوید', () => {
+  assertContainsString(html, 'رمز قوی', 'راهنما باید رمز قوی را بگوید');
+  assertContainsString(html, 'دومرحله', 'راهنما باید احراز هویت دومرحله‌ای را بگوید');
+  assertContainsString(html, 'بی‌فعالیتی', 'راهنما باید قفل بی‌فعالیتی را بگوید');
+  assertContainsString(html, 'رضایت', 'راهنما باید رضایت نگهداری اطلاعات را بگوید');
+  assertContainsString(html, 'ناشناس', 'راهنما باید ناشناس‌سازی را بگوید');
+  assertContainsString(html, 'واکنش به رخداد', 'راهنما باید برنامه واکنش به رخداد را بگوید');
+  const exp = extractFunctionSource(html, 'expandHelpQuery');
+  const runner = new Function(exp + `; return expandHelpQuery('رمز قوی');`);
+  const q = runner();
+  assertTrue(/رمز|امنیت|قوی/.test(q), 'جستجوی رمز قوی باید به مقاله امنیت برسد');
+});
+
+test('ورود فعلی و مقایسه رمز پروفایل با رمز کلی نباید بشکند', () => {
+  const saveRoleSrc = extractFunctionSource(html, 'saveRole');
+  assertContainsString(saveRoleSrc, 'pw === loginPw', 'باید رمز پروفایل را با رمز کلی نرم‌افزار مقایسه کند');
+  assertContainsString(saveRoleSrc, 'checkPasswordStrength', 'ذخیره کاربر جدید باید رمز را با سیاست قدرت بسنجد');
+  const loginSrc = extractFunctionSource(html, 'setLoginPw');
+  assertContainsString(loginSrc, 'checkPasswordStrength', 'رمز مدیر سیستم باید سیاست قدرت داشته باشد');
+  const matchSrc = extractFunctionSource(html, 'matchAppUserForLogin');
+  assertContainsString(matchSrc, 'u.pw !== password', 'ورود باید همچنان با رمز ذخیره‌شده کار کند');
+  assertContainsString(html, 'encryptBackupPackage', 'رمزنگاری بک‌آپ موجود نباید حذف شود');
+  assertContainsString(html, 'GetMachineInfo', 'نام رایانه برای گزارش فعالیت باید بماند');
 });
 
 

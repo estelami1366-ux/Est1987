@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23δ">
+<meta name="app-version" content="1405.5.23ε">
 <meta name="app-date" content="1405/05/23">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -995,7 +995,7 @@ body.sb-dock .ai-float{bottom:170px;}
 .stg-panel.active{display:block;}
 /* PRINT SETTINGS */
 .print-section-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;}
-/* ══════ مرکز پرینت / Print Center (v1405.5.23δ) ══════ */
+/* ══════ مرکز پرینت / Print Center (v1405.5.23ε) ══════ */
 .pc-shell{display:grid;grid-template-columns:210px minmax(0,1fr) 300px;gap:12px;min-height:540px;align-items:stretch;}
 .pc-col{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 24px rgba(15,40,55,.06);display:flex;flex-direction:column;min-width:0;overflow:hidden;}
 .pc-col-h{padding:12px 14px;font-size:12px;font-weight:800;letter-spacing:.02em;color:var(--blue2);background:linear-gradient(180deg,color-mix(in srgb,var(--blue-l) 70%,#fff),transparent);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -1122,7 +1122,7 @@ body.has-bg-image::after{
 }
 body.has-bg-image.theme-dark::after{background:rgba(10,12,15,var(--bg-overlay,0.55));}
 
-/* ══════ اسکین قوی / Skin Pack (v1405.5.23δ) ══════ */
+/* ══════ اسکین قوی / Skin Pack (v1405.5.23ε) ══════ */
 .skin-card{width:148px;border:2px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;background:var(--card);transition:.18s;text-align:right;}
 .skin-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,40,55,.10);}
 .skin-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 25%,transparent);}
@@ -1687,7 +1687,7 @@ body.theme-dark .fin-tbl td{border-color:#2c333d}
 
 </style>
 <style id="win-manager-css">
-/* ══════ چندپنجره / تب‌های کاری (v1405.5.23δ) ══════ */
+/* ══════ چندپنجره / تب‌های کاری (v1405.5.23ε) ══════ */
 #win-chrome{
   position:sticky; top:0; z-index:60;
   display:flex; flex-wrap:wrap; align-items:center; gap:6px;
@@ -2008,6 +2008,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <div id="login-overlay-hint" style="font-size:12px;color:#888;margin-bottom:24px">برای ورود، رمز عبور را وارد کنید</div>
     <input type="text" id="login-user-input" placeholder="نام کاربری (برای مدیر کل خالی بگذارید)" autocomplete="username" style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;text-align:center;margin-bottom:8px;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter'){var p=document.getElementById('login-pw-input'); if(p) p.focus();}">
     <input type="password" id="login-pw-input" placeholder="رمز عبور" autocomplete="current-password" style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;text-align:center;margin-bottom:12px;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter')attemptLogin()">
+    <input type="text" id="login-otp-input" placeholder="کد دومرحله‌ای ۶ رقمی" inputmode="numeric" autocomplete="one-time-code" style="display:none;width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;text-align:center;margin-bottom:12px;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter')attemptLogin()">
     <button onclick="attemptLogin()" style="width:100%;padding:11px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:Tahoma">ورود</button>
     <div id="login-error-msg" style="color:#e74c3c;font-size:12px;margin-top:10px;min-height:16px"></div>
   </div>
@@ -2182,7 +2183,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۳δ — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۳ε — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-sm" id="btn-lock-app" onclick="lockApp()" style="width:100%;margin-top:8px;font-weight:700" title="قفل برنامه در حالی که باز است — Ctrl+Shift+L">🔒 قفل برنامه <small style="opacity:.7">Ctrl+Shift+L</small></button>
   <button class="btn btn-r btn-sm" id="btn-exit-safe" onclick="promptExitBackup()" style="width:100%;margin-top:8px;font-weight:700">🚪 خروج امن (پرسش بک‌آپ)</button>
   <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;padding:0 2px">اگر ✕ پنجره را بزنید، مرورگر اول هشدار می‌دهد؛ برای بک‌آپ از این دکمه استفاده کنید.</div>
@@ -4338,6 +4339,21 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
       <div id="login-pw-msg" style="font-size:12px;margin-top:8px;min-height:16px"></div>
     </div>
     <div class="card" style="max-width:440px;margin-top:12px">
+      <div class="card-title">⏱ قفل پس از بی‌فعالیتی</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.7">اگر کسی پشت سیستم نباشد، صفحه ورود می‌آید. صفر یعنی این قفل خودکار خاموش است. میانبر دستی قفل همچنان Ctrl+Shift+L است.</p>
+      <div class="f" style="margin-bottom:8px"><label>دقیقه تا قفل خودکار</label><input id="idle-lock-min" type="number" min="0" max="240" value="15"></div>
+      <button class="btn btn-p btn-sm" type="button" onclick="saveIdleLockMinutes()">💾 ذخیره زمان قفل</button>
+    </div>
+    <div class="card" style="max-width:440px;margin-top:12px">
+      <div class="card-title">🔐 ورود دومرحله‌ای مدیر سیستم</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.7">برای رمز کلی نرم‌افزار. راز را در برنامه اصالت‌سنج تلفن (مثل Google Authenticator) وارد کنید. بدون سرور و پیامک کار می‌کند. کدهای پشتیبان یک‌بارمصرف‌اند.</p>
+      <div id="admin-2fa-secret" style="font-size:12px;direction:ltr;text-align:left;background:var(--bg2);padding:8px;border-radius:8px;margin-bottom:8px;word-break:break-all">—</div>
+      <div class="btn-bar">
+        <button class="btn btn-p btn-sm" type="button" onclick="enableAdminTwoFactor()">فعال‌سازی ۲FA</button>
+        <button class="btn btn-sm btn-r" type="button" onclick="disableAdminTwoFactor()">خاموش</button>
+      </div>
+    </div>
+    <div class="card" style="max-width:440px;margin-top:12px">
       <div class="card-title">🔒 قفل برنامه در حال کار</div>
       <p style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.7">برنامه باز می‌ماند ولی صفحه ورود می‌آید تا کسی پشت میز نتواند کار کند. داده پاک نمی‌شود. برای باز کردن همان رمز ورود را بزنید. اگر رمز ورود تنظیم نشده باشد، اول از کارت بالا رمز بگذارید.</p>
       <button class="btn btn-p btn-sm" id="btn-stg-lock-app" type="button" onclick="lockApp()">🔒 قفل کردن همین حالا</button>
@@ -5521,9 +5537,24 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
     <li><b>مسیر:</b> تنظیمات → تب <b>کاربران و نقش‌ها</b>.</li>
     <li><b>کاربر جدید:</b> نام نمایشی، نام کاربری، رمز، نقش و صفحات مجاز را بگذارید. می‌توانید حساب را غیرفعال کنید یا در ورود بعدی تعویض رمز را اجباری کنید.</li>
-    <li><b>نقش‌ها:</b> <b>مدیر سیستم</b> (همه‌چیز + پاک کردن گزارش)، <b>مدیر</b> (مدیریت و گزارش)، <b>اپراتور</b> (کار روزمره)، <b>خدمات</b> (پیگیری سرویس و گارانتی)، <b>بازدیدکننده</b> (فقط مشاهده).</li>
+    <li><b>نقش‌ها:</b> <b>مدیر سیستم</b> (همه‌چیز + پاک کردن گزارش)، <b>مدیر</b> (مدیریت و گزارش)، <b>اپراتور کال‌سنتر</b> (کار روزمره پذیرش)، <b>تکنسین خدمات</b> (پیگیری سرویس و گارانتی)، <b>مدیر انبار قطعات</b> (انبار و قطعه)، <b>بازدیدکننده</b> (فقط مشاهده). ورود مشتری به نرم‌افزار اداری ساخته نشده چون سیستم موازی است.</li>
     <li><b>ورود:</b> کارمند نام کاربری و رمز خودش را می‌زند. مدیر سیستم نام کاربری را خالی می‌گذارد و رمز کلی را می‌زند. حساب غیرفعال وارد نمی‌شود.</li>
     <li><b>آخرین ورود</b> در لیست کاربران دیده می‌شود. رمزها در گزارش فعالیت ذخیره نمی‌شوند.</li>
+    <li><b>رمز قوی:</b> رمز جدید مدیر و کاربران حداقل ۸ کاراکتر با حرف و عدد است. رمز مدیر و مدیر سیستم هر ۹۰ روز تعویض اجباری می‌شود.</li>
+    <li><b>ورود دومرحله‌ای:</b> برای مدیر سیستم از تنظیمات → امنیت؛ برای کاربر از تیک ۲FA در همان فرم کاربر. کد ۶ رقمی از برنامه اصالت‌سنج تلفن است — پیامک و سرور لازم نیست.</li>
+  </ul>
+</div>
+
+<div class="card help-card help-collapsed" data-help-id="security-guide">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>امنیت نرم‌افزار (رمز قوی، نشست، داده، حریم خصوصی)</span><span class="help-chev">▾</span></div>
+  <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>امنیت کاربر:</b> رمز ورود، نقش‌ها، حساب غیرفعال، قفل جلسه (Ctrl+Shift+L)، قفل پس از بی‌فعالیتی، محدودیت ۵ ورود ناموفق، و ورود دومرحله‌ای برای نقش‌های مدیریتی.</li>
+    <li><b>امنیت داده:</b> بک‌آپ می‌تواند با رمز AES رمزنگاری شود (ورود/خروج داده). داده روی همین رایانه است؛ سرور عمومی و HTTPS جدا نداریم. دسترسی خام فقط با ورود مجاز.</li>
+    <li><b>پایداری:</b> خطاها با موتور خطا نشان داده می‌شوند و برنامه متوقف نمی‌شود. اگر آپدیت مشکل داشت دانگرید به هسته قبلی.</li>
+    <li><b>شبکه/اپ میدانی:</b> این نسخه دسکتاپ است و API موبایل جدا ندارد؛ تکنسین با همین برنامه و نقش «تکنسین خدمات» کار می‌کند.</li>
+    <li><b>حریم خصوصی:</b> در دفترچه تلفن تیک رضایت نگهداری اطلاعات تماس را بزنید. با دکمه ناشناس‌سازی، نام/تلفن/آدرس/کد ملی پاک می‌شود و فاکتورهای قبلی دست نمی‌خورند.</li>
+    <li><b>ثبت رویداد:</b> ورود ناموفق را در گزارش فعالیت با فیلتر «رویدادهای حساس» ببینید. لاگ را مدیر سیستم پاک می‌کند.</li>
+    <li><b>واکنش به رخداد:</b> اگر شک به دسترسی غیرمجاز دارید: ۱) همه رمزها را عوض کنید ۲) حساب مشکوک را غیرفعال کنید ۳) گزارش فعالیت را اکسل بگیرید ۴) از بک‌آپ رمزدار سالم بازگردانی کنید ۵) ۲FA را روشن کنید.</li>
   </ul>
 </div>
 
@@ -5637,6 +5668,8 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <li><b>پوشه بک‌آپ:</b> محل روی هارد برای عکس و ذخیره خودکار.</li>
     <li><b>هسته هوشمند:</b> موتور محاسبه و پیشنهاد روی همان Event Bus و انبار موجود؛ جدول یا نرم‌افزار جدا نیست.</li>
     <li><b>نقطه سفارش:</b> میانگین مصرف × زمان تأمین + موجودی اطمینان. اگر مصرف ثبت نشده، همان حداقل/نقطه سفارش دستی کالا استفاده می‌شود.</li>
+    <li><b>ورود دومرحله‌ای:</b> کد ۶ رقمی روی تلفن بعد از رمز؛ برای مدیر سیستم و کاربران مدیریتی.</li>
+    <li><b>ناشناس‌سازی:</b> پاک کردن تلفن و آدرس مخاطب با نگه داشتن سابقه فاکتور.</li>
   </ul>
 </div>
 
@@ -5644,6 +5677,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 <div class="card help-card help-collapsed" data-help-id="whats-new">
   <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>تغییرات نسخه — What's New</span><span class="help-chev">▾</span></div>
   <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>۱۴۰۵.۵.۲۳ε:</b> امنیت: رمز قوی، قفل بی‌فعالیتی، ورود دومرحله‌ای محلی، محدودیت ورود ناموفق، نقش مدیر انبار، رضایت و ناشناس‌سازی مخاطب.</li>
     <li><b>۱۴۰۵.۵.۲۳δ:</b> هسته هوشمند: محاسبه قطعی گارانتی/مبلغ/موجودی، پیشنهاد قطعه از کاتالوگ، و اتصال SLA به همان آستانه ۲۴/۴۸/۷۲.</li>
     <li><b>۱۴۰۵.۵.۲۳γ:</b> مرکز راهنما کامل شد: شروع سریع، آموزش تعاملی، FAQ، واژه‌نامه، راهنمای این صفحه، اتصال خطا به راهنما، گزارش مشکل.</li>
     <li><b>۱۴۰۵.۵.۲۳β:</b> کاربران با نقش استاندارد، حساب غیرفعال، گزارش فعالیت با فیلتر و خروجی.</li>
@@ -5656,7 +5690,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>راهنمای مدیر سیستم</span><span class="help-chev">▾</span></div>
   <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
     <li><b>کاربران و نقش‌ها:</b> تنظیمات → کاربران و نقش‌ها. نقش بدهید، حساب را غیرفعال کنید، تعویض رمز اجباری بگذارید.</li>
-    <li><b>امنیت:</b> رمز ورود کلی، قفل جلسه، و اینکه کارمند عادی گزارش را پاک نمی‌کند.</li>
+    <li><b>امنیت:</b> رمز ورود کلی با رمز قوی، قفل جلسه و قفل بی‌فعالیتی، ورود دومرحله‌ای، و اینکه کارمند عادی گزارش را پاک نمی‌کند.</li>
     <li><b>پشتیبان‌گیری:</b> ورود/خروج داده + پوشه ذخیره خودکار. قانون ۳-۲-۱ در همین راهنما.</li>
     <li><b>چاپگر:</b> تنظیمات → مرکز پرینت. در exe فهرست چاپگر ویندوز می‌آید.</li>
     <li><b>گزارش فعالیت:</b> ورود ناموفق و تغییر دسترسی را ببینید. خروجی اکسل از فیلتر فعلی.</li>
@@ -5667,7 +5701,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۳δ
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۳ε
 </div>
 </div>
 
@@ -5724,8 +5758,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <div class="f"><label>رمز ورود</label><input type="password" id="role-pw" placeholder="خالی = بدون تغییر (در ویرایش)"></div>
     <div class="f"><label>نقش</label>
       <select id="role-key" onchange="applyRoleCatalogToForm()">
-        <option value="operator">اپراتور</option>
-        <option value="service">خدمات</option>
+        <option value="operator">اپراتور کال‌سنتر</option>
+        <option value="service">تکنسین خدمات</option>
+        <option value="warehouse">مدیر انبار قطعات</option>
         <option value="manager">مدیر</option>
         <option value="admin">مدیر سیستم</option>
         <option value="viewer">بازدیدکننده</option>
@@ -5735,6 +5770,11 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   <div class="g2" style="margin-bottom:10px">
     <label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="role-active" checked> حساب فعال است</label>
     <label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="role-force-pw"> در ورود بعدی تعویض رمز اجباری باشد</label>
+  </div>
+  <label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:8px"><input type="checkbox" id="role-2fa" onchange="renderRoleTwoFactorBox('','')"> ورود دومرحله‌ای (کد ۶ رقمی روی تلفن)</label>
+  <div id="role-2fa-box" style="display:none;font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.8">
+    راز TOTP: <span id="role-2fa-secret" style="direction:ltr;font-family:monospace"></span>
+    <div id="role-2fa-backups"></div>
   </div>
   <div id="role-last-login" style="font-size:11px;color:var(--text2);margin-bottom:10px"></div>
   <div style="margin-bottom:10px">
@@ -6073,6 +6113,8 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   <div class="f" style="margin-bottom:8px"><label>نام فروشگاه / شرکت</label><input id="pbm-shop" placeholder="نام فروشگاه یا شرکت"></div>
   <div class="f" style="margin-bottom:8px"><label>آدرس کامل</label><textarea id="pbm-addr" rows="2" placeholder="استان، شهر، خیابان، پلاک..."></textarea></div>
   <div class="f" style="margin-bottom:8px"><label>کدپستی</label><input id="pbm-zip" placeholder="کدپستی"></div>
+  <div class="f" style="margin-bottom:8px"><label>کد ملی (اختیاری)</label><input id="pbm-nid" placeholder="فقط برای بایگانی داخلی"></div>
+  <label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:10px"><input type="checkbox" id="pbm-consent"> رضایت مشتری برای نگهداری اطلاعات تماس ثبت شد</label>
   <div id="pbm-phones" style="margin-bottom:8px"></div>
   <button class="btn btn-sm" onclick="addPBPhone()" style="margin-bottom:10px">+ افزودن شماره</button>
   <div style="font-size:13px;font-weight:700;margin:8px 0 6px">📱 شبکه‌های اجتماعی</div>
@@ -6097,6 +6139,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
   <div class="f" style="margin-bottom:10px"><label>یادداشت</label><textarea id="pbm-note" rows="2"></textarea></div>
   <div class="btn-bar">
     <button class="btn btn-p" onclick="savePBContact()">💾 ذخیره</button>
+    <button class="btn btn-o" type="button" onclick="anonymizeOpenContact()">ناشناس‌سازی اطلاعات</button>
     <button class="btn btn-p" onclick="printPBLabel()" style="background:var(--purple);border-color:var(--purple)">📮 برچسب پستی</button>
     <button class="btn" onclick="closeMod('pb-modal')">انصراف</button>
   </div>
@@ -6481,9 +6524,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 })();
 
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.23δ';
-var APP_BASE_VERSION = '1405.5.23δ'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۲۳δ';
+var APP_VERSION = '1405.5.23ε';
+var APP_BASE_VERSION = '1405.5.23ε'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۲۳ε';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -6979,8 +7022,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.23δ'; }
-  catch(_e){ return '1405.5.23δ'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.23ε'; }
+  catch(_e){ return '1405.5.23ε'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -7607,8 +7650,8 @@ function _buildFullBackupData(){
   var data = {
     magic: (typeof SIRMAN_BACKUP_MAGIC!=='undefined'?SIRMAN_BACKUP_MAGIC:'SIRMAN_BACKUP'),
     schemaVersion: (typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1),
-    version: '1405.5.23δ',
-    applicationVersion: '1405.5.23δ',
+    version: '1405.5.23ε',
+    applicationVersion: '1405.5.23ε',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -8024,7 +8067,7 @@ async function restoreAutoSaveHandlesOnBoot(){
   }catch(_e2){ return false; }
 }
 
-// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.23δ ═══════════════════
+// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.23ε ═══════════════════
 // عکس پس‌زمینه، لوگو و ضمیمه‌ها فقط در پوشهٔ بک‌آپ روی دیسک نوشته می‌شوند.
 // در حافظهٔ مرورگر فقط ارجاع کوتاه disk://sirman_media/... نگه داشته می‌شود.
 window._diskUrlCache = window._diskUrlCache || {};
@@ -9856,7 +9899,7 @@ function showCustomer360(phone, name){
   document.getElementById('cust360-modal').classList.add('open');
 }
 
-// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۳δ) ───────────────────────────────────────────
+// ─── PAGES + چندپنجره (۱۴۰۵.۵.۲۳ε) ───────────────────────────────────────────
 window._wins = window._wins || [];
 window._winActive = window._winActive || null;
 window._winSeq = window._winSeq || 1;
@@ -10627,7 +10670,9 @@ function expandHelpQuery(q){
     'گزینه نمایش داده نمیشود':'نقش دسترسی کاربران',
     'قطعه در فهرست نیست':'انبار قطعات',
     'پیشنهاد قطعه':'پیشنهاد هوشمند قطعه هسته',
-    'هسته هوشمند':'هسته هوشمند محاسبه پیشنهاد قطعه'
+    'هسته هوشمند':'هسته هوشمند محاسبه پیشنهاد قطعه',
+    'رمز قوی':'رمز قوی امنیت دو مرحله',
+    'دو مرحله':'احراز هویت دومرحله‌ای امنیت'
   };
   if (syn[q]) return syn[q];
   if (/چاپ/.test(q) && /فاکتور/.test(q)) return q+' مرکز پرینت چاپ فاکتور';
@@ -11544,7 +11589,7 @@ function buildPH(list){
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 window._pcActiveDocId='invoice';
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23δ">
+<meta name="app-version" content="1405.5.23ε">
 <style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
 function expPDF(){printInv();}
 
@@ -11561,7 +11606,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23δ">
+<meta name="app-version" content="1405.5.23ε">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -11621,7 +11666,7 @@ function getSelIdx(){return Array.from(document.querySelectorAll('.rchk:checked'
 function delSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' فاکتور؟'))return;idx.sort((a,b)=>b-a).forEach(i=>invoices.splice(i,1));sv();renderSaved();ntf(idx.length+' فاکتور حذف شد');}
 function delInv(i){if(!confirm('حذف این فاکتور؟'))return;invoices.splice(i,1);sv();renderSaved();ntf('حذف شد');}
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23δ">
+<meta name="app-version" content="1405.5.23ε">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -11641,11 +11686,11 @@ function viewInv(idx){
   document.getElementById('det-modal').classList.add('open');
 }
 function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23δ">
+<meta name="app-version" content="1405.5.23ε">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23δ">
+<meta name="app-version" content="1405.5.23ε">
 <meta name="app-date" content="1405/05/23"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -11889,8 +11934,9 @@ function openPBModal(idx=-1){
   document.getElementById('pbm-idx').value=idx;
   if(idx===-1){
     document.getElementById('pbm-title').textContent='مخاطب جدید';
-    ['pbm-fn','pbm-ln','pbm-shop','pbm-addr','pbm-zip','pbm-ita','pbm-tg','pbm-wa','pbm-ig','pbm-note'].forEach(function(id){var e=document.getElementById(id); if(e) e.value='';});
+    ['pbm-fn','pbm-ln','pbm-shop','pbm-addr','pbm-zip','pbm-nid','pbm-ita','pbm-tg','pbm-wa','pbm-ig','pbm-note'].forEach(function(id){var e=document.getElementById(id); if(e) e.value='';});
     document.getElementById('pbm-cat').value='other';
+    var cons=document.getElementById('pbm-consent'); if(cons) cons.checked=false;
     pbSocials=[]; if(typeof renderPBSocials==='function') renderPBSocials();
     addPBPhone();
   } else {
@@ -11901,6 +11947,8 @@ function openPBModal(idx=-1){
     document.getElementById('pbm-shop').value=c.shop||'';
     document.getElementById('pbm-addr').value=c.addr||'';
     document.getElementById('pbm-zip').value=c.zip||'';
+    var nidEl=document.getElementById('pbm-nid'); if(nidEl) nidEl.value=c.nid||'';
+    var cons2=document.getElementById('pbm-consent'); if(cons2) cons2.checked=!!c.privacyConsent;
     document.getElementById('pbm-note').value=c.note||'';
     document.getElementById('pbm-cat').value=c.cat||'other';
     pbSocials = (typeof socialsFromContact==='function') ? socialsFromContact(c) : [];
@@ -11920,13 +11968,25 @@ function savePBContact(){
   const idx=parseInt(document.getElementById('pbm-idx').value);
   const phones=Array.from(document.querySelectorAll('[id^=pbph-]')).map(i=>i.value.trim()).filter(Boolean);
   if(typeof renderPBSocials==='function') renderPBSocials();
-  const c={fn:document.getElementById('pbm-fn').value,ln:document.getElementById('pbm-ln').value,shop:document.getElementById('pbm-shop').value,addr:document.getElementById('pbm-addr').value,zip:document.getElementById('pbm-zip').value,phones,ita:document.getElementById('pbm-ita').value,tg:document.getElementById('pbm-tg').value,wa:document.getElementById('pbm-wa').value,ig:document.getElementById('pbm-ig').value,socials:(typeof pbSocials!=='undefined'?pbSocials.slice():[]),note:document.getElementById('pbm-note').value,cat:document.getElementById('pbm-cat').value};
+  const prev = (idx>=0 && phonebook[idx]) ? phonebook[idx] : {};
+  const c=Object.assign({}, prev, {fn:document.getElementById('pbm-fn').value,ln:document.getElementById('pbm-ln').value,shop:document.getElementById('pbm-shop').value,addr:document.getElementById('pbm-addr').value,zip:document.getElementById('pbm-zip').value,nid:((document.getElementById('pbm-nid')||{}).value||''),privacyConsent:!!(document.getElementById('pbm-consent')&&document.getElementById('pbm-consent').checked),privacyConsentAt:(document.getElementById('pbm-consent')&&document.getElementById('pbm-consent').checked)?(prev.privacyConsentAt||Date.now()):(prev.privacyConsentAt||''),phones,ita:document.getElementById('pbm-ita').value,tg:document.getElementById('pbm-tg').value,wa:document.getElementById('pbm-wa').value,ig:document.getElementById('pbm-ig').value,socials:(typeof pbSocials!=='undefined'?pbSocials.slice():[]),note:document.getElementById('pbm-note').value,cat:document.getElementById('pbm-cat').value});
   if(idx===-1)phonebook.push(c);else phonebook[idx]=c;
   sv();closeMod('pb-modal');renderPB();ntf('مخاطب ذخیره شد'); auditUser(idx===-1?'ثبت مخاطب':'ویرایش مخاطب', (c.fn||'')+' '+(c.ln||''));
   if(typeof emit==='function') emit('phonebook:saved', {name:(c.fn||'')+' '+(c.ln||'')});
   });
 }
 function delPBContact(idx){if(!confirm('حذف؟'))return;phonebook.splice(idx,1);sv();renderPB();ntf('حذف شد');}
+function anonymizeOpenContact(){
+  var idx=parseInt((document.getElementById('pbm-idx')||{}).value);
+  if(!(idx>=0) || !phonebook[idx]){ ntf('ابتدا مخاطب ذخیره‌شده را باز کنید','err'); return; }
+  if(!confirm('اطلاعات تماس این مخاطب ناشناس شود؟ فاکتورهای قبلی نام ذخیره‌شده خودشان را دارند.')) return;
+  phonebook[idx] = anonymizeContactRecord(phonebook[idx]);
+  sv();
+  closeMod('pb-modal');
+  renderPB();
+  ntf('اطلاعات مخاطب ناشناس شد');
+  try{ if(typeof auditActivity==='function') auditActivity({action:'privacy_anonymize', module:'phonebook', result:'ok', entityType:'contact', description:'ناشناس‌سازی مخاطب', sensitive:true}); }catch(_a){}
+}
 // حذف گروهی دفترچه تلفن
 function togAllPB(chk){document.querySelectorAll('.pb-rchk').forEach(c=>c.checked=chk.checked);updatePBSel();}
 function updatePBSel(){var n=document.querySelectorAll('.pb-rchk:checked').length;var bar=document.getElementById('pb-bulk');var cnt=document.getElementById('pb-sel-cnt');if(bar)bar.style.display=n>0?'inline-flex':'none';if(cnt)cnt.textContent=n.toLocaleString('fa-IR');}
@@ -12278,7 +12338,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23δ">
+<meta name="app-version" content="1405.5.23ε">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -13872,7 +13932,7 @@ function enableTaskNotifications(){
 }
 function registerLaeghSW(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('sw.js?v=1405.5.23δ').then(reg=>{
+  navigator.serviceWorker.register('sw.js?v=1405.5.23ε').then(reg=>{
     _swReg=reg;
     // Check for SW updates
     reg.addEventListener('updatefound', ()=>{
@@ -13960,8 +14020,9 @@ const ALL_PAGE_KEYS = ALL_PAGES.map(p=>p.key);
 const ROLE_CATALOG = {
   admin:    { key:'admin',    label:'مدیر سیستم', pages: ALL_PAGE_KEYS.slice() },
   manager:  { key:'manager',  label:'مدیر', pages: ALL_PAGE_KEYS.slice() },
-  operator: { key:'operator', label:'اپراتور', pages: ['dashboard','tasks','invoice','saved','products','inventory','phonebook','postal','parts','sales','services','help'] },
-  service:  { key:'service',  label:'خدمات', pages: ['dashboard','warranty','invoice','saved','defective','warehouse','warehouse-entities','daqi','services','parts','phonebook','help'] },
+  operator: { key:'operator', label:'اپراتور کال‌سنتر', pages: ['dashboard','tasks','invoice','saved','products','inventory','phonebook','postal','parts','sales','services','help'] },
+  service:  { key:'service',  label:'تکنسین خدمات', pages: ['dashboard','warranty','invoice','saved','defective','warehouse','warehouse-entities','daqi','services','parts','phonebook','help'] },
+  warehouse:{ key:'warehouse',label:'مدیر انبار قطعات', pages: ['dashboard','warehouse','warehouse-entities','parts','products','inventory','defective','daqi','help'] },
   viewer:   { key:'viewer',   label:'بازدیدکننده', pages: ['dashboard','saved','products','inventory','warranty','help','datetime'] }
 };
 
@@ -13993,7 +14054,11 @@ function normalizeAppUser(u){
     forcePwChange: !!u.forcePwChange,
     lastLogin: u.lastLogin || '',
     lastLoginFa: u.lastLoginFa || '',
-    createdAt: u.createdAt || Date.now()
+    createdAt: u.createdAt || Date.now(),
+    pwChangedAt: u.pwChangedAt || u.createdAt || 0,
+    twoFactorEnabled: !!u.twoFactorEnabled,
+    twoFactorSecret: u.twoFactorSecret || '',
+    twoFactorBackup: Array.isArray(u.twoFactorBackup) ? u.twoFactorBackup.slice() : []
   };
 }
 function normalizeAppUsers(arr){
@@ -14010,6 +14075,7 @@ let loginPw = localStorage.getItem('laegh_login_pw') || '';
   const needsLogin = !!loginPw || (userRoles && userRoles.length > 0);
   if (!needsLogin) {
     document.getElementById('login-overlay').style.display = 'none';
+    try{ startIdleLockWatch(); }catch(_i){}
   } else {
     document.getElementById('login-overlay').style.display = 'flex';
     setTimeout(()=>{ const u=document.getElementById('login-user-input'); if(u) u.focus(); else { const inp=document.getElementById('login-pw-input'); if(inp) inp.focus(); } }, 100);
@@ -14017,6 +14083,204 @@ let loginPw = localStorage.getItem('laegh_login_pw') || '';
 })();
 
 function svRoles(){ localStorage.setItem('laegh_roles', JSON.stringify(userRoles)); markDirty(); }
+
+function checkPasswordStrength(pw, opts){
+  opts = opts || {};
+  pw = String(pw||'');
+  var min = opts.minLength || 8;
+  var issues = [];
+  if(pw.length < min) issues.push('حداقل '+min+' کاراکتر');
+  if(!/[A-Za-z\u0600-\u06FF]/.test(pw)) issues.push('حداقل یک حرف');
+  if(!/[0-9\u06F0-\u06F9\u0660-\u0669]/.test(pw)) issues.push('حداقل یک عدد');
+  return {ok: issues.length===0, issues:issues};
+}
+function shouldForcePwChange(u, now){
+  if(!u) return false;
+  if(u.forcePwChange) return true;
+  var key = u.roleKey || '';
+  if(key!=='admin' && key!=='manager') return false;
+  var at = Number(u.pwChangedAt || u.createdAt || 0);
+  if(!at) return false;
+  now = now || Date.now();
+  return (now-at) > 90*24*3600*1000;
+}
+function secSha1(bytes){
+  bytes = (bytes instanceof Uint8Array) ? bytes : new Uint8Array(bytes);
+  function rotr(n,s){ return ((n<<s)|(n>>>(32-s)))>>>0; }
+  var ml = bytes.length;
+  var bitLenHi = Math.floor((ml*8)/0x100000000);
+  var bitLenLo = (ml*8)>>>0;
+  var padLen = (56 - ((ml+1)%64) + 64) % 64;
+  var buf = new Uint8Array(ml+1+padLen+8);
+  buf.set(bytes);
+  buf[ml] = 0x80;
+  var dv = new DataView(buf.buffer);
+  dv.setUint32(buf.length-8, bitLenHi);
+  dv.setUint32(buf.length-4, bitLenLo);
+  var h0=0x67452301,h1=0xEFCDAB89,h2=0x98BADCFE,h3=0x10325476,h4=0xC3D2E1F0;
+  var w = new Uint32Array(80);
+  for(var off=0; off<buf.length; off+=64){
+    for(var i=0;i<16;i++) w[i]=dv.getUint32(off+i*4);
+    for(i=16;i<80;i++) w[i]=rotr(w[i-3]^w[i-8]^w[i-14]^w[i-16],1);
+    var a=h0,b=h1,c=h2,d=h3,e=h4,f,k,temp;
+    for(i=0;i<80;i++){
+      if(i<20){ f=(b&c)|((~b)&d); k=0x5A827999; }
+      else if(i<40){ f=b^c^d; k=0x6ED9EBA1; }
+      else if(i<60){ f=(b&c)|(b&d)|(c&d); k=0x8F1BBCDC; }
+      else { f=b^c^d; k=0xCA62C1D6; }
+      temp=(rotr(a,5)+f+e+k+w[i])>>>0;
+      e=d; d=c; c=rotr(b,30); b=a; a=temp;
+    }
+    h0=(h0+a)>>>0; h1=(h1+b)>>>0; h2=(h2+c)>>>0; h3=(h3+d)>>>0; h4=(h4+e)>>>0;
+  }
+  var out=new Uint8Array(20);
+  var ov=new DataView(out.buffer);
+  ov.setUint32(0,h0); ov.setUint32(4,h1); ov.setUint32(8,h2); ov.setUint32(12,h3); ov.setUint32(16,h4);
+  return out;
+}
+function secHmacSha1(key, msg){
+  key = (key instanceof Uint8Array)?key:new Uint8Array(key);
+  msg = (msg instanceof Uint8Array)?msg:new Uint8Array(msg);
+  if(key.length>64) key=secSha1(key);
+  var k=new Uint8Array(64); k.set(key);
+  var ip=new Uint8Array(64+msg.length), op=new Uint8Array(64+20);
+  for(var i=0;i<64;i++){ ip[i]=k[i]^0x36; op[i]=k[i]^0x5c; }
+  ip.set(msg,64);
+  var inner=secSha1(ip);
+  op.set(inner,64);
+  return secSha1(op);
+}
+function secBase32Decode(s){
+  s=String(s||'').toUpperCase().replace(/=+$/,'').replace(/[^A-Z2-7]/g,'');
+  var alph='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  var bits=0, val=0, out=[];
+  for(var i=0;i<s.length;i++){
+    var idx=alph.indexOf(s.charAt(i)); if(idx<0) continue;
+    val=(val<<5)|idx; bits+=5;
+    if(bits>=8){ bits-=8; out.push((val>>bits)&0xff); }
+  }
+  return new Uint8Array(out);
+}
+function totpCodeAt(secret, nowMs){
+  nowMs = (nowMs==null)?Date.now():nowMs;
+  var counter=Math.floor(nowMs/1000/30);
+  var msg=new Uint8Array(8);
+  var dv=new DataView(msg.buffer);
+  dv.setUint32(0, Math.floor(counter/0x100000000));
+  dv.setUint32(4, counter>>>0);
+  var key=secBase32Decode(secret);
+  var dig=secHmacSha1(key, msg);
+  var off=dig[19]&0x0f;
+  var bin=((dig[off]&0x7f)<<24)|(dig[off+1]<<16)|(dig[off+2]<<8)|dig[off+3];
+  var code=(bin>>>0)%1000000;
+  var t=String(code); while(t.length<6) t='0'+t;
+  return t;
+}
+function verifyTotpCode(secret, code, nowMs){
+  code=String(code||'').replace(/\s/g,'');
+  if(!/^\d{6}$/.test(code)) return false;
+  nowMs=(nowMs==null)?Date.now():nowMs;
+  for(var w=-1;w<=1;w++){
+    if(totpCodeAt(secret, nowMs+w*30000)===code) return true;
+  }
+  return false;
+}
+function generateTotpSecret(){
+  var alph='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  var out='';
+  for(var i=0;i<16;i++){
+    var n = (typeof crypto!=='undefined' && crypto.getRandomValues) ? (crypto.getRandomValues(new Uint8Array(1))[0]%32) : Math.floor(Math.random()*32);
+    out += alph.charAt(n);
+  }
+  return out;
+}
+function generateBackupCodes(n){
+  n = n||5;
+  var codes=[];
+  for(var i=0;i<n;i++){
+    var x = (Math.floor(Math.random()*900000)+100000);
+    codes.push(String(x));
+  }
+  return codes;
+}
+
+var _loginFails = [];
+var _pending2fa = null;
+function registerLoginFailure(now){
+  now = now || Date.now();
+  _loginFails.push(now);
+  _loginFails = _loginFails.filter(function(t){ return now-t < 15*60*1000; });
+}
+function loginBackoffMs(now){
+  now = now || Date.now();
+  var recent = _loginFails.filter(function(t){ return now-t < 15*60*1000; });
+  if(recent.length >= 5){
+    var last = recent[recent.length-1];
+    var wait = 60000 - (now-last);
+    return wait>0 ? wait : 0;
+  }
+  return 0;
+}
+function clearLoginFailures(){ _loginFails = []; }
+
+function getIdleLockMinutes(){
+  var n = 15;
+  try{
+    var raw = (typeof localStorage!=='undefined' && localStorage.getItem) ? localStorage.getItem('laegh_idle_lock_min') : null;
+    if(raw===null || raw===undefined || raw==='') return 15;
+    n = parseInt(raw,10);
+  }catch(_e){ return 15; }
+  if(!isFinite(n) || n<0) return 15;
+  return n;
+}
+function saveIdleLockMinutes(){
+  var el = document.getElementById('idle-lock-min');
+  var n = el ? parseInt(el.value,10) : 15;
+  if(!isFinite(n) || n<0) n = 15;
+  try{ localStorage.setItem('laegh_idle_lock_min', String(n)); }catch(_e){}
+  if(typeof ntf==='function') ntf(n? ('قفل خودکار پس از '+n+' دقیقه') : 'قفل خودکار خاموش شد');
+  resetIdleLockTimer();
+}
+function resetIdleLockTimer(){
+  if(window._idleLockTimer){ try{ clearTimeout(window._idleLockTimer); }catch(_c){} window._idleLockTimer=null; }
+  var min = getIdleLockMinutes();
+  if(!min) return;
+  if(typeof canLockApp==='function' && !canLockApp()) return;
+  if(typeof isAppSessionLocked==='function' && isAppSessionLocked()) return;
+  window._idleLockTimer = setTimeout(function(){
+    if(typeof lockApp==='function') lockApp();
+  }, min*60000);
+}
+function startIdleLockWatch(){
+  if(window._idleLockWatchBound) { resetIdleLockTimer(); return; }
+  window._idleLockWatchBound = true;
+  ['mousemove','keydown','click','touchstart'].forEach(function(ev){
+    document.addEventListener(ev, function(){ resetIdleLockTimer(); }, true);
+  });
+  try{
+    var el = document.getElementById('idle-lock-min');
+    if(el) el.value = String(getIdleLockMinutes());
+  }catch(_e){}
+  resetIdleLockTimer();
+}
+
+function anonymizeContactRecord(c){
+  c = c || {};
+  var next = {};
+  for(var k in c){ if(Object.prototype.hasOwnProperty.call(c,k)) next[k]=c[k]; }
+  next.fn = 'حذف‌شده';
+  next.ln = '';
+  next.shop = '';
+  next.addr = '';
+  next.zip = '';
+  next.phones = [];
+  next.nid = '';
+  next.ita=''; next.tg=''; next.wa=''; next.ig='';
+  next.socials = [];
+  next.privacyAnonymized = true;
+  next.privacyAnonymizedAt = Date.now();
+  return next;
+}
 
 function matchAppUserForLogin(username, password, roles, masterPw){
   username = String(username||'').trim();
@@ -14041,33 +14305,45 @@ function matchAppUserForLogin(username, password, roles, masterPw){
 function attemptLogin(){
   const userEl = document.getElementById('login-user-input');
   const pwEl = document.getElementById('login-pw-input');
+  const otpEl = document.getElementById('login-otp-input');
+  const errEl = document.getElementById('login-error-msg');
   const enteredUser = userEl ? String(userEl.value||'') : '';
   const entered = pwEl ? String(pwEl.value||'') : '';
-  const errEl = document.getElementById('login-error-msg');
-  const result = matchAppUserForLogin(enteredUser, entered, userRoles, loginPw);
-  if (result.ok) {
-    currentRole = result.user || null;
-    try{
-      if (currentRole) {
-        currentRole.lastLogin = Date.now();
-        try{ currentRole.lastLoginFa = (typeof fdate==='function') ? fdate() : ''; }catch(_d){ currentRole.lastLoginFa = ''; }
-        svRoles();
-      }
-      if (typeof auditActivity==='function') {
-        auditActivity({
-          action:'login',
-          module:'auth',
-          result:'ok',
-          entityType:'user',
-          entityId: currentRole ? (currentRole.id||'') : 'admin',
-          description: currentRole ? ('ورود کاربر '+(currentRole.name||currentRole.username||'')) : 'ورود مدیر سیستم',
-          sensitive:true
-        });
-      }
-    }catch(_ok){}
-    finishLogin();
+  if(typeof _pending2fa!=='undefined' && _pending2fa){
+    var code = otpEl ? String(otpEl.value||'') : '';
+    if(!verifyPendingTwoFactor(code)){
+      if(typeof registerLoginFailure==='function') registerLoginFailure();
+      if(errEl) errEl.textContent = 'کد دومرحله‌ای نادرست است';
+      if(otpEl) otpEl.value = '';
+      return;
+    }
+    if(typeof clearLoginFailures==='function') clearLoginFailures();
+    currentRole = _pending2fa.user || null;
+    _pending2fa = null;
+    if(typeof hideLoginOtp==='function') hideLoginOtp();
+    finishLoginSuccess();
     return;
   }
+  var wait = (typeof loginBackoffMs==='function') ? loginBackoffMs() : 0;
+  if(wait>0){
+    if(errEl) errEl.textContent = 'پس از ورودهای ناموفق، '+Math.ceil(wait/1000)+' ثانیه صبر کنید';
+    return;
+  }
+  const result = matchAppUserForLogin(enteredUser, entered, userRoles, loginPw);
+  if (result.ok) {
+    if(typeof needsTwoFactor==='function' && needsTwoFactor(result)){
+      _pending2fa = result;
+      if(typeof showLoginOtp==='function') showLoginOtp();
+      if(errEl) errEl.textContent = '';
+      setLoginOverlayHint('کد دومرحله‌ای ۶ رقمی را وارد کنید');
+      return;
+    }
+    if(typeof clearLoginFailures==='function') clearLoginFailures();
+    currentRole = result.user || null;
+    finishLoginSuccess();
+    return;
+  }
+  if(typeof registerLoginFailure==='function') registerLoginFailure();
   try{
     if (typeof auditActivity==='function') {
       auditActivity({
@@ -14091,13 +14367,75 @@ function attemptLogin(){
   }
   if (pwEl) pwEl.value = '';
 }
+function needsTwoFactor(result){
+  if(result && result.user && result.user.twoFactorEnabled && result.user.twoFactorSecret) return true;
+  if(result && result.kind==='master'){
+    try{ return !!(localStorage.getItem('laegh_admin_2fa_secret')); }catch(_e){}
+  }
+  return false;
+}
+function verifyPendingTwoFactor(code){
+  if(!_pending2fa) return false;
+  var secret = '';
+  var backups = [];
+  if(_pending2fa.user){
+    secret = _pending2fa.user.twoFactorSecret||'';
+    backups = _pending2fa.user.twoFactorBackup||[];
+  } else {
+    try{ secret = localStorage.getItem('laegh_admin_2fa_secret')||''; }catch(_e){}
+  }
+  if(secret && typeof verifyTotpCode==='function' && verifyTotpCode(secret, code)) return true;
+  var idx = backups.indexOf(String(code||'').trim());
+  if(idx>=0){
+    backups.splice(idx,1);
+    if(_pending2fa.user){
+      _pending2fa.user.twoFactorBackup = backups;
+      try{ svRoles(); }catch(_s){}
+    }
+    return true;
+  }
+  return false;
+}
+function showLoginOtp(){
+  var el = document.getElementById('login-otp-input');
+  if(el){ el.style.display='block'; el.value=''; setTimeout(function(){ try{ el.focus(); }catch(_f){} }, 40); }
+}
+function hideLoginOtp(){
+  var el = document.getElementById('login-otp-input');
+  if(el){ el.style.display='none'; el.value=''; }
+}
+function finishLoginSuccess(){
+  try{
+    if (currentRole) {
+      currentRole.lastLogin = Date.now();
+      try{ currentRole.lastLoginFa = (typeof fdate==='function') ? fdate() : ''; }catch(_d){ currentRole.lastLoginFa = ''; }
+      if(typeof shouldForcePwChange==='function' && shouldForcePwChange(currentRole)) currentRole.forcePwChange = true;
+      svRoles();
+    }
+    if (typeof auditActivity==='function') {
+      auditActivity({
+        action:'login',
+        module:'auth',
+        result:'ok',
+        entityType:'user',
+        entityId: currentRole ? (currentRole.id||'') : 'admin',
+        description: currentRole ? ('ورود کاربر '+(currentRole.name||currentRole.username||'')) : 'ورود مدیر سیستم',
+        sensitive:true
+      });
+    }
+  }catch(_ok){}
+  finishLogin();
+}
 
 function finishLogin(){
   _appLocked = false;
+  _pending2fa = null;
+  if(typeof hideLoginOtp==='function') hideLoginOtp();
   setLoginOverlayHint(LOGIN_HINT_DEFAULT);
   document.getElementById('login-overlay').style.display = 'none';
   applyRoleRestrictions();
   try{ if(typeof syncAiAgentUi==='function') syncAiAgentUi(); }catch(_a){}
+  try{ if(typeof startIdleLockWatch==='function') startIdleLockWatch(); }catch(_i){}
   try{
     if(currentRole && currentRole.forcePwChange){
       setTimeout(function(){ if(typeof showForcePwModal==='function') showForcePwModal(); }, 80);
@@ -14214,6 +14552,8 @@ function setLoginPw(){
   const msg=document.getElementById('login-pw-msg');
   if(!a){msg.textContent='رمز را وارد کنید';msg.style.color='#e74c3c';return;}
   if(a!==b){msg.textContent='رمزها یکسان نیستند';msg.style.color='#e74c3c';return;}
+  var st = (typeof checkPasswordStrength==='function') ? checkPasswordStrength(a) : {ok:true};
+  if(!st.ok){msg.textContent='رمز قوی نیست: '+(st.issues||[]).join('، ');msg.style.color='#e74c3c';return;}
   loginPw=a; localStorage.setItem('laegh_login_pw',a);
   document.getElementById('login-pw-new').value='';document.getElementById('login-pw-rep').value='';
   msg.textContent='✅ رمز ورود تنظیم شد';msg.style.color='#3fb950';
@@ -14236,6 +14576,33 @@ function applyRoleCatalogToForm(){
   var key = (document.getElementById('role-key')||{}).value;
   var cat = ROLE_CATALOG[key];
   if (cat) renderRolesGridCheckboxes(cat.pages.slice());
+}
+function renderRoleTwoFactorBox(secret, backups){
+  var box = document.getElementById('role-2fa-box');
+  var secEl = document.getElementById('role-2fa-secret');
+  var bakEl = document.getElementById('role-2fa-backups');
+  var on = !!(document.getElementById('role-2fa') && document.getElementById('role-2fa').checked);
+  if(box) box.style.display = on ? '' : 'none';
+  if(secEl) secEl.textContent = secret || 'با ذخیره ساخته می‌شود';
+  if(bakEl) bakEl.textContent = (backups && backups.length) ? ('کد پشتیبان: '+backups.join('، ')) : '';
+}
+function enableAdminTwoFactor(){
+  var secret = generateTotpSecret();
+  var codes = generateBackupCodes(5);
+  try{
+    localStorage.setItem('laegh_admin_2fa_secret', secret);
+    localStorage.setItem('laegh_admin_2fa_backup', JSON.stringify(codes));
+  }catch(_e){}
+  var el = document.getElementById('admin-2fa-secret');
+  if(el) el.textContent = 'راز: '+secret+' — پشتیبان: '+codes.join(', ');
+  if(typeof ntf==='function') ntf('۲FA مدیر سیستم فعال شد — راز را در تلفن ذخیره کنید');
+  try{ if(typeof auditActivity==='function') auditActivity({action:'user_edit', module:'auth', result:'ok', description:'فعال‌سازی ورود دومرحله‌ای مدیر سیستم', sensitive:true}); }catch(_a){}
+}
+function disableAdminTwoFactor(){
+  try{ localStorage.removeItem('laegh_admin_2fa_secret'); localStorage.removeItem('laegh_admin_2fa_backup'); }catch(_e){}
+  var el = document.getElementById('admin-2fa-secret');
+  if(el) el.textContent = 'خاموش';
+  if(typeof ntf==='function') ntf('۲FA مدیر سیستم خاموش شد');
 }
 
 // ── مدیریت کاربران و نقش‌ها ──
@@ -14267,6 +14634,8 @@ function openRoleModal(idx=-1){
     if (keyEl) keyEl.value = 'operator';
     if (actEl) actEl.checked = true;
     if (forceEl) forceEl.checked = false;
+    var tfaEl = document.getElementById('role-2fa'); if(tfaEl) tfaEl.checked = false;
+    renderRoleTwoFactorBox('', []);
     if (lastEl) lastEl.textContent = '';
     applyRoleCatalogToForm();
   } else {
@@ -14278,6 +14647,8 @@ function openRoleModal(idx=-1){
     if (keyEl) keyEl.value = r.roleKey && ROLE_CATALOG[r.roleKey] ? r.roleKey : 'operator';
     if (actEl) actEl.checked = r.active !== false;
     if (forceEl) forceEl.checked = !!r.forcePwChange;
+    var tfaEl2 = document.getElementById('role-2fa'); if(tfaEl2) tfaEl2.checked = !!r.twoFactorEnabled;
+    renderRoleTwoFactorBox(r.twoFactorSecret||'', r.twoFactorBackup||[]);
     if (lastEl) lastEl.textContent = r.lastLoginFa ? ('آخرین ورود: '+r.lastLoginFa) : 'هنوز وارد نشده';
     renderRolesGridCheckboxes(r.pages||[]);
   }
@@ -14296,6 +14667,11 @@ function saveRole(){
   if (idx === -1 && !pw) { ntf('رمز کاربر را وارد کنید','err'); return; }
   if (idx >= 0 && !pw) pw = (userRoles[idx] && userRoles[idx].pw) || '';
   if (!pw) { ntf('رمز کاربر را وارد کنید','err'); return; }
+  var typedPw = (document.getElementById('role-pw').value||'').trim();
+  if (typedPw && typeof checkPasswordStrength==='function'){
+    var st = checkPasswordStrength(typedPw);
+    if(!st.ok){ ntf('رمز قوی نیست: '+st.issues.join('، '),'err'); return; }
+  }
   if (pages.length === 0) { ntf('حداقل یک بخش را انتخاب کنید','err'); return; }
   const dup = userRoles.find((r,i) => r.pw === pw && i !== idx);
   if (dup) { ntf('این رمز قبلاً برای کاربر «'+dup.name+'» استفاده شده — رمز دیگری انتخاب کنید','err'); return; }
@@ -14303,6 +14679,10 @@ function saveRole(){
   const dupUser = userRoles.find((r,i) => String(r.username||r.name||'') === username && i !== idx);
   if (dupUser) { ntf('این نام کاربری قبلاً برای «'+dupUser.name+'» استفاده شده','err'); return; }
   const prev = idx >= 0 ? Object.assign({}, userRoles[idx]) : null;
+  var twoOn = document.getElementById('role-2fa') ? document.getElementById('role-2fa').checked : false;
+  var secret = (prev && prev.twoFactorSecret) || '';
+  var backups = (prev && prev.twoFactorBackup) ? prev.twoFactorBackup.slice() : [];
+  if(twoOn && !secret){ secret = generateTotpSecret(); backups = generateBackupCodes(5); }
   const roleObj = normalizeAppUser({
     id: prev && prev.id,
     name: name,
@@ -14314,11 +14694,16 @@ function saveRole(){
     forcePwChange: forcePwChange,
     lastLogin: prev && prev.lastLogin,
     lastLoginFa: prev && prev.lastLoginFa,
-    createdAt: prev && prev.createdAt
+    createdAt: prev && prev.createdAt,
+    pwChangedAt: typedPw ? Date.now() : (prev && prev.pwChangedAt),
+    twoFactorEnabled: twoOn,
+    twoFactorSecret: twoOn ? secret : (prev && prev.twoFactorSecret) || '',
+    twoFactorBackup: twoOn ? backups : (prev && prev.twoFactorBackup) || []
   });
   if (idx === -1) userRoles.push(roleObj); else userRoles[idx] = roleObj;
   svRoles(); closeMod('role-modal'); renderRolesList();
   ntf('کاربر ذخیره شد','ok');
+  if(twoOn && roleObj.twoFactorSecret){ ntf('۲FA فعال شد. راز را در تلفن وارد کنید: '+roleObj.twoFactorSecret,'ok'); }
   try{
     if (typeof auditActivity==='function') {
       auditActivity({
@@ -14421,11 +14806,16 @@ function submitForcePwChange(){
   var b = ((document.getElementById('force-pw-rep')||{}).value||'').trim();
   if (!a) { ntf('رمز جدید را وارد کنید','err'); return; }
   if (a !== b) { ntf('رمزها یکسان نیستند','err'); return; }
+  if (typeof checkPasswordStrength==='function'){
+    var st = checkPasswordStrength(a);
+    if(!st.ok){ ntf('رمز قوی نیست: '+st.issues.join('، '),'err'); return; }
+  }
   if (a === loginPw) { ntf('این رمز همان رمز کلی نرم‌افزار است — رمز دیگری انتخاب کنید','err'); return; }
   var dup = userRoles.find(function(r){ return r.pw === a && r.id !== currentRole.id; });
   if (dup) { ntf('این رمز برای کاربر دیگری استفاده شده','err'); return; }
   currentRole.pw = a;
   currentRole.forcePwChange = false;
+  currentRole.pwChangedAt = Date.now();
   var idx = userRoles.findIndex(function(r){ return r.id === currentRole.id; });
   if (idx >= 0) userRoles[idx] = currentRole;
   svRoles();
@@ -15789,7 +16179,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23δ">'+
+    '<meta name="app-version" content="1405.5.23ε">'+
     '<meta name="app-date" content="1405/05/23">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -15973,7 +16363,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.23δ"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.23ε"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -18724,7 +19114,7 @@ function doPrint(paperSize){
   const wbg=bgMap[pw.bg||'none']||'#fff';
   const effPaper = pw.paper || paperSize;
   var htmlDoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.23δ">
+<meta name="app-version" content="1405.5.23ε">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -18857,7 +19247,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23δ"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.23ε"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -18886,7 +19276,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23δ"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.23ε"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -18923,7 +19313,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23δ">'+
+    '<meta name="app-version" content="1405.5.23ε">'+
     '<meta name="app-date" content="1405/05/23">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -19007,7 +19397,7 @@ function printCompanyReport(idx){
   var qcResultLbl = {'pass':'✅ تأیید کیفیت','fail':'❌ رد شد — نیاز به اصلاح','pending':'در حال بررسی'};
   var mgrApproveLbl = {'approved':'✅ تأیید نهایی','pending':'در انتظار بررسی','rejected':'❌ رد شد'};
 
-  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.23δ';
+  var ver = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '1405.5.23ε';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
     '<title>گزارش داخلی شرکت — '+wHdr.id+'</title>'+
     '<style>'+
@@ -19652,7 +20042,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23δ">'+
+    '<meta name="app-version" content="1405.5.23ε">'+
     '<meta name="app-date" content="1405/05/23">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -19872,7 +20262,7 @@ function expSalesExcel(){
 // ══════ حسابداری ══════
 // ═══════════════════════════════════════════════════════════════════════════
 // ماژول داغی (پیگیری رسید امضا‌شده‌ی نمایندگی‌های خدمات)
-// نسخه ۱۴۰۵.۵.۲۳δ — فاز داغی
+// نسخه ۱۴۰۵.۵.۲۳ε — فاز داغی
 //
 // «داغی» یعنی وقتی قطعات/کالا را به نمایندگی خدمات می‌فرستیم، آن‌ها باید رسید امضا‌شده
 // (داغی) را به ما برگردانند. این ماژول پیگیری می‌کند که چه کسانی داغی معوقه دارند.
@@ -21176,7 +21566,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.23δ">'+
+    '<meta name="app-version" content="1405.5.23ε">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
