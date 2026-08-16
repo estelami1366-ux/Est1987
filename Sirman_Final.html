@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="1405.5.25α">
+<meta name="app-version" content="1405.5.25β">
 <meta name="app-date" content="1405/05/25">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkxhZWdoIEVsZWN0cm9uaWMgUGFyc2lhbiIsICJzaG9ydF9uYW1lIjogIkxhZWdoIEVQUyIsICJzdGFydF91cmwiOiAiLiIsICJzY29wZSI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLCAidGhlbWVfY29sb3IiOiAiIzFlM2E1ZiIsICJsYW5nIjogImZhIiwgImRpciI6ICJydGwifQ==">
@@ -1011,6 +1011,10 @@ body.sb-dock .ai-float{bottom:170px;}
 .pc-set .f{margin:0;}
 .pc-set label{font-size:11px;font-weight:700;color:var(--text2);}
 .pc-actions{display:flex;flex-wrap:wrap;gap:6px;}
+.pc-result{margin-top:8px;padding:8px 10px;border-radius:6px;font-size:12px;line-height:1.6;display:none}
+.pc-result-ok{display:block;background:#ecfdf3;border:1px solid #86efac;color:#166534}
+.pc-result-err{display:block;background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.pc-result-busy{display:block;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
 .pc-profiles{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 .pc-prof{border:1px solid var(--border);background:var(--bg);border-radius:10px;padding:8px 6px;font-size:11px;font-family:var(--font);cursor:pointer;color:var(--text);}
 .pc-prof.active{border-color:var(--blue);background:var(--blue-l);font-weight:700;}
@@ -2186,7 +2190,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
     </div>
   </nav>
-  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۵α — <span id="sb-foot-brand">سیرمان</span></div>
+  <div class="sb-foot" id="sb-foot">نسخه ۱۴۰۵.۵.۲۵β — <span id="sb-foot-brand">سیرمان</span></div>
   <button class="btn btn-sm" id="btn-lock-app" onclick="lockApp()" style="width:100%;margin-top:8px;font-weight:700" title="قفل برنامه در حالی که باز است — Ctrl+Shift+L">🔒 قفل برنامه <small style="opacity:.7">Ctrl+Shift+L</small></button>
   <button class="btn btn-r btn-sm" id="btn-exit-safe" onclick="promptExitBackup()" style="width:100%;margin-top:8px;font-weight:700">🚪 خروج امن (پرسش بک‌آپ)</button>
   <div style="font-size:10px;color:var(--text2);line-height:1.6;margin-top:4px;padding:0 2px">اگر ✕ پنجره را بزنید، مرورگر اول هشدار می‌دهد؛ برای بک‌آپ از این دکمه استفاده کنید.</div>
@@ -3743,9 +3747,11 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
           <div class="f"><label>پاورقی</label><input id="pc-tpl-footer" onchange="pcPersistTemplateFromUI()"></div>
           <div class="pc-actions">
             <button type="button" class="btn btn-p" onclick="pcDoPrint()">🖨 چاپ</button>
+            <button type="button" class="btn" onclick="pcDoRetry()">↻ تلاش دوباره</button>
             <button type="button" class="btn btn-o" onclick="pcDoPdf()">📄 ذخیره PDF</button>
             <button type="button" class="btn" onclick="pcSaveCurrentProfile()">💾 ذخیره پروفایل</button>
           </div>
+          <div id="pc-print-result" class="pc-result" role="status"></div>
           <div class="pc-col-h" style="margin:6px -12px 0;border-radius:0">تاریخچه چاپ</div>
           <div class="pc-hist" id="pc-hist"></div>
         </div>
@@ -4990,8 +4996,10 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <li><b>قالب سند:</b> لوگو، عنوان، شرکت، شماره، تاریخ، QR/بارکد، امضا و پاورقی برای هر سند جدا ذخیره می‌شود.</li>
     <li><b>پروفایل:</b> A4 Office، Thermal، Zebra و PDF. با «ذخیره پروفایل» چاپگر و کاغذ همان پروفایل عوض می‌شود.</li>
     <li><b>چاپ سریع:</b> دکمه‌های چاپ در فاکتور و گارانتی با آخرین تنظیمات ذخیره‌شده چاپ می‌کنند. گزینه «مرکز پرینت» همان سند را برای تنظیم کامل باز می‌کند.</li>
-    <li><b>تاریخچه:</b> تاریخ، نام سند، چاپگر و وضعیت در همین صفحه دیده می‌شود.</li>
-    <li><b>آپدیت:</b> مرکز پرینت با فایل آپدیت HTML می‌آید. برای دیدن چاپگرهای نصب‌شده ویندوز، نسخه جدید Sirman.exe لازم است؛ بدون آن هم می‌توانید از «مرورگر / PDF» چاپ بگیرید.</li>
+    <li><b>چاپ واقعی:</b> دکمه چاپ سند را به چاپگر ویندوز می‌فرستد (نه پیش‌نمایش). اگر چاپگر نباشد یا آفلاین باشد پیام خطا می‌آید — موفقیت جعلی نشان داده نمی‌شود.</li>
+    <li><b>شناسه سند:</b> چاپ فاکتور با شناسه داخلی فاکتور است نه فقط شماره روی برگه.</li>
+    <li><b>تاریخچه:</b> تاریخ، نام سند، چاپگر، شناسه کار چاپ و وضعیت در همین صفحه دیده می‌شود.</li>
+    <li><b>تلاش دوباره:</b> اگر چاپ خطا داد، «تلاش دوباره» یک کار چاپ جدید می‌سازد.</li>
   </ul>
 </div>
 <div class="help-cat-header">🧾 فاکتور</div>
@@ -5724,7 +5732,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 <div class="card help-card help-collapsed" data-help-id="faq-print-fail">
   <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>چرا فاکتور چاپ نمی‌شود؟</span><span class="help-chev">▾</span></div>
   <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
-    <li>پنجره چاپ را مرورگر نبسته باشد. از تنظیمات → مرکز پرینت، چاپگر یا «مرورگر / PDF» را انتخاب کنید. در HTML-only چاپگر ویندوز دیده نمی‌شود؛ PDF همیشه کار می‌کند.</li>
+    <li>چاپ واقعی فقط در Sirman.exe و چاپگر نصب‌شده ویندوز انجام می‌شود. از تنظیمات → مرکز پرینت چاپگر را انتخاب کنید. اگر چاپگر نباشد، آفلاین باشد، یا برنامه در مرورگر باز باشد، پیام خطا می‌آید — پیش‌نمایش به‌معنی چاپ موفق نیست. برای PDF باید چاپگر PDF ویندوز واقعاً نصب باشد.</li>
   </ul>
 </div>
 <div class="card help-card help-collapsed" data-help-id="faq-part-missing">
@@ -5774,6 +5782,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 <div class="card help-card help-collapsed" data-help-id="whats-new">
   <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>تغییرات نسخه — What's New</span><span class="help-chev">▾</span></div>
   <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>۱۴۰۵.۵.۲۵β:</b> مرکز پرینت سند را به چاپگر واقعی ویندوز می‌فرستد. اگر چاپگر نباشد یا چاپ شکست بخورد پیام خطا می‌آید؛ پیش‌نمایش به‌معنی چاپ موفق نیست.</li>
     <li><b>۱۴۰۵.۵.۲۵α:</b> هر فاکتور شناسه داخلی یکتا دارد جدا از شماره روی برگه. حذف فقط همان فاکتور را برمی‌دارد. شماره تکراری در فاکتور جدید رد می‌شود.</li>
     <li><b>۱۴۰۵.۵.۲۳υ:</b> فرم فاکتور و فروش داخل پنجره به پایین اسکرول می‌شود. اگر هسته ویندوز لیست فروش را خالی بفرستد، فاکتور هم‌شماره دیگر پاک نمی‌شود.</li>
     <li><b>۱۴۰۵.۵.۲۳τ:</b> شماره فاکتور فروش قطعات بعد از حذف دوباره استفاده نمی‌شود. اگر دو فاکتور شماره یکسان داشتند، حذف یکی دیگری را پاک نمی‌کند.</li>
@@ -5815,7 +5824,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 </div>
 
 <div class="card" style="text-align:center;color:var(--text2);font-size:12px">
-  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۵α
+  سیرمان — سیستم خدمات پس از فروش — نسخه ۱۴۰۵.۵.۲۵β
 </div>
 </div>
 
@@ -6638,9 +6647,9 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 })();
 
 // ===== BRAND / COMPANY (white-label) =====
-var APP_VERSION = '1405.5.25α';
-var APP_BASE_VERSION = '1405.5.25α'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
-var APP_VERSION_FA = '۱۴۰۵.۵.۲۵α';
+var APP_VERSION = '1405.5.25β';
+var APP_BASE_VERSION = '1405.5.25β'; // نسخه هسته HTML (قبل از آپدیت‌های بارگذاری‌شده)
+var APP_VERSION_FA = '۱۴۰۵.۵.۲۵β';
 
 // ===== SIRMAN UPDATE CENTER =====
 // فایل‌های .sirman-update.json را می‌توان در تنظیمات → آپدیت بارگذاری کرد تا بدون تعویض کل HTML، نسخه و قابلیت جدید اعمال شود.
@@ -7136,8 +7145,8 @@ function ensureLauncherTemplates(){
 }
 
 function getLauncherVersionTag(){
-  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.25α'; }
-  catch(_e){ return '1405.5.25α'; }
+  try { return (typeof APP_VERSION !== 'undefined' && APP_VERSION) ? String(APP_VERSION) : '1405.5.25β'; }
+  catch(_e){ return '1405.5.25β'; }
 }
 function buildEmbeddedLauncher(name){
   var map = ensureLauncherTemplates();
@@ -7823,8 +7832,8 @@ function _buildFullBackupData(){
   var data = {
     magic: (typeof SIRMAN_BACKUP_MAGIC!=='undefined'?SIRMAN_BACKUP_MAGIC:'SIRMAN_BACKUP'),
     schemaVersion: (typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1),
-    version: '1405.5.25α',
-    applicationVersion: '1405.5.25α',
+    version: '1405.5.25β',
+    applicationVersion: '1405.5.25β',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: _safeArr(invoices),
@@ -8644,7 +8653,7 @@ async function restoreAutoSaveHandlesOnBoot(){
   }catch(_e2){ return false; }
 }
 
-// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.25α ═══════════════════
+// ══ ذخیرهٔ رسانه روی هارد (نه localStorage) — 1405.5.25β ═══════════════════
 // عکس پس‌زمینه، لوگو و ضمیمه‌ها فقط در پوشهٔ بک‌آپ روی دیسک نوشته می‌شوند.
 // در حافظهٔ مرورگر فقط ارجاع کوتاه disk://sirman_media/... نگه داشته می‌شود.
 window._diskUrlCache = window._diskUrlCache || {};
@@ -12261,11 +12270,11 @@ function clearInv(){
 // ─── PRINT / EXPORT ────────────────────────────────────────────────────────────
 function openFreshPrintWindow(htmlContent, opts){
   opts = opts || {};
+  if(typeof opts==='string') opts = {title:opts};
   if(typeof printEnginePrintHtml==='function'){
-    var html = printEnginePrintHtml(htmlContent, Object.assign({skipWrap:true, title:opts.title||'', docId:opts.docId||window._pcActiveDocId||''}, opts));
-    return html ? true : null;
+    return printEnginePrintHtml(htmlContent, Object.assign({skipWrap:true, title:opts.title||'', docId:opts.docId||window._pcActiveDocId||''}, opts));
   }
-  return printEngineOpenWindow(htmlContent);
+  return printEngineFailResult('NO_ENGINE','موتور چاپ موجود نیست');
 }
 
 function buildPH(list){
@@ -12294,9 +12303,10 @@ function buildPH(list){
 
 function printInv(){const d=getData();if(!d.seller){ntf('نام فروشنده الزامی است','err');return;} if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;} const ps=getPrintSettings();const pi=ps.invoice||{};
 window._pcActiveDocId='invoice';
+var documentId=(typeof invoiceIdentity==='function')?invoiceIdentity(d):(d.invoiceId||d.InvoiceId||'');
 openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.25α">
-<style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`);}
+<meta name="app-version" content="1405.5.25β">
+<style>body{font-family:${pi.font||'Tahoma'},sans-serif;font-size:${pi.fontsize||'11px'};direction:rtl;margin:0;padding:8px;}${printBgCss(pi)}@page{size:${pi.paper||'A4 landscape'};margin:${pi.margin||'8mm'};}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}${pi.border?'body{border:3px solid #333;border-radius:8px;}':''}${pi.watermark?'.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:100px;opacity:0.05;font-weight:900;pointer-events:none;}':''}${pi.pagenum?'@page{@bottom-center{content:counter(page);}}':''}</style></head><body>`+(pi.watermark?'<div class="watermark">رسمی</div>':'')+buildPH([d])+`</body></html>`, {docId:'invoice', documentId:documentId, invoiceId:documentId, title:'فاکتور '+(d.num||'')});}
 function expPDF(){printInv();}
 
 function expExcel(){
@@ -12312,7 +12322,7 @@ function expWord(){
   const d=getData(); if(!d.items.length){ntf('دستگاهی ثبت نشده','err');return;}
   const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');
   const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.25α">
+<meta name="app-version" content="1405.5.25β">
 <meta name="app-date" content="1405/05/25"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd;font-weight:bold}</style></head><body><h3>فاکتور — ${getBrand().nameEn} | ${d.num}</h3><p>فروشنده: ${d.seller} | تلفن: ${d.phone||'—'} | تاریخ: ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>جمع نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;
   const blob=new Blob([html],{type:'application/msword;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Laegh_'+d.num+'.doc'; a.click(); ntf('Word دانلود شد');
 }
@@ -12406,7 +12416,7 @@ function delInv(i){
   }
 }
 function printSel(){const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}const invs=idx.map(i=>invoices[i]);openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.25α">
+<meta name="app-version" content="1405.5.25β">
 <meta name="app-date" content="1405/05/25"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH(invs)+`</body></html>`);}
 function expSelExcel(){
   const idx=getSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}
@@ -12425,12 +12435,19 @@ function viewInv(idx){
   document.getElementById('det-acts').innerHTML=`<button class="btn btn-p" onclick="loadInv(${idx});closeMod('det-modal')">✏ ویرایش</button><button class="btn btn-o" onclick="expExcelSv(${idx})">📊 Excel</button><button class="btn btn-o" onclick="expWordSv(${idx})">📄 Word</button><button class="btn" onclick="printSvSingle(${idx})">🖨 چاپ</button><button class="btn" onclick="shareInv(${idx})">📤 اشتراک</button>`;
   document.getElementById('det-modal').classList.add('open');
 }
-function printSvSingle(idx){const d=invoices[idx];openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.25α">
-<meta name="app-date" content="1405/05/25"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`);}
+function printSvSingle(idx){
+  const d = (typeof idx==='string' && typeof findInvoiceIndexById==='function' && !/^\d+$/.test(idx))
+    ? invoices[findInvoiceIndexById(idx)]
+    : invoices[idx];
+  if(!d){ if(typeof ntf==='function') ntf('فاکتور پیدا نشد','err'); return; }
+  const documentId = (typeof invoiceIdentity==='function') ? invoiceIdentity(d) : (d.invoiceId||d.InvoiceId||'');
+  openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+<meta name="app-version" content="1405.5.25β">
+<meta name="app-date" content="1405/05/25"><style>body{font-family:Tahoma;direction:rtl;}@page{size:A4 landscape;margin:8mm;}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right;}</style></head><body>`+buildPH([d])+`</body></html>`, {docId:'invoice', documentId:documentId, invoiceId:documentId, title:'فاکتور '+(d.num||'')});
+}
 function expExcelSv(idx){const d=invoices[idx];const wb=XLSX.utils.book_new();const rows=[['ر','کد','مدل','تاریخ','رنگ','کارتن','بدنه','لوازم','کمبود','عملکرد','گارانتی','خدمات','توضیح','برآورد','تخفیف%','نهایی']];d.items.forEach(i=>rows.push([i.num,i.code||'',i.model,i.date,i.color,i.carton,i.body,i.acc,i.miss||'',i.perf,i.warranty,i.svc,i.pd||'',i.est,i.disc,i.fin]));rows.push([]);rows.push(['','','','','','','','','','','','','','برآورد','تخفیف','نهایی']);rows.push(['','','','','','','','','','','','','',d.tE,d.tD,d.tF]);XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'فاکتور');XLSX.writeFile(wb,'Laegh_'+d.num+'.xlsx');ntf('Excel دانلود شد');}
 function expWordSv(idx){const d=invoices[idx];const rows=d.items.map(i=>`<tr><td>${i.num}</td><td>${i.code||''}</td><td>${i.model}</td><td>${i.date}</td><td>${i.color}</td><td>${i.carton}</td><td>${i.body}</td><td>${i.acc}</td><td>${i.miss||''}</td><td>${i.perf}</td><td>${i.warranty}</td><td>${i.svc}</td><td>${i.pd||''}</td><td>${i.est.toLocaleString()}</td><td>${i.disc}%</td><td>${i.fin.toLocaleString()}</td></tr>`).join('');const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.25α">
+<meta name="app-version" content="1405.5.25β">
 <meta name="app-date" content="1405/05/25"><style>body{font-family:Tahoma;direction:rtl;font-size:9pt}table{width:100%;border-collapse:collapse}th,td{border:.5pt solid #888;padding:3pt;text-align:right}th{background:#ddd}</style></head><body><h3>فاکتور ${d.num} — Laegh</h3><p>${d.seller} | ${d.phone||'—'} | ${d.date||'—'}</p><table><thead><tr><th>ر</th><th>کد</th><th>مدل</th><th>تاریخ</th><th>رنگ</th><th>کارتن</th><th>بدنه</th><th>لوازم</th><th>کمبود</th><th>عملکرد</th><th>گارانتی</th><th>خدمات</th><th>توضیح</th><th>برآورد</th><th>تخفیف</th><th>نهایی</th></tr></thead><tbody>${rows}</tbody></table><p><b>نهایی: ${d.tF.toLocaleString()} ریال</b></p></body></html>`;const blob=new Blob([html],{type:'application/msword;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laegh_'+d.num+'.doc';a.click();ntf('Word دانلود شد');}
 function shareInv(idx){const d=invoices[idx];const t=`فاکتور ${d.num} — ${getBrand().nameEn}\nفروشنده: ${d.seller}\nتلفن: ${d.phone||'—'}\nتاریخ: ${d.date||'—'}\nتعداد: ${d.items.length}\nجمع نهایی: ${(d.tF||0).toLocaleString()} ریال`;if(navigator.share)navigator.share({title:'فاکتور '+d.num,text:t}).catch(()=>{});else{navigator.clipboard.writeText(t).then(()=>ntf('متن فاکتور کپی شد')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ntf('متن فاکتور کپی شد');});}}
 function loadInv(idx){
@@ -13081,7 +13098,7 @@ function printPostal(){
   const cont=document.getElementById('postal-preview').innerHTML;
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.25α">
+<meta name="app-version" content="1405.5.25β">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
@@ -17330,7 +17347,7 @@ function printWarehouseDoc(id){
     '</tr>';
   }).join('');
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.25α">'+
+    '<meta name="app-version" content="1405.5.25β">'+
     '<meta name="app-date" content="1405/05/25">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:'+(isIn?'#f0fff0':'#fff5f5')+';color:#222}'+
@@ -17514,7 +17531,7 @@ function printWarehouseReport(){
   var fromD=(document.getElementById('wr-from')||{}).value||'ابتدا';
   var toD=(document.getElementById('wr-to')||{}).value||'تاکنون';
   var w=window.open('','_blank');
-  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.25α"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
+  w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="app-version" content="1405.5.25β"><style>'+printBgCss('warranty')+'body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px}.sum{display:flex;gap:20px;margin:10px 0;font-size:12px}</style></head><body>'+
     '<h3>📈 گزارش جامع انبار — '+getBrand().nameEn+'</h3>'+
     '<div style="font-size:11px;color:#666">بازه: '+fromD+' تا '+toD+' — '+data.length+' حرکت</div>'+
     '<div class="sum"><div>ورودی: <b style="color:green">'+totalIn+'</b></div><div>خروجی: <b style="color:red">'+totalOut+'</b></div><div>مانده: <b>'+(totalIn-totalOut)+'</b></div></div>'+
@@ -20374,7 +20391,7 @@ function doPrint(paperSize){
   const wbg=bgMap[pw.bg||'none']||'#fff';
   const effPaper = pw.paper || paperSize;
   var htmlDoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
-<meta name="app-version" content="1405.5.25α">
+<meta name="app-version" content="1405.5.25β">
     <style>
       @page{size:${effPaper};margin:8mm;}
       body{margin:0;padding:0;font-family:Tahoma,sans-serif;direction:rtl;background:${wbg};}
@@ -20507,7 +20524,7 @@ function printWarAgencyInvoice(){
   }).join('');
   const total=inv.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.25α"><title>فاکتور هزینه نمایندگی</title>'+
+    '<meta name="app-version" content="1405.5.25β"><title>فاکتور هزینه نمایندگی</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#1565c0;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #1565c0;padding-bottom:8px;margin-bottom:10px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه نمایندگی — '+(getBrand().nameFa||'سیرمان')+'</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -20536,7 +20553,7 @@ function printWarCustomerBill(){
   const total=bill.total||lines.reduce(function(s,x){return s+(parseFloat(x.price)||0);},0);
   const payAcc = bill.customerAcc || d.accRef || '';
   const html='<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.25α"><title>فاکتور هزینه مشتری</title>'+
+    '<meta name="app-version" content="1405.5.25β"><title>فاکتور هزینه مشتری</title>'+
     '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:16px}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}th{background:#e65100;color:#fff;padding:6px;text-align:right}td{border:1px solid #ccc;padding:6px}.hdr{border-bottom:2px solid #e65100;padding-bottom:8px;margin-bottom:10px}.pay{margin-top:10px;padding:8px;background:#fff8e1;border:1px solid #ffe08a;border-radius:6px;font-size:12px}</style></head><body>'+
     '<div class="hdr"><h2 style="margin:0">فاکتور هزینه خدمات (بخش مشتری)</h2>'+
     '<div style="font-size:11px;color:#666">پرونده: '+(d.id||'—')+' | تاریخ: '+(d.date||fdate())+'</div></div>'+
@@ -20573,7 +20590,7 @@ function printWarDoc(mode){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور خدمات است و مبلغ نهایی پس از تأیید مشتری قطعی می‌شود.</div>'
     : '';
   const html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.25α">'+
+    '<meta name="app-version" content="1405.5.25β">'+
     '<meta name="app-date" content="1405/05/25">'+
     '<style>'+printBgCss('warranty')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -21414,7 +21431,7 @@ function saleToPostal(){
 // چاپ پیش‌فاکتور یا فاکتور نهایی فروش قطعات
 // شامل: شماره حساب گیرنده، و جای امضاء «مسئول خدمات» + «مسئول انبار قطعات» + مهر
 function printSaleDoc(saleId){
-  var s = sales.find(function(x){return x.id === saleId;});
+  var s = sales.find(function(x){return x && (x.saleUid===saleId || x.SaleUid===saleId || x.id===saleId);});
   if(!s){ ntf('فروش پیدا نشد','err'); return; }
   var isProforma = s.status === 'proforma';
   var title = isProforma ? 'پیش‌فاکتور فروش قطعات' : 'فاکتور فروش قطعات';
@@ -21442,7 +21459,7 @@ function printSaleDoc(saleId){
     ? '<div style="margin:8px 0;padding:8px;background:#fff3cd;border:1px solid #ffe08a;border-radius:6px;font-size:12px;color:#8a6d3b;text-align:center">⚠️ این یک پیش‌فاکتور است و هنوز فروش نهایی نشده. پس از تأیید مشتری، با دکمه‌ی «ثبت نهایی» به فاکتور تبدیل می‌شود.</div>'
     : '';
   var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.25α">'+
+    '<meta name="app-version" content="1405.5.25β">'+
     '<meta name="app-date" content="1405/05/25">'+
     '<style>'+printBgCss('list')+''+
     'body{font-family:Tahoma,sans-serif;direction:rtl;padding:14px;background:#fff;color:#222}'+
@@ -21491,11 +21508,7 @@ function printSaleDoc(saleId){
     '</div>'+
     '<div style="margin-top:14px;text-align:center;font-size:9px;color:#aaa">'+getBrand().nameEn+' — '+(isProforma?'پیش‌فاکتور':'فاکتور نهایی')+' — تولیدشده در '+(s.savedAt||fdt())+'</div>'+
     '</body></html>';
-  var w = window.open('','_blank');
-  w.document.open(); w.document.write(html);
-  w.document.close();
-  w.focus();
-  setTimeout(function(){ w.print(); }, 300);
+  openFreshPrintWindow(html, {docId:'invoice', documentId:s.saleUid||s.SaleUid||s.id||'', title:title+' '+(s.id||'')});
 }
 
 // مقداردهی اولیه‌ی انتخابگر ماه شمسی فروش (سال‌ها از امروز شمسی ±۲ سال)
@@ -23013,7 +23026,7 @@ function printFinancialReport(){
   });
   var w = window.open('','_blank');
   w.document.open(); w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">'+
-    '<meta name="app-version" content="1405.5.25α">'+
+    '<meta name="app-version" content="1405.5.25β">'+
     '<style>body{font-family:Tahoma;direction:rtl;padding:14px}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#2563eb;color:#fff;padding:5px}td{border:1px solid #ccc;padding:4px;text-align:right}h3{margin:0 0 6px}.summary{display:flex;gap:20px;margin:10px 0;font-size:12px}</style>'+
     '</head><body>'+
     '<h3>📊 گزارش مالی — '+getBrand().nameEn+'</h3>'+
@@ -23549,8 +23562,12 @@ function printEngineRecordHistory(entry){
     at: entry && entry.at ? entry.at : (new Date()).toISOString(),
     docId: (entry && entry.docId) || 'report',
     title: (entry && entry.title) || '',
-    printer: (entry && entry.printer) || st.selectedPrinter || 'browser',
-    status: (entry && entry.status) || 'ok'
+    printer: (entry && entry.printer) || st.selectedPrinter || '',
+    status: (entry && entry.status) || 'PRINT_FAILED',
+    printJobId: (entry && entry.printJobId) || '',
+    documentId: (entry && entry.documentId) || '',
+    errorCode: (entry && entry.errorCode) || '',
+    errorMessage: (entry && entry.errorMessage) || ''
   };
   st.history = [row].concat(st.history||[]).slice(0,80);
   savePrintCenterState(st);
@@ -23564,36 +23581,69 @@ function printEngineLastJob(docId){
 }
 function printEngineHost(){
   try{
-    return window.chrome && chrome.webview && chrome.webview.hostObjects && chrome.webview.hostObjects.sync && chrome.webview.hostObjects.sync.sirmanHost;
+    var c = (typeof window!=='undefined' && window.chrome) ? window.chrome : ((typeof chrome!=='undefined') ? chrome : null);
+    return c && c.webview && c.webview.hostObjects && c.webview.hostObjects.sync && c.webview.hostObjects.sync.sirmanHost;
   }catch(_e){ return null; }
+}
+var _pcPrinterError = null;
+var _pcLiveDoc = null;
+function printEngineSetLiveDocument(doc){
+  _pcLiveDoc = doc && doc.html ? {
+    docId: doc.docId || 'invoice',
+    documentId: doc.documentId || doc.invoiceId || '',
+    invoiceId: doc.invoiceId || doc.documentId || '',
+    title: doc.title || '',
+    html: doc.html
+  } : null;
+  return _pcLiveDoc;
+}
+function printEngineInjectMeta(html, meta){
+  var payload = '<!-- SIRMAN-PRINT-META:'+JSON.stringify(meta||{})+' -->';
+  html = String(html==null?'':html);
+  if(html.indexOf('SIRMAN-PRINT-META:')>=0) return html;
+  if(/<head>/i.test(html)) return html.replace(/<head>/i, '<head>'+payload);
+  return payload+html;
 }
 function printEngineParsePrinters(raw){
   var list = [];
   if(!raw) return list;
   try{
     var parsed = (typeof raw==='string') ? JSON.parse(raw) : raw;
+    if(parsed && parsed.printers && Array.isArray(parsed.printers)) parsed = parsed.printers;
     if(Array.isArray(parsed)){
       parsed.forEach(function(p){
         if(typeof p==='string') list.push({name:p, isDefault:false});
-        else if(p && p.name) list.push({name:p.name, isDefault:!!p.isDefault, kind:p.kind||''});
+        else if(p && p.name) list.push({name:p.name, isDefault:!!p.isDefault, kind:p.kind||'', isValid:p.isValid!==false, status:p.status||''});
       });
     }
   }catch(_e){}
   return list;
 }
-function printEngineFallbackPrinters(){
-  return [
-    {name:'Microsoft Print to PDF', isDefault:true, kind:'pdf'},
-    {name:'مرورگر / پنجره چاپ', isDefault:false, kind:'browser'}
-  ];
-}
 function printEngineListPrinters(){
+  _pcPrinterError = null;
   var list = [];
   try{
     var host = printEngineHost();
-    if(host && host.GetPrinters) list = printEngineParsePrinters(host.GetPrinters());
-  }catch(_e){}
-  if(!list.length) list = printEngineFallbackPrinters();
+    if(!host || !host.GetPrinters){
+      _pcPrinterError = {errorCode:'NO_HOST', message:'چاپ واقعی فقط در Sirman.exe و چاپگر ویندوز انجام می‌شود.'};
+      return list;
+    }
+    var raw = host.GetPrinters();
+    var parsed = null;
+    try{ parsed = typeof raw==='string' ? JSON.parse(raw) : raw; }catch(_p){}
+    if(parsed && parsed.ok===false){
+      _pcPrinterError = {errorCode: parsed.errorCode||parsed.error||'PRINTER_LIST', message: parsed.message||'خواندن چاپگر انجام نشد'};
+      return list;
+    }
+    list = printEngineParsePrinters(raw);
+    if(parsed && parsed.defaultPrinter){
+      list.forEach(function(p){ if(p.name===parsed.defaultPrinter) p.isDefault = true; });
+    }
+  }catch(_e){
+    _pcPrinterError = {errorCode:'PRINTER_LIST', message:'خواندن فهرست چاپگر انجام نشد'};
+    return [];
+  }
+  if(!list.length) _pcPrinterError = {errorCode:'NO_PRINTER', message:'چاپگری نصب نیست.'};
   return list;
 }
 function printEngineOpenWindow(html){
@@ -23614,39 +23664,132 @@ function printEngineOpenWindow(html){
     return null;
   }
 }
+function printEngineFailResult(code, message, extra){
+  extra = extra || {};
+  return Object.assign({
+    ok:false,
+    status:'PRINT_FAILED',
+    errorCode: code,
+    errorMessage: message,
+    message: message,
+    printJobId: extra.printJobId||'',
+    printer: extra.printer||'',
+    documentId: extra.documentId||'',
+    documentType: extra.documentType||''
+  }, extra);
+}
+function printEngineWatchJob(printJobId, onDone){
+  var host = printEngineHost();
+  if(!host || !host.GetPrintJob || !printJobId){
+    if(onDone) onDone(printEngineFailResult('MISSING_JOB','وضعیت چاپ قابل پیگیری نیست'));
+    return;
+  }
+  var tries = 0;
+  var timer = setInterval(function(){
+    tries++;
+    var job = null;
+    try{
+      var raw = host.GetPrintJob(printJobId);
+      job = typeof raw==='string' ? JSON.parse(raw) : raw;
+    }catch(_e){ job = null; }
+    var st = job && job.status;
+    if(st==='PRINT_FAILED' || st==='PRINT_SUBMITTED' || st==='PRINT_COMPLETED'){
+      clearInterval(timer);
+      if(onDone) onDone(job);
+    } else if(tries>75){
+      clearInterval(timer);
+      if(onDone) onDone(job || printEngineFailResult('TIMEOUT','زمان چاپ تمام شد',{printJobId:printJobId}));
+    }
+  }, 400);
+}
+function printEngineApplyResult(result, opts){
+  opts = opts || {};
+  result = result || printEngineFailResult('PRINT_FAILED','چاپ انجام نشد');
+  var status = result.status || 'PRINT_FAILED';
+  var ok = status==='PRINT_SUBMITTED' || status==='PRINT_COMPLETED';
+  printEngineRecordHistory({
+    docId: opts.docId,
+    title: opts.title,
+    printer: result.printer || opts.printer || '',
+    status: ok ? 'PRINT_SUBMITTED' : 'PRINT_FAILED',
+    printJobId: result.printJobId||'',
+    documentId: result.documentId||opts.documentId||'',
+    errorCode: result.errorCode||result.error||'',
+    errorMessage: result.errorMessage||result.message||''
+  });
+  var box = null;
+  try{
+    if(typeof document!=='undefined' && document && document.getElementById)
+      box = document.getElementById('pc-print-result');
+  }catch(_d){ box = null; }
+  if(box){
+    box.className = 'pc-result '+(ok?'pc-result-ok':'pc-result-err');
+    box.textContent = ok
+      ? ('ارسال به صف چاپ انجام شد'+(result.printer?(' — '+result.printer):'')+(result.printJobId?(' — '+result.printJobId):''))
+      : ((result.errorMessage||result.message||'چاپ انجام نشد')+(result.errorCode?(' ('+result.errorCode+')'):''));
+  }
+  if(typeof ntf==='function') ntf(ok ? 'ارسال به صف چاپ انجام شد' : (result.errorMessage||result.message||'چاپ انجام نشد'), ok?'ok':'err');
+  try{ if(typeof pcRefreshHistory==='function') pcRefreshHistory(); }catch(_h){}
+  return result;
+}
 function printEnginePrintHtml(html, opts){
   opts = opts || {};
   var docId = opts.docId || printEngineGuessDocId(html, opts.title);
+  var documentId = opts.documentId || opts.invoiceId || '';
   var job = Object.assign({}, printEngineJob(docId), opts.job||{});
   if(opts.printer) job.printer = opts.printer;
   var wrapped = opts.skipWrap ? printEngineInjectJobCss(html, job) : printEngineWrapHtml(html, Object.assign({docId:docId, title:opts.title}, job));
   if(opts.previewOnly) return wrapped;
   printEngineSaveJob(job, docId);
-  var printer = job.printer || getPrintCenterState().selectedPrinter || 'browser';
-  var status = 'ok';
-  var usedHost = false;
-  try{
-    var host = printEngineHost();
-    if(host && host.PrintHtml){
-      var copies = parseInt(job.copies,10)||1;
-      var rawPrint = host.PrintHtml(wrapped, printer==='browser'?'':printer, job.paper||'A4', job.orientation||'portrait', copies);
-      var parsedPrint = null;
-      try{ parsedPrint = typeof rawPrint==='string' ? JSON.parse(rawPrint) : rawPrint; }catch(_pj){}
-      if(parsedPrint && parsedPrint.ok===false){
-        if(typeof ntf==='function') ntf(parsedPrint.message||'اجازه چاپ ندارید','err');
-        status = 'fail';
-        usedHost = true;
-      } else {
-        usedHost = true;
-      }
-    }
-  }catch(_h){ usedHost = false; }
-  if(!usedHost){
-    var opened = printEngineOpenWindow(wrapped);
-    if(!opened) status = 'fail';
+  printEngineSetLiveDocument({docId:docId, documentId:documentId, title:opts.title, html:wrapped});
+  wrapped = printEngineInjectMeta(wrapped, {documentId:documentId, documentType:docId, invoiceId:documentId});
+  var printer = job.printer || getPrintCenterState().selectedPrinter || '';
+  var copies = parseInt(job.copies,10)||1;
+  var host = printEngineHost();
+  if(!host || (!host.PrintDocument && !host.PrintHtml)){
+    var fail = printEngineFailResult('NO_HOST','چاپ واقعی فقط در Sirman.exe و چاپگر ویندوز انجام می‌شود.',{printer:printer, documentId:documentId, documentType:docId});
+    return printEngineApplyResult(fail, {docId:docId, title:opts.title, printer:printer, documentId:documentId});
   }
-  printEngineRecordHistory({docId:docId, title:opts.title||printDocById(docId).title, printer:printer, status:status});
-  return status==='ok' ? wrapped : null;
+  var rawPrint = '';
+  try{
+    if(host.PrintDocument){
+      rawPrint = host.PrintDocument(JSON.stringify({
+        html: wrapped,
+        printerName: printer,
+        paper: job.paper||'A4',
+        orientation: job.orientation||'portrait',
+        copies: copies,
+        documentId: documentId,
+        documentType: docId,
+        user: (typeof getAuditActor==='function' && getAuditActor()) ? (getAuditActor().username||'') : ''
+      }));
+    } else {
+      rawPrint = host.PrintHtml(wrapped, printer, job.paper||'A4', job.orientation||'portrait', copies);
+    }
+  }catch(_h){
+    var failH = printEngineFailResult('HOST_ERROR','ارتباط با موتور چاپ قطع شد',{printer:printer, documentId:documentId, documentType:docId});
+    return printEngineApplyResult(failH, {docId:docId, title:opts.title, printer:printer, documentId:documentId});
+  }
+  var parsedPrint = null;
+  try{ parsedPrint = typeof rawPrint==='string' ? JSON.parse(rawPrint) : rawPrint; }catch(_pj){ parsedPrint = null; }
+  if(!parsedPrint){
+    var failP = printEngineFailResult('BAD_RESPONSE','پاسخ موتور چاپ نامعتبر است',{printer:printer, documentId:documentId, documentType:docId});
+    return printEngineApplyResult(failP, {docId:docId, title:opts.title, printer:printer, documentId:documentId});
+  }
+  if(parsedPrint.status==='PRINT_REQUESTED' || parsedPrint.status==='PRINTING'){
+    var box = null;
+    try{
+      if(typeof document!=='undefined' && document && document.getElementById)
+        box = document.getElementById('pc-print-result');
+    }catch(_d){ box = null; }
+    if(box){ box.className='pc-result pc-result-busy'; box.textContent='در حال چاپ… '+(parsedPrint.printJobId||''); }
+    if(typeof ntf==='function') ntf('در حال چاپ…');
+    printEngineWatchJob(parsedPrint.printJobId, function(done){
+      printEngineApplyResult(done, {docId:docId, title:opts.title, printer:printer, documentId:documentId});
+    });
+    return parsedPrint;
+  }
+  return printEngineApplyResult(parsedPrint, {docId:docId, title:opts.title, printer:printer, documentId:documentId});
 }
 function printEngineQuickPrint(docId, html, title){
   return printEnginePrintHtml(html, {docId:docId, title:title, skipWrap:true, job:printEngineLastJob(docId)});
@@ -23682,7 +23825,12 @@ function openPrintCenter(docId){
   }catch(_e){}
   refreshPrintCenterUI();
 }
-function pcEl(id){ return document.getElementById(id); }
+function pcEl(id){
+  try{
+    if(typeof document==='undefined' || !document || !document.getElementById) return null;
+    return document.getElementById(id);
+  }catch(_e){ return null; }
+}
 function pcReadJobFromUI(){
   var job = printEngineJob();
   var g = function(id){ var el=pcEl(id); return el ? el.value : ''; };
@@ -23761,15 +23909,25 @@ function pcSaveCurrentProfile(){
 }
 function pcRefreshPrinters(){
   var sel = pcEl('pc-printer');
-  if(!sel) return printEngineListPrinters();
-  var cur = sel.value;
   var list = printEngineListPrinters();
+  if(!sel) return list;
+  var cur = sel.value;
+  if(!list.length){
+    sel.innerHTML = '<option value="">'+((_pcPrinterError && _pcPrinterError.message) || 'چاپگری در دسترس نیست')+'</option>';
+    var box = pcEl('pc-print-result');
+    if(box && _pcPrinterError){
+      box.className = 'pc-result pc-result-err';
+      box.textContent = _pcPrinterError.message + (_pcPrinterError.errorCode?(' ('+_pcPrinterError.errorCode+')'):'');
+    }
+    return list;
+  }
   sel.innerHTML = list.map(function(p){
-    return '<option value="'+String(p.name).replace(/"/g,'&quot;')+'">'+(p.name)+(p.isDefault?' (پیش‌فرض)':'')+'</option>';
+    var mark = p.isDefault ? ' (پیش‌فرض)' : (p.status==='unavailable' ? ' (غیرفعال)' : '');
+    return '<option value="'+String(p.name).replace(/"/g,'&quot;')+'">'+(p.name)+mark+'</option>';
   }).join('');
-  if(cur) sel.value = cur;
+  if(cur && list.some(function(p){ return p.name===cur; })) sel.value = cur;
   else {
-    var def = list.filter(function(p){return p.isDefault;})[0];
+    var def = list.filter(function(p){return p.isDefault && p.isValid!==false;})[0] || list.filter(function(p){return p.isDefault;})[0];
     if(def) sel.value = def.name;
   }
   return list;
@@ -23812,8 +23970,10 @@ function pcRefreshHistory(){
   box.innerHTML = rows.slice(0,12).map(function(r){
     var when = (r.at||'').replace('T',' ').slice(0,16);
     var doc = printDocById(r.docId);
-    var st = r.status==='ok' ? '<span class="pc-ok">موفق</span>' : '<span class="pc-err">ناموفق</span>';
-    return '<div class="pc-hist-row"><span>'+when+' — '+(doc.title||r.docId)+'</span><span>'+(r.printer||'')+' '+st+'</span></div>';
+    var st = (r.status==='PRINT_SUBMITTED' || r.status==='PRINT_COMPLETED' || r.status==='ok')
+      ? '<span class="pc-ok">ارسال شد</span>'
+      : '<span class="pc-err">'+(r.errorCode||'ناموفق')+'</span>';
+    return '<div class="pc-hist-row"><span>'+when+' — '+(doc.title||r.docId)+(r.documentId?(' — '+r.documentId):'')+'</span><span>'+(r.printer||'')+' '+st+'</span></div>';
   }).join('');
 }
 function refreshPrintCenterPreview(){
@@ -23843,18 +24003,53 @@ function refreshPrintCenterUI(){
 function pcDoPrint(){
   var st = getPrintCenterState();
   printEngineSaveJob(pcReadJobFromUI(), st.lastDocId);
-  var html = printEngineBuildPreview(st.lastDocId);
-  printEnginePrintHtml(html, {docId:st.lastDocId, title:printDocById(st.lastDocId).title, skipWrap:true});
-  pcRefreshHistory();
-  if(typeof ntf==='function') ntf('ارسال به چاپگر');
+  var html = '';
+  var documentId = '';
+  if(_pcLiveDoc && _pcLiveDoc.html && (!st.lastDocId || _pcLiveDoc.docId===st.lastDocId)){
+    html = _pcLiveDoc.html;
+    documentId = _pcLiveDoc.documentId||_pcLiveDoc.invoiceId||'';
+  } else if(st.lastDocId==='invoice' && typeof invoices!=='undefined' && invoices.length){
+    var inv = invoices[invoices.length-1];
+    html = printEngineBuildInvoiceHtml(inv);
+    documentId = (typeof invoiceIdentity==='function') ? invoiceIdentity(inv) : (inv.invoiceId||inv.InvoiceId||'');
+  } else {
+    var fail = printEngineFailResult('NO_DOCUMENT','سندی برای چاپ انتخاب نشده است. ابتدا فاکتور را باز کنید یا چاپ سریع بزنید.');
+    return printEngineApplyResult(fail, {docId:st.lastDocId, title:printDocById(st.lastDocId).title});
+  }
+  return printEnginePrintHtml(html, {docId:st.lastDocId, title:printDocById(st.lastDocId).title, skipWrap:true, documentId:documentId});
 }
+function pcDoRetry(){ return pcDoPrint(); }
 function pcDoPdf(){
+  var list = printEngineListPrinters();
+  var pdf = list.filter(function(p){ return /pdf/i.test(p.name||''); })[0];
+  if(!pdf){
+    var fail = printEngineFailResult('NO_PDF_PRINTER','چاپگر PDF ویندوز پیدا نشد. چاپگر Microsoft Print to PDF را نصب کنید.');
+    return printEngineApplyResult(fail, {docId:getPrintCenterState().lastDocId, title:'PDF'});
+  }
   var st = getPrintCenterState();
-  printEngineSaveJob(pcReadJobFromUI(), st.lastDocId);
-  var html = printEngineBuildPreview(st.lastDocId);
-  printEngineSavePdf(html, {docId:st.lastDocId, title:printDocById(st.lastDocId).title, skipWrap:true});
-  pcRefreshHistory();
-  if(typeof ntf==='function') ntf('پنجره ذخیره PDF باز شد — چاپگر را روی PDF بگذارید');
+  printEngineSaveJob(Object.assign(pcReadJobFromUI(), {printer:pdf.name}), st.lastDocId);
+  var html = '';
+  var documentId = '';
+  if(_pcLiveDoc && _pcLiveDoc.html){
+    html = _pcLiveDoc.html;
+    documentId = _pcLiveDoc.documentId||_pcLiveDoc.invoiceId||'';
+  } else if(st.lastDocId==='invoice' && typeof invoices!=='undefined' && invoices.length){
+    var inv = invoices[invoices.length-1];
+    html = printEngineBuildInvoiceHtml(inv);
+    documentId = (typeof invoiceIdentity==='function') ? invoiceIdentity(inv) : (inv.invoiceId||inv.InvoiceId||'');
+  } else {
+    var failDoc = printEngineFailResult('NO_DOCUMENT','سندی برای چاپ انتخاب نشده است. ابتدا فاکتور را باز کنید یا چاپ سریع بزنید.');
+    return printEngineApplyResult(failDoc, {docId:st.lastDocId, title:printDocById(st.lastDocId).title});
+  }
+  return printEnginePrintHtml(html, {docId:st.lastDocId, title:printDocById(st.lastDocId).title, skipWrap:true, printer:pdf.name, documentId:documentId});
+}
+function printEngineBuildInvoiceHtml(d){
+  if(!d) return '';
+  var ps = (typeof getPrintSettings==='function') ? getPrintSettings() : {};
+  var pi = ps.invoice || {};
+  var body = (typeof buildPH==='function') ? buildPH([d]) : '<div>'+(d.num||'')+'</div>';
+  return '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>فاکتور '+(d.num||'')+'</title>'+
+    '<style>body{font-family:Tahoma,sans-serif;direction:rtl;padding:8px}@page{size:'+(pi.paper||'A4')+';margin:'+(pi.margin||'8mm')+';}table{width:100%;border-collapse:collapse}th,td{border:.5px solid #aaa;padding:2px 3px;text-align:right}</style></head><body>'+body+'</body></html>';
 }
 var PrintEngine = {
   catalog: printDocCatalog,
@@ -23866,7 +24061,8 @@ var PrintEngine = {
   open: openPrintCenter,
   history: printEngineHistory,
   applyProfile: printEngineApplyProfile,
-  template: printEngineTemplate
+  template: printEngineTemplate,
+  retry: pcDoRetry
 };
 
 
@@ -26508,7 +26704,7 @@ var AI_KB = {
   'خطا': 'برای عیب‌یابی: تنظیمات ← عیب‌یابی ← «عیب‌یابی کامل».',
   'گارانتی': 'پرونده گارانتی: منو ← گارانتی ← پرونده جدید. مشخصات دستگاه، سریال، تاریخ خرید و انقضا را بزنید. نمای فصلی/ماهیانه هم برای مرور پرونده‌ها هست.',
   'انبار': 'انبار: موجودی کالا، قطعات، حواله ورود/خروج، انتقال بین انباری و انبارگردانی. اگر موجودی کم باشد هشدار می‌آید.',
-  'پرینت': 'مرکز پرینت: تنظیمات ← تب مرکز پرینت. سند را انتخاب کنید، پیش‌نمایش ببینید و چاپ کنید. از بخش‌های دیگر «چاپ سریع» با آخرین تنظیمات کار می‌کند.',
+  'پرینت': 'مرکز پرینت: تنظیمات ← تب مرکز پرینت. سند زنده را چاپ کنید، نه نمونه پیش‌نمایش. چاپ واقعی فقط در Sirman.exe و چاپگر ویندوز است؛ اگر چاپگر نباشد پیام خطا می‌آید.',
   'ریست': '⚠️ ریست کامل همه داده‌ها را پاک می‌کند. قبلش حتماً بک‌آپ بگیرید. مسیر: تنظیمات ← امنیت.',
   'فروش': 'فروش قطعه: منو ← فروش قطعات. قطعه و تعداد را انتخاب کنید. فروش نهایی از انبار کم می‌کند؛ پیش‌فاکتور کم نمی‌کند.',
   'مخاطب': 'دفترچه تلفن: مخاطب جدید را با نام و تلفن ثبت کنید. نمای شرکت و الفبا برای پیدا کردن سریع است.',
