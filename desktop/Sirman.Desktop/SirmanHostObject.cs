@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.Drawing.Printing;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -106,46 +104,15 @@ public class SirmanHostObject
     /// <summary>همگام‌سازی نوار عنوان ویندوز با اسکین انتخاب‌شده در HTML.</summary>
     public void ApplyUiSkin(string key) => _form.ApplyUiSkinChrome(key);
 
-    /// <summary>فهرست چاپگرهای نصب‌شده ویندوز برای مرکز پرینت.</summary>
-    public string GetPrinters()
+    /// <summary>فهرست چاپگرهای نصب‌شده ویندوز. اگر هیچ چاپگری نباشد آرایه خالی برمی‌گردد — چاپگر جعلی ساخته نمی‌شود.</summary>
+    public string GetPrinters() => _form.ListPrintersJson();
+
+    /// <summary>وضعیت یک کار چاپ که PrintHtml/PrintDocument ساخته است.</summary>
+    public string GetPrintJob(string printJobId)
     {
-        try
-        {
-            var items = new List<Dictionary<string, object?>>();
-            var defName = "";
-            try { defName = new PrinterSettings().PrinterName; } catch { /* ignore */ }
-            foreach (string name in PrinterSettings.InstalledPrinters)
-            {
-                items.Add(new Dictionary<string, object?>
-                {
-                    ["name"] = name,
-                    ["isDefault"] = string.Equals(name, defName, StringComparison.OrdinalIgnoreCase)
-                });
-            }
-            if (items.Count == 0)
-            {
-                items.Add(new Dictionary<string, object?>
-                {
-                    ["name"] = "Microsoft Print to PDF",
-                    ["isDefault"] = true,
-                    ["kind"] = "pdf"
-                });
-            }
-            return JsonSerializer.Serialize(items);
-        }
-        catch (Exception ex)
-        {
-            return JsonSerializer.Serialize(new[]
-            {
-                new Dictionary<string, object?>
-                {
-                    ["name"] = "Microsoft Print to PDF",
-                    ["isDefault"] = true,
-                    ["kind"] = "pdf",
-                    ["error"] = ex.Message
-                }
-            });
-        }
+        var denied = Guard("GetPrintJob");
+        if (denied != null) return denied;
+        return _form.GetPrintJobJson(printJobId);
     }
 
     /// <summary>نام رایانه و کاربر ویندوز برای ثبت فعالیت (HTML-only این را ندارد).</summary>
@@ -348,40 +315,82 @@ public class SirmanHostObject
         return GetBackupDir();
     }
 
-    /// <summary>چاپ HTML روی چاپگر نام‌دار یا دستور print پیش‌فرض ویندوز.</summary>
+    /// <summary>چاپ HTML روی چاپگر ویندوز از مسیر WebView2. موفقیت جعلی برنمی‌گردد.</summary>
     public string PrintHtml(string html, string printerName, string paper, string orientation, int copies)
     {
         var denied = Guard("PrintHtml");
         if (denied != null) return denied;
         try
         {
-            var dir = Path.Combine(Path.GetTempPath(), "sirman-print");
-            Directory.CreateDirectory(dir);
-            var path = Path.Combine(dir, "job-" + Guid.NewGuid().ToString("N") + ".html");
-            File.WriteAllText(path, html ?? "", new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
-            copies = Math.Max(1, copies);
-            var named = !string.IsNullOrWhiteSpace(printerName)
-                && !string.Equals(printerName, "PDF", StringComparison.OrdinalIgnoreCase)
-                && !string.Equals(printerName, "browser", StringComparison.OrdinalIgnoreCase)
-                && printerName != "مرورگر / پنجره چاپ";
-            for (var i = 0; i < copies; i++)
-            {
-                var psi = new ProcessStartInfo
-                {
-                    FileName = path,
-                    UseShellExecute = true,
-                    Verb = named ? "printto" : "print",
-                    Arguments = named ? "\"" + printerName.Replace("\"", "") + "\"" : ""
-                };
-                _ = paper;
-                _ = orientation;
-                Process.Start(psi);
-            }
-            return "{\"ok\":true}";
+            ParsePrintMeta(html, out var documentId, out var documentType);
+            return _form.EnqueueHtmlPrint(html ?? "", printerName ?? "", paper ?? "", orientation ?? "", copies, documentId, documentType, "");
         }
         catch (Exception ex)
         {
             return SafeError.Json("print-failed", "چاپ انجام نشد", ex);
         }
+    }
+
+    /// <summary>چاپ با شناسه سند، نوع سند و کاربر — همان موتور PrintHtml.</summary>
+    public string PrintDocument(string json)
+    {
+        var denied = Guard("PrintHtml");
+        if (denied != null) return denied;
+        try
+        {
+            using var doc = JsonDocument.Parse(string.IsNullOrWhiteSpace(json) ? "{}" : json);
+            var root = doc.RootElement;
+            var html = Str(root, "html");
+            var printer = Str(root, "printerName");
+            if (printer.Length == 0) printer = Str(root, "printer");
+            var paper = Str(root, "paper");
+            var orientation = Str(root, "orientation");
+            var copies = 1;
+            if (root.TryGetProperty("copies", out var c))
+            {
+                if (c.ValueKind == JsonValueKind.Number) copies = c.GetInt32();
+                else int.TryParse(c.GetString(), out copies);
+            }
+            var documentId = Str(root, "documentId");
+            if (documentId.Length == 0) documentId = Str(root, "invoiceId");
+            var documentType = Str(root, "documentType");
+            if (documentType.Length == 0) documentType = Str(root, "docId");
+            var user = Str(root, "user");
+            if (html.Length == 0)
+                return "{\"ok\":false,\"status\":\"PRINT_FAILED\",\"errorCode\":\"NO_DOCUMENT\",\"message\":\"سندی برای چاپ نیست\"}";
+            return _form.EnqueueHtmlPrint(html, printer, paper, orientation, copies, documentId, documentType, user);
+        }
+        catch (Exception ex)
+        {
+            return SafeError.Json("print-failed", "چاپ انجام نشد", ex);
+        }
+    }
+
+    private static string Str(JsonElement root, string name)
+    {
+        if (!root.TryGetProperty(name, out var el)) return "";
+        return el.ValueKind == JsonValueKind.String ? (el.GetString() ?? "") : el.ToString();
+    }
+
+    private static void ParsePrintMeta(string? html, out string documentId, out string documentType)
+    {
+        documentId = "";
+        documentType = "";
+        if (string.IsNullOrEmpty(html)) return;
+        var mark = "SIRMAN-PRINT-META:";
+        var i = html.IndexOf(mark, StringComparison.Ordinal);
+        if (i < 0) return;
+        var start = i + mark.Length;
+        var end = html.IndexOf("-->", start, StringComparison.Ordinal);
+        if (end < 0) end = Math.Min(html.Length, start + 400);
+        var raw = html.Substring(start, end - start).Trim();
+        try
+        {
+            using var doc = JsonDocument.Parse(raw);
+            documentId = Str(doc.RootElement, "documentId");
+            if (documentId.Length == 0) documentId = Str(doc.RootElement, "invoiceId");
+            documentType = Str(doc.RootElement, "documentType");
+        }
+        catch { /* meta اختیاری است */ }
     }
 }

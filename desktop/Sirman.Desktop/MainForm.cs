@@ -26,11 +26,13 @@ public sealed class MainForm : Form
     private bool _allowClose;
     private bool _closePromptOpen;
     private SirmanHostObject? _hostObject;
+    private readonly WindowsPrintHost _printHost;
 
     public MainForm(string[] args)
     {
         _args = args ?? Array.Empty<string>();
         _settings = AppPaths.LoadSettings();
+        _printHost = new WindowsPrintHost(this);
 
         Text = "سیرمان — خدمات پس از فروش";
         Width = 1280;
@@ -263,6 +265,11 @@ public sealed class MainForm : Form
     }
 
     public int GetNotifyBridgePort() => _notify.Port;
+
+    public string ListPrintersJson() => _printHost.ListPrinters();
+    public string GetPrintJobJson(string printJobId) => _printHost.GetJob(printJobId);
+    public string EnqueueHtmlPrint(string html, string printerName, string paper, string orientation, int copies, string documentId, string documentType, string user) =>
+        _printHost.Enqueue(html, printerName, paper, orientation, copies, documentId, documentType, user);
 
     /// <summary>
     /// بستن قطعی پروسه. Close()/Dispose وب‌ویو گاهی hang می‌کند —

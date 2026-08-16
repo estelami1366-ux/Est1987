@@ -3967,13 +3967,13 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۵α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۵β باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.25α', 'نسخه محصول باید 1405.5.25α باشد');
-  assertEqual(ver.assembly, '1405.5.25.1', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (α=1)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۵α', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.25β', 'نسخه محصول باید 1405.5.25β باشد');
+  assertEqual(ver.assembly, '1405.5.25.2', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (β=2)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۵β', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -5822,7 +5822,7 @@ test('مرکز پرینت باید در تنظیمات با سه ستون سند
 });
 
 test('Print Engine مرکزی، پروفایل‌ها و چاپ سریع باید موجود باشند', () => {
-  ['printCenterDefaultState','getPrintCenterState','savePrintCenterState','printDocCatalog','registerPrintDocument','printEngineJob','printEngineApplyProfile','printEnginePrintHtml','printEngineQuickPrint','printEngineSavePdf','printEngineRecordHistory','printEngineHistory','printEngineLastJob','printEngineListPrinters','printEngineBuildPreview','openPrintCenter','refreshPrintCenterUI','pcDoPrint','pcDoPdf'].forEach(fn=>{
+  ['printCenterDefaultState','getPrintCenterState','savePrintCenterState','printDocCatalog','registerPrintDocument','printEngineJob','printEngineApplyProfile','printEnginePrintHtml','printEngineQuickPrint','printEngineSavePdf','printEngineRecordHistory','printEngineHistory','printEngineLastJob','printEngineListPrinters','printEngineBuildPreview','openPrintCenter','refreshPrintCenterUI','pcDoPrint','pcDoPdf','pcDoRetry','printEngineFailResult'].forEach(fn=>{
     assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
   });
   assertContainsString(html, "var PrintEngine = {", 'شیء PrintEngine پیدا نشد');
@@ -5870,11 +5870,14 @@ test('شبیه‌سازی: کاتالوگ قابل توسعه، پروفایل،
       printEngineSaveTemplate('invoice', {footer:'پای آزمایشی', qr:true});
       var tpl = printEngineTemplate('invoice');
       printEngineRecordHistory({docId:'invoice', title:'فاکتور', printer:'PDF', status:'ok'});
+      var histBefore = printEngineHistory();
+      var q = printEngineQuickPrint('invoice', '<html><body>INV</body></html>', 'فاکتور');
       var hist = printEngineHistory();
       var printers = printEngineParsePrinters('[{"name":"HP Laser","isDefault":true}]');
+      var wrappedPrinters = printEngineParsePrinters('{"ok":true,"printers":[{"name":"HP Laser","isDefault":true}]}');
       var css = printEnginePageCss({paper:'A4', orientation:'landscape', margin:'8mm', scale:90, color:false});
       var sample = printEngineBuildSample('warranty');
-      printEngineQuickPrint('invoice', '<html><body>INV</body></html>', 'فاکتور');
+      var none = printEngineListPrinters();
       return {
         extraHas: extra.some(function(d){return d.id==='custom-doc';}),
         catLen: cat.length,
@@ -5883,13 +5886,18 @@ test('شبیه‌سازی: کاتالوگ قابل توسعه، پروفایل،
         lastCopies: last.copies,
         footer: tpl.footer,
         qr: tpl.qr,
-        histDoc: hist[0] && hist[0].docId,
-        histStatus: hist[0] && hist[0].status,
+        histDoc: histBefore[0] && histBefore[0].docId,
+        histStatus: histBefore[0] && histBefore[0].status,
+        qStatus: q && q.status,
+        qCode: q && q.errorCode,
+        histFail: hist[0] && hist[0].status,
         hp: printers[0] && printers[0].name,
+        hp2: wrappedPrinters[0] && wrappedPrinters[0].name,
         cssHasA4: css.indexOf('A4')!==-1,
         cssGray: css.indexOf('grayscale')!==-1,
         sampleHas: sample.indexOf('ضمانت')!==-1 || sample.indexOf('warranty')!==-1 || sample.indexOf('نمونه')!==-1,
-        opened: opened.length
+        opened: opened.length,
+        noneLen: none.length
       };
     `
   );
@@ -5902,12 +5910,17 @@ test('شبیه‌سازی: کاتالوگ قابل توسعه، پروفایل،
   assertEqual(r.footer, 'پای آزمایشی', 'قالب باید پاورقی را نگه دارد');
   assertTrue(r.qr, 'قالب باید QR را ذخیره کند');
   assertEqual(r.histDoc, 'invoice', 'تاریخچه باید سند فاکتور را ثبت کند');
-  assertEqual(r.histStatus, 'ok', 'وضعیت تاریخچه باید موفق باشد');
+  assertEqual(r.histStatus, 'ok', 'وضعیت تاریخچه دستی باید همان باشد که ثبت شده');
+  assertEqual(r.qStatus, 'PRINT_FAILED', 'بدون Sirman.exe چاپ نباید موفق اعلام شود');
+  assertEqual(r.qCode, 'NO_HOST', 'بدون میزبان باید خطای NO_HOST بدهد');
+  assertEqual(r.histFail, 'PRINT_FAILED', 'تاریخچه چاپ ناموفق باید PRINT_FAILED باشد');
   assertEqual(r.hp, 'HP Laser', 'پارس چاپگر میزبان باید نام را بخواند');
+  assertEqual(r.hp2, 'HP Laser', 'فهرست چاپگر شیءدار باید خوانده شود');
   assertTrue(r.cssHasA4, 'CSS صفحه باید اندازه کاغذ داشته باشد');
   assertTrue(r.cssGray, 'حالت سیاه‌سفید باید grayscale بسازد');
   assertTrue(r.sampleHas, 'پیش‌نمایش نمونه باید محتوا داشته باشد');
-  assertTrue(r.opened >= 1, 'چاپ سریع باید پنجره چاپ باز کند');
+  assertEqual(r.opened, 0, 'بدون EXE نباید پنجره چاپ به‌عنوان موفقیت باز شود');
+  assertEqual(r.noneLen, 0, 'بدون میزبان نباید چاپگر جعلی ساخته شود');
 });
 
 test('میزبان دات‌نت باید فهرست چاپگر و چاپ HTML را بدهد', () => {
@@ -5918,9 +5931,102 @@ test('میزبان دات‌نت باید فهرست چاپگر و چاپ HTML �
   assertContainsString(host, 'PrintHtml', 'میزبان باید PrintHtml داشته باشد');
   assertContainsString(host, 'SaveAppPref', 'میزبان باید تنظیمات را در AppData نگه دارد');
   assertContainsString(host, 'WriteBackupText', 'میزبان باید بک‌آپ متنی پایدار بنویسد');
-  assertContainsString(host, 'PrinterSettings.InstalledPrinters', 'باید چاپگرهای ویندوز را بخواند');
+  assertContainsString(host, 'GetPrintJob', 'میزبان باید وضعیت کار چاپ را بدهد');
+  assertContainsString(host, 'PrintDocument', 'میزبان باید PrintDocument با شناسه سند داشته باشد');
+  assertContainsString(host, 'EnqueueHtmlPrint', 'میزبان باید کار چاپ را به موتور دسکتاپ بسپارد');
+  assertTrue(!/Verb\s*=\s*"printto"/.test(host), 'نباید از فعل شل printto به‌عنوان چاپ واقعی استفاده شود');
+  assertTrue(host.indexOf('Process.Start') < 0, 'میزبان نباید با Process.Start چاپ شل کند');
+  assertTrue(!/Microsoft Print to PDF/.test(host), 'GetPrinters نباید چاپگر جعلی بسازد');
+  const printHost = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'WindowsPrintHost.cs'), 'utf8');
+  assertContainsString(printHost, 'PrinterSettings.InstalledPrinters', 'باید چاپگرهای ویندوز را بخواند');
+  assertContainsString(printHost, 'PrintAsync', 'موتور چاپ دسکتاپ باید PrintAsync را صدا بزند');
+  assertContainsString(printHost, 'PRINT_SUBMITTED', 'موفقیت فقط بعد از ارسال به اسپولر ثبت شود');
+  assertContainsString(printHost, 'NO_PRINTER', 'بدون چاپگر باید خطای مشخص بدهد');
+  assertContainsString(printHost, 'PRINTER_UNAVAILABLE', 'چاپگر غیرفعال باید خطای مشخص بدهد');
+  assertTrue(!/Verb\s*=\s*"printto"/.test(printHost), 'موتور چاپ نباید printto شل باشد');
+  assertTrue(printHost.indexOf('Process.Start') < 0, 'موتور چاپ نباید Process.Start باشد');
   assertContainsString(html, 'host.GetPrinters', 'HTML باید فهرست چاپگر میزبان را بخواند');
   assertContainsString(html, 'host.PrintHtml', 'HTML باید PrintHtml میزبان را صدا بزند');
+  assertContainsString(html, 'host.PrintDocument', 'HTML باید PrintDocument را ترجیح بدهد');
+  assertContainsString(html, 'NO_HOST', 'بدون EXE نباید چاپ موفق اعلام شود');
+  const pcPrint = extractFunctionSource(html, 'pcDoPrint');
+  assertContainsString(pcPrint, 'NO_DOCUMENT', 'چاپ مرکز پرینت بدون سند زنده باید خطا بدهد');
+  assertTrue(pcPrint.indexOf('printEngineBuildSample') < 0, 'دکمه چاپ نباید نمونه پیش‌نمایش را به چاپگر بفرستد');
+  const printHtmlSrc = extractFunctionSource(html, 'printEnginePrintHtml');
+  assertContainsString(printHtmlSrc, 'documentId', 'بار چاپ باید شناسه سند داشته باشد');
+  assertContainsString(printHtmlSrc, 'PrintDocument', 'چاپ باید از PrintDocument میزبان برود');
+});
+
+test('شبیه‌سازی: بدون سند زنده، چاپ ناموفق است و داده را عوض نمی‌کند', () => {
+  const start = html.indexOf("var PC_KEY = 'laegh_printCenter';");
+  const pe = html.indexOf('\nvar PrintEngine = {');
+  const objEnd = html.indexOf('\n};', pe);
+  const src = html.slice(start, objEnd + 3);
+  const store = {};
+  const fakeLS = {
+    getItem(k){ return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },
+    setItem(k,v){ store[k]=String(v); },
+    removeItem(k){ delete store[k]; }
+  };
+  const captured = [];
+  const invoices = [];
+  const products = [{code:'P1', stock:5}];
+  const parts = [{code:'X1', stock:3}];
+  const accounts = [{id:'A1', bal:100}];
+  const fakeWindow = {
+    chrome: {
+      webview: {
+        hostObjects: {
+          sync: {
+            sirmanHost: {
+              GetPrinters(){ return JSON.stringify({ok:true, printers:[{name:'HP Laser', isDefault:true, isValid:true}], count:1, defaultPrinter:'HP Laser'}); },
+              PrintDocument(json){
+                captured.push(typeof json==='string' ? JSON.parse(json) : json);
+                return JSON.stringify({ok:false, status:'PRINT_FAILED', errorCode:'PRINTER_UNAVAILABLE', message:'Printer is unavailable.', printJobId:'PJ-TEST'});
+              },
+              PrintHtml(){ return JSON.stringify({ok:false, status:'PRINT_FAILED', errorCode:'NO_PRINTER'}); },
+              GetPrintJob(){ return JSON.stringify({ok:false, status:'PRINT_FAILED', errorCode:'MISSING_JOB'}); }
+            }
+          }
+        }
+      }
+    }
+  };
+  const runner = new Function(
+    'window','localStorage','ntf','getPrintSettings','getBrand','logoSrc','fdt','PS_KEY','invoices','products','parts','accounts','invoiceIdentity','captured',
+    src + `
+      var none = pcDoPrint();
+      invoices.push({invoiceId:'INVUID-KEEP', InvoiceNumber:'1001', num:'1001', items:[{qty:1}], tF:10});
+      var live = printEnginePrintHtml('<html dir="rtl"><body>فاکتور زنده</body></html>', {docId:'invoice', documentId:'INVUID-KEEP', invoiceId:'INVUID-KEEP', title:'فاکتور', skipWrap:true});
+      return {
+        noneStatus: none && none.status,
+        noneCode: none && none.errorCode,
+        liveStatus: live && live.status,
+        liveCode: live && live.errorCode,
+        capturedId: captured[0] && captured[0].documentId,
+        capturedHtml: captured[0] && String(captured[0].html||''),
+        invLen: invoices.length,
+        invId: invoices[0] && invoices[0].invoiceId,
+        prodStock: products[0] && products[0].stock,
+        partStock: parts[0] && parts[0].stock,
+        accBal: accounts[0] && accounts[0].bal,
+        printers: printEngineListPrinters().length
+      };
+    `
+  );
+  const r = runner(fakeWindow, fakeLS, function(){}, function(){ return {}; }, function(){ return {nameFa:'سیرمان',nameEn:'Sirman'}; }, '', function(){ return '1405/05/25'; }, 'laegh_printSettings', invoices, products, parts, accounts, function(d){ return (d && (d.invoiceId||d.InvoiceId)) || ''; }, captured);
+  assertEqual(r.noneCode, 'NO_DOCUMENT', 'بدون سند زنده باید NO_DOCUMENT باشد');
+  assertEqual(r.noneStatus, 'PRINT_FAILED', 'بدون سند نباید چاپ موفق اعلام شود');
+  assertEqual(r.capturedId, 'INVUID-KEEP', 'بار چاپ باید InvoiceId را بفرستد');
+  assertTrue(String(r.capturedHtml).indexOf('SIRMAN-PRINT-META') >= 0, 'سند چاپ باید متای شناسه داشته باشد');
+  assertEqual(r.liveStatus, 'PRINT_FAILED', 'چاپگر غیرفعال باید شکست صادقانه بدهد');
+  assertEqual(r.liveCode, 'PRINTER_UNAVAILABLE', 'کد خطا باید PRINTER_UNAVAILABLE باشد');
+  assertEqual(r.invLen, 1, 'چاپ نباید فاکتور را حذف یا اضافه کند');
+  assertEqual(r.invId, 'INVUID-KEEP', 'شناسه فاکتور بعد از چاپ باید همان باشد');
+  assertEqual(r.prodStock, 5, 'چاپ نباید موجودی کالا را عوض کند');
+  assertEqual(r.partStock, 3, 'چاپ نباید موجودی قطعه را عوض کند');
+  assertEqual(r.accBal, 100, 'چاپ نباید مانده حساب را عوض کند');
+  assertEqual(r.printers, 1, 'فهرست چاپگر میزبان باید خوانده شود');
 });
 
 

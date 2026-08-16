@@ -46,7 +46,9 @@ public static class PermissionCatalog
             ["SetNetworkConfig"] = "Network.Configure",
             ["WriteWorkspaceFile"] = "Network.Publish",
             ["ReadWorkspaceFile"] = "Network.Pull",
-            ["PrintHtml"] = "Print.Use"
+            ["PrintHtml"] = "Print.Use",
+            ["PrintDocument"] = "Print.Use",
+            ["GetPrintJob"] = "Print.Use"
         };
 
     /// <summary>متدهایی که بدون نشست هم باید کار کنند (خروج، بک‌آپ، سلامت).</summary>
