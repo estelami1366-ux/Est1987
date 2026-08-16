@@ -132,40 +132,41 @@ public class TransactionReversalTests
     }
 
     [Fact]
-    public void SaleDelete_DuplicateId_UsesSaleIndex_RemovesOnlyClicked()
+    public void SaleDelete_DuplicateDisplayNumber_UsesSaleUid_RemovesOnlyClicked()
     {
         var del = Res("sale.delete", """
-        {"sale":{"id":"SL-0002","status":"final","name":"جدید","total":200,"items":[{"partCode":"A","qty":2}]},
-         "saleIndex":1,
+        {"sale":{"id":"SL-0002","saleUid":"SALEUID-000002","status":"final","name":"جدید","total":200,"items":[{"partCode":"A","qty":2}]},
+         "saleUid":"SALEUID-000002",
          "sales":[
-           {"id":"SL-0002","status":"final","name":"قدیمی","total":100,"items":[{"partCode":"A","qty":1}]},
-           {"id":"SL-0002","status":"final","name":"جدید","total":200,"items":[{"partCode":"A","qty":2}]}
+           {"id":"SL-0002","saleUid":"SALEUID-000001","status":"final","name":"قدیمی","total":100,"items":[{"partCode":"A","qty":1}]},
+           {"id":"SL-0002","saleUid":"SALEUID-000002","status":"final","name":"جدید","total":200,"items":[{"partCode":"A","qty":2}]}
          ],
          "parts":[{"code":"A","qty":7}],
          "accounts":[{"id":"ACC-1","balance":300,"transactions":[
-           {"amount":100,"refId":"SL-0002","refType":"sale","type":"deposit"},
-           {"amount":200,"refId":"SL-0002","refType":"sale","type":"deposit"}
+           {"amount":100,"refId":"SALEUID-000001","refType":"sale","type":"deposit"},
+           {"amount":200,"refId":"SALEUID-000002","refType":"sale","type":"deposit"}
          ]}],
          "now":"1405/05/23"}
         """);
         Assert.True(del.GetProperty("ok").GetBoolean());
         Assert.Equal(1, del.GetProperty("sales").GetArrayLength());
         Assert.Equal("قدیمی", del.GetProperty("sales")[0].GetProperty("name").GetString());
+        Assert.Equal("SALEUID-000001", del.GetProperty("sales")[0].GetProperty("saleUid").GetString());
         Assert.Equal(9, Qty(del.GetProperty("parts")[0]));
         Assert.Equal(100, del.GetProperty("accounts")[0].GetProperty("balance").GetDouble());
         Assert.Equal(1, del.GetProperty("accounts")[0].GetProperty("transactions").GetArrayLength());
-        Assert.Equal(100, del.GetProperty("accounts")[0].GetProperty("transactions")[0].GetProperty("amount").GetDouble());
+        Assert.Equal("SALEUID-000001", del.GetProperty("accounts")[0].GetProperty("transactions")[0].GetProperty("refId").GetString());
     }
 
     [Fact]
-    public void SaleDelete_DuplicateId_AcceptsPascalSaleIndex()
+    public void SaleDelete_DuplicateDisplayNumber_AcceptsPascalSaleUid()
     {
         var del = Res("sale.delete", """
-        {"sale":{"id":"SL-0002","status":"final","name":"جدید","total":200,"items":[{"partCode":"A","qty":2}]},
-         "SaleIndex":1,
+        {"sale":{"id":"SL-0002","saleUid":"SALEUID-000002","status":"final","name":"جدید","total":200,"items":[{"partCode":"A","qty":2}]},
+         "SaleUid":"SALEUID-000002",
          "sales":[
-           {"id":"SL-0002","status":"final","name":"قدیمی","total":100,"items":[{"partCode":"A","qty":1}]},
-           {"id":"SL-0002","status":"final","name":"جدید","total":200,"items":[{"partCode":"A","qty":2}]}
+           {"id":"SL-0002","saleUid":"SALEUID-000001","status":"final","name":"قدیمی","total":100,"items":[{"partCode":"A","qty":1}]},
+           {"id":"SL-0002","saleUid":"SALEUID-000002","status":"final","name":"جدید","total":200,"items":[{"partCode":"A","qty":2}]}
          ],
          "parts":[{"code":"A","qty":7}],
          "now":"1405/05/23"}
@@ -173,6 +174,26 @@ public class TransactionReversalTests
         Assert.True(del.GetProperty("ok").GetBoolean());
         Assert.Equal(1, del.GetProperty("sales").GetArrayLength());
         Assert.Equal("قدیمی", del.GetProperty("sales")[0].GetProperty("name").GetString());
+    }
+
+    [Fact]
+    public void SaleDelete_DuplicateDisplayWithoutUid_DoesNotDeleteFirstMatch()
+    {
+        var del = Res("sale.delete", """
+        {"sale":{"id":"SL-0002","status":"final","name":"جدید","items":[{"partCode":"A","qty":2}]},
+         "saleIndex":1,
+         "sales":[
+           {"id":"SL-0002","status":"final","name":"قدیمی","items":[{"partCode":"A","qty":1}]},
+           {"id":"SL-0002","status":"final","name":"جدید","items":[{"partCode":"A","qty":2}]}
+         ],
+         "parts":[{"code":"A","qty":7}],
+         "now":"1405/05/23"}
+        """);
+        Assert.True(del.GetProperty("ok").GetBoolean());
+        Assert.Equal(2, del.GetProperty("sales").GetArrayLength());
+        Assert.Equal("قدیمی", del.GetProperty("sales")[0].GetProperty("name").GetString());
+        Assert.Equal("جدید", del.GetProperty("sales")[1].GetProperty("name").GetString());
+        Assert.Equal(7, Qty(del.GetProperty("parts")[0]));
     }
 
     [Fact]
@@ -413,6 +434,91 @@ public class TransactionReversalTests
         Assert.True(second.GetProperty("alreadyReversed").GetBoolean());
         Assert.Equal(10, Qty(second.GetProperty("parts")[0]));
         Assert.Equal(0, second.GetProperty("accounts")[0].GetProperty("balance").GetDouble());
+    }
+
+    [Fact]
+    public void InvoiceDelete_UsesInvoiceId_NotDisplayNumber()
+    {
+        var del = Res("invoice.delete", """
+        {"invoice":{"invoiceId":"INVUID-B","num":"100","status":"closed","items":[{"code":"B1"}]},
+         "invoiceId":"INVUID-B",
+         "invoices":[
+           {"invoiceId":"INVUID-A","num":"100","status":"closed","items":[{"code":"A1"}]},
+           {"invoiceId":"INVUID-B","num":"100","status":"closed","items":[{"code":"B1"}]}
+         ],
+         "inventory":{"A1":{"code":"A1","qty":4},"B1":{"code":"B1","qty":8}},
+         "accounts":[{"id":"ACC-1","balance":300,"transactions":[
+           {"id":"TRX-A","type":"deposit","amount":100,"refId":"INVUID-A","refType":"invoice"},
+           {"id":"TRX-B","type":"deposit","amount":200,"refId":"INVUID-B","refType":"invoice"}
+         ]}],
+         "now":"1405/05/25"}
+        """);
+        Assert.True(del.GetProperty("ok").GetBoolean());
+        Assert.Equal(1, del.GetProperty("invoices").GetArrayLength());
+        Assert.Equal("INVUID-A", del.GetProperty("invoices")[0].GetProperty("invoiceId").GetString());
+        Assert.Equal("100", del.GetProperty("invoices")[0].GetProperty("num").GetString());
+        Assert.Equal(4, del.GetProperty("inventory").GetProperty("A1").GetProperty("qty").GetInt32());
+        Assert.Equal(9, del.GetProperty("inventory").GetProperty("B1").GetProperty("qty").GetInt32());
+        Assert.Equal(100, del.GetProperty("accounts")[0].GetProperty("balance").GetDouble());
+        Assert.Equal("INVUID-A", del.GetProperty("accounts")[0].GetProperty("transactions")[0].GetProperty("refId").GetString());
+        Assert.Equal("INVUID-B", del.GetProperty("removedId").GetString());
+    }
+
+    [Fact]
+    public void InvoiceDelete_AcceptsPascalInvoiceId()
+    {
+        var del = Res("invoice.delete", """
+        {"invoice":{"invoiceId":"INVUID-B","num":"101","status":"closed","items":[{"code":"B1"}]},
+         "InvoiceId":"INVUID-B",
+         "invoices":[
+           {"invoiceId":"INVUID-A","num":"100","status":"closed","items":[{"code":"A1"}]},
+           {"invoiceId":"INVUID-B","num":"101","status":"closed","items":[{"code":"B1"}]}
+         ],
+         "inventory":{"A1":{"code":"A1","qty":4},"B1":{"code":"B1","qty":8}},
+         "now":"1405/05/25"}
+        """);
+        Assert.Equal(1, del.GetProperty("invoices").GetArrayLength());
+        Assert.Equal("INVUID-A", del.GetProperty("invoices")[0].GetProperty("invoiceId").GetString());
+        Assert.Equal(4, del.GetProperty("inventory").GetProperty("A1").GetProperty("qty").GetInt32());
+        Assert.Equal(9, del.GetProperty("inventory").GetProperty("B1").GetProperty("qty").GetInt32());
+    }
+
+    [Fact]
+    public void InvoiceDelete_DuplicateNumberWithoutId_DoesNotDeleteFirstMatch()
+    {
+        var del = Res("invoice.delete", """
+        {"invoice":{"num":"100","status":"closed","items":[{"code":"B1"}]},
+         "invoiceIndex":1,
+         "invoices":[
+           {"num":"100","status":"closed","items":[{"code":"A1"}]},
+           {"num":"100","status":"closed","items":[{"code":"B1"}]}
+         ],
+         "inventory":{"A1":{"code":"A1","qty":4},"B1":{"code":"B1","qty":8}},
+         "now":"1405/05/25"}
+        """);
+        Assert.True(del.GetProperty("ok").GetBoolean());
+        Assert.Equal(2, del.GetProperty("invoices").GetArrayLength());
+        Assert.Equal(4, del.GetProperty("inventory").GetProperty("A1").GetProperty("qty").GetInt32());
+        Assert.Equal(8, del.GetProperty("inventory").GetProperty("B1").GetProperty("qty").GetInt32());
+    }
+
+    [Fact]
+    public void InvoiceDelete_IndexMustNotOverrideInvoiceId()
+    {
+        var del = Res("invoice.delete", """
+        {"invoice":{"invoiceId":"INVUID-B","num":"101","status":"closed","items":[{"code":"B1"}]},
+         "invoiceId":"INVUID-B",
+         "invoiceIndex":0,
+         "invoices":[
+           {"invoiceId":"INVUID-A","num":"100","status":"closed","items":[{"code":"A1"}]},
+           {"invoiceId":"INVUID-B","num":"101","status":"closed","items":[{"code":"B1"}]}
+         ],
+         "inventory":{"A1":{"code":"A1","qty":4},"B1":{"code":"B1","qty":8}},
+         "now":"1405/05/25"}
+        """);
+        Assert.Equal(1, del.GetProperty("invoices").GetArrayLength());
+        Assert.Equal("INVUID-A", del.GetProperty("invoices")[0].GetProperty("invoiceId").GetString());
+        Assert.Equal(4, del.GetProperty("inventory").GetProperty("A1").GetProperty("qty").GetInt32());
     }
 
     private JsonElement Res(string op, string json)

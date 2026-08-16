@@ -3967,13 +3967,13 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۳υ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۵α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.23υ', 'نسخه محصول باید 1405.5.23υ باشد');
-  assertEqual(ver.assembly, '1405.5.23.21', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (υ=21)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۳υ', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.25α', 'نسخه محصول باید 1405.5.25α باشد');
+  assertEqual(ver.assembly, '1405.5.25.1', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (α=1)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۵α', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -9060,17 +9060,14 @@ test('حذف فاکتور فروش با شماره تکراری فقط همان 
   assertEqual(r.bal, 100, 'مانده فاکتور قبلی باید بماند');
 });
 
-test('حذف فروش در exe باید saleIndex ردیف کلیک‌شده را بفرستد و فقط همان را بردارد', () => {
+test('حذف فروش در exe باید saleUid ردیف کلیک‌شده را بفرستد و فقط همان را بردارد', () => {
   const r = saleDeleteSandbox(`
     var seen = null;
     function getSirmanHostSync(){
       return { RunBusiness: function(name, json){
         seen = JSON.parse(json);
-        var idx = seen.saleIndex;
-        var list = (seen.sales||[]).slice();
-        if(idx>=0 && idx<list.length) list.splice(idx,1);
-        return JSON.stringify({ok:true, result:{ok:true, alreadyReversed:false, sales:list,
-          parts:[{code:'A', qty:9}], accounts:[{id:'ACC-1', balance:100, transactions:[{amount:100, refId:'SL-0002'}]}],
+        return JSON.stringify({ok:true, result:{ok:true, alreadyReversed:false, sales:[],
+          parts:[{code:'A', qty:9}], accounts:[{id:'ACC-1', balance:100, transactions:[{amount:100, refId:'SALEUID-000001'}]}],
           persistKeys:['sales','parts','accounts']}});
       }};
     }
@@ -9084,14 +9081,15 @@ test('حذف فروش در exe باید saleIndex ردیف کلیک‌شده ر�
     var parts = [{code:'A', qty:7}];
     var accounts = [{id:'ACC-1', balance:300, transactions:[]}];
     var sales = [
-      {id:'SL-0002', status:'final', name:'قدیمی', items:[{partCode:'A', qty:1}]},
-      {id:'SL-0002', status:'final', name:'جدید', items:[{partCode:'A', qty:2}]}
+      {id:'SL-0002', saleUid:'SALEUID-000001', status:'final', name:'قدیمی', items:[{partCode:'A', qty:1}]},
+      {id:'SL-0002', saleUid:'SALEUID-000002', status:'final', name:'جدید', items:[{partCode:'A', qty:2}]}
     ];
     var r = deleteSaleAt(1);
-    return {ok:r&&r.ok!==false, n:sales.length, kept:sales[0]&&sales[0].name, idx:seen&&seen.saleIndex, sentId:seen&&seen.sale&&seen.sale.id};
+    return {ok:r&&r.ok!==false, n:sales.length, kept:sales[0]&&sales[0].name, uid:seen&&seen.saleUid, noIdx: seen && seen.saleIndex==null, sentId:seen&&seen.sale&&seen.sale.id};
   `)();
   assertEqual(r.ok, true, 'حذف با Host باید موفق باشد');
-  assertEqual(r.idx, 1, 'هسته باید اندیس ردیف کلیک‌شده را بگیرد نه اولین شماره مطابق');
+  assertEqual(r.uid, 'SALEUID-000002', 'هسته باید شناسه داخلی ردیف کلیک‌شده را بگیرد نه اولین شماره مطابق');
+  assertEqual(r.noIdx, true, 'اندیس آرایه نباید هویت حذف باشد');
   assertEqual(r.n, 1, 'بعد از حذف فقط فاکتور قبلی بماند');
   assertEqual(r.kept, 'قدیمی', 'فاکتور قبلی نباید با حذف فاکتور جدید پاک شود');
 });
@@ -9155,6 +9153,247 @@ test('شماره فروش نباید با شماره موجود در لیست ت
   `)();
   assertEqual(r.peek, 'SL-0004', 'اگر SL-0003 زنده است شماره بعدی باید SL-0004 باشد');
   assertEqual(r.next, 'SL-0004', 'nextSaleId هم باید از روی شماره موجود بپرد');
+});
+
+console.log('');
+console.log('📋 گروه: هویت داخلی فاکتور و جداسازی حذف');
+
+test('حذف فاکتور باید invoiceId بفرستد نه invoiceIndex یا جستجوی شماره', () => {
+  const delAtSrc = extractFunctionSource(html, 'deleteInvoiceAt');
+  const delSaleSrc = extractFunctionSource(html, 'deleteSaleAt');
+  assertContainsString(delAtSrc, 'invoiceId', 'حذف فاکتور باید شناسه داخلی را به هسته بدهد');
+  assertTrue(delAtSrc.indexOf('invoiceIndex') < 0, 'حذف فاکتور نباید اندیس آرایه را هویت بداند');
+  assertContainsString(delSaleSrc, 'saleUid', 'حذف فروش باید شناسه داخلی بفرستد');
+  assertTrue(delSaleSrc.indexOf('saleIndex') < 0, 'حذف فروش نباید اندیس را هویت بداند');
+  assertContainsString(html, 'این شماره فاکتور قبلاً استفاده شده است.', 'پیام رد شماره تکراری باید موجود باشد');
+  assertContainsString(html, 'INVUID-', 'قالب شناسه داخلی فاکتور باید موجود باشد');
+  const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
+  const migSrc = extractFunctionSource(html, 'migrateBackup');
+  assertContainsString(buildSrc, 'invoiceUidCtr', 'بک‌آپ باید شمارنده شناسه داخلی فاکتور را نگه دارد');
+  assertContainsString(migSrc, 'invoiceId', 'migrateBackup باید به فاکتورهای قدیمی شناسه بدهد');
+  assertContainsString(migSrc, 'INVUID-', 'migration نباید شماره نمایش را عوض کند؛ فقط INVUID بسازد');
+});
+
+test('TEST A: حذف فاکتور B با شماره متفاوت فاکتور A را نگه می‌دارد', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/25'; }
+    function sv(){}
+    function svAccounts(){}
+    function recordStockMove(){}
+    var inventory = {A1:{code:'A1', qty:4}, B1:{code:'B1', qty:8}};
+    var accounts = [{id:'ACC-1', balance:300, transactions:[
+      {amount:100, refId:'INVUID-A', refType:'invoice', type:'deposit'},
+      {amount:200, refId:'INVUID-B', refType:'invoice', type:'deposit'}
+    ]}];
+    var a = {invoiceId:'INVUID-A', num:'100', status:'closed', items:[{code:'A1'}], tF:100};
+    var b = {invoiceId:'INVUID-B', num:'101', status:'closed', items:[{code:'B1'}], tF:200};
+    var invoices = [a, b];
+    deleteInvoiceAt(1);
+    return {n:invoices.length, kept:invoices[0]&&invoices[0].invoiceId, stillA:invoices.indexOf(a)>=0, stillB:invoices.indexOf(b)>=0, qa:inventory.A1.qty, qb:inventory.B1.qty, bal:accounts[0].balance};
+  `)();
+  assertEqual(r.n, 1, 'فقط یک فاکتور باید بماند');
+  assertEqual(r.kept, 'INVUID-A', 'فاکتور A باید بماند');
+  assertEqual(r.stillA, true, 'آبجکت A باید در آرایه بماند');
+  assertEqual(r.stillB, false, 'آبجکت B باید حذف شود');
+  assertEqual(r.qa, 4, 'موجودی کالای A نباید عوض شود');
+  assertEqual(r.qb, 9, 'فقط کالای B باید برگردد');
+  assertEqual(r.bal, 100, 'فقط مبلغ B باید از حساب برگردد');
+});
+
+test('TEST B: ساخت فاکتور با شماره تکراری باید رد شود و A دست نخورد', () => {
+  const takenSrc = extractFunctionSource(html, 'invoiceNumTaken');
+  const idSrc = extractFunctionSource(html, 'invoiceIdentity');
+  assertTrue(!!takenSrc && !!idSrc, 'توابع یکتایی شماره فاکتور پیدا نشد');
+  const r = new Function(idSrc+'\n'+takenSrc+`
+    var invoices = [{invoiceId:'INVUID-A', num:'100', seller:'قدیمی'}];
+    var takenNew = invoiceNumTaken('100', '');
+    var takenByOther = invoiceNumTaken('100', 'INVUID-A');
+    var taken101 = invoiceNumTaken('101', '');
+    return {takenNew:takenNew, takenByOther:takenByOther, taken101:taken101, n:invoices.length, num:invoices[0].num, id:invoices[0].invoiceId};
+  `)();
+  assertEqual(r.takenNew, true, 'شماره ۱۰۰ نباید دوباره برای فاکتور جدید قبول شود');
+  assertEqual(r.takenByOther, false, 'ویرایش همان فاکتور با همان شماره باید مجاز باشد');
+  assertEqual(r.taken101, false, 'شماره جدید باید آزاد باشد');
+  assertEqual(r.n, 1, 'A نباید حذف یا بازنویسی شود');
+  assertEqual(r.num, '100', 'شماره A باید همان بماند');
+  assertEqual(r.id, 'INVUID-A', 'شناسه A باید همان بماند');
+});
+
+test('TEST C: دو فاکتور هم‌شماره — حذف B فقط B را برمی‌دارد', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/25'; }
+    function sv(){}
+    function svAccounts(){}
+    function recordStockMove(){}
+    var inventory = {A1:{code:'A1', qty:4}, B1:{code:'B1', qty:8}};
+    var accounts = [{id:'ACC-1', balance:300, transactions:[
+      {amount:100, refId:'INVUID-A', refType:'invoice', type:'deposit'},
+      {amount:200, refId:'INVUID-B', refType:'invoice', type:'deposit'}
+    ]}];
+    var a = {invoiceId:'INVUID-A', num:'100', status:'closed', items:[{code:'A1'}], tF:100};
+    var b = {invoiceId:'INVUID-B', num:'100', status:'closed', items:[{code:'B1'}], tF:200};
+    var invoices = [a, b];
+    deleteInvoiceAt('INVUID-B');
+    return {n:invoices.length, kept:invoices[0]&&invoices[0].invoiceId, num:invoices[0]&&invoices[0].num, stillA:invoices.indexOf(a)>=0, stillB:invoices.indexOf(b)>=0, qa:inventory.A1.qty, qb:inventory.B1.qty, bal:accounts[0].balance, ref:accounts[0].transactions[0].refId};
+  `)();
+  assertEqual(r.n, 1, 'فقط یک فاکتور باید بماند');
+  assertEqual(r.kept, 'INVUID-A', 'فاکتور A باید بماند');
+  assertEqual(r.num, '100', 'شماره A باید همان ۱۰۰ بماند');
+  assertEqual(r.stillA, true, 'آبجکت A باید بماند');
+  assertEqual(r.stillB, false, 'آبجکت B باید حذف شود');
+  assertEqual(r.qa, 4, 'TEST F: موجودی A دست نخورد');
+  assertEqual(r.qb, 9, 'TEST F: فقط موجودی B برگردد');
+  assertEqual(r.bal, 100, 'TEST E: فقط مبلغ B برگردد');
+  assertEqual(r.ref, 'INVUID-A', 'TEST E: تراکنش A بماند');
+});
+
+test('TEST D: ویرایش B فاکتور A را عوض نمی‌کند', () => {
+  const saveSrc = extractFunctionSource(html, 'saveInv');
+  const idSrc = extractFunctionSource(html, 'invoiceIdentity');
+  const takenSrc = extractFunctionSource(html, 'invoiceNumTaken');
+  const findSrc = extractFunctionSource(html, 'findInvoiceIndexById');
+  const ensSrc = extractFunctionSource(html, 'ensureInvoiceIdentity');
+  const r = new Function(idSrc+'\n'+takenSrc+'\n'+findSrc+'\n'+ensSrc+'\n'+saveSrc+`
+    var invoiceUidCtr = 2;
+    var invCtr = 3;
+    var editingInvIdx = 1;
+    var editingInvoiceId = 'INVUID-B';
+    var invoices = [
+      {invoiceId:'INVUID-A', num:'100', seller:'قدیمی', items:[{code:'A1'}], tF:100},
+      {invoiceId:'INVUID-B', num:'101', seller:'جدید', items:[{code:'B1'}], tF:200}
+    ];
+    var notes = [];
+    function ntf(msg){ notes.push(msg); }
+    function getData(){ return {invoiceId:'INVUID-B', num:'101', seller:'ویرایش‌شده', items:[{code:'B1'}], tF:250}; }
+    function fdt(){ return '1405/05/25'; }
+    function auditUser(){}
+    function sv(){}
+    function safePersist(){}
+    function emit(){}
+    function clearInv(){}
+    function leaveFormToList(){}
+    function withSaveLock(n, fn){ return fn(); }
+    saveInv();
+    return {n:invoices.length, aSeller:invoices[0].seller, aNum:invoices[0].num, aId:invoices[0].invoiceId, bSeller:invoices[1].seller, bId:invoices[1].invoiceId};
+  `)();
+  assertEqual(r.n, 2, 'هر دو فاکتور باید بمانند');
+  assertEqual(r.aSeller, 'قدیمی', 'فروشنده A نباید عوض شود');
+  assertEqual(r.aNum, '100', 'شماره A نباید عوض شود');
+  assertEqual(r.aId, 'INVUID-A', 'شناسه A نباید عوض شود');
+  assertEqual(r.bSeller, 'ویرایش‌شده', 'فقط B باید ویرایش شود');
+  assertEqual(r.bId, 'INVUID-B', 'شناسه B باید همان بماند');
+});
+
+test('TEST G: حذف فاکتور B گارانتی و معیوب A را دست نمی‌زند', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/25'; }
+    function sv(){}
+    function svAccounts(){}
+    function recordStockMove(){}
+    var inventory = {A1:{code:'A1', qty:4}, B1:{code:'B1', qty:8}};
+    var accounts = [{id:'ACC-1', balance:0, transactions:[]}];
+    var a = {invoiceId:'INVUID-A', num:'100', status:'closed', items:[{code:'A1'}]};
+    var b = {invoiceId:'INVUID-B', num:'100', status:'closed', items:[{code:'B1'}]};
+    var invoices = [a, b];
+    var warranties = [{id:'W-A', invoiceNum:'100', invoiceId:'INVUID-A'}];
+    var defectiveStock = [{id:'DEF-1', invoiceNum:'100', invoiceId:'INVUID-A', model:'X'}];
+    deleteInvoiceAt('INVUID-B');
+    return {nInv:invoices.length, nWar:warranties.length, nDef:defectiveStock.length, warId:warranties[0].invoiceId, defId:defectiveStock[0].invoiceId, stillA:invoices.indexOf(a)>=0};
+  `)();
+  assertEqual(r.nInv, 1, 'فقط فاکتور B حذف شود');
+  assertEqual(r.stillA, true, 'فاکتور A بماند');
+  assertEqual(r.nWar, 1, 'پرونده گارانتی A بماند');
+  assertEqual(r.nDef, 1, 'ردیف معیوب A بماند');
+  assertEqual(r.warId, 'INVUID-A', 'گارانتی باید به شناسه A وصل بماند');
+  assertEqual(r.defId, 'INVUID-A', 'معیوب باید به شناسه A وصل بماند');
+});
+
+test('TEST restart: بعد از حذف B و شبیه‌سازی بارگذاری دوباره، A با همان شماره می‌ماند', () => {
+  const ensSrc = extractFunctionSource(html, 'ensureInvoiceIdentity');
+  const allSrc = extractFunctionSource(html, 'ensureAllInvoiceIdentities');
+  const idSrc = extractFunctionSource(html, 'invoiceIdentity');
+  const maxSrc = extractFunctionSource(html, 'maxInvoiceUidSeq');
+  const nextSrc = extractFunctionSource(html, 'nextInvoiceId');
+  const persistSrc = extractFunctionSource(html, 'persistInvoiceUidCtr');
+  const r = saleDeleteSandbox(idSrc+'\n'+maxSrc+'\n'+persistSrc+'\n'+nextSrc+'\n'+ensSrc+'\n'+allSrc+`
+    function getSirmanHostSync(){ return null; }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/25'; }
+    function sv(){}
+    function svAccounts(){}
+    function recordStockMove(){}
+    var invoiceUidCtr = 2;
+    var store = {laegh_invoice_uid_ctr:'2'};
+    var localStorage = { getItem:function(k){ return store[k]||null; }, setItem:function(k,v){ store[k]=String(v); } };
+    var inventory = {A1:{code:'A1', qty:4}, B1:{code:'B1', qty:8}};
+    var accounts = [];
+    var a = {invoiceId:'INVUID-A', num:'100', status:'closed', items:[{code:'A1'}]};
+    var b = {invoiceId:'INVUID-B', num:'101', status:'closed', items:[{code:'B1'}]};
+    var invoices = [a, b];
+    deleteInvoiceAt('INVUID-B');
+    var snap = JSON.parse(JSON.stringify(invoices));
+    invoices = JSON.parse(JSON.stringify(snap));
+    ensureAllInvoiceIdentities();
+    return {n:invoices.length, id:invoices[0].invoiceId, num:invoices[0].num, qa:inventory.A1.qty};
+  `)();
+  assertEqual(r.n, 1, 'بعد از بارگذاری دوباره فقط A بماند');
+  assertEqual(r.id, 'INVUID-A', 'شناسه A پایدار بماند');
+  assertEqual(r.num, '100', 'شماره A عوض نشود');
+  assertEqual(r.qa, 4, 'موجودی A بعد از restart همان باشد');
+});
+
+test('migration شناسه می‌دهد ولی شماره فاکتور موجود را عوض نمی‌کند', () => {
+  const migrateSrc = extractFunctionSource(html, 'migrateBackup');
+  const schemasSrc = extractFunctionSource(html, 'SCHEMAS') || 'var SCHEMAS = {};';
+  const migrateRecSrc = extractFunctionSource(html, 'migrateRecord') || 'function migrateRecord(r){return r;}';
+  const migrateSecSrc = extractFunctionSource(html, 'migrateSection') || 'function migrateSection(a){return a;}';
+  const runner = new Function('return (function(){ ' + schemasSrc + '\n' + migrateRecSrc + '\n' + migrateSecSrc + '\n return ' + migrateSrc + ' })();');
+  const migrateBackup = runner();
+  const result = migrateBackup({ version:'10.4.3', invoices:[{num:'100', seller:'قدیمی'},{num:'100', seller:'جدید'}], products:[], inventory:{}, phonebook:[], sales:[{id:'SL-0002'}] });
+  assertEqual(result.data.invoices[0].num, '100', 'شماره فاکتور اول نباید عوض شود');
+  assertEqual(result.data.invoices[1].num, '100', 'شماره فاکتور دوم نباید عوض شود');
+  assertTrue(!!result.data.invoices[0].invoiceId && !!result.data.invoices[1].invoiceId, 'هر دو باید شناسه داخلی بگیرند');
+  assertTrue(result.data.invoices[0].invoiceId !== result.data.invoices[1].invoiceId, 'شناسه‌ها باید متفاوت باشند');
+  assertTrue(!!result.data.sales[0].saleUid, 'فروش قدیمی باید saleUid بگیرد');
+  assertEqual(result.data.sales[0].id, 'SL-0002', 'شماره فروش SL نباید عوض شود');
+});
+
+test('اگر Host با جستجوی شماره فاکتور اول را بردارد، HTML فقط ردیف کلیک‌شده را splice کند', () => {
+  const r = saleDeleteSandbox(`
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        var p = JSON.parse(json);
+        var list = (p.invoices||[]).slice();
+        var num = p.invoice && p.invoice.num;
+        var idx = list.findIndex(function(x){ return x && x.num===num; });
+        if(idx>=0) list.splice(idx,1);
+        return JSON.stringify({ok:true, result:{ok:true, alreadyReversed:false, invoices:list,
+          inventory:{A1:{code:'A1', qty:4}, B1:{code:'B1', qty:9}}, accounts:[], persistKeys:[]}});
+      }};
+    }
+    function auditActivity(){}
+    function fdt(){ return '1405/05/25'; }
+    function sv(){}
+    function svAccounts(){}
+    function recordStockMove(){}
+    var inventory = {A1:{code:'A1', qty:4}, B1:{code:'B1', qty:8}};
+    var accounts = [];
+    var a = {invoiceId:'INVUID-A', num:'100', status:'closed', items:[{code:'A1'}]};
+    var b = {invoiceId:'INVUID-B', num:'100', status:'closed', items:[{code:'B1'}]};
+    var invoices = [a, b];
+    deleteInvoiceAt('INVUID-B');
+    return {n:invoices.length, stillA:invoices.indexOf(a)>=0, stillB:invoices.indexOf(b)>=0, kept:invoices[0]&&invoices[0].invoiceId};
+  `)();
+  assertEqual(r.n, 1, 'حتی اگر هسته قدیمی با شماره اولین ردیف را بردارد، آرایه زنده نباید هر دو را از دست بدهد');
+  assertEqual(r.stillA, true, 'آبجکت A باید بماند');
+  assertEqual(r.stillB, false, 'فقط B splice شود');
+  assertEqual(r.kept, 'INVUID-A', 'رکورد باقی‌مانده باید A باشد');
 });
 
 test('فرم پنجره باید داخل win-body اسکرول شود نه body قفل‌شده', () => {
