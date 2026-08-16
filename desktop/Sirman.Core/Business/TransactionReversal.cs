@@ -19,14 +19,17 @@ public static class TransactionReversal
         var user = JsonVal.Str(payload, "user");
 
         var invoice = CloneObj(payload["invoice"] as JsonObject);
-        var id = FirstNonEmpty(JsonVal.Str(payload, "invoiceId"), JsonVal.Str(invoice, "num"), JsonVal.Str(invoice, "id"));
-        int idx = ResolveClickedIndex(invoices, payload, "invoiceIndex", id, "num", "id");
+        int idx = ResolveStableIndex(invoices, payload, invoice,
+            new[] { "invoiceId", "InvoiceId" },
+            new[] { "invoiceId", "InvoiceId" },
+            new[] { "num", "id" });
         if (invoice is null && idx >= 0)
             invoice = CloneObj(invoices[idx] as JsonObject);
-        if (string.IsNullOrEmpty(id))
-            id = FirstNonEmpty(JsonVal.Str(invoice, "num"), JsonVal.Str(invoice, "id"));
-        if (idx < 0 && !string.IsNullOrEmpty(id))
-            idx = IndexOf(invoices, id, "num", "id");
+        var stableId = FirstNonEmpty(
+            JsonVal.Str(payload, "invoiceId"), JsonVal.Str(payload, "InvoiceId"),
+            JsonVal.Str(invoice, "invoiceId"), JsonVal.Str(invoice, "InvoiceId"));
+        var displayNum = FirstNonEmpty(JsonVal.Str(invoice, "num"), JsonVal.Str(invoice, "id"));
+        var id = FirstNonEmpty(stableId, displayNum);
 
         if (idx < 0 && payload.ContainsKey("invoices"))
             return Already(id, "invoice.delete", "invoice", user, now, inventory, accounts, parts, invoices);
@@ -74,15 +77,11 @@ public static class TransactionReversal
 
         if (!finDone)
         {
-            payCount += ReverseOwnedForClicked(accounts, invoices, idx, id, invoice, "num", "id");
+            payCount += ReverseOwnedForIdentity(accounts, invoices, idx, invoice,
+                new[] { "invoiceId", "InvoiceId" }, new[] { "num", "id" });
         }
 
         if (idx >= 0) invoices.RemoveAt(idx);
-        else
-        {
-            var found = IndexOf(invoices, id, "num", "id");
-            if (found >= 0) invoices.RemoveAt(found);
-        }
 
         return OkResult("invoice.delete", "invoice", id, user, now, inventory, accounts, parts, invoices, restocked, payCount);
     }
@@ -184,14 +183,17 @@ public static class TransactionReversal
         var user = JsonVal.Str(payload, "user");
 
         var sale = CloneObj(payload["sale"] as JsonObject) ?? CloneObj(payload["record"] as JsonObject);
-        var id = FirstNonEmpty(JsonVal.Str(payload, "saleId"), JsonVal.Str(sale, "id"));
-        int idx = ResolveClickedIndex(sales, payload, "saleIndex", id, "id");
+        int idx = ResolveStableIndex(sales, payload, sale,
+            new[] { "saleUid", "SaleUid" },
+            new[] { "saleUid", "SaleUid" },
+            new[] { "id" });
         if (sale is null && idx >= 0)
             sale = CloneObj(sales[idx] as JsonObject);
-        if (string.IsNullOrEmpty(id))
-            id = JsonVal.Str(sale, "id");
-        if (idx < 0 && !string.IsNullOrEmpty(id))
-            idx = IndexOf(sales, id, "id");
+        var stableId = FirstNonEmpty(
+            JsonVal.Str(payload, "saleUid"), JsonVal.Str(payload, "SaleUid"),
+            JsonVal.Str(sale, "saleUid"), JsonVal.Str(sale, "SaleUid"));
+        var displayNum = FirstNonEmpty(JsonVal.Str(payload, "saleId"), JsonVal.Str(sale, "id"));
+        var id = FirstNonEmpty(stableId, displayNum);
 
         if (idx < 0 && payload.ContainsKey("sales"))
             return Already(id, "sale.delete", "sale", user, now, inventory, accounts, parts, sales);
@@ -250,14 +252,10 @@ public static class TransactionReversal
         }
 
         if (!isProforma && !finDone)
-            payCount += ReverseOwnedForClicked(accounts, sales, idx, id, sale, "id");
+            payCount += ReverseOwnedForIdentity(accounts, sales, idx, sale,
+                new[] { "saleUid", "SaleUid" }, new[] { "id" });
 
         if (idx >= 0) sales.RemoveAt(idx);
-        else
-        {
-            var found = IndexOf(sales, id, "id");
-            if (found >= 0) sales.RemoveAt(found);
-        }
 
         return OkResult("sale.delete", "sale", id, user, now, inventory, accounts, parts, sales, restocked, payCount);
     }
@@ -274,6 +272,31 @@ public static class TransactionReversal
             return ReverseOwnedAcross(accounts, id, 1, hint > 0 ? hint : null);
         }
         return ReverseAllOwned(accounts, id);
+    }
+
+    /// <summary>
+    /// برگشت مالی با شناسه داخلی. شماره نمایش فقط وقتی یکتا است، یا برای داده قدیمی با مبلغ همان سند.
+    /// </summary>
+    private static int ReverseOwnedForIdentity(JsonArray accounts, JsonArray records, int idx, JsonObject? record, string[] stableKeys, string[] displayKeys)
+    {
+        var n = 0;
+        var stableId = RecordId(record, stableKeys);
+        if (!string.IsNullOrEmpty(stableId))
+            n += ReverseAllOwned(accounts, stableId);
+
+        var display = RecordId(record, displayKeys);
+        if (string.IsNullOrEmpty(display) || display == stableId)
+            return n;
+
+        var others = CountSameId(records, display, idx, displayKeys);
+        if (others == 0)
+            n += ReverseAllOwned(accounts, display);
+        else if (n == 0)
+        {
+            var hint = record is null ? 0d : CalculationEngine.ToNum(FirstNonEmpty(record["tF"]?.ToString() ?? "", record["total"]?.ToString() ?? ""));
+            n += ReverseOwnedAcross(accounts, display, 1, hint > 0 ? hint : null);
+        }
+        return n;
     }
 
     private static int ReverseOwnedAcross(JsonArray accounts, string docId, int maxCount, double? amountHint)
@@ -416,12 +439,66 @@ public static class TransactionReversal
         return "";
     }
 
-    /// <summary>اول ردیفی که کاربر روی حذفش زده؛ اگر اندیس نبود، اولین شماره مطابق.</summary>
+    /// <summary>اول شناسه داخلی پایدار؛ شماره نمایش فقط اگر در فهرست زنده یکتا باشد. اندیس آرایه هویت نیست.</summary>
+    private static int ResolveStableIndex(JsonArray list, JsonObject payload, JsonObject? record,
+        string[] payloadStableKeys, string[] recordStableKeys, string[] displayKeys)
+    {
+        var stable = "";
+        foreach (var k in payloadStableKeys)
+        {
+            stable = JsonVal.Str(payload, k);
+            if (!string.IsNullOrEmpty(stable)) break;
+        }
+        if (string.IsNullOrEmpty(stable) && record is not null)
+        {
+            foreach (var k in recordStableKeys)
+            {
+                stable = JsonVal.Str(record, k);
+                if (!string.IsNullOrEmpty(stable)) break;
+            }
+        }
+        if (!string.IsNullOrEmpty(stable))
+        {
+            var byStable = IndexOf(list, stable, recordStableKeys);
+            if (byStable >= 0) return byStable;
+        }
+
+        var display = record is null ? "" : RecordId(record, displayKeys);
+        if (string.IsNullOrEmpty(display))
+            display = RecordId(payload, displayKeys);
+        return UniqueIndexOf(list, display, displayKeys);
+    }
+
+    /// <summary>پرونده گارانتی با id یکتا؛ اندیس فقط کمکی است.</summary>
     private static int ResolveClickedIndex(JsonArray list, JsonObject payload, string indexKey, string id, params string[] idKeys)
     {
+        if (!string.IsNullOrEmpty(id))
+        {
+            var byId = IndexOf(list, id, idKeys);
+            if (byId >= 0) return byId;
+        }
         var fromIdx = IndexFrom(payload, indexKey, list.Count);
         if (fromIdx >= 0) return fromIdx;
         return IndexOf(list, id, idKeys);
+    }
+
+    private static int UniqueIndexOf(JsonArray arr, string id, params string[] keys)
+    {
+        if (string.IsNullOrEmpty(id)) return -1;
+        var found = -1;
+        for (var i = 0; i < arr.Count; i++)
+        {
+            if (arr[i] is not JsonObject o) continue;
+            var hit = false;
+            foreach (var k in keys)
+            {
+                if (JsonVal.Str(o, k) == id) { hit = true; break; }
+            }
+            if (!hit) continue;
+            if (found >= 0) return -1;
+            found = i;
+        }
+        return found;
     }
 
     private static int CountSameId(JsonArray list, string id, int exceptIdx, params string[] keys)

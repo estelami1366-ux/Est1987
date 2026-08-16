@@ -143,6 +143,9 @@ public static class PaymentRules
     private static bool OwnsDocument(JsonObject t, string documentId)
     {
         if (JsonVal.Str(t, "refId") == documentId) return true;
+        if (JsonVal.Str(t, "documentId") == documentId) return true;
+        if (JsonVal.Str(t, "invoiceId") == documentId) return true;
+        if (JsonVal.Str(t, "saleUid") == documentId) return true;
         if (JsonVal.Str(t, "refId").Length > 0) return false;
         var subject = JsonVal.Str(t, "subject");
         return documentId.Length >= 3 && subject.Contains(documentId, StringComparison.Ordinal);
