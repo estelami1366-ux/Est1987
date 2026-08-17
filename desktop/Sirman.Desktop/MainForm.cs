@@ -268,8 +268,8 @@ public sealed class MainForm : Form
 
     public string ListPrintersJson() => _printHost.ListPrinters();
     public string GetPrintJobJson(string printJobId) => _printHost.GetJob(printJobId);
-    public string EnqueueHtmlPrint(string html, string printerName, string paper, string orientation, int copies, string documentId, string documentType, string user) =>
-        _printHost.Enqueue(html, printerName, paper, orientation, copies, documentId, documentType, user);
+    public string EnqueueHtmlPrint(string html, string printerName, string paper, string orientation, int copies, string documentId, string documentType, string user, string purpose = "print") =>
+        _printHost.Enqueue(html, printerName, paper, orientation, copies, documentId, documentType, user, purpose);
 
     /// <summary>
     /// بستن قطعی پروسه. Close()/Dispose وب‌ویو گاهی hang می‌کند —

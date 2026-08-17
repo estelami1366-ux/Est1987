@@ -323,11 +323,11 @@ public class SirmanHostObject
         try
         {
             ParsePrintMeta(html, out var documentId, out var documentType);
-            return _form.EnqueueHtmlPrint(html ?? "", printerName ?? "", paper ?? "", orientation ?? "", copies, documentId, documentType, "");
+            return _form.EnqueueHtmlPrint(html ?? "", printerName ?? "", paper ?? "", orientation ?? "", copies, documentId, documentType, "", "print");
         }
         catch (Exception ex)
         {
-            return SafeError.Json("print-failed", "چاپ انجام نشد", ex);
+            return SafeError.Json("PRINT_ASYNC_FAILED", "چاپ انجام نشد: " + ex.Message, ex);
         }
     }
 
@@ -356,13 +356,15 @@ public class SirmanHostObject
             var documentType = Str(root, "documentType");
             if (documentType.Length == 0) documentType = Str(root, "docId");
             var user = Str(root, "user");
+            var purpose = Str(root, "purpose");
+            if (purpose.Length == 0) purpose = Str(root, "mode");
             if (html.Length == 0)
                 return "{\"ok\":false,\"status\":\"PRINT_FAILED\",\"errorCode\":\"NO_DOCUMENT\",\"message\":\"سندی برای چاپ نیست\"}";
-            return _form.EnqueueHtmlPrint(html, printer, paper, orientation, copies, documentId, documentType, user);
+            return _form.EnqueueHtmlPrint(html, printer, paper, orientation, copies, documentId, documentType, user, purpose);
         }
         catch (Exception ex)
         {
-            return SafeError.Json("print-failed", "چاپ انجام نشد", ex);
+            return SafeError.Json("PRINT_ASYNC_FAILED", "چاپ انجام نشد: " + ex.Message, ex);
         }
     }
 
