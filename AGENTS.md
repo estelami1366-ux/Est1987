@@ -213,6 +213,16 @@ The goal: Be helpful without being annoying. Check in a few times a day, do usef
 
 This is a starting point. Add your own conventions, style, and rules as you figure out what works.
 
+## سیرمان / لایق الکترونیک پارسیان
+
+توسعه این نرم‌افزار از پروتکل دائمی پیروی می‌کند:
+
+- `docs/DEVELOPMENT_GOVERNANCE.md`
+- `docs/STABLE_BASELINE.md`
+- `.agents/skills/laegh-software-workflow/SKILL.md`
+
+کد پایدار را بدون شواهد عوض نکن. Feature را روی `main` ننویس. موفقیت جعلی اعلام نکن.
+
 
 <!-- autoclaw:skill-path-guidance -->
 ## Installing Skills

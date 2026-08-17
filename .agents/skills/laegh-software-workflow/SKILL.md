@@ -1,6 +1,6 @@
 ---
 name: laegh-software-workflow
-description: Use this skill for ANY work on the "Laegh Electronic Parsian" / Sirman after-sales software (single-file HTML UI + .NET WebView2 shell). Applies to features, bugs, UI, backup/restore, versioning, architecture, inventory, printing, and delivery. Always consult this skill AND docs/ARCHITECTURE_RULES.md before editing HTML/.NET or delivering a release. Trigger even for small requests because testing, versioning, and architecture-layer rules apply regardless of size.
+description: Use this skill for ANY work on the "Laegh Electronic Parsian" / Sirman after-sales software (single-file HTML UI + .NET WebView2 shell). This includes features, bugs, UI, backup/restore, versioning, architecture, inventory, printing, delivery, AND the development governance protocol. Always consult this skill, docs/DEVELOPMENT_GOVERNANCE.md, docs/STABLE_BASELINE.md, and docs/ARCHITECTURE_RULES.md before editing HTML/.NET or delivering a release. Trigger even for small requests because testing, versioning, isolation, and architecture-layer rules apply regardless of size.
 ---
 
 # گردش‌کار نرم‌افزار لایق الکترونیک پارسیان
@@ -9,7 +9,9 @@ description: Use this skill for ANY work on the "Laegh Electronic Parsian" / Sir
 
 ارتباط با کاربر همیشه به **فارسی، مستقیم و خلاصه** است — همانطور که در طول این پروژه انجام شده.
 
-سند معماری بلندمدت: `docs/ARCHITECTURE_RULES.md` (قانون ۱۲). آن سند باطل‌کنندهٔ قوانین ۱ تا ۱۱ نیست؛ جهت لایه‌ها، هستهٔ .NET، و ممنوعیت منطق کسب‌وکار داخل UI را اضافه می‌کند.
+سند معماری بلندمدت: `docs/ARCHITECTURE_RULES.md` (قانون ۱۲).
+حاکمیت توسعه و حفاظت کد پایدار: `docs/DEVELOPMENT_GOVERNANCE.md` (قانون ۱۳).
+این اسناد باطل‌کنندهٔ قوانین ۱ تا ۱۱ نیستند.
 
 ## قانون ۱ — هرگز بدون اجرای تست خودکار، فایل تحویل نده
 
@@ -145,6 +147,18 @@ node test_laegh.js path/to/Laegh_Final_X.html
 
 اگر یکی منفی است، قبل از پیاده‌سازی ساختار را اصلاح کن.
 
+## قانون ۱۳ — حاکمیت توسعه و حفاظت کد پایدار (دائمی)
+
+منبع کامل: `docs/DEVELOPMENT_GOVERNANCE.md`. Baseline: `docs/STABLE_BASELINE.md`. رگرسیون: `docs/REGRESSION_SUITE.md`.
+
+- کد پایدار محافظت می‌شود. الگو: ANALYZE → ISOLATE → MODIFY → TEST → REGRESSION → VERIFY → APPROVE.
+- Feature جدید را مستقیم روی `main` ننویس. شاخه جدا، تست، رگرسیون، بعد merge.
+- ماژول LOCKED (هویت فاکتور، برگشت انبار/حساب، گارانتی پایدار) را بدون باگ ثابت یا Requirement جدید عوض نکن.
+- NO TEST = NO MERGE. PASS شدن تست به‌تنهایی VERIFIED نیست.
+- چاپ کاغذ / restore واقعی / EXE ویندوز را با تست لینوکس FIXED اعلام نکن. اگر محیط نیست: BLOCKED یا NEEDS HUMAN VERIFICATION.
+- وضعیت نهایی فقط یکی: COMPLETED / VERIFIED / BLOCKED / FAILED / NEEDS HUMAN VERIFICATION.
+- بعد از هر کار، ۱۵ بند گزارش کار در سند حاکمیت را پر کن. CHANGELOG را برای انتشار به‌روز کن.
+
 ## قانون ۱۰ — در پایان هر کار، فایل را خودت بده (اجباری)
 
 وقتی کار تمام شد (بعد از تست سبز و commit/push در صورت نیاز)، **بدون اینکه کاربر بپرسد** مسیر فایل‌های تحویلی را صریح بده:
@@ -170,3 +184,4 @@ node test_laegh.js path/to/Laegh_Final_X.html
 - [ ] در پیام پایانی، مسیر فایل HTML و BAT را بدون درخواست کاربر داده‌ام (قانون ۱۰)
 - [ ] فقط **یک فایل HTML تک‌تکه** نهایی به‌عنوان محصول UI تحویل می‌دهم (به‌همراه لانچر / exe)
 - [ ] اگر منطق کسب‌وکار / داده / بک‌آپ / دسترسی عوض شد: لایه درست است، از `sirmanHost` عبور می‌کند، و سیستم موازی نساختم (`docs/ARCHITECTURE_RULES.md`)
+- [ ] `docs/DEVELOPMENT_GOVERNANCE.md` را رعایت کردم: شاخه جدا، تغییر حداقلی، رگرسیون، وضعیت صادقانه، بدون دست زدن به ماژول LOCKED بدون دلیل
