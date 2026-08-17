@@ -3967,6 +3967,17 @@ test('قانون ۷: راهنمای اسکین باید در صفحه راهنم
   assertContainsString(html, 'تنظیمات → 🎨 ظاهر', 'راهنما باید مسیر تنظیمات را بگوید');
 });
 
+test('حاکمیت توسعه باید موجود باشد و قانون مادر را نگه دارد', () => {
+  const root = path.dirname(filePath);
+  ['docs/DEVELOPMENT_GOVERNANCE.md', 'docs/STABLE_BASELINE.md', 'docs/REGRESSION_SUITE.md', 'CHANGELOG.md'].forEach(function(rel){
+    assertTrue(fs.existsSync(path.join(root, rel)), rel+' لازم است');
+  });
+  const g = fs.readFileSync(path.join(root, 'docs/DEVELOPMENT_GOVERNANCE.md'), 'utf8');
+  assertContainsString(g, 'STABLE CODE IS PROTECTED', 'قانون مادر حاکمیت باید باشد');
+  assertContainsString(g, 'NO TEST = NO MERGE', 'بدون تست نباید merge شود');
+  assertContainsString(g, 'NEEDS HUMAN VERIFICATION', 'وضعیت صادقانه باید تعریف شده باشد');
+});
+
 test('نسخه ۱۴۰۵.۵.۲۶α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
