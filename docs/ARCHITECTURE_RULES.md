@@ -17,7 +17,7 @@
    - مسیر JS: `chrome.webview.hostObjects.sync.sirmanHost`
    - پیاده‌سازی: `desktop/Sirman.Desktop/SirmanHostObject.cs`
 2. **مسیرهای غیرمجاز:** Local API روی localhost + `fetch`/`XHR` برای منطق کسب‌وکار. Blazor Hybrid انتخاب نشده است.
-3. **لیست مجاز فعلی Host Object:** `Ping`, `CloseApp`, `Notify`, `GetNotifyPort`, `GetBackupDir`, `SaveAppPref`, `LoadAppPref`, `WriteBackupText`, `GetWarrantyBrowseCatalog`, `GetWarrantyBrowseCss`, `ApplyUiSkin`, `GetPrinters`, `PrintHtml`, `GetMachineInfo`, `GetNetworkInfo`, `SetNetworkConfig`, `WriteWorkspaceFile`, `ReadWorkspaceFile`, `Login`, `Logout`, `BindSession`, `CheckPermission`, `HashPassword`, `VerifyPassword`, `ValidateEntity`, `GetSecurityStatus`, `SaveSecret`, `LoadSecret`, `RunBusiness`, `RunPrintHardwareDiagnostic`. هر متد جدید باید به همین شیء اضافه شود، نه با مسیر موازی. `RunBusiness` پل محاسبات/قوانین فاز ۲ است (نه REST). `RunPrintHardwareDiagnostic` فقط هارنس تشخیص چاپگر است و داده کسب‌وکار را تغییر نمی‌دهد. عملیات حساس (`SetNetworkConfig`, `WriteWorkspaceFile`, `ReadWorkspaceFile`, `PrintHtml`) از Host Security Gate با نشست و مجوز صفحهٔ موجود عبور می‌کنند. `WriteBackupText` و `SaveAppPref` برای حفظ داده/ظاهر بدون ورود هم مجاز می‌مانند.
+3. **لیست مجاز فعلی Host Object:** `Ping`, `CloseApp`, `Notify`, `GetNotifyPort`, `GetBackupDir`, `SaveAppPref`, `LoadAppPref`, `WriteBackupText`, `GetWarrantyBrowseCatalog`, `GetWarrantyBrowseCss`, `ApplyUiSkin`, `GetPrinters`, `PrintHtml`, `PrintDocument`, `GetPrintJob`, `GetMachineInfo`, `GetNetworkInfo`, `SetNetworkConfig`, `WriteWorkspaceFile`, `ReadWorkspaceFile`, `Login`, `Logout`, `BindSession`, `CheckPermission`, `HashPassword`, `VerifyPassword`, `ValidateEntity`, `GetSecurityStatus`, `SaveSecret`, `LoadSecret`, `RunBusiness`, `RunPrintHardwareDiagnostic`. هر متد جدید باید به همین شیء اضافه شود، نه با مسیر موازی. `RunBusiness` پل محاسبات/قوانین فاز ۲ است (نه REST). مسیر چاپ تولیدی فقط `GetPrinters` / `PrintHtml` / `PrintDocument` / `GetPrintJob` است و از `IPrintService` می‌گذرد. `RunPrintHardwareDiagnostic` فقط هارنس تشخیص چاپگر است و داده کسب‌وکار را تغییر نمی‌دهد. عملیات حساس (`SetNetworkConfig`, `WriteWorkspaceFile`, `ReadWorkspaceFile`, `PrintHtml`) از Host Security Gate با نشست و مجوز صفحهٔ موجود عبور می‌کنند. `WriteBackupText` و `SaveAppPref` برای حفظ داده/ظاهر بدون ورود هم مجاز می‌مانند.
 4. **محصول UI:** فایل HTML تک‌تکه (`Sirman_Final.html`) همچنان رابط کاربری و مسیر اجرای بدون نصب است. HTML حذف نمی‌شود.
 5. **هستهٔ هدف:** منطق کسب‌وکار، دیتابیس، بک‌آپ، چاپ، امنیت و گزارش در .NET. انتقال تدریجی است، نه بازنویسی یک‌شبه.
 6. **سازگاری مسیر HTML-only:** تا وقتی داده هنوز در مرورگر/HTML است، باز کردن مستقیم HTML نباید بشکند. منطق جدید مهم باید طوری اضافه شود که در exe از Core عبور کند و در HTML-only یا کار کند یا با پیام واضح غیرفعال شود — نه اینکه کل برنامه از کار بیفتد.
@@ -25,6 +25,7 @@
 8. **شماره نسخه واحد:** فایل `SIRMAN_VERSION.json` در ریشه منبع شماره نسخه است. HTML (`APP_VERSION`) و پوسته ویندوز (`desktop/Directory.Build.props` → `Version`/`InformationalVersion`) باید با همان فایل یکی باشند. حرف یونانی همان روز به رقم چهارم اسمبلی نگاشت می‌شود (α=1 … η=8، θ=9، ι=10، κ=11، λ=12، μ=13، ν=14، ξ=15).
 9. **لایه امنیت Host (فاز ۱):** کتابخانه `desktop/Sirman.Core` (Password / Authentication / Authorization / Validation) از همان نقش‌ها و کلید صفحات HTML استفاده می‌کند — سیستم نقش موازی نیست. ورود HTML همچنان منبع حقیقت مسیر HTML-only است؛ exe بعد از ورود موفق با `BindSession` نشست Host را همگام می‌کند.
 10. **Business Core (فاز ۲):** محاسبات و قوانین موجود در `desktop/Sirman.Core/Business` از Host با `RunBusiness` صدا می‌شوند. در exe نتیجه C# منبع حقیقت است. مسیر HTML-only همان توابع JS را به‌عنوان fallback نگه می‌دارد چون Host نیست. persist از آداپتر JSON به localStorage است؛ Core به جزئیات localStorage وابسته نیست. Database و REST در این فاز ساخته نمی‌شوند.
+11. **Print module (خروج فاز ۲):** PRINT MODULE ISOLATED. PHASE 3 MUST NOT BREAK PRINT. PRINT MUST NOT BLOCK PHASE 3. ماژول‌های کسب‌وکار به اسپولر / درایور / پورت / PrintAsync وابسته نیستند؛ فقط از قرارداد چاپ (`printEngine*` در UI و `IPrintService` در Core) استفاده می‌کنند. هارنس تشخیص جدا می‌ماند. خروجی PDF با چاپ کاغذ یکی نیست. چاپ فیزیکی تا تست واقعی ویندوز+چاپگر `PHYSICAL_PRINT_NOT_VERIFIED` است. از این پس چاپ **FROZEN** است مگر شکست سخت‌افزار با شاهد ثابت شود. بازنویسی مرکز پرینت و fix حدسی ممنوع است.
 
 ### وضعیت فعلی در برابر هدف
 
@@ -33,7 +34,7 @@
 | داده | `localStorage` / IndexedDB داخل HTML | Database از طریق Data Access در .NET |
 | قوانین کسب‌وکار | بیشتر داخل JS | Business Logic در .NET با اعتبارسنجی مستقل |
 | بک‌آپ | بسته JSON داخل HTML (از ۱۴۰۵.۵.۲۲ε) | Backup Engine مستقل از UI در Core |
-| چاپ | Print Center در HTML + چاپگر از Host Object | Print Engine مرکزی در Core |
+| چاپ | Print Center در HTML + `IPrintService` روی `WindowsPrintHost` (ایزوله / منجمد) | همان قرارداد؛ بدون بازنویسی تا شاهد سخت‌افزار |
 | انبار | Inventory Engine در JS | Inventory Core مشترک در .NET |
 | دسترسی | نقش‌ها در HTML | بررسی دسترسی در Core، نه فقط مخفی کردن دکمه |
 
@@ -239,6 +240,26 @@ Migrationهای قدیمی نباید حذف شوند.
 # 10. Printing
 
 تمام قابلیت‌های چاپ از یک Print Engine مرکزی استفاده کنند.
+
+لایهٔ اجباری (Phase 2 exit):
+
+```
+Business Module
+        ↓
+Print Contract (printEngine* / IPrintService)
+        ↓
+Print Module (WindowsPrintHost + Print Center UI)
+        ↓
+Windows / WebView2 / Printer
+```
+
+PRINT MODULE ISOLATED. PHASE 3 MUST NOT BREAK PRINT.
+
+جزئیات اسپولر، درایور، پورت و PrintAsync داخل ماژول چاپ می‌ماند.
+تشخیص سخت‌افزار (`RunPrintHardwareDiagnostic`) جدا از این مسیر است و به فاکتور/انبار/حساب/گارانتی وابسته نیست.
+
+خروجی PDF و چاپ فیزیکی دو مسیر جدا هستند. موفقیت PDF موفقیت چاپ کاغذ نیست.
+وضعیت کاغذ تا تأیید انسانی روی چاپگر واقعی: `PHYSICAL_PRINT_NOT_VERIFIED`.
 
 Print Center شامل:
 

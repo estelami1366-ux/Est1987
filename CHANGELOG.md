@@ -13,14 +13,16 @@
 - هارنس تشخیص سخت‌افزار چاپ جدا از مرکز پرینت (`PrintHardwareDiagnostic` + تب تنظیمات «تشخیص چاپگر»).
 - مسیر چاپ مستقیم ویندوز (GDI) در برابر مسیر جداگانه WebView2 PrintAsync برای مقایسه لایه شکست.
 - لاگ `PRINT_DIAGNOSTIC.log` و گزارش `PRINT_HARDWARE_DIAGNOSTIC_REPORT.md`.
+- قرارداد چاپ `IPrintService` / `PrintStatusContract` به‌عنوان wrap روی موتور موجود (بازنویسی نیست).
 
 ### Changed
 
 - هیچ منطق فاکتور / انبار / حساب / گارانتی / مرکز پرینت تولیدی عوض نشد.
+- چاپ از این نسخه **ISOLATED / FROZEN** است تا ورود فاز ۳؛ جزئیات اسپولر/درایور پشت قرارداد می‌ماند.
 
 ### Known Issues
 
-- چاپ فیزیکی روی PC فروشگاه هنوز تأیید نشده. این نسخه ابزار تشخیص است نه FIX چاپ.
+- چاپ فیزیکی روی PC فروشگاه هنوز تأیید نشده (`PHYSICAL_PRINT_NOT_VERIFIED`). این نسخه isolation است نه FIX چاپ.
 
 ---
 

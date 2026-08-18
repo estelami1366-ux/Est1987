@@ -15,13 +15,13 @@
 ## Git
 
 - Commit محصول چاپ قبلی: `865420f` (`fix: reject PDF printers on the real print path`)
-- کار جاری: هارنس تشخیص چاپگر روی شاخه جدا؛ چاپ فیزیکی VERIFIED نیست
+- کار جاری: چاپ ایزوله و منجمد برای ورود فاز ۳؛ چاپ فیزیکی VERIFIED نیست
 - شاخه پایدار هدف: `main`
 
 ## Build / Test (آخرین اجرای عامل)
 
-- HTML: `node test_laegh.js Sirman_Final.html` — ۵۴۲ موفق / ۰ ناموفق
-- C#: `dotnet test desktop/Sirman.Core.Tests` — ۱۰۸ موفق / ۰ ناموفق
+- HTML: `node test_laegh.js Sirman_Final.html` — ۵۴۳ موفق / ۰ ناموفق
+- C#: `dotnet test desktop/Sirman.Core.Tests` — ۱۲۵ موفق / ۰ ناموفق
 - این اعداد Linux/CI هستند، نه تأیید چاپگر فروشگاه
 
 ## قابلیت‌های پایدار (Locked مگر باگ ثابت یا Requirement جدید)
@@ -36,8 +36,9 @@
 
 ## باز / تأییدنشده در محیط واقعی
 
-- چاپ کاغذ: مسیر کد به اسپولر ویندوز است؛ **BLOCKED — REAL WINDOWS PRINTER REQUIRED**. خروجی PDF چاپ نیست.
-- هارنس تشخیص چاپگر اضافه شده؛ نتیجه لایه شکست فقط روی PC ویندوز فروشگاه قابل اثبات است.
+- چاپ کاغذ: مسیر کد به اسپولر ویندوز است؛ **PHYSICAL_PRINT_NOT_VERIFIED**. خروجی PDF چاپ نیست.
+- ماژول چاپ **ISOLATED / FROZEN** است (`IPrintService` روی `WindowsPrintHost`). فاز ۳ چاپ را بازنویسی نمی‌کند.
+- هارنس تشخیص چاپگر جداست؛ نتیجه لایه شکست فقط روی PC ویندوز فروشگاه قابل اثبات است.
 - شبکه LAN فایل‌اشتراکی: مرحله محدود؛ API کسب‌وکار روی HTTP ساخته نشده
 
 ## باگ‌های شناخته‌شده

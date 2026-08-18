@@ -6182,6 +6182,33 @@ test('طبقه‌بندی تشخیص: PDF مجازی است و PRINT_SUBMITTED �
 });
 
 console.log('');
+console.log('📋 گروه: انزوای ماژول چاپ (Phase 2 exit)');
+
+test('قرارداد چاپ باید از جزئیات ویندوز و داده کسب‌وکار جدا باشد', () => {
+  const root = path.dirname(filePath);
+  const contract = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Core', 'Printing', 'IPrintService.cs'), 'utf8');
+  const status = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Core', 'Printing', 'PrintStatusContract.cs'), 'utf8');
+  const adapter = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Desktop', 'PrintServiceAdapter.cs'), 'utf8');
+  const form = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Desktop', 'MainForm.cs'), 'utf8');
+  const host = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Desktop', 'WindowsPrintHost.cs'), 'utf8');
+  const diag = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Desktop', 'PrintHardwareDiagnostic.cs'), 'utf8');
+  const biz = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Core', 'Application', 'BusinessFacade.cs'), 'utf8');
+  const rules = fs.readFileSync(path.join(root, 'docs', 'ARCHITECTURE_RULES.md'), 'utf8');
+  assertContainsString(contract, 'interface IPrintService', 'قرارداد IPrintService لازم است');
+  assertContainsString(status, 'PHYSICAL_PRINT_NOT_VERIFIED', 'وضعیت کاغذ باید جدا از ارسال صف باشد');
+  assertContainsString(status, 'PDF_EXPORTED', 'خروجی PDF باید وضعیت جدا داشته باشد');
+  assertContainsString(adapter, 'WindowsPrintHost', 'آداپتر باید موتور موجود را wrap کند نه بازنویسی');
+  assertContainsString(adapter, 'PrintStatusContract.Annotate', 'نتیجه چاپ باید وضعیت قرارداد داشته باشد');
+  assertContainsString(form, 'IPrintService', 'پوسته باید از قرارداد چاپ استفاده کند');
+  assertTrue(host.indexOf('RunPrintHardwareDiagnostic') < 0, 'WindowsPrintHost نباید با تشخیص مخلوط شود');
+  assertTrue(host.indexOf('IPrintService') < 0, 'موتور موجود نباید برای isolation بازنویسی شود');
+  assertTrue(diag.indexOf('invoices') < 0, 'تشخیص نباید invoices را ببیند');
+  assertTrue(biz.indexOf('PrintHtml') < 0 && biz.indexOf('WindowsPrintHost') < 0, 'BusinessFacade نباید به چاپ ویندوز وابسته باشد');
+  assertContainsString(rules, 'PRINT MODULE ISOLATED', 'معماری باید انزوای چاپ را ثبت کند');
+  assertContainsString(rules, 'PHASE 3 MUST NOT BREAK PRINT', 'فاز ۳ نباید چاپ را بشکند');
+});
+
+console.log('');
 console.log('📋 گروه: موتور مشترک انبار (Inventory Engine)');
 
 test('UI انبار ارتقا‌یافته: رزرو، برگشت، کارتکس، نقطه سفارش و انواع انبار', () => {
