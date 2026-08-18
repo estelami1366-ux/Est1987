@@ -3978,13 +3978,13 @@ test('حاکمیت توسعه باید موجود باشد و قانون ماد�
   assertContainsString(g, 'NEEDS HUMAN VERIFICATION', 'وضعیت صادقانه باید تعریف شده باشد');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۷β باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۷γ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.27β', 'نسخه محصول باید 1405.5.27β باشد');
-  assertEqual(ver.assembly, '1405.5.27.2', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (β=2)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۷β', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.27γ', 'نسخه محصول باید 1405.5.27γ باشد');
+  assertEqual(ver.assembly, '1405.5.27.3', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (γ=3)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۷γ', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -9923,6 +9923,282 @@ test('اگر Host با جستجوی شماره فاکتور اول را بردا
   assertEqual(r.stillA, true, 'آبجکت A باید بماند');
   assertEqual(r.stillB, false, 'فقط B splice شود');
   assertEqual(r.kept, 'INVUID-A', 'رکورد باقی‌مانده باید A باشد');
+});
+
+// ─── فاز ۳.۲: خلاصه عملیات امروز (فقط خواندنی) ───
+function dailyOpsBriefHarness(){
+  const names = [
+    'faNum','tehranParts','div_','gregorian_to_jalali','fdate',
+    'faToEnDigits','_normDate','sameTehranDay','calcSlaStatusFromAgeHours',
+    '_sumByWh','invStockSnapshot','invLowStockFromLists','defStatusOf','defIsInWarehouse',
+    '_briefStripMarks','_briefJalaliDayKey','_briefIsJalaliToday','_briefIsTsToday',
+    '_briefPickArr','_briefPickMap','_briefFlattenTransactions','_briefEsc',
+    'getDailyOperationsBriefSnapshot','_briefLines','_briefJoin','renderDailyOperationsBriefHtml',
+    'renderDashboard','_dashKpi'
+  ];
+  const src = names.map(function(n){ return extractFunctionSource(html, n); }).join('\n');
+  assertTrue(src.indexOf('function getDailyOperationsBriefSnapshot')>=0, 'منبع خلاصه عملیات استخراج نشد');
+  return new Function(src + `\n
+    var TZ = 'Asia/Tehran';
+    var writes = 0;
+    function bump(){ writes++; }
+    var syncAllAutoTasks = bump, syncOpenInvoiceTasks = bump, syncOpenWarrantyTasks = bump;
+    var syncLowInventoryTasks = bump, checkDueTasksForNotification = bump;
+    var checkWarrantySlaAlerts = bump, checkStarredAlarms = bump;
+    var svTasks = bump, svWars = bump;
+    var localStorage = { setItem: function(){ writes++; }, getItem: function(){ return null; }, removeItem: function(){ writes++; } };
+    function takeBusinessCore(){ return null; }
+    function hasBusinessCore(){ return false; }
+    var invoices=[], warranties=[], parts=[], tasks=[], sales=[], accounts=[];
+    var products=[], defectiveStock=[], inventory={};
+    var dashEl = { innerHTML: '' };
+    var document = { getElementById: function(id){ return id==='dashboard-content' ? dashEl : {innerHTML:'', style:{}, classList:{add:function(){},remove:function(){}}}; } };
+    return {
+      fdate: fdate,
+      faToEnDigits: faToEnDigits,
+      _normDate: _normDate,
+      sameTehranDay: sameTehranDay,
+      calcSlaStatusFromAgeHours: calcSlaStatusFromAgeHours,
+      invLowStockFromLists: invLowStockFromLists,
+      getDailyOperationsBriefSnapshot: getDailyOperationsBriefSnapshot,
+      renderDailyOperationsBriefHtml: renderDailyOperationsBriefHtml,
+      renderDashboard: renderDashboard,
+      writesNow: function(){ return writes; },
+      runDash: function(live){
+        invoices = live.invoices || [];
+        warranties = live.warranties || [];
+        parts = live.parts || [];
+        tasks = live.tasks || [];
+        sales = live.sales || [];
+        accounts = live.accounts || [];
+        products = live.products || [];
+        defectiveStock = live.defectiveStock || [];
+        inventory = live.inventory || {};
+        dashEl.innerHTML = '';
+        renderDashboard();
+        return dashEl.innerHTML;
+      }
+    };
+  `);
+}
+
+test('خلاصه عملیات امروز باید جدا از رندر HTML و فقط خواندنی باشد', () => {
+  assertTrue(!!extractFunctionSource(html, 'getDailyOperationsBriefSnapshot'), 'getDailyOperationsBriefSnapshot لازم است');
+  assertTrue(!!extractFunctionSource(html, 'renderDailyOperationsBriefHtml'), 'renderDailyOperationsBriefHtml لازم است');
+  const snapSrc = extractFunctionSource(html, 'getDailyOperationsBriefSnapshot');
+  const briefSrc = [
+    extractFunctionSource(html, '_briefJalaliDayKey'),
+    extractFunctionSource(html, '_briefIsJalaliToday'),
+    extractFunctionSource(html, '_briefIsTsToday'),
+    snapSrc
+  ].join('\n');
+  assertTrue(briefSrc.indexOf('parseShamsiToTs') === -1, 'مرز امروز نباید parseShamsiToTs را صدا بزند');
+  ['syncAllAutoTasks','syncOpenInvoiceTasks','syncOpenWarrantyTasks','syncLowInventoryTasks',
+   'checkDueTasksForNotification','checkWarrantySlaAlerts','checkStarredAlarms',
+   'svTasks','svWars','localStorage'].forEach(function(fn){
+    assertTrue(snapSrc.indexOf(fn) === -1, 'اسنپ‌شات نباید '+fn+' را صدا بزند');
+  });
+  assertContainsString(snapSrc, 'invLowStockFromLists', 'کم‌موجودی باید از invLowStockFromLists باشد نه KPI ضعیف قطعات');
+  assertContainsString(snapSrc, 'calcSlaStatusFromAgeHours', 'SLA باید از calcSlaStatusFromAgeHours موجود باشد');
+  assertContainsString(snapSrc, 'sameTehranDay', 'مرز امروز باید sameTehranDay باشد');
+  const dash = extractFunctionSource(html, 'renderDashboard');
+  assertContainsString(dash, 'getDailyOperationsBriefSnapshot()', 'داشبورد باید اسنپ‌شات را یک‌بار در همان رندر صدا بزند');
+  assertContainsString(dash, 'renderDailyOperationsBriefHtml', 'داشبورد باید کارت عملیات امروز را رندر کند');
+  assertContainsString(dash, 'dash-kpi-grid', 'کارت‌های KPI موجود باید بمانند');
+  assertContainsString(dash, 'overdueTaskList.forEach', 'هشدار وظایف سررسیدگذشته باید بماند');
+  assertContainsString(html, 'id="daily-ops-brief"', 'کارت عملیات امروز باید در داشبورد باشد');
+  assertTrue(html.indexOf("id=\"page-daily-ops\"") === -1, 'نباید صفحه جدا برای عملیات امروز ساخته شود');
+});
+
+test('اسنپ‌شات عملیات امروز نباید داده کسب‌وکار را عوض کند (فاکتور/انبار/حساب/گارانتی/وظیفه)', () => {
+  const H = dailyOpsBriefHarness()();
+  const now = Date.now();
+  const live = {
+    invoices: [{num:'INV-1', seller:'الف', status:'open', date:'1404/01/01', tF:10}],
+    warranties: [{id:'W1', name:'رضا', status:'open', date:'1404/01/01', companyWork:{arrivalAt: now-10*3600000}}],
+    tasks: [{id:'T1', title:'تماس', status:'open', priority:'normal', deadlineTS: now+86400000}],
+    sales: [{id:'SL-1', name:'فروش', status:'final', date:'1404/01/01', total:100}],
+    accounts: [{id:'A1', name:'صندوق', balance:5000, transactions:[{type:'deposit', amount:100, date:'1404/01/01'}]}],
+    parts: [{code:'P1', name:'قطعه', qty:9, min:1}],
+    products: [{code:'G1', name:'کالا'}],
+    inventory: {G1:{qty:9, min:1}},
+    defectiveStock: [{status:'inspect'}]
+  };
+  const before = JSON.stringify(live);
+  const snap = H.getDailyOperationsBriefSnapshot(live, now);
+  assertEqual(H.writesNow(), 0, 'اسنپ‌شات نباید ذخیره/تایمر/اعلان بنویسد');
+  assertEqual(JSON.stringify(live), before, 'آرایه‌های زنده نباید mutate شوند');
+  assertEqual(live.accounts[0].balance, 5000, 'مانده حساب نباید عوض شود');
+  assertEqual(live.tasks[0].status, 'open', 'وظیفه نباید عوض شود');
+  assertEqual(live.warranties[0].status, 'open', 'گارانتی نباید عوض شود');
+  assertEqual(live.invoices[0].status, 'open', 'فاکتور نباید عوض شود');
+  assertEqual(live.parts[0].qty, 9, 'موجودی قطعه نباید عوض شود');
+  assertTrue(!!snap && Array.isArray(snap.waiting.invoices), 'باید داده ساده برگردد');
+});
+
+test('تشخیص امروز باید زون تهران و رقم فارسی/LRM را بدون parseShamsiToTs هندل کند', () => {
+  const H = dailyOpsBriefHarness()();
+  const now = Date.now();
+  const todayFa = H.fdate(now);
+  const yesterdayFa = H.fdate(now - 48*3600000);
+  assertTrue(!!todayFa && todayFa !== yesterdayFa, 'fdate امروز و ۴۸ ساعت قبل باید فرق داشته باشند');
+  assertTrue(H.sameTehranDay(now, now), 'sameTehranDay برای همین لحظه باید true باشد');
+  assertTrue(!H.sameTehranDay(now - 48*3600000, now), '۴۸ ساعت قبل نباید همان روز تهران باشد');
+  const lrmToday = '\u200e' + todayFa.replace(/[\u200e\u200f]/g,'') + '\u200e';
+  const persianToday = todayFa; // fdate خودش رقم فارسی و LRM دارد
+  const live = {
+    invoices: [
+      {num:'TODAY', seller:'امروز', status:'open', date: persianToday},
+      {num:'LRM', seller:'علامت', status:'open', date: lrmToday},
+      {num:'OLD', seller:'دیروز', status:'open', date: yesterdayFa}
+    ],
+    warranties: [], tasks: [], sales: [], accounts: [], parts: [], products: [], inventory: {}, defectiveStock: []
+  };
+  const snap = H.getDailyOperationsBriefSnapshot(live, now);
+  const nums = snap.today.invoices.map(function(x){ return x.num; }).sort().join(',');
+  assertTrue(nums.indexOf('TODAY')>=0, 'فاکتور با تاریخ جلالی امروز باید در امروز باشد');
+  assertTrue(nums.indexOf('LRM')>=0, 'تاریخ با LRM باید نرمال شود');
+  assertTrue(nums.indexOf('OLD')===-1, 'فاکتور دیروز نباید امروز شمرده شود');
+  const keyToday = H._normDate ? H._normDate(H.faToEnDigits(String(todayFa).replace(/[\u200e\u200f]/g,''))) : '';
+  assertTrue(!!snap.todayKey, 'todayKey باید از fdate نرمال‌شده ساخته شود');
+  if(keyToday) assertEqual(snap.todayKey, keyToday.replace(/\//g,''), 'todayKey باید با _normDate(faToEnDigits) یکی باشد');
+});
+
+test('فاکتور باز و گارانتی باز باید از status موجود باشد نه استنتاج پرداخت', () => {
+  const H = dailyOpsBriefHarness()();
+  const now = Date.now();
+  const live = {
+    invoices: [
+      {num:'OPEN', seller:'باز', status:'open'},
+      {num:'CLOSED', seller:'بسته', status:'closed'}
+    ],
+    warranties: [
+      {id:'W-OPEN', name:'باز', status:'open', companyWork:{arrivalAt: now-1*3600000}},
+      {id:'W-CLOSED', name:'بسته', status:'closed', companyWork:{arrivalAt: now-80*3600000}}
+    ],
+    tasks: [], sales: [], accounts: [], parts: [], products: [], inventory: {}, defectiveStock: []
+  };
+  const snap = H.getDailyOperationsBriefSnapshot(live, now);
+  assertEqual(snap.waiting.invoices.length, 1, 'فقط فاکتور با status غیر closed باز است');
+  assertEqual(snap.waiting.invoices[0].num, 'OPEN', 'فاکتور باز باید OPEN باشد');
+  assertTrue(snap.waiting.warranties.some(function(w){ return w.id==='W-OPEN'; }), 'گارانتی باز باید در انتظار باشد');
+  assertTrue(!snap.waiting.warranties.some(function(w){ return w.id==='W-CLOSED'; }), 'گارانتی بسته نباید در انتظار باشد');
+  assertTrue(!snap.urgent.warranties.some(function(w){ return w.id==='W-CLOSED'; }), 'گارانتی بسته نباید فوری SLA شود');
+});
+
+test('کم‌موجودی عملیات امروز باید invLowStockFromLists باشد نه KPI ضعیف parts.qty<=min', () => {
+  const H = dailyOpsBriefHarness()();
+  const now = Date.now();
+  const live = {
+    invoices: [], warranties: [], tasks: [], sales: [], accounts: [],
+    parts: [
+      {code:'WEAK-OK', name:'طبق KPI کافی', qty:5, min:0, reorder:5},
+      {code:'KPI-LOW', name:'طبق KPI کم', qty:1, min:5}
+    ],
+    products: [{code:'PROD-LOW', name:'کالای کم'}],
+    inventory: { 'PROD-LOW': {qty:1, min:4} },
+    defectiveStock: []
+  };
+  const weakKpi = live.parts.filter(function(p){ return (p.qty||0) <= (p.min||0); }).map(function(p){ return p.code; });
+  assertTrue(weakKpi.indexOf('WEAK-OK')===-1, 'KPI ضعیف نباید WEAK-OK را کم‌موجودی ببیند');
+  const engine = H.invLowStockFromLists(live.parts, live.products, live.inventory).map(function(x){ return x.code; });
+  assertTrue(engine.indexOf('WEAK-OK')>=0, 'موتور انبار باید نقطه سفارش را هم ببیند');
+  assertTrue(engine.indexOf('PROD-LOW')>=0, 'موتور انبار باید کالای محصول را هم ببیند');
+  const snap = H.getDailyOperationsBriefSnapshot(live, now);
+  const codes = snap.stock.low.map(function(x){ return x.code; });
+  assertTrue(codes.indexOf('WEAK-OK')>=0, 'خلاصه باید همان موتور انبار را استفاده کند');
+  assertTrue(codes.indexOf('PROD-LOW')>=0, 'خلاصه باید کالای کم‌موجودی محصول را نشان دهد');
+  assertTrue(codes.indexOf('KPI-LOW')>=0, 'قطعه کم طبق حداقل هم باید باشد');
+});
+
+test('SLA گارانتی در خلاصه باید همان calcSlaStatusFromAgeHours باشد و بحرانی را از در انتظار جدا کند', () => {
+  const H = dailyOpsBriefHarness()();
+  assertEqual(H.calcSlaStatusFromAgeHours(10), 'normal', '۱۰ ساعت عادی');
+  assertEqual(H.calcSlaStatusFromAgeHours(24), 'warning', '۲۴ ساعت هشدار');
+  assertEqual(H.calcSlaStatusFromAgeHours(48), 'critical', '۴۸ ساعت بحرانی');
+  assertEqual(H.calcSlaStatusFromAgeHours(72), 'overdue', '۷۲ ساعت سررسید');
+  const now = Date.now();
+  const live = {
+    invoices: [], tasks: [], sales: [], accounts: [], parts: [], products: [], inventory: {}, defectiveStock: [],
+    warranties: [
+      {id:'W-CRIT', name:'بحرانی', status:'open', companyWork:{arrivalAt: now-50*3600000}},
+      {id:'W-OK', name:'عادی', status:'open', companyWork:{arrivalAt: now-5*3600000}}
+    ]
+  };
+  const snap = H.getDailyOperationsBriefSnapshot(live, now);
+  assertEqual(snap.urgent.warranties.length, 1, 'فقط critical/overdue فوری است');
+  assertEqual(snap.urgent.warranties[0].id, 'W-CRIT', 'پرونده بحرانی باید فوری باشد');
+  assertEqual(snap.urgent.warranties[0].sla, 'critical', 'وضعیت باید critical موتور موجود باشد');
+  assertTrue(snap.waiting.warranties.some(function(w){ return w.id==='W-OK'; }), 'گارانتی غیر بحرانی در انتظار بماند');
+  assertTrue(!snap.waiting.warranties.some(function(w){ return w.id==='W-CRIT'; }), 'بحرانی نباید دوباره در انتظار تکرار شود');
+});
+
+test('واریز و برداشت امروز جدا شوند و مانده حساب عوض نشود', () => {
+  const H = dailyOpsBriefHarness()();
+  const now = Date.now();
+  const today = H.fdate(now);
+  const live = {
+    invoices: [], warranties: [], tasks: [], sales: [], parts: [], products: [], inventory: {}, defectiveStock: [],
+    accounts: [{
+      id:'CASH', name:'صندوق', balance:9000,
+      transactions: [
+        {type:'deposit', amount:3000, date: today},
+        {type:'withdraw', amount:1000, date: today},
+        {type:'deposit', amount:50, date: H.fdate(now-48*3600000)}
+      ]
+    }]
+  };
+  const snap = H.getDailyOperationsBriefSnapshot(live, now);
+  assertEqual(snap.finance.depositsToday, 3000, 'واریز امروز باید ۳۰۰۰ باشد');
+  assertEqual(snap.finance.withdrawalsToday, 1000, 'برداشت امروز باید ۱۰۰۰ باشد');
+  assertEqual(snap.finance.totalBalance, 9000, 'مانده باید جمع balance موجود باشد');
+  assertEqual(live.accounts[0].balance, 9000, 'بعد از خواندن، مانده عوض نشود');
+  assertEqual(snap.today.transactions.length, 2, 'فقط تراکنش‌های امروز');
+});
+
+test('وظیفه فوری/سررسیدگذشته باید قاعده renderTasks را بماند و داده وظیفه عوض نشود', () => {
+  const H = dailyOpsBriefHarness()();
+  const now = Date.now();
+  const live = {
+    invoices: [], warranties: [], sales: [], accounts: [], parts: [], products: [], inventory: {}, defectiveStock: [],
+    tasks: [
+      {id:'U', title:'فوری', status:'open', priority:'urgent', deadlineTS: null},
+      {id:'SAME', title:'امروز گذشته', status:'open', priority:'normal', deadlineTS: now-60*60*1000},
+      {id:'OLD', title:'دیروز', status:'open', priority:'normal', deadlineTS: now-48*3600000},
+      {id:'DONE', title:'انجام', status:'done', priority:'urgent', deadlineTS: now-48*3600000}
+    ]
+  };
+  const snap = H.getDailyOperationsBriefSnapshot(live, now);
+  const urgentIds = snap.urgent.tasks.map(function(t){ return t.id; });
+  assertTrue(urgentIds.indexOf('U')>=0, 'اولویت urgent باید فوری باشد');
+  assertTrue(urgentIds.indexOf('OLD')>=0, 'سررسید روز دیگر باید فوری/گذشته باشد');
+  assertTrue(urgentIds.indexOf('SAME')===-1, 'موعد همین روز تهران نباید سررسیدگذشته شمرده شود');
+  assertTrue(urgentIds.indexOf('DONE')===-1, 'وظیفه بسته نباید بیاید');
+  assertTrue(snap.today.tasks.some(function(t){ return t.id==='SAME'; }), 'موعد امروز در بخش امروز است');
+  assertEqual(live.tasks[0].status, 'open', 'وضعیت وظیفه عوض نشود');
+  assertEqual(live.tasks.length, 4, 'تعداد وظایف عوض نشود');
+});
+
+test('رندر داشبورد باید KPI و هشدار و وظایف سررسیدگذشته را نگه دارد و کارت عملیات را اضافه کند', () => {
+  const H = dailyOpsBriefHarness()();
+  const now = Date.now();
+  const live = {
+    invoices: [{num:'INV-OPEN', seller:'الف', status:'open'}],
+    warranties: [{id:'W1', name:'رضا', status:'open'}],
+    parts: [{code:'P1', name:'فیلتر', qty:0, min:2}],
+    tasks: [{id:'T-OLD', title:'پیگیری خراب', status:'open', priority:'normal', deadlineTS: now-48*3600000}],
+    sales: [{id:'SL-P', name:'پیش', status:'proforma', total:1}],
+    accounts: [{id:'A', name:'صندوق', balance:10, transactions:[]}]
+  };
+  const out = H.runDash(live);
+  assertTrue(out.indexOf('dash-kpi-grid')>=0, 'شبکه KPI باید رندر شود');
+  assertTrue(out.indexOf('فاکتور باز')>=0, 'کارت KPI فاکتور باز باید بماند');
+  assertTrue(out.indexOf('هشدارها')>=0, 'کارت هشدارها باید بماند');
+  assertTrue(out.indexOf('پیگیری خراب')>=0, 'هشدار وظیفه سررسیدگذشته باید رندر شود');
+  assertTrue(out.indexOf('id="daily-ops-brief"')>=0 || out.indexOf("id=\"daily-ops-brief\"")>=0, 'کارت عملیات امروز باید رندر شود');
+  assertTrue(out.indexOf('عملیات امروز')>=0, 'عنوان فارسی کارت لازم است');
+  assertTrue(out.indexOf('آخرین فعالیت‌ها')>=0, 'اقلام اخیر باید بماند');
+  assertEqual(H.writesNow(), 0, 'رندر داشبوردِ خلاصه نباید state بنویسد');
 });
 
 test('فرم پنجره باید داخل win-body اسکرول شود نه body قفل‌شده', () => {
