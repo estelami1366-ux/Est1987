@@ -9873,7 +9873,15 @@ function autoEnableDesktopNotifyOnBoot(){
   function markSilent(){
     try{ localStorage.setItem('laegh_desktop_notify_on','1'); }catch(_e2){}
     try{ if(typeof registerLaeghSW==='function') registerLaeghSW(); }catch(_e3){}
-    try{ if(typeof checkDueTasksForNotification==='function') checkDueTasksForNotification(); }catch(_e4){}
+    try{
+      if(typeof whenTaskNotifyStateReady==='function'){
+        whenTaskNotifyStateReady(function(){
+          if(typeof checkDueTasksForNotification==='function') return checkDueTasksForNotification();
+        });
+      } else if(typeof checkDueTasksForNotification==='function'){
+        checkDueTasksForNotification();
+      }
+    }catch(_e4){}
   }
   if(want){ markSilent(); }
   try{
@@ -14699,14 +14707,16 @@ async function syncNotifiedFromIDB(){
   const db = await openTasksIDB(); if(!db) return;
   const tx = db.transaction('tasks','readonly');
   const req = tx.objectStore('tasks').getAll();
-  req.onsuccess=()=>{
-    const fromIdb = req.result||[]; let changed=false;
-    fromIdb.forEach(it=>{
-      const t = tasks.find(x=>x.id===it.id);
-      if(t && it.notifiedAt && !t.notifiedAt){ t.notifiedAt=it.notifiedAt; changed=true; }
-    });
-    if(changed){ localStorage.setItem('laegh_tasks', JSON.stringify(tasks)); renderTasks(); renderSidebarBadges(); }
-  };
+  const fromIdb = await new Promise(function(resolve){
+    req.onsuccess=function(){ resolve(req.result||[]); };
+    req.onerror=function(){ resolve([]); };
+  });
+  let changed=false;
+  fromIdb.forEach(it=>{
+    const t = tasks.find(x=>x.id===it.id);
+    if(t && it.notifiedAt && !t.notifiedAt){ t.notifiedAt=it.notifiedAt; changed=true; }
+  });
+  if(changed){ localStorage.setItem('laegh_tasks', JSON.stringify(tasks)); renderTasks(); renderSidebarBadges(); }
 }
 let _activeTaskTab='do';
 let _taskEditId=null;
@@ -15029,17 +15039,21 @@ function playSirmanNotificationSound(){
 function showLaeghNotification(title, opts){
   opts = opts || {};
   playSirmanNotificationSound();
-  var ok = false;
-  // پل اعلان ویندوز (اعلان_سیرمان.ps1 روی پورت ۸۷۶۶ از طریق Sirman_Start.bat)
-  try{ pushWindowsNotifyBridge(title, opts); ok = true; }catch(_e){}
-  if(!('Notification' in window) || Notification.permission!=='granted') return ok;
-  try{
-    new Notification(title, opts);
-    ok = true;
-  }catch(e){
-    if(_swReg){ try{ _swReg.showNotification(title, opts); ok = true; }catch(e2){} }
-  }
-  return ok;
+  return Promise.resolve().then(function(){
+    return pushWindowsNotifyBridge(title, opts);
+  }).then(function(bridgeOk){
+    var ok = bridgeOk === true;
+    if(!('Notification' in window) || Notification.permission!=='granted') return ok;
+    try{
+      new Notification(title, opts);
+      // Construction accepted by the Web Notification channel; this is not proof the user physically saw the toast.
+      ok = true;
+    }catch(e){
+      if(_swReg){ try{ _swReg.showNotification(title, opts); }catch(e2){} }
+      // Fire-and-forget SW fallback has no ACK; do not treat it as success.
+    }
+    return ok;
+  }).catch(function(){ return false; });
 }
 // ارسال اعلان به اسکریپت محلی ویندوز (مرکز اعلان‌ها)
 function getNotifyBridgePort(){
@@ -15069,22 +15083,29 @@ function pushWindowsNotifyBridge(title, opts){
   // مسیر Sirman.exe (WebView2 host)
   try{
     if(typeof sirmanDesktopNotify === 'function'){
-      if(sirmanDesktopNotify(payloadObj.title, {body: payloadObj.body, tag: payloadObj.tag})) return;
+      // Only an explicit truthy host return counts as Host/EXE success.
+      if(sirmanDesktopNotify(payloadObj.title, {body: payloadObj.body, tag: payloadObj.tag})) return Promise.resolve(true);
     }
     if(window.chrome && window.chrome.webview && window.chrome.webview.postMessage){
       window.chrome.webview.postMessage(JSON.stringify({
         type:'notify', title: payloadObj.title, body: payloadObj.body, tag: payloadObj.tag
       }));
-      return;
+      // postMessage has no delivery ACK; do not count as success and do not also POST /notify.
+      return Promise.resolve(false);
     }
   }catch(_h){}
+  var httpP = null;
   try{
     if(typeof fetch === 'function'){
-      fetch((typeof getNotifyBridgeUrl==='function'?getNotifyBridgeUrl('/notify'):'http://127.0.0.1:8766/notify'), {
+      httpP = fetch((typeof getNotifyBridgeUrl==='function'?getNotifyBridgeUrl('/notify'):'http://127.0.0.1:8766/notify'), {
         method:'POST', mode:'cors', keepalive:true,
         headers:{'Content-Type':'application/json'},
         body: payload
-      }).catch(function(){});
+      }).then(function(res){
+        return !!(res && res.ok);
+      }).catch(function(){
+        return false;
+      });
     }
   }catch(e){}
   try{
@@ -15094,6 +15115,7 @@ function pushWindowsNotifyBridge(title, opts){
     if(q.length > 40) q = q.slice(-40);
     localStorage.setItem('laegh_win_notify_q', JSON.stringify(q));
   }catch(e2){}
+  return httpP || Promise.resolve(false);
 }
 function enableTaskNotifications(){
   function markOk(){
@@ -15162,19 +15184,56 @@ function registerLaeghSW(){
   }).catch(()=>{});
 }
 function checkDueTasksForNotification(){
-  if(typeof desktopNotifyAllowed==='function' ? !desktopNotifyAllowed() : (!('Notification' in window) || Notification.permission!=='granted')) return;
-  const now=Date.now(); let changed=false;
-  tasks.forEach(t=>{
-    // اعلان یک‌بار فرستاده می‌شود (notifiedAt جلوی تکرار/اسپم را می‌گیرد) برای:
-    //  - کارهای دارای موعد که موعدشان رسیده/گذشته،
-    //  - کارهای بدون موعد ولی مهم (مثل «فاکتور باز») که باید همان لحظه یک اخطار دسکتاپ بدهند.
-    if(t.status==='open' && t.notify && !t.notifiedAt && (!t.deadlineTS || t.deadlineTS<=now)){
-      const icon = t.autoInvoice ? '🧾 ' : t.autoWarranty ? '🛡 ' : t.autoInventory ? '📦 ' : t.autoBackup ? '💾 ' : '⏰ ';
-      showLaeghNotification(icon+t.title, {body:(t.desc||'')+' — اولویت: '+t.priority, tag:(t.id||'task')+'-'+String(Math.floor(Date.now()/3600000))});
-      t.notifiedAt = now; changed=true;
-    }
+  function run(){
+    if(typeof desktopNotifyAllowed==='function' ? !desktopNotifyAllowed() : (!('Notification' in window) || Notification.permission!=='granted')) return Promise.resolve();
+    const now=Date.now(); let changed=false;
+    var chain = Promise.resolve();
+    tasks.forEach(t=>{
+      // اعلان یک‌بار فرستاده می‌شود (notifiedAt جلوی تکرار/اسپم را می‌گیرد) برای:
+      //  - کارهای دارای موعد که موعدشان رسیده/گذشته،
+      //  - کارهای بدون موعد ولی مهم (مثل «فاکتور باز») که باید همان لحظه یک اخطار دسکتاپ بدهند.
+      if(t.status==='open' && t.notify && !t.notifiedAt && (!t.deadlineTS || t.deadlineTS<=now)){
+        chain = chain.then(function(){
+          if(t.notifiedAt) return;
+          const icon = t.autoInvoice ? '🧾 ' : t.autoWarranty ? '🛡 ' : t.autoInventory ? '📦 ' : t.autoBackup ? '💾 ' : '⏰ ';
+          return Promise.resolve(showLaeghNotification(icon+t.title, {body:(t.desc||'')+' — اولویت: '+t.priority, tag:(t.id||'task')+'-'+String(Math.floor(Date.now()/3600000))})).then(function(delivered){
+            if(delivered === true){
+              t.notifiedAt = Date.now();
+              changed=true;
+            }
+          });
+        });
+      }
+    });
+    return chain.then(function(){
+      if(changed){ svTasks(); renderTasks(); }
+    });
+  }
+  if(window._taskNotifyStateReady && typeof window._taskNotifyStateReady.then==='function'){
+    return window._taskNotifyStateReady.then(run);
+  }
+  return run();
+}
+function whenTaskNotifyStateReady(next){
+  if(!window._taskNotifyStateReady){
+    window._taskNotifyStateReady = Promise.resolve().then(function(){
+      return syncNotifiedFromIDB();
+    }).catch(function(){});
+  }
+  return window._taskNotifyStateReady.then(function(){
+    if(typeof next==='function') return next();
   });
-  if(changed){ svTasks(); renderTasks(); }
+}
+function startTaskDueNotificationTimer(){
+  if(window._taskDueNotifyTimer) return;
+  window._taskDueNotifyTimer = setInterval(checkDueTasksForNotification, 60000);
+}
+function bootTaskNotifications(){
+  whenTaskNotifyStateReady(function(){
+    return Promise.resolve(checkDueTasksForNotification()).then(function(){
+      startTaskDueNotificationTimer();
+    });
+  });
 }
 
 // INIT
@@ -28216,11 +28275,10 @@ initTooltips();
 if(typeof loadSmsCfgUI==='function') loadSmsCfgUI();
 setTimeout(syncAllAutoTasks,2500);
 setInterval(syncAllAutoTasks,300000);
-setInterval(checkDueTasksForNotification, 60000);
+if(typeof bootTaskNotifications==='function') bootTaskNotifications();
 // ساعت زنده‌ی مرکز زمان
 updateLiveClock(); setInterval(updateLiveClock, 1000);
 if((typeof desktopNotifyAllowed==='function' && desktopNotifyAllowed()) || ('Notification' in window && Notification.permission==='granted')){ try{ registerLaeghSW(); }catch(_e){} }
-syncNotifiedFromIDB();
 
 </script>
 

@@ -1544,22 +1544,22 @@ test('checkDueTasksForNotification باید برای فاکتور باز (کار
     window: { Notification: { permission: 'granted' } },
     showLaeghNotification(title, opts){ fired.push(title); return true; },
     svTasks(){}, renderTasks(){},
+    Promise,
     tasks: [
       { id:'TSK-AUTO-100', status:'open', notify:true, deadlineTS:null, notifiedAt:null, autoInvoice:true, title:'فاکتور باز #100', priority:'high' },
       { id:'TSK-FUTURE', status:'open', notify:true, deadlineTS: Date.now()+3600000, notifiedAt:null, title:'کار آینده', priority:'normal' }
     ]
   };
-  const runner = new Function('ctx', 'with(ctx){ (' + fnSrc.replace(/^function checkDueTasksForNotification/, 'function') + ')(); }');
-  runner(ctx);
-  // فاکتور باز بدون موعد باید اعلان بگیرد؛ کار با موعدِ آینده نباید الان اعلان بگیرد
-  assertArrayLength(fired, 1, 'فقط فاکتور باز (بدون موعد) باید الان اعلان بگیرد، نه کار با موعد آینده');
-  assertTrue(fired[0].indexOf('فاکتور باز #100') !== -1, 'اعلان باید مربوط به فاکتور باز باشد. دریافت: ' + fired[0]);
-  assertTrue(!!ctx.tasks[0].notifiedAt, 'بعد از اعلان، notifiedAt باید ست شود تا اعلان تکرار (اسپم) نشود');
-
-  // اجرای دوباره نباید دوباره اعلان بدهد (چون notifiedAt ست شده)
-  fired.length = 0;
-  runner(ctx);
-  assertArrayLength(fired, 0, 'اعلان فاکتور باز نباید در اجرای بعدی تکرار شود (جلوگیری از اسپم مثل نسخه‌ی قدیمی)');
+  const runner = new Function('ctx', 'with(ctx){ return (' + fnSrc.replace(/^function checkDueTasksForNotification/, 'function') + ')(); }');
+  return Promise.resolve(runner(ctx)).then(() => {
+    assertArrayLength(fired, 1, 'فقط فاکتور باز (بدون موعد) باید الان اعلان بگیرد، نه کار با موعد آینده');
+    assertTrue(fired[0].indexOf('فاکتور باز #100') !== -1, 'اعلان باید مربوط به فاکتور باز باشد. دریافت: ' + fired[0]);
+    assertTrue(!!ctx.tasks[0].notifiedAt, 'بعد از اعلان، notifiedAt باید ست شود تا اعلان تکرار (اسپم) نشود');
+    fired.length = 0;
+    return Promise.resolve(runner(ctx)).then(() => {
+      assertArrayLength(fired, 0, 'اعلان فاکتور باز نباید در اجرای بعدی تکرار شود (جلوگیری از اسپم مثل نسخه‌ی قدیمی)');
+    });
+  });
 });
 
 test('normIranPhone باید شماره‌ی موبایل ایرانی (فارسی/لاتین/با ۰/با ۹۸) را درست به فرمت بین‌المللی واتساپ تبدیل کند', () => {
@@ -10219,6 +10219,370 @@ test('فرم پنجره باید داخل win-body اسکرول شود نه body
   `)();
   assertEqual(r.win, 800, 'اسکرول باید روی .win-body برود');
   assertEqual(r.page, 0, 'document قفل‌شده نباید اسکرول شود');
+});
+
+console.log('');
+console.log('📋 گروه: قابلیت اطمینان یادآوری کار (فاز ۳.۳)');
+
+function taskNotifyPipelineSrc() {
+  return [
+    extractFunctionSource(html, 'getNotifyBridgePort'),
+    extractFunctionSource(html, 'getNotifyBridgeUrl'),
+    extractFunctionSource(html, 'pushWindowsNotifyBridge'),
+    extractFunctionSource(html, 'showLaeghNotification'),
+    extractFunctionSource(html, 'checkDueTasksForNotification'),
+    extractFunctionSource(html, 'whenTaskNotifyStateReady'),
+    extractFunctionSource(html, 'openTasksIDB'),
+    extractFunctionSource(html, 'syncNotifiedFromIDB'),
+    extractFunctionSource(html, 'startTaskDueNotificationTimer'),
+    extractFunctionSource(html, 'bootTaskNotifications')
+  ].join('\n');
+}
+
+function makeDeniedNotification() {
+  function Notification() { throw new Error('web notification denied'); }
+  Notification.permission = 'denied';
+  Notification.calls = [];
+  return Notification;
+}
+
+function makeGrantedNotification() {
+  function Notification(title, opts) {
+    Notification.calls.push({ title: title, opts: opts || {} });
+  }
+  Notification.permission = 'granted';
+  Notification.calls = [];
+  return Notification;
+}
+
+function makeTasksIdb(rows) {
+  return {
+    open: function() {
+      var req = { result: null, onupgradeneeded: null, onsuccess: null, onerror: null };
+      setTimeout(function() {
+        req.result = {
+          objectStoreNames: { contains: function() { return true; } },
+          transaction: function() {
+            return {
+              objectStore: function() {
+                return {
+                  getAll: function() {
+                    var g = { result: (rows || []).slice(), onsuccess: null, onerror: null };
+                    setTimeout(function() {
+                      if (typeof g.onsuccess === 'function') g.onsuccess({ target: g });
+                    }, 0);
+                    return g;
+                  }
+                };
+              }
+            };
+          }
+        };
+        if (typeof req.onsuccess === 'function') req.onsuccess({ target: req });
+      }, 0);
+      return req;
+    }
+  };
+}
+
+function runTaskNotifyPipeline(opts) {
+  opts = opts || {};
+  const store = Object.assign({}, opts.store || {});
+  const fetchCalls = [];
+  const hostCalls = [];
+  const postMessages = [];
+  const NotificationCtor = opts.Notification || makeDeniedNotification();
+  const idb = Object.prototype.hasOwnProperty.call(opts, 'indexedDB') ? opts.indexedDB : undefined;
+  const win = {
+    chrome: opts.chrome,
+    Notification: NotificationCtor,
+    _taskNotifyStateReady: opts.ready,
+    _taskDueNotifyTimer: null
+  };
+  if (idb) win.indexedDB = idb;
+  const ctx = {
+    Promise: Promise,
+    JSON: JSON,
+    Date: Date,
+    Math: Math,
+    String: String,
+    parseInt: parseInt,
+    window: win,
+    Notification: NotificationCtor,
+    localStorage: {
+      getItem(k) { return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },
+      setItem(k, v) { store[k] = String(v); }
+    },
+    tasks: opts.tasks || [],
+    fetch: function(url, init) {
+      fetchCalls.push({ url: url, init: init });
+      if (typeof opts.fetch === 'function') return opts.fetch(url, init);
+      return Promise.reject(new Error('bridge offline'));
+    },
+    getSirmanHostSync: opts.getSirmanHostSync || function() { return null; },
+    playSirmanNotificationSound: function() {},
+    isSirmanDesktopNotifyReady: opts.isSirmanDesktopNotifyReady || function() { return false; },
+    desktopNotifyAllowed: opts.desktopNotifyAllowed || function() { return true; },
+    svTasks: opts.svTasks || function() {},
+    renderTasks: function() {},
+    renderSidebarBadges: function() {},
+    _swReg: null,
+    setInterval: opts.setInterval || function() { return 99; },
+    setTimeout: setTimeout,
+    console: { log: function() {} }
+  };
+  if (idb) ctx.indexedDB = idb;
+  if (typeof opts.sirmanDesktopNotify === 'function') {
+    ctx.sirmanDesktopNotify = function(title, o) {
+      hostCalls.push({ title: title, opts: o });
+      return opts.sirmanDesktopNotify(title, o);
+    };
+  }
+  if (opts.chrome && opts.chrome.webview && typeof opts.chrome.webview.postMessage === 'function') {
+    win.chrome = {
+      webview: {
+        postMessage: function(msg) {
+          postMessages.push(msg);
+          return opts.chrome.webview.postMessage(msg);
+        }
+      }
+    };
+  }
+  const api = new Function('ctx', 'with(ctx){\n' + taskNotifyPipelineSrc() + '\n; return { checkDueTasksForNotification: checkDueTasksForNotification, whenTaskNotifyStateReady: whenTaskNotifyStateReady, bootTaskNotifications: bootTaskNotifications, syncNotifiedFromIDB: syncNotifiedFromIDB, startTaskDueNotificationTimer: startTaskDueNotificationTimer, showLaeghNotification: showLaeghNotification, pushWindowsNotifyBridge: pushWindowsNotifyBridge }; }')(ctx);
+  const invoked = opts.invoke ? opts.invoke(api, ctx) : api.checkDueTasksForNotification();
+  return Promise.resolve(invoked).then(function() {
+    return { ctx: ctx, win: win, store: store, fetchCalls: fetchCalls, hostCalls: hostCalls, postMessages: postMessages, Notification: NotificationCtor, api: api };
+  });
+}
+
+function dueTask(extra) {
+  return Object.assign({
+    id: 'T-DUE',
+    status: 'open',
+    notify: true,
+    deadlineTS: Date.now() - 1000,
+    notifiedAt: null,
+    title: 'کار سررسید',
+    desc: 'شرح',
+    priority: 'high'
+  }, extra || {});
+}
+
+test('موفقیت Host باید notifiedAt را ست کند', () => {
+  const t = dueTask();
+  return runTaskNotifyPipeline({
+    tasks: [t],
+    sirmanDesktopNotify: function() { return true; },
+    fetch: function() { return Promise.reject(new Error('should not fetch after host success')); }
+  }).then(function(r) {
+    assertTrue(!!t.notifiedAt, 'موفقیت Host باید notifiedAt را ست کند');
+    assertEqual(r.hostCalls.length, 1, 'باید یک‌بار Host صدا زده شود');
+    assertEqual(r.fetchCalls.length, 0, 'پس از موفقیت Host نباید HTTP تکراری فرستاده شود');
+  });
+});
+
+test('اگر همه مسیرهای اعلان شکست بخورند notifiedAt نباید ست شود', () => {
+  const t = dueTask();
+  return runTaskNotifyPipeline({
+    tasks: [t],
+    fetch: function() { return Promise.reject(new Error('offline')); }
+  }).then(function() {
+    assertTrue(!t.notifiedAt, 'شکست همه مسیرها باید notifiedAt را خالی بگذارد');
+  });
+});
+
+test('رد شدن fetch پل باید در نبود کانال دیگر notifiedAt را خالی بگذارد', () => {
+  const t = dueTask();
+  return runTaskNotifyPipeline({
+    tasks: [t],
+    fetch: function() { return Promise.reject(new Error('ECONNREFUSED')); }
+  }).then(function(r) {
+    assertTrue(r.fetchCalls.length >= 1, 'باید واقعاً fetch پل را امتحان کند');
+    assertTrue(!t.notifiedAt, 'reject شدن fetch نباید notifiedAt را ست کند');
+  });
+});
+
+test('پاسخ غیر 2xx پل باید شکست حساب شود', () => {
+  const t = dueTask();
+  return runTaskNotifyPipeline({
+    tasks: [t],
+    fetch: function() { return Promise.resolve({ ok: false, status: 500 }); }
+  }).then(function(r) {
+    assertTrue(r.fetchCalls.length >= 1, 'باید fetch پل را صدا بزند');
+    assertTrue(!t.notifiedAt, 'پاسخ غیر 2xx نباید notifiedAt را ست کند');
+  });
+});
+
+test('ساخت موفق Web Notification باید بتواند notifiedAt را ست کند', () => {
+  const t = dueTask();
+  const WebN = makeGrantedNotification();
+  return runTaskNotifyPipeline({
+    tasks: [t],
+    Notification: WebN,
+    fetch: function() { return Promise.reject(new Error('bridge down')); }
+  }).then(function() {
+    assertEqual(WebN.calls.length, 1, 'باید یک Web Notification ساخته شود');
+    assertTrue(!!t.notifiedAt, 'قبول شدن کانال Web باید notifiedAt را ست کند — نه اینکه کاربر حتماً آن را دیده باشد');
+  });
+});
+
+test('اگر گیت اعلان خاموش باشد notifiedAt نباید ست شود', () => {
+  const t = dueTask();
+  return runTaskNotifyPipeline({
+    tasks: [t],
+    desktopNotifyAllowed: function() { return false; },
+    fetch: function() { return Promise.resolve({ ok: true, status: 200 }); },
+    sirmanDesktopNotify: function() { return true; }
+  }).then(function(r) {
+    assertEqual(r.fetchCalls.length, 0, 'گیت خاموش نباید هیچ کانالی را صدا بزند');
+    assertEqual(r.hostCalls.length, 0, 'گیت خاموش نباید Host را صدا بزند');
+    assertTrue(!t.notifiedAt, 'گیت خاموش باید notifiedAt را خالی بگذارد');
+  });
+});
+
+test('کار از قبل notifiedAt دارد نباید دوباره اعلان شود', () => {
+  const t = dueTask({ notifiedAt: 12345 });
+  return runTaskNotifyPipeline({
+    tasks: [t],
+    fetch: function() { return Promise.resolve({ ok: true, status: 200 }); }
+  }).then(function(r) {
+    assertEqual(t.notifiedAt, 12345, 'notifiedAt قبلی باید دست‌نخورده بماند');
+    assertEqual(r.fetchCalls.length, 0, 'کار اعلان‌شده نباید دوباره ارسال شود');
+  });
+});
+
+test('موعد آینده نباید اعلان شود', () => {
+  const t = dueTask({ deadlineTS: Date.now() + 3600000 });
+  return runTaskNotifyPipeline({
+    tasks: [t],
+    fetch: function() { return Promise.resolve({ ok: true, status: 200 }); }
+  }).then(function(r) {
+    assertTrue(!t.notifiedAt, 'موعد آینده نباید notifiedAt بگیرد');
+    assertEqual(r.fetchCalls.length, 0, 'موعد آینده نباید ارسال شود');
+  });
+});
+
+test('کار تکمیل‌شده نباید اعلان شود', () => {
+  const t = dueTask({ status: 'done' });
+  return runTaskNotifyPipeline({
+    tasks: [t],
+    fetch: function() { return Promise.resolve({ ok: true, status: 200 }); }
+  }).then(function(r) {
+    assertTrue(!t.notifiedAt, 'کار انجام‌شده نباید notifiedAt بگیرد');
+    assertEqual(r.fetchCalls.length, 0, 'کار انجام‌شده نباید ارسال شود');
+  });
+});
+
+test('چند کار سررسید باید مستقل پردازش شوند', () => {
+  const a = dueTask({ id: 'T-A', title: 'اول' });
+  const b = dueTask({ id: 'T-B', title: 'دوم' });
+  let n = 0;
+  return runTaskNotifyPipeline({
+    tasks: [a, b],
+    fetch: function() {
+      n += 1;
+      if (n === 1) return Promise.reject(new Error('first fail'));
+      return Promise.resolve({ ok: true, status: 200 });
+    }
+  }).then(function() {
+    assertTrue(!a.notifiedAt, 'شکست کار اول نباید notifiedAt آن را ست کند');
+    assertTrue(!!b.notifiedAt, 'موفقیت کار دوم باید مستقل از شکست کار اول باشد');
+  });
+});
+
+test('بوت با notifiedAt در IDB نباید اعلان تکراری بفرستد', () => {
+  const t = dueTask({ id: 'T-IDB', notifiedAt: null });
+  const idb = makeTasksIdb([{ id: 'T-IDB', notifiedAt: 888 }]);
+  return runTaskNotifyPipeline({
+    tasks: [t],
+    indexedDB: idb,
+    fetch: function() { return Promise.resolve({ ok: true, status: 200 }); },
+    invoke: function(api) {
+      return api.whenTaskNotifyStateReady(function() {
+        return api.checkDueTasksForNotification();
+      });
+    }
+  }).then(function(r) {
+    assertEqual(t.notifiedAt, 888, 'notifiedAt باید از IDB به کار زنده کپی شود');
+    assertEqual(r.fetchCalls.length, 0, 'بعد از همگام‌سازی IDB نباید اعلان تکراری برود');
+  });
+});
+
+test('بوت بدون notifiedAt در IDB باید کار سررسید را عادی اعلان کند', () => {
+  const t = dueTask({ id: 'T-FRESH', notifiedAt: null });
+  const idb = makeTasksIdb([{ id: 'T-FRESH', notifiedAt: null }]);
+  return runTaskNotifyPipeline({
+    tasks: [t],
+    indexedDB: idb,
+    fetch: function() { return Promise.resolve({ ok: true, status: 200 }); },
+    invoke: function(api) {
+      return api.whenTaskNotifyStateReady(function() {
+        return api.checkDueTasksForNotification();
+      });
+    }
+  }).then(function(r) {
+    assertTrue(!!t.notifiedAt, 'کار سررسید بدون notifiedAt در IDB باید بعد از بوت اعلان شود');
+    assertTrue(r.fetchCalls.length >= 1, 'باید مسیر تحویل واقعاً امتحان شود');
+  });
+});
+
+test('ویرایش موعد باید notifiedAt را پاک کند', () => {
+  const src = extractFunctionSource(html, 'saveTask');
+  assertTrue(!!src, 'تابع saveTask پیدا نشد');
+  assertContainsString(src, 'if(t.deadlineTS!==deadlineTS) t.notifiedAt=null', 'تغییر موعد باید notifiedAt را خالی کند');
+  const els = {
+    'tsk-title': { value: 'کار ویرایش‌شده' },
+    'tsk-desc': { value: '' },
+    'tsk-priority': { value: 'normal' },
+    'tsk-deadline': { value: '1405/01/02 10:00', dataset: { ts: '2000' } },
+    'tsk-notify': { value: '1' },
+    'tsk-link-type': { value: '' },
+    'tsk-link-id': { value: '' },
+    'tsk-cancel-edit': { style: { display: 'none' } }
+  };
+  const task = { id: 'T-EDIT', deadlineTS: 1000, notifiedAt: 555, title: 'قدیمی' };
+  const ctx = {
+    document: { getElementById: function(id) { return els[id]; } },
+    tasks: [task],
+    _taskEditId: 'T-EDIT',
+    _activeTaskTab: 'do',
+    ntf: function() {},
+    svTasks: function() {},
+    resetTaskForm: function() {},
+    renderTasks: function() {}
+  };
+  new Function('ctx', 'with(ctx){ (' + src.replace(/^function saveTask/, 'function') + ')(); }')(ctx);
+  assertEqual(task.deadlineTS, 2000, 'موعد جدید باید ذخیره شود');
+  assertEqual(task.notifiedAt, null, 'تغییر موعد باید notifiedAt را null کند');
+});
+
+test('ترتیب بوت باید همگام‌سازی IDB را قبل از اولین بررسی اعلان و تایمر انجام دهد', () => {
+  const boot = extractFunctionSource(html, 'bootTaskNotifications');
+  const when = extractFunctionSource(html, 'whenTaskNotifyStateReady');
+  const start = extractFunctionSource(html, 'startTaskDueNotificationTimer');
+  const due = extractFunctionSource(html, 'checkDueTasksForNotification');
+  assertTrue(!!boot && !!when && !!start, 'توابع بوت اعلان پیدا نشدند');
+  assertContainsString(when, 'syncNotifiedFromIDB', 'بوت باید منتظر syncNotifiedFromIDB بماند');
+  assertContainsString(boot, 'whenTaskNotifyStateReady', 'bootTaskNotifications باید از Promise بوت استفاده کند');
+  assertContainsString(boot, 'checkDueTasksForNotification', 'بعد از IDB باید checkDue صدا شود');
+  assertContainsString(boot, 'startTaskDueNotificationTimer', 'تایمر باید بعد از اولین بررسی شروع شود');
+  assertContainsString(start, 'setInterval(checkDueTasksForNotification, 60000)', 'باید همان تایمر ۶۰ ثانیه‌ای قبلی بماند');
+  assertContainsString(start, '_taskDueNotifyTimer', 'نباید تایمر دوم ساخته شود');
+  assertContainsString(due, 'delivered === true', 'notifiedAt فقط بعد از سیگنال موفقیت صریح ست شود');
+  assertContainsString(html, 'bootTaskNotifications()', 'انتهای اسکریپت باید bootTaskNotifications را صدا بزند');
+  assertTrue(html.indexOf('setInterval(checkDueTasksForNotification, 60000);\nsyncNotifiedFromIDB();') === -1,
+    'نباید همگام‌سازی IDB و تایمر بدون ترتیب بوت بمانند');
+});
+
+test('موفقیت HTTP 2xx پل باید notifiedAt را ست کند', () => {
+  const t = dueTask();
+  return runTaskNotifyPipeline({
+    tasks: [t],
+    fetch: function() { return Promise.resolve({ ok: true, status: 200 }); }
+  }).then(function(r) {
+    assertTrue(r.fetchCalls.length >= 1, 'باید fetch پل را صدا بزند');
+    assertTrue(!!t.notifiedAt, 'پاسخ 2xx باید notifiedAt را ست کند');
+  });
 });
 
 // نتیجه نهایی
