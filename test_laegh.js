@@ -3984,7 +3984,7 @@ test('نسخه ۱۴۰۵.۵.۲۷β باید Year.Month.Day شمسی با حرف �
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
   assertEqual(ver.app, '1405.5.27β', 'نسخه محصول باید 1405.5.27β باشد');
   assertEqual(ver.assembly, '1405.5.27.2', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (β=2)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۷α', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۷β', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -8529,7 +8529,7 @@ test('ادغام موجود باید همچنان فاکتور/کالا/گارا
       warranties:[{id:'W1', status:'closed'},{id:'W2', status:'open'}],
       accounts:[{id:'ACC-1', name:'عوض', balance:99},{id:'ACC-2', name:'بانک', balance:1}],
       inventory:{P1:99, P2:3}
-    }, null);
+    }, []);
     return {
       invLen:invoices.length, invCust:invoices[0].customer, newInv:invoices[1]&&invoices[1].invoiceId,
       prodLen:products.length, prodName:products[0].name,
