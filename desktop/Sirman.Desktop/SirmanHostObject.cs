@@ -107,6 +107,19 @@ public class SirmanHostObject
     /// <summary>فهرست چاپگرهای نصب‌شده ویندوز. اگر هیچ چاپگری نباشد آرایه خالی برمی‌گردد — چاپگر جعلی ساخته نمی‌شود.</summary>
     public string GetPrinters() => _form.ListPrintersJson();
 
+    /// <summary>هارنس تشخیص سخت‌افزار چاپ — جدا از PrintHtml/مرکز پرینت. داده کسب‌وکار را لمس نمی‌کند.</summary>
+    public string RunPrintHardwareDiagnostic(string json)
+    {
+        try
+        {
+            return _form.RunPrintHardwareDiagnostic(json ?? "{}");
+        }
+        catch (Exception ex)
+        {
+            return SafeError.Json("UNKNOWN_PRINT_FAILURE", "تشخیص چاپ انجام نشد", ex);
+        }
+    }
+
     /// <summary>وضعیت یک کار چاپ که PrintHtml/PrintDocument ساخته است.</summary>
     public string GetPrintJob(string printJobId)
     {

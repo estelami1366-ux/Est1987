@@ -1,27 +1,27 @@
 # STABLE BASELINE — سیرمان
 
-ثبت‌شده: ۱۴۰۵/۰۵/۲۶ (۱۷ اوت ۲۰۲۶).
+ثبت‌شده: ۱۴۰۵/۰۵/۲۷ (۱۸ اوت ۲۰۲۶).
 
 این فایل وضعیت پایدار *فعلی* است. قبل از Feature جدید آن را بخوان. بعد از انتشار تأییدشده به‌روز کن.
 
 ## محصول
 
-- نسخه: `1405.5.26α` / اسمبلی `1405.5.26.1`
+- نسخه: `1405.5.27α` / اسمبلی `1405.5.27.1`
 - منبع نسخه: `SIRMAN_VERSION.json`
 - UI: `Sirman_Final.html` (تک‌فایل) + همگام `Laegh_Final.html`
 - پوسته: .NET 8 WebView2 — `desktop/Sirman.Desktop` + `desktop/Sirman.Core`
-- کیت جاری کد: `Sirman_Setup_1405.5.26α.zip`
+- کیت جاری کد: `Sirman_Setup_1405.5.27α.zip`
 
 ## Git
 
-- Commit ثبت این baseline: `865420f` (`fix: reject PDF printers on the real print path`)
+- Commit محصول چاپ قبلی: `865420f` (`fix: reject PDF printers on the real print path`)
+- کار جاری: هارنس تشخیص چاپگر روی شاخه جدا؛ چاپ فیزیکی VERIFIED نیست
 - شاخه پایدار هدف: `main`
-- کار جاری چاپ کاغذ: هنوز به `main` نرفته؛ چاپ فیزیکی VERIFIED نیست
 
 ## Build / Test (آخرین اجرای عامل)
 
-- HTML: `node test_laegh.js Sirman_Final.html` — ۵۳۸ موفق / ۰ ناموفق
-- C#: `dotnet test desktop/Sirman.Core.Tests` — ۹۲ موفق / ۰ ناموفق
+- HTML: `node test_laegh.js Sirman_Final.html` — ۵۴۲ موفق / ۰ ناموفق
+- C#: `dotnet test desktop/Sirman.Core.Tests` — ۱۰۸ موفق / ۰ ناموفق
 - این اعداد Linux/CI هستند، نه تأیید چاپگر فروشگاه
 
 ## قابلیت‌های پایدار (Locked مگر باگ ثابت یا Requirement جدید)
@@ -36,7 +36,8 @@
 
 ## باز / تأییدنشده در محیط واقعی
 
-- چاپ کاغذ: مسیر کد به اسپولر ویندوز است؛ **BLOCKED — PRINTER ENVIRONMENT ISSUE**. خروجی PDF چاپ نیست.
+- چاپ کاغذ: مسیر کد به اسپولر ویندوز است؛ **BLOCKED — REAL WINDOWS PRINTER REQUIRED**. خروجی PDF چاپ نیست.
+- هارنس تشخیص چاپگر اضافه شده؛ نتیجه لایه شکست فقط روی PC ویندوز فروشگاه قابل اثبات است.
 - شبکه LAN فایل‌اشتراکی: مرحله محدود؛ API کسب‌وکار روی HTTP ساخته نشده
 
 ## باگ‌های شناخته‌شده

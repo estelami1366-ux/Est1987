@@ -3978,13 +3978,13 @@ test('حاکمیت توسعه باید موجود باشد و قانون ماد�
   assertContainsString(g, 'NEEDS HUMAN VERIFICATION', 'وضعیت صادقانه باید تعریف شده باشد');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۶α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۷α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.26α', 'نسخه محصول باید 1405.5.26α باشد');
-  assertEqual(ver.assembly, '1405.5.26.1', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (α=1)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۶α', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.27α', 'نسخه محصول باید 1405.5.27α باشد');
+  assertEqual(ver.assembly, '1405.5.27.1', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (α=1)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۷α', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -6124,6 +6124,62 @@ test('شبیه‌سازی: چاپ به Microsoft Print to PDF موفقیت چا�
   assertEqual(r.physLen, 1, 'فقط یک چاپگر واقعی');
 });
 
+console.log('');
+console.log('📋 گروه: تشخیص سخت‌افزار چاپ (جدا از مرکز پرینت)');
+
+test('هارنس تشخیص چاپگر باید جدا از مرکز پرینت و بدون داده کسب‌وکار باشد', () => {
+  assertContainsString(html, 'id="print-hardware-diagnostic"', 'صفحه تشخیص چاپگر لازم است');
+  assertContainsString(html, "showStgTab('print-diag'", 'تب تشخیص چاپگر لازم است');
+  ['phdHost','phdCall','phdRefresh','phdDirectPrint','phdWebViewPrint','phdQueue','phdConfirmPaper','phdRender'].forEach(fn => {
+    assertTrue(!!extractFunctionSource(html, fn), 'تابع '+fn+' لازم است');
+  });
+  const callSrc = extractFunctionSource(html, 'phdCall');
+  const directSrc = extractFunctionSource(html, 'phdDirectPrint');
+  const webSrc = extractFunctionSource(html, 'phdWebViewPrint');
+  assertContainsString(callSrc, 'RunPrintHardwareDiagnostic', 'تشخیص باید از Host جداگانه برود');
+  assertTrue(directSrc.indexOf('pcDoPrint') < 0, 'چاپ تشخیصی نباید مرکز پرینت را صدا بزند');
+  assertTrue(directSrc.indexOf('invoices') < 0, 'چاپ تشخیصی نباید فاکتور بخواند');
+  assertTrue(webSrc.indexOf('delInv') < 0 && callSrc.indexOf('accounts') < 0, 'تشخیص نباید حساب/حذف فاکتور را لمس کند');
+  assertContainsString(html, 'PRINT SUBMITTED', 'ارسال به صف باید از چاپ کاغذ جدا باشد');
+  assertContainsString(html, 'PHYSICAL', 'طبقه‌بندی PHYSICAL لازم است');
+  assertContainsString(html, 'VIRTUAL', 'طبقه‌بندی VIRTUAL لازم است');
+  assertContainsString(html, 'data-help-id="print-hardware-diagnostic"', 'راهنمای تشخیص چاپگر لازم است');
+  const host = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs'), 'utf8');
+  assertContainsString(host, 'RunPrintHardwareDiagnostic', 'Host باید متد تشخیص جدا داشته باشد');
+  const printHost = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'WindowsPrintHost.cs'), 'utf8');
+  assertTrue(printHost.indexOf('RunPrintHardwareDiagnostic') < 0, 'مرکز پرینت تولیدی نباید با هارنس تشخیص مخلوط شود');
+  const diag = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'PrintHardwareDiagnostic.cs'), 'utf8');
+  assertContainsString(diag, 'SIRMAN PRINT HARDWARE TEST', 'سند آزمایشی باید متن ثابت داشته باشد');
+  assertContainsString(diag, 'StandardPrintController', 'مسیر مستقیم باید GDI/ویندوز باشد نه پیش‌نمایش مرورگر');
+  assertContainsString(diag, 'JOB_ID_NOT_AVAILABLE', 'اگر Job ID نباشد نباید موفقیت جعلی باشد');
+  assertContainsString(diag, 'PHYSICAL PRINT VERIFIED', 'تأیید کاغذ باید جدا از PrintAsync باشد');
+  assertTrue(diag.indexOf('invoices') < 0, 'کلاس تشخیص نباید invoices داشته باشد');
+  const rules = fs.readFileSync(path.join(path.dirname(filePath), 'docs', 'ARCHITECTURE_RULES.md'), 'utf8');
+  assertContainsString(rules, 'RunPrintHardwareDiagnostic', 'لیست مجاز Host باید متد تشخیص را داشته باشد');
+});
+
+test('تشخیص باید PDF را مجازی بشمارد و بدون Host چاپ موفق نگوید', () => {
+  const facts = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Printing', 'PrintHardwareFacts.cs'), 'utf8');
+  assertContainsString(facts, 'Contains("pdf"', 'طبقه‌بندی PDF لازم است');
+  assertContainsString(facts, 'PHYSICAL_PRINT_NOT_VERIFIED', 'ارسال صف نباید چاپ کاغذ باشد');
+  const callSrc = extractFunctionSource(html, 'phdCall');
+  assertContainsString(callSrc, 'NO_HOST', 'بدون EXE باید NO_HOST برگردد');
+  assertTrue(callSrc.indexOf('PRINT SUCCESS') < 0, 'مسیر تشخیص نباید PRINT SUCCESS جعلی بسازد');
+  const htmlOnly = (function(){
+    const hostFn = extractFunctionSource(html, 'phdHost');
+    const fn = new Function(hostFn + '\n' + callSrc + '\n var window = {}; var _phdSelected=""; return phdCall("probe");');
+    return fn();
+  })();
+  assertEqual(htmlOnly.errorCode, 'NO_HOST', 'HTML-only باید تشخیص را مسدود کند');
+});
+
+test('طبقه‌بندی تشخیص: PDF مجازی است و PRINT_SUBMITTED چاپ کاغذ نیست', () => {
+  const src = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Printing', 'PrintHardwareFacts.cs'), 'utf8');
+  assertContainsString(src, 'TreatAsPhysicalPrint', 'متد TreatAsPhysicalPrint لازم است');
+  assertContainsString(src, 'PHYSICAL_PRINT_NOT_VERIFIED', 'کد PHYSICAL_PRINT_NOT_VERIFIED لازم است');
+  assertContainsString(src, '"pdf"', 'kind pdf لازم است');
+  assertContainsString(src, 'WEBVIEW2_PRINT_FAILED', 'شکست مسیر WebView2 جدا کد دارد');
+});
 
 console.log('');
 console.log('📋 گروه: موتور مشترک انبار (Inventory Engine)');

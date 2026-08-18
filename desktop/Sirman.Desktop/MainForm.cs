@@ -27,12 +27,14 @@ public sealed class MainForm : Form
     private bool _closePromptOpen;
     private SirmanHostObject? _hostObject;
     private readonly WindowsPrintHost _printHost;
+    private readonly PrintHardwareDiagnostic _printDiag;
 
     public MainForm(string[] args)
     {
         _args = args ?? Array.Empty<string>();
         _settings = AppPaths.LoadSettings();
         _printHost = new WindowsPrintHost(this);
+        _printDiag = new PrintHardwareDiagnostic(this);
 
         Text = "سیرمان — خدمات پس از فروش";
         Width = 1280;
@@ -270,6 +272,7 @@ public sealed class MainForm : Form
     public string GetPrintJobJson(string printJobId) => _printHost.GetJob(printJobId);
     public string EnqueueHtmlPrint(string html, string printerName, string paper, string orientation, int copies, string documentId, string documentType, string user, string purpose = "print") =>
         _printHost.Enqueue(html, printerName, paper, orientation, copies, documentId, documentType, user, purpose);
+    public string RunPrintHardwareDiagnostic(string json) => _printDiag.Run(json);
 
     /// <summary>
     /// بستن قطعی پروسه. Close()/Dispose وب‌ویو گاهی hang می‌کند —
@@ -383,6 +386,15 @@ public sealed class MainForm : Form
             _webView.CoreWebView2?.OpenDevToolsWindow();
         }));
 
+        var printMenu = new ToolStripMenuItem("چاپ");
+        printMenu.DropDownItems.Add(new ToolStripMenuItem("تشخیص سخت‌افزار چاپ…", null, (_, _) => OpenPrintHardwareDiagnosticUi()));
+        printMenu.DropDownItems.Add(new ToolStripMenuItem("باز کردن پوشه لاگ چاپ", null, (_, _) =>
+        {
+            var d = Path.Combine(AppPaths.AppDataRoot, "print");
+            Directory.CreateDirectory(d);
+            OpenFolder(d);
+        }));
+
         var help = new ToolStripMenuItem("راهنما");
         help.DropDownItems.Add(new ToolStripMenuItem("آزمایش اعلان ویندوز", null, (_, _) =>
         {
@@ -413,10 +425,25 @@ public sealed class MainForm : Form
         menu.Items.Add(file);
         menu.Items.Add(update);
         menu.Items.Add(backup);
+        menu.Items.Add(printMenu);
         menu.Items.Add(install);
         menu.Items.Add(view);
         menu.Items.Add(help);
         return menu;
+    }
+
+    private void OpenPrintHardwareDiagnosticUi()
+    {
+        try
+        {
+            if (_webView.CoreWebView2 == null) return;
+            _ = _webView.CoreWebView2.ExecuteScriptAsync(
+                "try{ if(typeof showPage==='function') showPage('settings'); " +
+                "var tab=Array.prototype.slice.call(document.querySelectorAll('.stg-tab')).find(function(t){ return (t.textContent||'').indexOf('تشخیص چاپگر')>=0; }); " +
+                "if(typeof showStgTab==='function') showStgTab('print-diag', tab); " +
+                "if(typeof phdRefresh==='function') phdRefresh(); }catch(e){}");
+        }
+        catch { /* HTML still has the settings tab */ }
     }
 
     protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
