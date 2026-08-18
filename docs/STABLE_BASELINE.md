@@ -6,11 +6,12 @@
 
 ## محصول
 
-- نسخه: `1405.5.27α` / اسمبلی `1405.5.27.1`
+- نسخه: `1405.5.27β` / اسمبلی `1405.5.27.2`
 - منبع نسخه: `SIRMAN_VERSION.json`
 - UI: `Sirman_Final.html` (تک‌فایل) + همگام `Laegh_Final.html`
 - پوسته: .NET 8 WebView2 — `desktop/Sirman.Desktop` + `desktop/Sirman.Core`
-- کیت جاری کد: `Sirman_Setup_1405.5.27α.zip`
+- کیت جاری کد: `Sirman_Setup_1405.5.27β.zip`
+- قفل فاز ۲ (چاپ منجمد): تگ `phase-2-closed-1405.5.27-alpha` @ `5af08eb`
 
 ## Git
 

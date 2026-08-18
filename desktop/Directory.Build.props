@@ -1,8 +1,8 @@
 <Project>
   <!-- Keep in sync with /SIRMAN_VERSION.json (tests enforce this). -->
   <PropertyGroup>
-    <Version>1405.5.27.1</Version>
-    <InformationalVersion>1405.5.27α</InformationalVersion>
-    <FileVersion>1405.5.27.1</FileVersion>
+    <Version>1405.5.27.2</Version>
+    <InformationalVersion>1405.5.27β</InformationalVersion>
+    <FileVersion>1405.5.27.2</FileVersion>
   </PropertyGroup>
 </Project>
