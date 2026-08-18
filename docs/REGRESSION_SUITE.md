@@ -25,7 +25,7 @@ dotnet test desktop/Sirman.Core.Tests/Sirman.Core.Tests.csproj
 | Invoice | گروه ۲۹، ۳۴، هویت داخلی فاکتور، برگشت آثار حذف |
 | Accounting / Payment | گروه ۱۶، ۲۶، برگشت آثار حذف |
 | Inventory | گروه ۲۷، ۲۸، ۳۱، ۳۵، موتور Inventory |
-| Printing | گروه مرکز پرینت (شامل رد PDF به‌عنوان چاپ) + گروه تشخیص سخت‌افزار چاپ |
+| Printing | گروه مرکز پرینت (شامل رد PDF به‌عنوان چاپ) + گروه تشخیص سخت‌افزار چاپ + گروه انزوای ماژول چاپ |
 | Reports | گزارش مالی / چاپ گزارش داخلی |
 | Settings / UI shell | ظاهر، اسکین، چندپنجره، قفل جلسه |
 | LAN / Host | شبکه داخلی LAN، تداخل پورت اعلان |

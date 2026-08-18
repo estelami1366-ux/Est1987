@@ -1,6 +1,7 @@
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using System.Runtime.InteropServices;
+using Sirman.Core.Printing;
 
 namespace Sirman.Desktop;
 
@@ -26,14 +27,14 @@ public sealed class MainForm : Form
     private bool _allowClose;
     private bool _closePromptOpen;
     private SirmanHostObject? _hostObject;
-    private readonly WindowsPrintHost _printHost;
+    private readonly IPrintService _printHost;
     private readonly PrintHardwareDiagnostic _printDiag;
 
     public MainForm(string[] args)
     {
         _args = args ?? Array.Empty<string>();
         _settings = AppPaths.LoadSettings();
-        _printHost = new WindowsPrintHost(this);
+        _printHost = new PrintServiceAdapter(new WindowsPrintHost(this));
         _printDiag = new PrintHardwareDiagnostic(this);
 
         Text = "سیرمان — خدمات پس از فروش";
@@ -268,8 +269,8 @@ public sealed class MainForm : Form
 
     public int GetNotifyBridgePort() => _notify.Port;
 
-    public string ListPrintersJson() => _printHost.ListPrinters();
-    public string GetPrintJobJson(string printJobId) => _printHost.GetJob(printJobId);
+    public string ListPrintersJson() => _printHost.ListPrintersJson();
+    public string GetPrintJobJson(string printJobId) => _printHost.GetJobJson(printJobId);
     public string EnqueueHtmlPrint(string html, string printerName, string paper, string orientation, int copies, string documentId, string documentType, string user, string purpose = "print") =>
         _printHost.Enqueue(html, printerName, paper, orientation, copies, documentId, documentType, user, purpose);
     public string RunPrintHardwareDiagnostic(string json) => _printDiag.Run(json);

@@ -95,12 +95,14 @@ AI حق ندارد Feature را مستقیم روی `main` بنویسد.
 | Inventory | HTML Inventory Engine + Core در exe | **LOCKED** برگشت آثار |
 | Accounting | HTML حساب‌ها + Core پرداخت | **LOCKED** برگشت مبلغ سند |
 | Warranty | HTML + Core ثبت/بستن | **LOCKED** مگر باگ ثابت |
-| Printing | HTML Print Center + `WindowsPrintHost` | باز؛ چاپ کاغذ تأیید نشده |
+| Printing | HTML Print Center + `IPrintService` روی `WindowsPrintHost` | **FROZEN / ISOLATED**؛ کاغذ NOT VERIFIED |
 | Reports | HTML | پایدار |
 | Backup | HTML BackupEngine + Host فایل | پایدار؛ Schema را نشکن |
 | Settings / Security / LAN | HTML + Host | پایدار؛ REST موازی نساز |
 
 LOW COUPLING / HIGH COHESION. بدون دلیل به جزئیات داخلی ماژول دیگر دست نزن.
+
+از خروج فاز ۲: PRINT MUST NOT BLOCK PHASE 3 و PHASE 3 MUST NOT BREAK PRINT. تغییر چاپ بدون شاهد سخت‌افزار ممنوع است.
 
 اگر ماژول LOCKED باید عوض شود، قبل از کد بنویس:
 
@@ -239,6 +241,12 @@ EXE:
 - [ ] CHANGELOG و گزارش کار به‌روز است
 
 ---
+
+## دروازه فاز ۳
+
+Feature جدید فاز ۳ روی شاخه جدا: Implementation → Tests → Regression → Review → Merge.
+
+چاپ **FROZEN / ISOLATED** است. بدون دلیل مشخص (شکست اثبات‌شده روی چاپگر واقعی) به ماژول چاپ دست نزن.
 
 ## Rollback و انتشار
 
