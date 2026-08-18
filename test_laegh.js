@@ -3978,13 +3978,13 @@ test('حاکمیت توسعه باید موجود باشد و قانون ماد�
   assertContainsString(g, 'NEEDS HUMAN VERIFICATION', 'وضعیت صادقانه باید تعریف شده باشد');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۷α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۵.۲۷β باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.27α', 'نسخه محصول باید 1405.5.27α باشد');
-  assertEqual(ver.assembly, '1405.5.27.1', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (α=1)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۷α', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.5.27β', 'نسخه محصول باید 1405.5.27β باشد');
+  assertEqual(ver.assembly, '1405.5.27.2', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (β=2)');
+  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۷β', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -8349,6 +8349,251 @@ test('تب شبکه، راهنما و مسیر Host Object باید وجود د�
   const rules = fs.readFileSync(path.join(path.dirname(filePath), 'docs', 'ARCHITECTURE_RULES.md'), 'utf8');
   assertContainsString(rules, 'GetNetworkInfo', 'تصمیم معماری باید متد شبکه را در لیست مجاز ثبت کند');
   assertContainsString(rules, 'health/identity', 'باید استثنای health ثبت شود');
+});
+
+console.log('');
+console.log('📋 گروه: پیش‌نمایش دریافت فضای کاری شبکه (فاز ۳.۱)');
+
+function networkPullPreviewBundle(srcHtml) {
+  const names = [
+    '_previewJsonEqual','_previewRecLabel','_previewPhonebookEntry',
+    '_previewClassifyRecords','_previewClassifyOverwrite','_networkPullLiveSnapshot',
+    'previewNetworkWorkspaceMerge','isNetworkWorkspaceBackupPackage','prepareNetworkWorkspacePull',
+    'closeNetworkPullPreviewModal','cancelNetworkPullPreview','confirmNetworkPullPreview'
+  ];
+  return names.map(n => extractFunctionSource(srcHtml, n)).filter(Boolean).join('\n');
+}
+
+test('دریافت شبکه باید پیش‌نمایش بخواهد و فقط بعد از تأیید ادغام موجود را صدا بزند', () => {
+  const pullSrc = extractFunctionSource(html, 'pullNetworkWorkspace');
+  const confSrc = extractFunctionSource(html, 'confirmNetworkPullPreview');
+  assertTrue(!!pullSrc && !!confSrc, 'توابع دریافت/تأیید پیدا نشد');
+  assertTrue(pullSrc.indexOf('applyBackupSelective') === -1, 'pull نباید مستقیم ادغام کند');
+  assertContainsString(pullSrc, 'prepareNetworkWorkspacePull', 'pull باید بسته را آماده کند');
+  assertContainsString(pullSrc, 'openNetworkPullPreviewModal', 'pull باید مودال پیش‌نمایش را باز کند');
+  assertContainsString(confSrc, "applyBackupSelective(d, null, 'merge'", 'تأیید باید همان ادغام موجود را صدا بزند');
+  assertContainsString(html, 'id="network-pull-preview-modal"', 'مودال پیش‌نمایش شبکه لازم است');
+  assertContainsString(html, 'تأیید و اعمال تغییرات', 'دکمه تأیید باید صریح باشد');
+  assertContainsString(html, 'پیش‌نمایش فضای کاری شبکه', 'عنوان پیش‌نمایش لازم است');
+  assertContainsString(html, 'نیاز به بررسی', 'طبقه‌بندی بررسی لازم است');
+  assertContainsString(html, 'انصراف هیچ داده‌ای را عوض نمی‌کند', 'راهنما باید انصراف امن را بگوید');
+});
+
+test('پیش‌نمایش نباید دادهٔ محلی را عوض کند و باید افزوده/بررسی را درست بشمارد', () => {
+  const bundle = networkPullPreviewBundle(html);
+  assertTrue(bundle.indexOf('function previewNetworkWorkspaceMerge') >= 0, 'سورس پیش‌نمایش استخراج نشد');
+  const runner = new Function(bundle + `
+    var live = {
+      invoices: [{invoiceId:'INV-1', id:1, num:'100', customer:'قدیم'}],
+      products: [{code:'P1', name:'A'}],
+      phonebook: [{fn:'علی', phones:['0912']}],
+      parts: [], services: [],
+      warranties: [{id:'W1', status:'open'}],
+      sales: [], tasks: [],
+      accounts: [{id:'ACC-1', name:'صندوق', balance:10}],
+      defectiveStock: [], warehouseDocs: [], stockMoves: [], warehouses: [],
+      daqi: [], daqiWarehouse: [{manufacturer:'X', code:'D1', name:'قطعه', qty:2}],
+      daqiVouchers: [], postalHistory: [],
+      inventory: {P1: 5},
+      userRoles: [], saleCtr: 1, saleUidCtr: 1,
+      logoSrc: '', senderInfo: null, acH: null,
+      company: {name:'محلی'}, printSettings: null, serviceCenter: null, starredAlarms: null
+    };
+    var incoming = {
+      origin: 'network-workspace', version: '1405.5.27β', schemaVersion: 1,
+      invoices: [
+        {invoiceId:'INV-1', id:1, num:'100', customer:'جدید'},
+        {invoiceId:'INV-2', id:2, num:'101', customer:'تازه'}
+      ],
+      products: [{code:'P1', name:'B'}, {code:'P2', name:'C'}],
+      phonebook: [{fn:'علی', phones:['0912']}],
+      warranties: [{id:'W1', status:'closed'}, {id:'W2', status:'open'}],
+      accounts: [{id:'ACC-1', name:'عوض', balance:99}, {id:'ACC-2', name:'بانک', balance:1}],
+      inventory: {P1: 99, P2: 3},
+      daqiWarehouse: [{manufacturer:'X', code:'D1', name:'قطعه', qty:9}],
+      company: {name:'شبکه'}
+    };
+    var before = JSON.stringify(live);
+    var p = previewNetworkWorkspaceMerge(incoming, live);
+    return {
+      added: p.added, updated: p.updated, unchanged: p.unchanged, review: p.review,
+      liveSame: JSON.stringify(live) === before,
+      liveInv: live.invoices[0].customer,
+      liveInvQty: live.inventory.P1,
+      liveWar: live.warranties[0].status,
+      liveAcc: live.accounts[0].balance,
+      liveDaqi: live.daqiWarehouse[0].qty
+    };
+  `);
+  const r = runner();
+  assertEqual(r.liveSame, true, 'پیش‌نمایش نباید آبجکت زنده را mutate کند');
+  assertEqual(r.liveInv, 'قدیم', 'فاکتور محلی نباید عوض شود');
+  assertEqual(r.liveInvQty, 5, 'موجودی محلی نباید عوض شود');
+  assertEqual(r.liveWar, 'open', 'گارانتی محلی نباید عوض شود');
+  assertEqual(r.liveAcc, 10, 'حساب محلی نباید عوض شود');
+  assertEqual(r.liveDaqi, 2, 'انبار داغی محلی نباید عوض شود');
+  assertTrue(r.added >= 4, 'فاکتور/کالا/گارانتی/حساب/موجودی جدید باید در افزوده باشد: '+r.added);
+  assertTrue(r.review >= 4, 'هم‌هویتِ متفاوت باید نیاز به بررسی باشد نه به‌روزرسانی: '+r.review);
+  assertTrue(r.updated >= 2, 'qty داغی و company باید به‌روزرسانی باشند: '+r.updated);
+});
+
+test('آماده‌سازی و انصراف نباید دادهٔ کسب‌وکار را عوض کنند', () => {
+  const bundle = networkPullPreviewBundle(html);
+  const runner = new Function(bundle + `
+    var invoices = [{invoiceId:'INV-1', customer:'قدیم'}];
+    var products = [{code:'P1'}];
+    var phonebook = []; var parts=[]; var services=[]; var warranties=[{id:'W1'}];
+    var sales=[]; var tasks=[]; var accounts=[{id:'ACC-1', balance:10}];
+    var defectiveStock=[]; var warehouseDocs=[]; var stockMoves=[]; var warehouses=[];
+    var daqi=[]; var daqiWarehouse=[]; var daqiVouchers=[]; var postalHistory=[];
+    var inventory={P1:5}; var userRoles=[]; var saleCtr=1; var saleUidCtr=1;
+    var logoSrc=''; var senderInfo=null; var acH=null;
+    var localStorage = {getItem:function(){return null;}, setItem:function(){ throw new Error('localStorage نباید در پیش‌نمایش نوشته شود'); }};
+    function inferBackupSchemaVersion(d){ return parseInt(d.schemaVersion,10)||0; }
+    function canRestoreSchema(fileVer){
+      fileVer = parseInt(fileVer,10); if(isNaN(fileVer)) fileVer=0;
+      if(fileVer <= 1) return {ok:true};
+      return {ok:false, reason:'schema too new'};
+    }
+    function migrateBackup(d){ return {data:d, log:['ok']}; }
+    var applyCalled = 0;
+    function applyBackupSelective(){ applyCalled++; }
+    var document = {getElementById:function(){ return {classList:{add:function(){}, remove:function(){}}}; }};
+    var _pendingNetworkPull = null;
+    var snap = JSON.stringify({invoices:invoices, products:products, warranties:warranties, accounts:accounts, inventory:inventory});
+    var pkg = {schemaVersion:1, origin:'network-workspace', invoices:[{invoiceId:'INV-2', customer:'تازه'}], products:[{code:'P2'}]};
+    var prepared = prepareNetworkWorkspacePull(JSON.stringify(pkg));
+    _pendingNetworkPull = prepared;
+    cancelNetworkPullPreview();
+    return {
+      ok: prepared.ok,
+      added: prepared.preview && prepared.preview.added,
+      pending: _pendingNetworkPull,
+      applyCalled: applyCalled,
+      same: JSON.stringify({invoices:invoices, products:products, warranties:warranties, accounts:accounts, inventory:inventory}) === snap
+    };
+  `);
+  const r = runner();
+  assertEqual(r.ok, true, 'بسته معتبر باید آماده شود');
+  assertTrue(r.added >= 1, 'پیش‌نمایش باید رکورد جدید را ببیند');
+  assertEqual(r.pending, null, 'انصراف باید pending را پاک کند');
+  assertEqual(r.applyCalled, 0, 'انصراف نباید ادغام را صدا بزند');
+  assertEqual(r.same, true, 'انصراف نباید فاکتور/کالا/گارانتی/حساب/موجودی را عوض کند');
+});
+
+test('تأیید باید applyBackupSelective را با merge و selectedKeys=null صدا بزند', () => {
+  const bundle = networkPullPreviewBundle(html);
+  const runner = new Function(bundle + `
+    var calls = [];
+    function applyBackupSelective(d, keys, mode, log){ calls.push({d:d, keys:keys, mode:mode, log:log}); }
+    function emit(){}
+    function auditActivity(){}
+    function ntf(){}
+    var document = {getElementById:function(){ return {classList:{add:function(){}, remove:function(){}}}; }};
+    var _pendingNetworkPull = {ok:true, data:{invoices:[{invoiceId:'INV-9'}], schemaVersion:1}, migLog:['network-workspace']};
+    confirmNetworkPullPreview();
+    return {n:calls.length, mode:calls[0]&&calls[0].mode, keys:calls[0]&&calls[0].keys, id:calls[0]&&calls[0].d.invoices[0].invoiceId, pending:_pendingNetworkPull};
+  `);
+  const r = runner();
+  assertEqual(r.n, 1, 'تأیید باید یک‌بار ادغام موجود را صدا بزند');
+  assertEqual(r.mode, 'merge', 'حالت باید merge باشد');
+  assertEqual(r.keys, null, 'selectedKeys باید null باشد مثل دریافت قبلی');
+  assertEqual(r.id, 'INV-9', 'همان بستهٔ pending باید به ادغام برود');
+  assertEqual(r.pending, null, 'بعد از تأیید pending باید خالی شود');
+});
+
+test('ادغام موجود باید همچنان فاکتور/کالا/گارانتی/حساب هم‌هویت را نگه دارد', () => {
+  const mergeSrc = extractFunctionSource(html, 'applyBackupMergeSections');
+  const wantsSrc = extractFunctionSource(html, '_restoreWants');
+  assertTrue(!!mergeSrc && !!wantsSrc, 'موتور ادغام پیدا نشد');
+  const runner = new Function(wantsSrc + '\n' + mergeSrc + `
+    var invoices = [{invoiceId:'INV-1', id:1, num:'100', customer:'قدیم'}];
+    var products = [{code:'P1', name:'A'}];
+    var phonebook = []; var parts=[]; var services=[]; var svcs=[];
+    var warranties = [{id:'W1', status:'open'}];
+    var sales=[]; var tasks=[]; var accounts=[{id:'ACC-1', name:'صندوق', balance:10}];
+    var defectiveStock=[]; var warehouseDocs=[]; var stockMoves=[]; var warehouses=[];
+    var daqi=[]; var daqiWarehouse=[]; var daqiVouchers=[]; var postalHistory=[];
+    var inventory = {P1:5}; var userRoles=[]; var saleCtr=1; var saleUidCtr=1;
+    var logoSrc=''; var senderInfo={}; var acH={};
+    var localStorage={setItem:function(){}, getItem:function(){return null;}};
+    function sv(){} function svParts(){} function svSvcs(){} function svSales(){} function svWarr(){} function svTasks(){}
+    function svDefective(){} function svAccounts(){} function svWarehouses(){} function svDaqi(){}
+    function svDaqiWarehouse(){} function svDaqiVouchers(){} function svPostalHistory(){} function svRoles(){}
+    function getNum(){} function renderSaved(){} function renderProds(){} function renderInv(){} function renderPB(){}
+    function renderParts(){} function renderSvcs(){} function renderSales(){} function renderWarList(){}
+    function renderDataStats(){} function renderTasks(){} function renderSidebarBadges(){} function renderAccounts(){} function renderDefective(){}
+    applyBackupMergeSections({
+      invoices:[{invoiceId:'INV-1', id:1, num:'100', customer:'جدید'},{invoiceId:'INV-2', id:2, num:'101', customer:'تازه'}],
+      products:[{code:'P1', name:'B'},{code:'P2', name:'C'}],
+      warranties:[{id:'W1', status:'closed'},{id:'W2', status:'open'}],
+      accounts:[{id:'ACC-1', name:'عوض', balance:99},{id:'ACC-2', name:'بانک', balance:1}],
+      inventory:{P1:99, P2:3}
+    }, []);
+    return {
+      invLen:invoices.length, invCust:invoices[0].customer, newInv:invoices[1]&&invoices[1].invoiceId,
+      prodLen:products.length, prodName:products[0].name,
+      warLen:warranties.length, warStatus:warranties[0].status,
+      accLen:accounts.length, accName:accounts[0].name, accBal:accounts[0].balance,
+      invP1:inventory.P1, invP2:inventory.P2
+    };
+  `);
+  const r = runner();
+  assertEqual(r.invLen, 2, 'فاکتور جدید باید اضافه شود');
+  assertEqual(r.invCust, 'قدیم', 'فاکتور هم‌هویت نباید عوض شود');
+  assertEqual(r.newInv, 'INV-2', 'فاکتور تازه باید همان شناسه را داشته باشد');
+  assertEqual(r.prodLen, 2, 'کالای جدید باید اضافه شود');
+  assertEqual(r.prodName, 'A', 'کالای موجود نباید عوض شود');
+  assertEqual(r.warLen, 2, 'گارانتی جدید باید اضافه شود');
+  assertEqual(r.warStatus, 'open', 'گارانتی موجود نباید عوض شود');
+  assertEqual(r.accLen, 2, 'حساب جدید باید اضافه شود');
+  assertEqual(r.accName, 'صندوق', 'حساب موجود نباید عوض شود');
+  assertEqual(r.accBal, 10, 'مانده حساب موجود نباید عوض شود');
+  assertEqual(r.invP1, 5, 'کلید موجودی موجود نباید عوض شود');
+  assertEqual(r.invP2, 3, 'کلید موجودی جدید باید اضافه شود');
+});
+
+test('دادهٔ نامعتبر یا Schema جدیدتر نباید ادغام جزئی انجام دهد', () => {
+  const bundle = networkPullPreviewBundle(html);
+  const runner = new Function(bundle + `
+    var invoices = [{invoiceId:'INV-1'}];
+    var products = [{code:'P1'}];
+    var phonebook=[]; var parts=[]; var services=[]; var warranties=[{id:'W1'}];
+    var sales=[]; var tasks=[]; var accounts=[{id:'ACC-1'}];
+    var defectiveStock=[]; var warehouseDocs=[]; var stockMoves=[]; var warehouses=[];
+    var daqi=[]; var daqiWarehouse=[]; var daqiVouchers=[]; var postalHistory=[];
+    var inventory={P1:5}; var userRoles=[]; var saleCtr=1; var saleUidCtr=1;
+    var logoSrc=''; var senderInfo=null; var acH=null;
+    var writes=0;
+    var localStorage={getItem:function(){return null;}, setItem:function(){ writes++; }};
+    function inferBackupSchemaVersion(d){ return parseInt(d && d.schemaVersion,10)||0; }
+    function canRestoreSchema(fileVer){
+      fileVer = parseInt(fileVer,10); if(isNaN(fileVer)) fileVer=0;
+      if(fileVer <= 1) return {ok:true};
+      return {ok:false, reason:'schema too new'};
+    }
+    function migrateBackup(d){ return {data:d, log:[]}; }
+    var applyCalled=0;
+    function applyBackupSelective(){ applyCalled++; }
+    var snap = JSON.stringify({invoices:invoices, products:products, warranties:warranties, accounts:accounts, inventory:inventory});
+    var badJson = prepareNetworkWorkspacePull('{');
+    var notBackup = prepareNetworkWorkspacePull(JSON.stringify({hello:'world'}));
+    var tooNew = prepareNetworkWorkspacePull(JSON.stringify({schemaVersion:99, invoices:[{invoiceId:'INV-X'}], products:[{code:'PX'}]}));
+    var same = JSON.stringify({invoices:invoices, products:products, warranties:warranties, accounts:accounts, inventory:inventory}) === snap;
+    return {
+      badOk: badJson.ok, notOk: notBackup.ok, newOk: tooNew.ok,
+      newErr: tooNew.error||'', applyCalled:applyCalled, writes:writes, same:same,
+      invLen: invoices.length
+    };
+  `);
+  const r = runner();
+  assertEqual(r.badOk, false, 'JSON خراب باید رد شود');
+  assertEqual(r.notOk, false, 'فایل غیرپشتیبان باید رد شود');
+  assertEqual(r.newOk, false, 'Schema جدیدتر باید رد شود');
+  assertTrue(/schema|ساختار|پشتیبان|خراب|نامعتبر|سیرمن/i.test(String(r.newErr)+'schema'), 'باید دلیل رد داشته باشد');
+  assertEqual(r.applyCalled, 0, 'داده نامعتبر نباید ادغام را صدا بزند');
+  assertEqual(r.same, true, 'داده محلی نباید جزئی عوض شود');
+  assertEqual(r.invLen, 1, 'فاکتور محلی باید دست‌نخورده بماند');
 });
 
 test('ورود فعلی و مقایسه رمز پروفایل با رمز کلی نباید بشکند', () => {
