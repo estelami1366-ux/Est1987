@@ -159,7 +159,8 @@ node test_laegh.js path/to/Laegh_Final_X.html
 - NO TEST = NO MERGE. PASS شدن تست به‌تنهایی VERIFIED نیست.
 - چاپ کاغذ / restore واقعی / EXE ویندوز را با تست لینوکس FIXED اعلام نکن. اگر محیط نیست: BLOCKED یا NEEDS HUMAN VERIFICATION.
 - وضعیت نهایی فقط یکی: COMPLETED / VERIFIED / BLOCKED / FAILED / NEEDS HUMAN VERIFICATION.
-- بعد از هر کار، ۱۵ بند گزارش کار در سند حاکمیت را پر کن. CHANGELOG را برای انتشار به‌روز کن.
+- بعد از هر کار، ۱۵ بند گزارش کار در سند حاکمیت را **داخل فایل Markdown** در `deliveries/Reports/` پر کن. CHANGELOG را برای انتشار به‌روز کن.
+- گزارش کار همیشه `.md` است. در چت فقط مسیر فایل را بده؛ متن گزارش را آنجا تکرار نکن.
 
 ## قانون ۱۰ — در پایان هر کار، فایل را خودت بده (اجباری)
 
@@ -170,6 +171,8 @@ node test_laegh.js path/to/Laegh_Final_X.html
 - مسیرها را مطلق یا واضح نسبت به ریشهٔ پروژه بنویس تا کاربر یک‌کلیک/کپی کند
 
 هرگز خلاصهٔ کار را بدون مسیر فایل تمام‌شده ننویس.
+
+اگر کار گزارش دارد (Feature / Bugfix / ممیزی / دروازهٔ فاز ۳): فایل `.md` را در `deliveries/Reports/` بنویس و در پاسخ فقط همان مسیر را بده.
 
 ## فهرست بررسی قبل از هر تحویل (Checklist)
 
@@ -188,3 +191,4 @@ node test_laegh.js path/to/Laegh_Final_X.html
 - [ ] اگر منطق کسب‌وکار / داده / بک‌آپ / دسترسی عوض شد: لایه درست است، از `sirmanHost` عبور می‌کند، و سیستم موازی نساختم (`docs/ARCHITECTURE_RULES.md`)
 - [ ] `docs/DEVELOPMENT_GOVERNANCE.md` را رعایت کردم: شاخه جدا، تغییر حداقلی، رگرسیون، وضعیت صادقانه، بدون دست زدن به ماژول LOCKED بدون دلیل
 - [ ] اگر کار در فاز ۳ است: `docs/PHASE_3_CHANGE_GATE.md` قبل از ویرایش اجرا شد و نتیجه `PASS` بود (یا کار فقط مستندات دروازه بود)
+- [ ] گزارش کار را در `deliveries/Reports/*.md` نوشتم و در چت فقط مسیر فایل را دادم
