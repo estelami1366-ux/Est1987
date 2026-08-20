@@ -3,7 +3,7 @@
 **Tracker mode:** ACTIVE  
 **Last updated:** 1405/05/29 19:09:01 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `412b475`  
+**Current known HEAD:** `f3b4202`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **Live version:** `1405.5.27γ`
 
