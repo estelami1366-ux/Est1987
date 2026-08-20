@@ -9099,10 +9099,13 @@ test('مسیر جمع calcT بدون Host باید همان Totals جدول B1 �
   const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
   const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
   const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  const totSrc = extractFunctionSource(html, 'calcInvoiceTotals');
   const calcTSrc = extractFunctionSource(html, 'calcT');
   assertTrue(!!calcTSrc, 'calcT پیدا نشد');
-  assertContainsString(calcTSrc, 'tE+=est', 'calcT بدون Host باید برآورد را جمع بزند');
-  assertContainsString(calcTSrc, 'tD+=line.da', 'calcT بدون Host باید تخفیف خط را جمع بزند');
+  assertTrue(!!totSrc, 'calcInvoiceTotals پیدا نشد');
+  assertContainsString(totSrc, 'tE+=est', 'fallback جمع باید برآورد را جمع بزند');
+  assertContainsString(totSrc, 'tD+=line.da', 'fallback جمع باید تخفیف خط را جمع بزند');
+  assertContainsString(calcTSrc, 'calcInvoiceTotals', 'calcT باید جمع را از calcInvoiceTotals بخواهد');
   pack.totals.forEach(function(row) {
     const mockDoc = buildMockDocument();
     const n = row.lines.length;
@@ -9112,7 +9115,7 @@ test('مسیر جمع calcT بدون Host باید همان Totals جدول B1 �
       mockDoc.getElementById('d' + i + '_disc').value = String(src.disc);
       mockDoc.getElementById('d' + i + '_fin').value = String(src.finRaw);
     }
-    const run = new Function('document', 'devCnt', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + '\n' + calcTSrc + `
+    const run = new Function('document', 'devCnt', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + '\n' + totSrc + '\n' + calcTSrc + `
       function getSirmanHostSync(){ return null; }
       function fmt(n){ return String(n); }
       function ntf(){}
@@ -9210,6 +9213,87 @@ test('calcInvoiceLine نباید persist بنویسد و calcT/getData نبای�
   assertTrue(getDataSrc.indexOf('Math.round(est*disc') === -1, 'getData نباید فرمول موازی خط فاکتور داشته باشد');
 });
 
+console.log('');
+console.log('📋 گروه: فاز ۳ B3 مالکیت invoice.totals');
+
+function makeHtmlOnlyInvoiceTotals() {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  const totSrc = extractFunctionSource(html, 'calcInvoiceTotals');
+  assertTrue(!!totSrc, 'calcInvoiceTotals پیدا نشد');
+  return new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + '\n' + totSrc + `
+    function getSirmanHostSync(){ return null; }
+    return function(lines){ return calcInvoiceTotals(lines); };
+  `)();
+}
+
+function makeExeInvoiceTotalsHost(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  const totSrc = extractFunctionSource(html, 'calcInvoiceTotals');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + '\n' + totSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: runImpl };
+    }
+    return function(lines){ return calcInvoiceTotals(lines); };
+  `)(runImpl);
+}
+
+test('مسیر EXE باید RunBusiness("invoice.totals") را صدا بزند و DTO هسته را بدون بازنویسی JS برگرداند', () => {
+  var calls = [];
+  const calc = makeExeInvoiceTotalsHost(function(name, json){
+    calls.push({name:name, payload: JSON.parse(json)});
+    return JSON.stringify({ok:true, result:{tE:1, tD:2, tF:777777}});
+  });
+  const lines = [{est:1000, disc:10, finRaw:9999}, {est:1000, disc:0, finRaw:800}];
+  const got = calc(lines);
+  assertEqual(calls.length, 1, 'باید یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'invoice.totals', 'نام عملیات باید invoice.totals باشد');
+  assertEqual(calls[0].payload.lines.length, 2, 'خطوط باید به Core بروند');
+  assertEqual(got.tE, 1, 'tE هسته');
+  assertEqual(got.tD, 2, 'tD هسته');
+  assertEqual(got.tF, 777777, 'Host-wins: JS جمع ۱۷۰۰ را نباید بنویسد');
+});
+
+test('مسیر HTML-only باید fallback جمع JS را با بردارهای B1 اجرا کند', () => {
+  const calc = makeHtmlOnlyInvoiceTotals();
+  const pack = loadInvoicePricingParityVectors();
+  pack.totals.forEach(function(row){
+    const got = calc(row.lines);
+    assertEqual(got.tE, row.tE, row.id + ' tE');
+    assertEqual(got.tD, row.tD, row.id + ' tD');
+    assertEqual(got.tF, row.tF, row.id + ' tF');
+  });
+  const src = extractFunctionSource(html, 'calcInvoiceTotals');
+  assertContainsString(src, 'tE+=est', 'fallback JS جمع نباید حذف شود');
+  assertContainsString(src, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+});
+
+test('شکست Core روی EXE نباید فرمول جمع JS را به‌جای InvoicePricing.Totals اجرا کند', () => {
+  const calc = makeExeInvoiceTotalsHost(function(){
+    return JSON.stringify({ok:false, error:'business-failed', message:'محاسبه انجام نشد'});
+  });
+  const got = calc([{est:1000, disc:10, finRaw:9999}, {est:1000, disc:0, finRaw:800}]);
+  assertTrue(got == null, 'اگر Host هست و Core رد کند نباید {tE:2000,tF:1700} از JS برگردد');
+});
+
+test('calcInvoiceTotals نباید persist بنویسد و calcT/getData نباید reduce موازی EXE داشته باشند', () => {
+  const totSrc = extractFunctionSource(html, 'calcInvoiceTotals');
+  const calcTSrc = extractFunctionSource(html, 'calcT');
+  const getDataSrc = extractFunctionSource(html, 'getData');
+  assertTrue(totSrc.indexOf('localStorage') === -1, 'calcInvoiceTotals نباید localStorage بنویسد');
+  assertTrue(totSrc.indexOf('indexedDB') === -1, 'calcInvoiceTotals نباید IndexedDB بنویسد');
+  assertTrue(totSrc.indexOf('persistCoreSnapshot') === -1, 'calcInvoiceTotals نباید persistCoreSnapshot صدا بزند');
+  assertContainsString(calcTSrc, 'calcInvoiceTotals', 'calcT باید از calcInvoiceTotals استفاده کند');
+  assertContainsString(getDataSrc, 'calcInvoiceTotals', 'getData باید از calcInvoiceTotals استفاده کند');
+  assertTrue(getDataSrc.indexOf('s+r.fin') === -1, 'getData نباید جمع JS موازی داشته باشد');
+  assertTrue(calcTSrc.indexOf('tE+=est') === -1, 'calcT نباید جمع JS موازی داشته باشد');
+});
+
 test('رزرو در exe فقط Writer هسته باشد و بدون Host همان جهش JS بماند', () => {
   const runSrc = extractFunctionSource(html, 'runBusinessCore');
   const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
@@ -9247,8 +9331,10 @@ console.log('📋 گروه: تکمیل فاز ۲ (C# منبع حقیقت عمل�
 
 test('در exe جمع فاکتور و فروش نباید بعد از هسته دوباره با JS بازنویسی شود', () => {
   const calcTSrc = extractFunctionSource(html, 'calcT');
+  const totSrc = extractFunctionSource(html, 'calcInvoiceTotals');
   const saleSrc = extractFunctionSource(html, 'calcSaleTotal');
-  assertContainsString(calcTSrc, 'invoice.totals', 'calcT باید جمع را از هسته بخواهد');
+  assertContainsString(totSrc, 'invoice.totals', 'جمع فاکتور باید از هسته invoice.totals بیاید');
+  assertContainsString(calcTSrc, 'calcInvoiceTotals', 'calcT باید جمع را از calcInvoiceTotals بخواهد');
   assertContainsString(calcTSrc, 'disc>0', 'شرط تخفیف نباید از calcT حذف شود');
   assertTrue(calcTSrc.indexOf('if(coreTot && coreTot.tF!=null)') < 0, 'calcT نباید جمع JS را روی نتیجه هسته بنویسد');
   assertContainsString(saleSrc, 'sale.total', 'جمع فروش باید از هسته بیاید');

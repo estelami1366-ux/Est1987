@@ -12384,16 +12384,16 @@ function calcT(){
     }
     const fin = line.fin;
     totLines.push({est:est, disc:disc, finRaw:finRaw});
-    if(!hostOn){ tE+=est; tD+=line.da; tF+=fin; }
     document.getElementById('d'+i+'_el').textContent='برآورد: '+fmt(est)+' ریال';
     document.getElementById('d'+i+'_dl').textContent='تخفیف: '+fmt(line.da)+' ریال';
     document.getElementById('d'+i+'_fl').textContent='نهایی: '+fmt(fin)+' ریال';
   }
-  if(hostOn){
-    var coreTot = takeBusinessCore('invoice.totals', {lines:totLines});
-    if(!coreTot){ ntf('محاسبه فاکتور انجام نشد','err'); return {tE:0,tD:0,tF:0}; }
-    tE=coreTot.tE; tD=coreTot.tD; tF=coreTot.tF;
+  var tot = (typeof calcInvoiceTotals==='function') ? calcInvoiceTotals(totLines) : null;
+  if(!tot || tot.tF==null){
+    if(hostOn){ ntf('محاسبه فاکتور انجام نشد','err'); return {tE:0,tD:0,tF:0}; }
+    tot = {tE:0, tD:0, tF:0};
   }
+  tE=tot.tE; tD=tot.tD; tF=tot.tF;
   document.getElementById('t-est').textContent=fmt(tE)+' ریال';
   document.getElementById('t-disc').textContent=fmt(tD)+' ریال';
   document.getElementById('t-fin').textContent=fmt(tF)+' ریال';
@@ -12412,6 +12412,26 @@ function calcInvoiceLine(est, disc, finRaw){
   var da=Math.round(est*disc/100);
   var fin = disc>0 ? (est-da) : (finRaw||(est-da));
   return {est:est, disc:disc, da:da, fin:fin};
+}
+function calcInvoiceTotals(lines){
+  // مالک EXE: InvoicePricing.Totals از RunBusiness("invoice.totals"). Fallback JS فقط بدون Host.
+  lines = Array.isArray(lines) ? lines : [];
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('invoice.totals', {lines:lines}) : null;
+    if(core && typeof core==='object' && core.tE!=null && core.tD!=null && core.tF!=null) return core;
+    return null;
+  }
+  var tE=0, tD=0, tF=0;
+  for(var i=0;i<lines.length;i++){
+    var r = lines[i]||{};
+    var est=parseFloat(r.est)||0, disc=parseFloat(r.disc)||0;
+    var finRaw = (r.finRaw!=null && r.finRaw!=='') ? r.finRaw : (r.fin!=null ? r.fin : 0);
+    var line = (typeof calcInvoiceLine==='function') ? calcInvoiceLine(est, disc, finRaw) : null;
+    if(!line || line.fin==null) continue;
+    tE+=est; tD+=line.da; tF+=line.fin;
+  }
+  return {tE:tE, tD:tD, tF:tF};
 }
 function gf(n,k){const e=document.getElementById('d'+n+'_'+k);return e?e.value:'';}
 function getData(){
@@ -12439,13 +12459,10 @@ function getData(){
   }
   var tF=0, tE=0, tD=0;
   var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
-  if(hostOn){
-    var coreTot = takeBusinessCore('invoice.totals', {lines: items.map(function(r){ return {est:r.est, disc:r.disc, finRaw:r.finRaw!=null?r.finRaw:r.fin}; })});
-    if(!coreTot){ ntf('محاسبه فاکتور انجام نشد','err'); }
-    else { tE=coreTot.tE; tD=coreTot.tD; tF=coreTot.tF; }
-  } else {
-    tF=items.reduce((s,r)=>s+r.fin,0); tE=items.reduce((s,r)=>s+r.est,0); tD=items.reduce((s,r)=>s+r.da,0);
-  }
+  var tot = (typeof calcInvoiceTotals==='function') ? calcInvoiceTotals(items.map(function(r){ return {est:r.est, disc:r.disc, finRaw:r.finRaw!=null?r.finRaw:r.fin}; })) : null;
+  if(!tot || tot.tF==null){
+    if(hostOn){ ntf('محاسبه فاکتور انجام نشد','err'); }
+  } else { tE=tot.tE; tD=tot.tD; tF=tot.tF; }
   var rec = {num:document.getElementById('inv-num').textContent, seller:document.getElementById('inv-seller').value,
     date:document.getElementById('inv-date').value, phone:document.getElementById('inv-phone').value,
     notes:document.getElementById('inv-notes').value, status:invStatus, items, tE, tD, tF};
