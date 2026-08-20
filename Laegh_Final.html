@@ -1417,6 +1417,10 @@ body.depth-3d.theme-dark .f input,body.depth-3d.theme-dark .f select,body.depth-
 .help-tree-chev{transition:.15s;font-size:10px;}
 .help-tree-children{padding:8px 10px 10px;background:var(--card);}
 .help-tree-children .help-card{margin-bottom:8px;}
+.help-tree-meta{display:flex;align-items:center;gap:8px;}
+.help-tree-count{font-weight:600;font-size:11px;color:var(--text2);background:var(--card);border:1px solid var(--border);border-radius:999px;padding:1px 8px;}
+.help-nav-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 2px 0;}
+.help-search-count{font-size:12px;color:var(--text2);margin-right:auto;}
 /* امضای چاپ */
 .print-sig-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:16px;padding-top:10px;border-top:1px solid #ccc;text-align:center;font-size:10px;}
 .print-sig-box{min-height:52px;border-top:1px dashed #888;padding-top:6px;margin-top:28px;}
@@ -1429,6 +1433,12 @@ body.depth-3d.theme-dark .f input,body.depth-3d.theme-dark .f select,body.depth-
 .cal-page-grid .day.sel{background:var(--blue2);color:#fff;}
 .cal-page-grid .day.empty{visibility:hidden;}
 .cal-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.dt-chrome-lead{font-size:12px;color:var(--text2);margin:0 0 12px;line-height:1.8}
+.cal-legend{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px;font-size:11px;color:var(--text2)}
+.cal-legend-today,.cal-legend-sel{display:inline-flex;align-items:center;gap:6px}
+.cal-legend-today::before,.cal-legend-sel::before{content:'';width:14px;height:14px;border-radius:4px;display:inline-block}
+.cal-legend-today::before{border:2px solid var(--blue);background:transparent}
+.cal-legend-sel::before{background:var(--blue2)}
 .war-section-disabled{opacity:.45;pointer-events:none;filter:grayscale(.3);}
 .wsoc-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;margin-bottom:6px;font-size:12px;background:#fafafa;}
 
@@ -1606,6 +1616,8 @@ body.theme-dark .dd-menu{background:#1a2027;border-color:#2c333d}
 
 /* ───── داشبورد مرکزی ───── */
 .dash-kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:16px}
+.dash-lead{font-size:12px;color:var(--text2);margin:0 0 12px;line-height:1.8}
+.dash-section-title{font-size:12px;font-weight:800;color:var(--blue2);margin:2px 0 8px;letter-spacing:.01em}
 .dash-kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;transition:.15s}
 .dash-kpi:hover{border-color:var(--blue);box-shadow:0 2px 10px rgba(0,0,0,.06)}
 .dash-kpi-val{font-size:22px;font-weight:700;margin:4px 0}
@@ -4882,6 +4894,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 <div class="page" id="page-datetime">
 <div class="topbar"><div class="topbar-title">🕐 زمان، تقویم و ساختار تاریخی</div></div>
 <div style="padding:16px">
+<p class="dt-chrome-lead">ساعت و تقویم این صفحه از مرکز زمان فعلی خوانده می‌شود. منطقه زمانی از تنظیمات → تاریخ و زمان عوض می‌شود، نه از اینجا. انتخاب روز فقط روی همین صفحه است و ذخیره نمی‌شود.</p>
 <div class="g2">
   <div class="card">
     <div class="card-title">⏰ ساعت و تاریخ زنده (مرکز زمان نرم‌افزار)</div>
@@ -4902,7 +4915,11 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
     <div id="cal-page-title" style="text-align:center;font-weight:700;color:var(--blue2);margin:10px 0"></div>
     <div class="cal-page-grid" id="cal-page-grid"></div>
-    <div style="margin-top:10px;font-size:12px;color:var(--text2)">روز انتخاب‌شده: <b id="cal-sel-label">—</b></div>
+    <div class="cal-legend" id="cal-legend">
+      <span class="cal-legend-today">امروز</span>
+      <span class="cal-legend-sel">انتخاب‌شده</span>
+    </div>
+    <div style="margin-top:10px;font-size:12px;color:var(--text2)">روز انتخاب‌شده در همین صفحه (ذخیره نمی‌شود): <b id="cal-sel-label">—</b></div>
   </div>
 </div>
 <div class="card" style="margin-top:14px">
@@ -5001,6 +5018,11 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <button type="button" class="help-hub-chip" onclick="showHelpHub('news',this)">تازه‌ها</button>
     <button type="button" class="help-hub-chip" onclick="showHelpHub('admin',this)">راهنمای مدیر سیستم</button>
     <button type="button" class="help-hub-chip" onclick="openHelpReportModal()">گزارش مشکل</button>
+  </div>
+  <div class="help-nav-actions">
+    <button type="button" class="btn btn-sm btn-o" id="help-expand-all" onclick="expandAllHelpTopics()">باز کردن همه موضوع‌ها</button>
+    <button type="button" class="btn btn-sm btn-o" id="help-collapse-all" onclick="collapseAllHelpTopics()">بستن همه موضوع‌ها</button>
+    <span id="help-search-count" class="help-search-count"></span>
   </div>
   <div style="font-size:12px;color:var(--text2);margin:4px 2px 0">راهنما بر اساس کاری که می‌خواهید انجام دهید نوشته شده. روی هر عنوان بزنید تا باز شود. از هر صفحه دکمه «راهنمای این صفحه» همان بخش را باز می‌کند.</div>
   <div id="help-noresult" style="display:none;text-align:center;color:var(--text2);padding:20px;font-size:13px">نتیجه‌ای یافت نشد — کلمه‌ی دیگری را امتحان کنید.</div>
@@ -10599,14 +10621,18 @@ function renderDashboard(){
   if(proformaCount > 0) alerts.push({icon:'📄', text:proformaCount+' پیش‌فاکتور در انتظار ثبت نهایی', page:'sales', color:'#8a6d3b'});
   if(openWar > 0) alerts.push({icon:'🛡', text:openWar+' پرونده‌ی گارانتی باز', page:'warranty', color:'var(--blue2)'});
 
-  // ساخت HTML
+  // ساخت HTML — فقط نمایش؛ هیچ persist یا Host
   var html = '';
-  // KPI کارت‌ها
+  html += '<p class="dash-lead">نمای کلی فروشگاه از دادهٔ همین دستگاه. از اینجا چیزی ذخیره نمی‌شود؛ روی کارت بزنید تا همان صفحه باز شود.</p>';
+  html += '<div class="dash-section-title">کارهای باز</div>';
   html += '<div class="dash-kpi-grid">';
   html += _dashKpi('📋', openInv, 'فاکتور باز', openInv>0?'var(--blue2)':'var(--text2)', 'saved');
   html += _dashKpi('🛡', openWar, 'گارانتی باز', openWar>0?'var(--blue2)':'var(--text2)', 'warranty');
   html += _dashKpi('🔩', lowParts.length, 'قطعه کم‌موجودی', lowParts.length>0?'var(--red)':'var(--green)', 'parts');
   html += _dashKpi('⏰', urgentTasks, 'وظیفه‌ی فوری', urgentTasks>0?'var(--red)':'var(--green)', 'tasks');
+  html += '</div>';
+  html += '<div class="dash-section-title">فروش و مالی</div>';
+  html += '<div class="dash-kpi-grid">';
   html += _dashKpi('💰', totalBalance.toLocaleString('fa-IR'), 'موجودی کل (ریال)', totalBalance>=0?'var(--green)':'var(--red)', 'accounts');
   html += _dashKpi('🛒', finalSales, 'فروش نهایی', 'var(--blue2)', 'sales');
   html += '</div>';
@@ -11645,12 +11671,14 @@ function helpSearch(){
   const q=expandHelpQuery(raw).toLowerCase();
   const cards=document.querySelectorAll('#page-help .help-card');
   let any=false;
+  let vis=0;
   cards.forEach(c=>{
     const blob=((c.textContent||'')+' '+(c.getAttribute('data-help-id')||'')+' '+(c.getAttribute('data-help-roles')||'')).toLowerCase();
     const match = !q || blob.indexOf(q)!==-1 || q.split(' ').filter(Boolean).every(function(w){ return blob.indexOf(w)!==-1; }) || blob.indexOf(raw.toLowerCase())!==-1;
     c.style.display = match ? '' : 'none';
-    if(match){ any=true; if(q) c.classList.remove('help-collapsed'); else c.classList.add('help-collapsed'); }
+    if(match){ any=true; vis++; if(q) c.classList.remove('help-collapsed'); else c.classList.add('help-collapsed'); }
   });
+  if (typeof updateHelpSearchCount==='function') updateHelpSearchCount(raw, vis);
   document.querySelectorAll('#page-help .help-cat-header').forEach(h=>{ h.style.display = q ? 'none' : ''; });
   document.querySelectorAll('#page-help .help-tree-node').forEach(function(node){
     var vis = Array.prototype.slice.call(node.querySelectorAll('.help-card')).some(function(c){ return c.style.display !== 'none'; });
@@ -18826,6 +18854,27 @@ function calPickDay(d){ calPageState.selDay=d; renderCalPage(); }
 
 // ─── راهنمای درختی ─────────────────────────────────────────────────────────────
 function toggleHelpTreeNode(el){ el.closest('.help-tree-node').classList.toggle('collapsed'); }
+function helpNavCountText(n, kind){
+  n = +n || 0;
+  var s = (typeof faNum==='function') ? faNum(String(n)) : String(n);
+  if (kind==='hit') return n ? (s+' نتیجه') : '۰ نتیجه';
+  return s+' مقاله';
+}
+function updateHelpSearchCount(q, vis){
+  var el=document.getElementById('help-search-count');
+  if(!el) return;
+  el.textContent = (q && String(q).trim()) ? helpNavCountText(vis,'hit') : helpNavCountText(vis,'all');
+}
+function expandAllHelpTopics(){
+  if (typeof initHelpTree==='function') initHelpTree();
+  document.querySelectorAll('#page-help .help-tree-node').forEach(function(n){ n.classList.remove('collapsed'); });
+  document.querySelectorAll('#page-help .help-card').forEach(function(c){ c.classList.remove('help-collapsed'); });
+}
+function collapseAllHelpTopics(){
+  if (typeof initHelpTree==='function') initHelpTree();
+  document.querySelectorAll('#page-help .help-tree-node').forEach(function(n){ n.classList.add('collapsed'); });
+  document.querySelectorAll('#page-help .help-card').forEach(function(c){ c.classList.add('help-collapsed'); });
+}
 function initHelpTree(){
   try{
     const page=document.getElementById('page-help');
@@ -18836,20 +18885,26 @@ function initHelpTree(){
     headers.forEach((h)=>{
       const node=document.createElement('div'); node.className='help-tree-node collapsed';
       const label=document.createElement('div'); label.className='help-tree-label';
-      label.innerHTML='<span>'+h.textContent+'</span><span class="help-tree-chev">▾</span>';
-      label.onclick=()=>toggleHelpTreeNode(label);
       const children=document.createElement('div'); children.className='help-tree-children';
       let el=h.nextElementSibling;
+      let cardCount=0;
       while(el && !el.classList.contains('help-cat-header')){
-        if(el.classList.contains('help-card')) children.appendChild(el);
-        el=el.nextElementSibling;
+        const next=el.nextElementSibling;
+        if(el.classList.contains('help-card')){ children.appendChild(el); cardCount++; }
+        el=next;
       }
+      label.innerHTML='<span>'+h.textContent+'</span><span class="help-tree-meta"><span class="help-tree-count">'+((typeof faNum==='function')?faNum(String(cardCount)):String(cardCount))+'</span><span class="help-tree-chev">▾</span></span>';
+      label.onclick=()=>toggleHelpTreeNode(label);
       node.appendChild(label); node.appendChild(children); tree.appendChild(node);
       h.remove();
     });
     const searchWrap=page.querySelector('div[style*="padding:16px"]');
     if(searchWrap) searchWrap.after(tree);
     page.dataset.treeInit='1';
+    if(typeof updateHelpSearchCount==='function'){
+      var inp=document.getElementById('help-search');
+      if(!inp || !(inp.value||'').trim()) updateHelpSearchCount('', page.querySelectorAll('.help-card').length);
+    }
   }catch(e){}
 }
 

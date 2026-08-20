@@ -14,4 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Sirman.Core\Sirman.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="InvoicePricingParityVectors.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

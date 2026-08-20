@@ -150,8 +150,10 @@ node test_laegh.js path/to/Laegh_Final_X.html
 ## قانون ۱۳ — حاکمیت توسعه و حفاظت کد پایدار (دائمی)
 
 منبع کامل: `docs/DEVELOPMENT_GOVERNANCE.md`. Baseline: `docs/STABLE_BASELINE.md`. رگرسیون: `docs/REGRESSION_SUITE.md`.
+دروازهٔ تغییر فاز ۳ (اجباری، قبل از هر ویرایش منبع): `docs/PHASE_3_CHANGE_GATE.md`.
 
 - کد پایدار محافظت می‌شود. الگو: ANALYZE → ISOLATE → MODIFY → TEST → REGRESSION → VERIFY → APPROVE.
+- در فاز ۳ قبل از هر ویرایش منبع، `docs/PHASE_3_CHANGE_GATE.md` را اجرا کن. بدون `Gate: PASS` فایل عوض نکن.
 - Feature جدید را مستقیم روی `main` ننویس. شاخه جدا، تست، رگرسیون، بعد merge.
 - ماژول LOCKED (هویت فاکتور، برگشت انبار/حساب، گارانتی پایدار) را بدون باگ ثابت یا Requirement جدید عوض نکن.
 - NO TEST = NO MERGE. PASS شدن تست به‌تنهایی VERIFIED نیست.
@@ -185,3 +187,4 @@ node test_laegh.js path/to/Laegh_Final_X.html
 - [ ] فقط **یک فایل HTML تک‌تکه** نهایی به‌عنوان محصول UI تحویل می‌دهم (به‌همراه لانچر / exe)
 - [ ] اگر منطق کسب‌وکار / داده / بک‌آپ / دسترسی عوض شد: لایه درست است، از `sirmanHost` عبور می‌کند، و سیستم موازی نساختم (`docs/ARCHITECTURE_RULES.md`)
 - [ ] `docs/DEVELOPMENT_GOVERNANCE.md` را رعایت کردم: شاخه جدا، تغییر حداقلی، رگرسیون، وضعیت صادقانه، بدون دست زدن به ماژول LOCKED بدون دلیل
+- [ ] اگر کار در فاز ۳ است: `docs/PHASE_3_CHANGE_GATE.md` قبل از ویرایش اجرا شد و نتیجه `PASS` بود (یا کار فقط مستندات دروازه بود)

@@ -1773,6 +1773,30 @@ test('مرکز تاریخ و زمان: TZ قابل‌تنظیم، setTimeZone/س
   assertEqual(ctx.TZ,'Asia/Dubai','setTimeZone باید متغیر TZ را هم به‌روز کند');
 });
 
+test('صفحه تاریخ/تقویم باید راهنمای نمایشی و راهنمای امروز/انتخاب داشته باشد بدون کلید persist جدید', () => {
+  assertContainsString(html, 'id="page-datetime"', 'صفحه تاریخ و تقویم پیدا نشد');
+  assertContainsString(html, 'dt-chrome-lead', 'متن راهنمای کروم تقویم پیدا نشد');
+  assertContainsString(html, 'id="cal-legend"', 'راهنمای امروز/انتخاب‌شده پیدا نشد');
+  assertContainsString(html, 'cal-legend-today', 'نشانه امروز در راهنما پیدا نشد');
+  assertContainsString(html, 'cal-legend-sel', 'نشانه انتخاب در راهنما پیدا نشد');
+  assertContainsString(html, 'ذخیره نمی‌شود', 'باید بگوید انتخاب روز ذخیره نمی‌شود');
+  assertContainsString(html, 'id="dt-live-big"', 'ساعت زنده باید بماند');
+  assertContainsString(html, 'id="cal-page-grid"', 'شبکه تقویم باید بماند');
+  assertContainsString(html, 'id="cal-sel-label"', 'برچسب روز انتخاب‌شده باید بماند');
+  const calSrc = extractFunctionSource(html, 'renderCalPage');
+  assertTrue(!!calSrc, 'renderCalPage پیدا نشد');
+  assertTrue(calSrc.indexOf('localStorage.setItem') === -1, 'رندر تقویم نباید persist بنویسد');
+  assertTrue(calSrc.indexOf('RunBusiness(') === -1, 'رندر تقویم نباید RunBusiness صدا بزند');
+  const navSrc = extractFunctionSource(html, 'calPageNav');
+  const togSrc = extractFunctionSource(html, 'calToggleMode');
+  const pickSrc = extractFunctionSource(html, 'calPickDay');
+  assertTrue(!!navSrc && !!togSrc && !!pickSrc, 'کنترل‌های تقویم باید بمانند');
+  [navSrc, togSrc, pickSrc].forEach(function(src){
+    assertTrue(src.indexOf('localStorage') === -1, 'ناوبری/حالت/انتخاب روز نباید localStorage بنویسد');
+  });
+  assertContainsString(html, "let TZ = localStorage.getItem('laegh_tz')", 'کلید منطقه زمانی باید همان laegh_tz بماند');
+});
+
 test('چاپ لیست: تابع مشترک _printTable و دکمه‌های «چاپ لیست» در همه‌ی بخش‌ها باید باشند، و چاپ فاکتورِ کامل جدا بماند', () => {
   assertTrue(extractFunctionSource(html,'_printTable')!==null, 'تابع مشترک _printTable تعریف نشده است');
   ['printSavedList','printProdsList','printSalesList','printWarrantyList','printPartsList','printServicesList','printPhonebookList'].forEach(fn=>{
@@ -7923,6 +7947,64 @@ test('قانون ۷: مرکز راهنما باید شروع سریع، فرآی
   assertTrue(!!prod && prod[0].indexOf('به‌زودی') === -1, 'راهنمای کالا و انبار نباید ناتمام بماند');
 });
 
+test('مرکز راهنما باید باز/بسته کردن همه موضوع‌ها و شمارش نتیجه جستجو داشته باشد', () => {
+  assertContainsString(html, 'id="help-expand-all"', 'دکمه باز کردن همه موضوع‌ها پیدا نشد');
+  assertContainsString(html, 'id="help-collapse-all"', 'دکمه بستن همه موضوع‌ها پیدا نشد');
+  assertContainsString(html, 'id="help-search-count"', 'شمارش نتیجه جستجوی راهنما پیدا نشد');
+  assertContainsString(html, 'onclick="expandAllHelpTopics()"', 'دکمه باز کردن همه به expandAllHelpTopics وصل نیست');
+  assertContainsString(html, 'onclick="collapseAllHelpTopics()"', 'دکمه بستن همه به collapseAllHelpTopics وصل نیست');
+  const expSrc = extractFunctionSource(html, 'expandAllHelpTopics');
+  const colSrc = extractFunctionSource(html, 'collapseAllHelpTopics');
+  const cntSrc = extractFunctionSource(html, 'updateHelpSearchCount');
+  const txtSrc = extractFunctionSource(html, 'helpNavCountText');
+  assertTrue(!!expSrc && !!colSrc && !!cntSrc && !!txtSrc, 'توابع ناوبری درخت راهنما پیدا نشد');
+  const initSrc = extractFunctionSource(html, 'initHelpTree');
+  assertTrue(initSrc.indexOf('next=el.nextElementSibling') >= 0 || initSrc.indexOf('const next=el.nextElementSibling') >= 0,
+    'initHelpTree باید قبل از جابه‌جایی کارت، خواهر بعدی را نگه دارد وگرنه هر شاخه فقط یک مقاله می‌گیرد');
+  const runner = new Function(txtSrc + '\n' + cntSrc + '\n' + expSrc + '\n' + colSrc + `
+    function initHelpTree(){}
+    function faNum(s){ return String(s); }
+    var treeCls = ['collapsed'];
+    var cardCls = ['help-collapsed'];
+    function cls(arr){
+      return {
+        add: function(c){ if(arr.indexOf(c)<0) arr.push(c); },
+        remove: function(c){ var i=arr.indexOf(c); if(i>=0) arr.splice(i,1); }
+      };
+    }
+    var tree = { classList: cls(treeCls) };
+    var card = { classList: cls(cardCls) };
+    var count = { textContent: '' };
+    var document = {
+      querySelectorAll: function(sel){
+        if (sel.indexOf('help-tree-node')>=0) return [tree];
+        if (sel.indexOf('help-card')>=0) return [card];
+        return [];
+      },
+      getElementById: function(id){ return id==='help-search-count' ? count : null; }
+    };
+    expandAllHelpTopics();
+    var afterExp = { tree: treeCls.slice(), card: cardCls.slice() };
+    collapseAllHelpTopics();
+    var afterCol = { tree: treeCls.slice(), card: cardCls.slice() };
+    updateHelpSearchCount('', 12);
+    var allTxt = count.textContent;
+    updateHelpSearchCount('فاکتور', 3);
+    var hitTxt = count.textContent;
+    updateHelpSearchCount('xyz', 0);
+    var emptyTxt = count.textContent;
+    return { afterExp: afterExp, afterCol: afterCol, allTxt: allTxt, hitTxt: hitTxt, emptyTxt: emptyTxt };
+  `);
+  const r = runner();
+  assertTrue(r.afterExp.tree.indexOf('collapsed') < 0, 'باز کردن همه باید collapsed را از گره درخت بردارد');
+  assertTrue(r.afterExp.card.indexOf('help-collapsed') < 0, 'باز کردن همه باید help-collapsed را از کارت بردارد');
+  assertTrue(r.afterCol.tree.indexOf('collapsed') >= 0, 'بستن همه باید collapsed را به گره درخت برگرداند');
+  assertTrue(r.afterCol.card.indexOf('help-collapsed') >= 0, 'بستن همه باید help-collapsed را به کارت برگرداند');
+  assertTrue(/مقاله/.test(r.allTxt), 'بدون جستجو باید تعداد مقاله نشان داده شود');
+  assertTrue(/نتیجه/.test(r.hitTxt), 'با جستجو باید تعداد نتیجه نشان داده شود');
+  assertTrue(/۰ نتیجه|0 نتیجه/.test(r.emptyTxt), 'جستجوی بی‌نتیجه باید صفر نتیجه بگوید');
+});
+
 
 console.log('');
 console.log('📋 گروه: هسته هوشمند — محاسبه، گردش‌کار، پیشنهاد قطعه');
@@ -8969,6 +9051,97 @@ test('در exe نتیجه Host باید منبع حقیقت باشد و HTML-onl
     return calcInvoiceLine(1000, 10, 9999);
   `)();
   assertEqual(exeCore.fin, 777, 'اگر Host جواب بدهد باید همان منبع حقیقت باشد نه فرمول JS (۹۰۰)');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B1 قفل برابری invoice.line / invoice.totals');
+
+function loadInvoicePricingParityVectors() {
+  const name = 'InvoicePricingParityVectors.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول بردار B1 پیدا نشد: ' + name);
+}
+
+function makeHtmlOnlyInvoiceLine() {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  assertTrue(!!runSrc && !!takeSrc && !!lineSrc, 'توابع calcInvoiceLine / takeBusinessCore پیدا نشد');
+  return new Function(runSrc + '\n' + takeSrc + '\n' + lineSrc + `
+    function getSirmanHostSync(){ return null; }
+    return function(est, disc, finRaw){ return calcInvoiceLine(est, disc, finRaw); };
+  `)();
+}
+
+test('جدول بردار مشترک JS↔C# باید روی calcInvoiceLine HTML-only قفل شود', () => {
+  const pack = loadInvoicePricingParityVectors();
+  assertTrue(Array.isArray(pack.line) && pack.line.length >= 2, 'جدول line باید حداقل دو بردار الزامی داشته باشد');
+  const calc = makeHtmlOnlyInvoiceLine();
+  pack.line.forEach(function(row) {
+    const got = calc(row.est, row.disc, row.finRaw);
+    assertEqual(got.da, row.da, row.id + ' da');
+    assertEqual(got.fin, row.fin, row.id + ' fin');
+    assertEqual(got.est, row.est, row.id + ' est');
+    assertEqual(got.disc, row.disc, row.id + ' disc');
+  });
+});
+
+test('مسیر جمع calcT بدون Host باید همان Totals جدول B1 را بدهد', () => {
+  const pack = loadInvoicePricingParityVectors();
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  const calcTSrc = extractFunctionSource(html, 'calcT');
+  assertTrue(!!calcTSrc, 'calcT پیدا نشد');
+  assertContainsString(calcTSrc, 'tE+=est', 'calcT بدون Host باید برآورد را جمع بزند');
+  assertContainsString(calcTSrc, 'tD+=line.da', 'calcT بدون Host باید تخفیف خط را جمع بزند');
+  pack.totals.forEach(function(row) {
+    const mockDoc = buildMockDocument();
+    const n = row.lines.length;
+    for (let i = 1; i <= n; i++) {
+      const src = row.lines[i - 1];
+      mockDoc.getElementById('d' + i + '_est').value = String(src.est);
+      mockDoc.getElementById('d' + i + '_disc').value = String(src.disc);
+      mockDoc.getElementById('d' + i + '_fin').value = String(src.finRaw);
+    }
+    const run = new Function('document', 'devCnt', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + '\n' + calcTSrc + `
+      function getSirmanHostSync(){ return null; }
+      function fmt(n){ return String(n); }
+      function ntf(){}
+      return calcT();
+    `);
+    const tot = run(mockDoc, n);
+    assertEqual(tot.tE, row.tE, row.id + ' tE');
+    assertEqual(tot.tD, row.tD, row.id + ' tD');
+    assertEqual(tot.tF, row.tF, row.id + ' tF');
+  });
+});
+
+test('قفل B1 باید HTML-only و Host-wins قبلی را نگه دارد و نیم‌واحد مثبت را گرد کند', () => {
+  const calc = makeHtmlOnlyInvoiceLine();
+  assertEqual(calc(1000, 10, 9999).fin, 900, 'HTML-only بردار اصلی fin=900');
+  assertEqual(calc(15, 10, 0).da, 2, 'Math.round(1.5) باید ۲ باشد');
+  assertEqual(calc(5, 10, 0).da, 1, 'Math.round(0.5) باید ۱ باشد');
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  const exeCore = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        return JSON.stringify({ok:true, result:{est:1000, disc:10, da:100, fin:777}});
+      }};
+    }
+    return calcInvoiceLine(1000, 10, 9999);
+  `)();
+  assertEqual(exeCore.fin, 777, 'Host-wins باید باقی بماند');
 });
 
 test('رزرو در exe فقط Writer هسته باشد و بدون Host همان جهش JS بماند', () => {
@@ -10222,6 +10395,35 @@ test('رندر داشبورد باید KPI و هشدار و وظایف سررس�
   assertTrue(out.indexOf('عملیات امروز')>=0, 'عنوان فارسی کارت لازم است');
   assertTrue(out.indexOf('آخرین فعالیت‌ها')>=0, 'اقلام اخیر باید بماند');
   assertEqual(H.writesNow(), 0, 'رندر داشبوردِ خلاصه نباید state بنویسد');
+});
+
+test('داشبورد باید کارهای باز را از فروش و مالی جدا نشان بدهد بدون نوشتن داده', () => {
+  assertContainsString(html, 'dash-lead', 'متن راهنمای فقط‌خواندنی داشبورد پیدا نشد');
+  assertContainsString(html, 'dash-section-title', 'عنوان بخش KPI داشبورد پیدا نشد');
+  const dash = extractFunctionSource(html, 'renderDashboard');
+  assertContainsString(dash, 'کارهای باز', 'بخش کارهای باز لازم است');
+  assertContainsString(dash, 'فروش و مالی', 'بخش فروش و مالی لازم است');
+  assertContainsString(dash, 'از اینجا چیزی ذخیره نمی‌شود', 'باید صریح فقط‌خواندنی باشد');
+  assertTrue(dash.indexOf('localStorage.setItem') === -1, 'renderDashboard نباید localStorage بنویسد');
+  assertTrue(dash.indexOf('RunBusiness(') === -1, 'renderDashboard نباید RunBusiness صدا بزند');
+  const H = dailyOpsBriefHarness()();
+  const live = {
+    invoices: [{num:'INV-OPEN', seller:'الف', status:'open'}],
+    warranties: [{id:'W1', name:'رضا', status:'open'}],
+    parts: [{code:'P1', name:'فیلتر', qty:0, min:2}],
+    tasks: [],
+    sales: [{id:'SL-F', name:'فروش', status:'final', total:1}],
+    accounts: [{id:'A', name:'صندوق', balance:10, transactions:[]}]
+  };
+  const before = JSON.stringify(live);
+  const out = H.runDash(live);
+  assertEqual(JSON.stringify(live), before, 'رندر نباید آرایه‌های زنده را عوض کند');
+  assertEqual(H.writesNow(), 0, 'گروه‌بندی KPI نباید persist بنویسد');
+  assertTrue(out.indexOf('کارهای باز')>=0, 'عنوان کارهای باز باید رندر شود');
+  assertTrue(out.indexOf('فروش و مالی')>=0, 'عنوان فروش و مالی باید رندر شود');
+  assertTrue(out.indexOf('فاکتور باز')>=0, 'برچسب KPI فاکتور باید بماند');
+  assertTrue(out.indexOf('فروش نهایی')>=0, 'برچسب KPI فروش باید بماند');
+  assertTrue(out.indexOf('dash-kpi-grid')>=0, 'شبکه KPI باید بماند');
 });
 
 test('فرم پنجره باید داخل win-body اسکرول شود نه body قفل‌شده', () => {
