@@ -9459,6 +9459,106 @@ test('sale.line نباید persist بنویسد و calcSaleTotal نباید در
   assertContainsString(totSrc, 'sale.total', 'جمع فروش هنوز sale.total است نه مهاجرت B6');
 });
 
+console.log('');
+console.log('📋 گروه: فاز ۳ B8 مالکیت sale.total');
+
+function loadSaleTotalParityVectors() {
+  const name = 'SaleTotalParityVectors.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول بردار B8 پیدا نشد: ' + name);
+}
+
+function makeSaleTotalHarness(hostFactory, items) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcSaleLine');
+  const totSrc = extractFunctionSource(html, 'calcSaleTotal');
+  assertTrue(!!runSrc && !!takeSrc && !!hasSrc && !!lineSrc && !!totSrc, 'توابع calcSaleTotal / calcSaleLine / takeBusinessCore پیدا نشد');
+  return new Function('hostFactory', 'items', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + '\n' + totSrc + `
+    var saleItems = items.slice();
+    var ntfCalls = [];
+    function ntf(msg, kind){ ntfCalls.push({msg:msg, kind:kind}); }
+    var lbl = { textContent: '' };
+    var cnt = { textContent: '' };
+    var document = {
+      querySelectorAll: function(){ return []; },
+      getElementById: function(id){
+        if(id==='sale-total-lbl') return lbl;
+        if(id==='sale-item-count') return cnt;
+        return null;
+      }
+    };
+    function getSirmanHostSync(){ return hostFactory(); }
+    var total = calcSaleTotal();
+    return { total: total, ntfCalls: ntfCalls, label: lbl.textContent, count: String(cnt.textContent), saleItems: saleItems };
+  `)(hostFactory, items);
+}
+
+test('مسیر EXE باید RunBusiness("sale.total") را با items صدا بزند و نتیجه هسته را بدون جمع JS برگرداند', () => {
+  var calls = [];
+  const items = [{qty:2, price:1000, disc:10}];
+  const got = makeSaleTotalHarness(function(){
+    return { RunBusiness: function(name, json){
+      calls.push({name:name, payload: JSON.parse(json)});
+      return JSON.stringify({ok:true, result:777777});
+    }};
+  }, items);
+  assertEqual(calls.length, 1, 'باید یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'sale.total', 'نام عملیات باید sale.total باشد');
+  assertTrue(Array.isArray(calls[0].payload.items), 'payload باید items داشته باشد');
+  assertEqual(calls[0].payload.items.length, 1, 'باید یک ردیف به Core برود');
+  assertEqual(calls[0].payload.items[0].qty, 2, 'qty باید به Core برود');
+  assertEqual(calls[0].payload.items[0].price, 1000, 'price باید به Core برود');
+  assertEqual(calls[0].payload.items[0].disc, 10, 'disc باید به Core برود');
+  assertEqual(got.total, 777777, 'Host-wins نباید جمع JS=1800 را برگرداند');
+  assertTrue(got.total !== 1800, 'نتیجه متمایز هسته نباید با جمع جاوااسکریپت یکی باشد');
+});
+
+test('مسیر HTML-only باید بردارهای sale.total را بدون Host اجرا کند', () => {
+  const pack = loadSaleTotalParityVectors();
+  pack.total.forEach(function(row) {
+    const got = makeSaleTotalHarness(function(){ return null; }, row.items);
+    assertEqual(got.total, row.expected, row.id + ' total');
+  });
+  const src = extractFunctionSource(html, 'calcSaleTotal');
+  assertContainsString(src, 'sale.total', 'جمع فروش باید از هسته sale.total بیاید');
+  assertContainsString(src, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+  assertContainsString(src, 'calcSaleLine', 'fallback HTML-only باید از calcSaleLine جمع بزند');
+  assertTrue(src.indexOf('Math.round(item.price * item.disc / 100)') === -1, 'فرمول خط موازی نباید در calcSaleTotal بماند');
+});
+
+test('شکست Core روی EXE نباید reduce جاوااسکریپت sale.total را اجرا کند', () => {
+  var calls = [];
+  const items = [{qty:2, price:1000, disc:10}];
+  const got = makeSaleTotalHarness(function(){
+    return { RunBusiness: function(name, json){
+      calls.push({name:name, payload: JSON.parse(json)});
+      return JSON.stringify({ok:false, error:'business-failed', message:'محاسبه فروش انجام نشد'});
+    }};
+  }, items);
+  assertEqual(calls.length, 1, 'باید Host صدا شود');
+  assertEqual(calls[0].name, 'sale.total', 'فقط sale.total باید صدا شود نه sale.line به‌عنوان fallback');
+  assertEqual(got.total, 0, 'اگر Host هست و Core رد کند باید 0 بماند نه جمع JS=1800');
+  assertTrue(got.total !== 1800, 'fail-closed نباید reduce جاوااسکریپت را اجرا کند');
+});
+
+test('sale.total نباید persist بنویسد', () => {
+  const totSrc = extractFunctionSource(html, 'calcSaleTotal');
+  assertTrue(totSrc.indexOf('localStorage') === -1, 'calcSaleTotal نباید localStorage بنویسد');
+  assertTrue(totSrc.indexOf('indexedDB') === -1, 'calcSaleTotal نباید IndexedDB بنویسد');
+  assertTrue(totSrc.indexOf('svSales') === -1, 'calcSaleTotal نباید svSales صدا بزند');
+  assertTrue(totSrc.indexOf('persistCoreSnapshot') === -1, 'calcSaleTotal نباید persistCoreSnapshot صدا بزند');
+  assertTrue(totSrc.indexOf('migrateBackup') === -1, 'calcSaleTotal نباید backup بنویسد');
+  assertTrue(totSrc.indexOf('inventory.consume') === -1, 'calcSaleTotal نباید مصرف انبار باشد');
+});
+
 test('رزرو در exe فقط Writer هسته باشد و بدون Host همان جهش JS بماند', () => {
   const runSrc = extractFunctionSource(html, 'runBusinessCore');
   const takeSrc = extractFunctionSource(html, 'takeBusinessCore');

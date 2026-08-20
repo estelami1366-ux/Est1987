@@ -21641,7 +21641,7 @@ function returnToSaleDraft(newPartCode){
 }
 
 function calcSaleTotal(){
-  // به‌روزرسانی از DOM
+  // مالک EXE: InvoicePricing.SaleTotal از RunBusiness("sale.total"). Fallback JS فقط بدون Host — جمع calcSaleLine.
   document.querySelectorAll('.sale-item-row').forEach((row,i) => {
     if(i < saleItems.length){
       const qtyEl = row.querySelector('.sale-item-qty');
@@ -21659,9 +21659,10 @@ function calcSaleTotal(){
     if(coreSale==null || typeof coreSale==='undefined'){ ntf('محاسبه فروش انجام نشد','err'); localTotal = 0; }
     else localTotal = coreSale;
   } else {
-    localTotal = saleItems.reduce((sum,item) => {
-      const discAmt = Math.round(item.price * item.disc / 100);
-      return sum + Math.round((item.qty||1) * ((item.price||0) - discAmt));
+    localTotal = saleItems.reduce(function(sum,item){
+      var cl = (typeof calcSaleLine==='function') ? calcSaleLine(item.qty||1, item.price||0, item.disc||0) : null;
+      if(!cl || cl.total==null) return sum;
+      return sum + cl.total;
     }, 0);
   }
   const lbl = document.getElementById('sale-total-lbl');
