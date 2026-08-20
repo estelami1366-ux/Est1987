@@ -29,9 +29,14 @@ public class CalculationEngineTests
     public void Sla_Thresholds_MatchHtml()
     {
         Assert.Equal("normal", CalculationEngine.SlaStatusFromAgeHours(10));
+        Assert.Equal("normal", CalculationEngine.SlaStatusFromAgeHours(23));
         Assert.Equal("warning", CalculationEngine.SlaStatusFromAgeHours(24));
+        Assert.Equal("warning", CalculationEngine.SlaStatusFromAgeHours(47));
         Assert.Equal("critical", CalculationEngine.SlaStatusFromAgeHours(48));
+        Assert.Equal("critical", CalculationEngine.SlaStatusFromAgeHours(71));
         Assert.Equal("overdue", CalculationEngine.SlaStatusFromAgeHours(72));
+        Assert.Equal("overdue", CalculationEngine.SlaStatusFromAgeHours(73));
+        Assert.Equal("normal", CalculationEngine.SlaStatusFromAgeHours(23.99));
     }
 }
 

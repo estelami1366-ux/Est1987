@@ -20441,7 +20441,7 @@ function checkWarrantySlaAlerts(){
     if(ageH<24) return;
     if(cw.slaLastAlertAt && now-Number(cw.slaLastAlertAt)<3600000) return;
     var slaKey = (typeof calcSlaStatusFromAgeHours==='function') ? calcSlaStatusFromAgeHours(ageH) : (ageH>=72?'overdue':(ageH>=48?'critical':'warning'));
-    if(slaKey==='normal') return;
+    if(!slaKey || slaKey==='normal') return;
     var level=slaKey==='overdue'?'🔴':(slaKey==='critical'?'🟠':'🟡');
     var msg=level+' پرونده '+w.id+' («'+(w.name||'بدون نام')+'») '+ageH+' ساعت از ورود دستگاه گذشته است.';
     try{ showLaeghNotification(msg,{body:ageH>=72?'بیش از ۷۲ ساعت: اولتیماتوم نهایی.':(ageH>=48?'بیش از ۴۸ ساعت: پیگیری فوری لازم است.':'بیش از ۲۴ ساعت: وضعیت تعمیر را بررسی کنید.'),tag:'war-sla-'+w.id+'-'+String(Math.floor(Date.now()/3600000))}); }catch(_e){}
@@ -26651,8 +26651,13 @@ function calcReorderPoint(averageUsage, leadTime, safetyStock){
 }
 function calcSlaStatusFromAgeHours(ageH){
   ageH = parseInt(ageH,10)||0;
-  var core=(typeof takeBusinessCore==='function') ? takeBusinessCore('calc.sla', {ageHours:ageH}) : null;
-  if(core!=null && typeof core!=='undefined') return core;
+  // مالک EXE: CalculationEngine.SlaStatusFromAgeHours از RunBusiness("calc.sla"). Fallback JS فقط بدون Host.
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('calc.sla', {ageHours:ageH}) : null;
+    if(core!=null && typeof core!=='undefined') return core;
+    return null;
+  }
   return (ageH<24)?'normal':(ageH<48)?'warning':(ageH<72)?'critical':'overdue';
 }
 function suggestPartsForCase(opts){

@@ -8041,6 +8041,7 @@ test('وضعیت SLA باید آستانه ۲۴/۴۸/۷۲ ساعت موجود ر
   const src = extractFunctionSource(html, 'calcSlaStatusFromAgeHours');
   assertTrue(!!src, 'تابع calcSlaStatusFromAgeHours پیدا نشد');
   const runner = new Function(src + `
+    function hasBusinessCore(){ return false; }
     return {
       n: calcSlaStatusFromAgeHours(10),
       w: calcSlaStatusFromAgeHours(24),
@@ -9292,6 +9293,78 @@ test('calcInvoiceTotals نباید persist بنویسد و calcT/getData نبا�
   assertContainsString(getDataSrc, 'calcInvoiceTotals', 'getData باید از calcInvoiceTotals استفاده کند');
   assertTrue(getDataSrc.indexOf('s+r.fin') === -1, 'getData نباید جمع JS موازی داشته باشد');
   assertTrue(calcTSrc.indexOf('tE+=est') === -1, 'calcT نباید جمع JS موازی داشته باشد');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B5 مالکیت calc.sla');
+
+function makeHtmlOnlySla() {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const slaSrc = extractFunctionSource(html, 'calcSlaStatusFromAgeHours');
+  return new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + slaSrc + `
+    function getSirmanHostSync(){ return null; }
+    return function(ageH){ return calcSlaStatusFromAgeHours(ageH); };
+  `)();
+}
+
+function makeExeSlaHost(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const slaSrc = extractFunctionSource(html, 'calcSlaStatusFromAgeHours');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + slaSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: runImpl };
+    }
+    return function(ageH){ return calcSlaStatusFromAgeHours(ageH); };
+  `)(runImpl);
+}
+
+test('مسیر EXE باید RunBusiness("calc.sla") را صدا بزند و نتیجه هسته را بدون فرمول JS برگرداند', () => {
+  var calls = [];
+  const calc = makeExeSlaHost(function(name, json){
+    calls.push({name:name, payload: JSON.parse(json)});
+    return JSON.stringify({ok:true, result:'core-distinctive-status'});
+  });
+  const got = calc(10);
+  assertEqual(calls.length, 1, 'باید یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'calc.sla', 'نام عملیات باید calc.sla باشد');
+  assertEqual(calls[0].payload.ageHours, 10, 'ageHours باید به Core برود');
+  assertEqual(got, 'core-distinctive-status', 'Host-wins نباید با normal بازنویسی شود');
+});
+
+test('مسیر HTML-only باید آستانه‌های موجود SLA را بدون Host اجرا کند', () => {
+  const calc = makeHtmlOnlySla();
+  assertEqual(calc(10), 'normal', '10 → normal');
+  assertEqual(calc(23.99), 'normal', 'parseInt(23.99) → 23 normal');
+  assertEqual(calc(24), 'warning', '24 → warning');
+  assertEqual(calc(47.99), 'warning', 'parseInt(47.99) → 47 warning');
+  assertEqual(calc(48), 'critical', '48 → critical');
+  assertEqual(calc(71.99), 'critical', 'parseInt(71.99) → 71 critical');
+  assertEqual(calc(72), 'overdue', '72 → overdue');
+  assertEqual(calc(73), 'overdue', '>72 → overdue');
+  const src = extractFunctionSource(html, 'calcSlaStatusFromAgeHours');
+  assertContainsString(src, "ageH<24)?'normal'", 'fallback JS نباید حذف شود');
+  assertContainsString(src, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+});
+
+test('شکست Core روی EXE نباید فرمول SLA جاوااسکریپت را اجرا کند', () => {
+  const calc = makeExeSlaHost(function(){
+    return JSON.stringify({ok:false, error:'business-failed', message:'محاسبه انجام نشد'});
+  });
+  const got = calc(10);
+  assertTrue(got == null, 'اگر Host هست و Core رد کند نباید normal از JS برگردد');
+});
+
+test('calc.sla نباید persist بنویسد و هشدار گارانتی null را اعلان نکند', () => {
+  const slaSrc = extractFunctionSource(html, 'calcSlaStatusFromAgeHours');
+  const alertSrc = extractFunctionSource(html, 'checkWarrantySlaAlerts');
+  assertTrue(slaSrc.indexOf('localStorage') === -1, 'calcSla نباید localStorage بنویسد');
+  assertTrue(slaSrc.indexOf('indexedDB') === -1, 'calcSla نباید IndexedDB بنویسد');
+  assertTrue(slaSrc.indexOf('svWars') === -1 && slaSrc.indexOf('persistCoreSnapshot') === -1, 'calcSla نباید ذخیره کند');
+  assertContainsString(alertSrc, '!slaKey', 'هشدار گارانتی نباید null را مثل وضعیت واقعی اعلان کند');
 });
 
 test('رزرو در exe فقط Writer هسته باشد و بدون Host همان جهش JS بماند', () => {
