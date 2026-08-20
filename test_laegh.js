@@ -1773,6 +1773,30 @@ test('مرکز تاریخ و زمان: TZ قابل‌تنظیم، setTimeZone/س
   assertEqual(ctx.TZ,'Asia/Dubai','setTimeZone باید متغیر TZ را هم به‌روز کند');
 });
 
+test('صفحه تاریخ/تقویم باید راهنمای نمایشی و راهنمای امروز/انتخاب داشته باشد بدون کلید persist جدید', () => {
+  assertContainsString(html, 'id="page-datetime"', 'صفحه تاریخ و تقویم پیدا نشد');
+  assertContainsString(html, 'dt-chrome-lead', 'متن راهنمای کروم تقویم پیدا نشد');
+  assertContainsString(html, 'id="cal-legend"', 'راهنمای امروز/انتخاب‌شده پیدا نشد');
+  assertContainsString(html, 'cal-legend-today', 'نشانه امروز در راهنما پیدا نشد');
+  assertContainsString(html, 'cal-legend-sel', 'نشانه انتخاب در راهنما پیدا نشد');
+  assertContainsString(html, 'ذخیره نمی‌شود', 'باید بگوید انتخاب روز ذخیره نمی‌شود');
+  assertContainsString(html, 'id="dt-live-big"', 'ساعت زنده باید بماند');
+  assertContainsString(html, 'id="cal-page-grid"', 'شبکه تقویم باید بماند');
+  assertContainsString(html, 'id="cal-sel-label"', 'برچسب روز انتخاب‌شده باید بماند');
+  const calSrc = extractFunctionSource(html, 'renderCalPage');
+  assertTrue(!!calSrc, 'renderCalPage پیدا نشد');
+  assertTrue(calSrc.indexOf('localStorage.setItem') === -1, 'رندر تقویم نباید persist بنویسد');
+  assertTrue(calSrc.indexOf('RunBusiness(') === -1, 'رندر تقویم نباید RunBusiness صدا بزند');
+  const navSrc = extractFunctionSource(html, 'calPageNav');
+  const togSrc = extractFunctionSource(html, 'calToggleMode');
+  const pickSrc = extractFunctionSource(html, 'calPickDay');
+  assertTrue(!!navSrc && !!togSrc && !!pickSrc, 'کنترل‌های تقویم باید بمانند');
+  [navSrc, togSrc, pickSrc].forEach(function(src){
+    assertTrue(src.indexOf('localStorage') === -1, 'ناوبری/حالت/انتخاب روز نباید localStorage بنویسد');
+  });
+  assertContainsString(html, "let TZ = localStorage.getItem('laegh_tz')", 'کلید منطقه زمانی باید همان laegh_tz بماند');
+});
+
 test('چاپ لیست: تابع مشترک _printTable و دکمه‌های «چاپ لیست» در همه‌ی بخش‌ها باید باشند، و چاپ فاکتورِ کامل جدا بماند', () => {
   assertTrue(extractFunctionSource(html,'_printTable')!==null, 'تابع مشترک _printTable تعریف نشده است');
   ['printSavedList','printProdsList','printSalesList','printWarrantyList','printPartsList','printServicesList','printPhonebookList'].forEach(fn=>{

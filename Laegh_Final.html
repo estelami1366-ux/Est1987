@@ -1433,6 +1433,12 @@ body.depth-3d.theme-dark .f input,body.depth-3d.theme-dark .f select,body.depth-
 .cal-page-grid .day.sel{background:var(--blue2);color:#fff;}
 .cal-page-grid .day.empty{visibility:hidden;}
 .cal-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.dt-chrome-lead{font-size:12px;color:var(--text2);margin:0 0 12px;line-height:1.8}
+.cal-legend{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px;font-size:11px;color:var(--text2)}
+.cal-legend-today,.cal-legend-sel{display:inline-flex;align-items:center;gap:6px}
+.cal-legend-today::before,.cal-legend-sel::before{content:'';width:14px;height:14px;border-radius:4px;display:inline-block}
+.cal-legend-today::before{border:2px solid var(--blue);background:transparent}
+.cal-legend-sel::before{background:var(--blue2)}
 .war-section-disabled{opacity:.45;pointer-events:none;filter:grayscale(.3);}
 .wsoc-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;margin-bottom:6px;font-size:12px;background:#fafafa;}
 
@@ -4888,6 +4894,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 <div class="page" id="page-datetime">
 <div class="topbar"><div class="topbar-title">🕐 زمان، تقویم و ساختار تاریخی</div></div>
 <div style="padding:16px">
+<p class="dt-chrome-lead">ساعت و تقویم این صفحه از مرکز زمان فعلی خوانده می‌شود. منطقه زمانی از تنظیمات → تاریخ و زمان عوض می‌شود، نه از اینجا. انتخاب روز فقط روی همین صفحه است و ذخیره نمی‌شود.</p>
 <div class="g2">
   <div class="card">
     <div class="card-title">⏰ ساعت و تاریخ زنده (مرکز زمان نرم‌افزار)</div>
@@ -4908,7 +4915,11 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     </div>
     <div id="cal-page-title" style="text-align:center;font-weight:700;color:var(--blue2);margin:10px 0"></div>
     <div class="cal-page-grid" id="cal-page-grid"></div>
-    <div style="margin-top:10px;font-size:12px;color:var(--text2)">روز انتخاب‌شده: <b id="cal-sel-label">—</b></div>
+    <div class="cal-legend" id="cal-legend">
+      <span class="cal-legend-today">امروز</span>
+      <span class="cal-legend-sel">انتخاب‌شده</span>
+    </div>
+    <div style="margin-top:10px;font-size:12px;color:var(--text2)">روز انتخاب‌شده در همین صفحه (ذخیره نمی‌شود): <b id="cal-sel-label">—</b></div>
   </div>
 </div>
 <div class="card" style="margin-top:14px">
