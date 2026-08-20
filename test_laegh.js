@@ -6208,6 +6208,29 @@ test('قرارداد چاپ باید از جزئیات ویندوز و داده 
   assertContainsString(rules, 'PHASE 3 MUST NOT BREAK PRINT', 'فاز ۳ نباید چاپ را بشکند');
 });
 
+test('مشاهده‌گر فاز ۰ نباید وارد فایل‌های منجمد چاپ شود', () => {
+  const root = path.dirname(filePath);
+  const observer = path.join(root, 'desktop', 'Sirman.Desktop', 'PrintPhase0Observer.cs');
+  const checklist = path.join(root, 'docs', 'PHASE_0_PRINT_VERIFICATION_CHECKLIST.md');
+  assertTrue(fs.existsSync(observer), 'PrintPhase0Observer.cs باید جدا از موتور منجمد باشد');
+  assertTrue(fs.existsSync(checklist), 'چک‌لیست دستی فاز ۰ لازم است');
+  const observerSrc = fs.readFileSync(observer, 'utf8');
+  assertContainsString(observerSrc, 'PHASE_0_OBSERVE.log', 'لاگ فاز ۰ باید نام فایل جدا داشته باشد');
+  assertTrue(observerSrc.indexOf('PrintAsync') < 0, 'مشاهده‌گر نباید PrintAsync را صدا بزند');
+  ['WindowsPrintHost.cs', 'PrintServiceAdapter.cs', 'IPrintService.cs'].forEach(function(name){
+    const p = name.indexOf('IPrint') === 0
+      ? path.join(root, 'desktop', 'Sirman.Core', 'Printing', name)
+      : path.join(root, 'desktop', 'Sirman.Desktop', name);
+    const src = fs.readFileSync(p, 'utf8');
+    assertTrue(src.indexOf('PrintPhase0Observer') < 0, name + ' منجمد است و نباید مشاهده‌گر را ببیند');
+  });
+  const hostObj = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs'), 'utf8');
+  assertTrue(hostObj.indexOf('PrintPhase0Observer') < 0, 'PrintHtml/PrintDocument نباید مشاهده‌گر را صدا بزنند');
+  const form = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Desktop', 'MainForm.cs'), 'utf8');
+  assertContainsString(form, 'PrintPhase0Observer.Observe("ENQUEUE_CALL"', 'ورود Desktop باید از بیرون موتور ثبت شود');
+  assertContainsString(form, '_printHost.Enqueue(html, printerName, paper, orientation, copies, documentId, documentType, user, purpose)', 'Enqueue موجود باید بدون تغییر امضا بماند');
+});
+
 console.log('');
 console.log('📋 گروه: موتور مشترک انبار (Inventory Engine)');
 
