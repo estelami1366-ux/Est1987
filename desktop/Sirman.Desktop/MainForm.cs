@@ -271,8 +271,19 @@ public sealed class MainForm : Form
 
     public string ListPrintersJson() => _printHost.ListPrintersJson();
     public string GetPrintJobJson(string printJobId) => _printHost.GetJobJson(printJobId);
-    public string EnqueueHtmlPrint(string html, string printerName, string paper, string orientation, int copies, string documentId, string documentType, string user, string purpose = "print") =>
-        _printHost.Enqueue(html, printerName, paper, orientation, copies, documentId, documentType, user, purpose);
+    public string EnqueueHtmlPrint(string html, string printerName, string paper, string orientation, int copies, string documentId, string documentType, string user, string purpose = "print")
+    {
+        PrintPhase0Observer.Observe("ENQUEUE_CALL",
+            "purpose=" + purpose
+            + " printer=" + printerName
+            + " documentId=" + documentId
+            + " documentType=" + documentType
+            + " copies=" + copies
+            + " htmlChars=" + (html ?? "").Length);
+        var json = _printHost.Enqueue(html, printerName, paper, orientation, copies, documentId, documentType, user, purpose);
+        PrintPhase0Observer.Observe("ENQUEUE_RETURN", json);
+        return json;
+    }
     public string RunPrintHardwareDiagnostic(string json) => _printDiag.Run(json);
 
     /// <summary>
