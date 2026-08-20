@@ -1,0 +1,51 @@
+{
+  "id": "SIRMAN_PHASE_3_B1_INVOICE_PRICING_PARITY",
+  "note": "Frozen JS↔C# vectors for invoice.line / invoice.totals. Do not change values to invent a new business rule. Consumers: InvoicePricingParityTests.cs and test_laegh.js. Negatives are excluded: invoice form inputs use min=0, and Math.round vs JsRound(AwayFromZero) diverge on negative midpoints.",
+  "line": [
+    { "id": "disc-10", "est": 1000, "disc": 10, "finRaw": 9999, "da": 100, "fin": 900 },
+    { "id": "disc-0-manual-fin", "est": 1000, "disc": 0, "finRaw": 800, "da": 0, "fin": 800 },
+    { "id": "zero-est", "est": 0, "disc": 10, "finRaw": 9999, "da": 0, "fin": 0 },
+    { "id": "zero-disc-zero-fin", "est": 1000, "disc": 0, "finRaw": 0, "da": 0, "fin": 1000 },
+    { "id": "disc-100", "est": 1000, "disc": 100, "finRaw": 9999, "da": 1000, "fin": 0 },
+    { "id": "decimal-est", "est": 1000.5, "disc": 10, "finRaw": 0, "da": 100, "fin": 900.5 },
+    { "id": "round-half-1.5", "est": 15, "disc": 10, "finRaw": 0, "da": 2, "fin": 13 },
+    { "id": "round-half-0.5", "est": 5, "disc": 10, "finRaw": 0, "da": 1, "fin": 4 },
+    { "id": "round-half-0.5-small", "est": 1, "disc": 50, "finRaw": 0, "da": 1, "fin": 0 },
+    { "id": "round-half-0.5-pct", "est": 25, "disc": 2, "finRaw": 0, "da": 1, "fin": 24 },
+    { "id": "below-half", "est": 7, "disc": 7, "finRaw": 0, "da": 0, "fin": 7 },
+    { "id": "manual-fin-decimal", "est": 1000, "disc": 0, "finRaw": 800.5, "da": 0, "fin": 800.5 }
+  ],
+  "totals": [
+    {
+      "id": "required-mix",
+      "lines": [
+        { "est": 1000, "disc": 10, "finRaw": 9999 },
+        { "est": 1000, "disc": 0, "finRaw": 800 }
+      ],
+      "tE": 2000,
+      "tD": 100,
+      "tF": 1700
+    },
+    {
+      "id": "rounding-mix",
+      "lines": [
+        { "est": 15, "disc": 10, "finRaw": 0 },
+        { "est": 5, "disc": 10, "finRaw": 0 },
+        { "est": 1000, "disc": 0, "finRaw": 800 }
+      ],
+      "tE": 1020,
+      "tD": 3,
+      "tF": 817
+    },
+    {
+      "id": "decimal-and-full-disc",
+      "lines": [
+        { "est": 1000.5, "disc": 10, "finRaw": 0 },
+        { "est": 1000, "disc": 100, "finRaw": 9999 }
+      ],
+      "tE": 2000.5,
+      "tD": 1100,
+      "tF": 900.5
+    }
+  ]
+}

@@ -9053,6 +9053,97 @@ test('در exe نتیجه Host باید منبع حقیقت باشد و HTML-onl
   assertEqual(exeCore.fin, 777, 'اگر Host جواب بدهد باید همان منبع حقیقت باشد نه فرمول JS (۹۰۰)');
 });
 
+console.log('');
+console.log('📋 گروه: فاز ۳ B1 قفل برابری invoice.line / invoice.totals');
+
+function loadInvoicePricingParityVectors() {
+  const name = 'InvoicePricingParityVectors.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول بردار B1 پیدا نشد: ' + name);
+}
+
+function makeHtmlOnlyInvoiceLine() {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  assertTrue(!!runSrc && !!takeSrc && !!lineSrc, 'توابع calcInvoiceLine / takeBusinessCore پیدا نشد');
+  return new Function(runSrc + '\n' + takeSrc + '\n' + lineSrc + `
+    function getSirmanHostSync(){ return null; }
+    return function(est, disc, finRaw){ return calcInvoiceLine(est, disc, finRaw); };
+  `)();
+}
+
+test('جدول بردار مشترک JS↔C# باید روی calcInvoiceLine HTML-only قفل شود', () => {
+  const pack = loadInvoicePricingParityVectors();
+  assertTrue(Array.isArray(pack.line) && pack.line.length >= 2, 'جدول line باید حداقل دو بردار الزامی داشته باشد');
+  const calc = makeHtmlOnlyInvoiceLine();
+  pack.line.forEach(function(row) {
+    const got = calc(row.est, row.disc, row.finRaw);
+    assertEqual(got.da, row.da, row.id + ' da');
+    assertEqual(got.fin, row.fin, row.id + ' fin');
+    assertEqual(got.est, row.est, row.id + ' est');
+    assertEqual(got.disc, row.disc, row.id + ' disc');
+  });
+});
+
+test('مسیر جمع calcT بدون Host باید همان Totals جدول B1 را بدهد', () => {
+  const pack = loadInvoicePricingParityVectors();
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  const calcTSrc = extractFunctionSource(html, 'calcT');
+  assertTrue(!!calcTSrc, 'calcT پیدا نشد');
+  assertContainsString(calcTSrc, 'tE+=est', 'calcT بدون Host باید برآورد را جمع بزند');
+  assertContainsString(calcTSrc, 'tD+=line.da', 'calcT بدون Host باید تخفیف خط را جمع بزند');
+  pack.totals.forEach(function(row) {
+    const mockDoc = buildMockDocument();
+    const n = row.lines.length;
+    for (let i = 1; i <= n; i++) {
+      const src = row.lines[i - 1];
+      mockDoc.getElementById('d' + i + '_est').value = String(src.est);
+      mockDoc.getElementById('d' + i + '_disc').value = String(src.disc);
+      mockDoc.getElementById('d' + i + '_fin').value = String(src.finRaw);
+    }
+    const run = new Function('document', 'devCnt', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + '\n' + calcTSrc + `
+      function getSirmanHostSync(){ return null; }
+      function fmt(n){ return String(n); }
+      function ntf(){}
+      return calcT();
+    `);
+    const tot = run(mockDoc, n);
+    assertEqual(tot.tE, row.tE, row.id + ' tE');
+    assertEqual(tot.tD, row.tD, row.id + ' tD');
+    assertEqual(tot.tF, row.tF, row.id + ' tF');
+  });
+});
+
+test('قفل B1 باید HTML-only و Host-wins قبلی را نگه دارد و نیم‌واحد مثبت را گرد کند', () => {
+  const calc = makeHtmlOnlyInvoiceLine();
+  assertEqual(calc(1000, 10, 9999).fin, 900, 'HTML-only بردار اصلی fin=900');
+  assertEqual(calc(15, 10, 0).da, 2, 'Math.round(1.5) باید ۲ باشد');
+  assertEqual(calc(5, 10, 0).da, 1, 'Math.round(0.5) باید ۱ باشد');
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  const exeCore = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        return JSON.stringify({ok:true, result:{est:1000, disc:10, da:100, fin:777}});
+      }};
+    }
+    return calcInvoiceLine(1000, 10, 9999);
+  `)();
+  assertEqual(exeCore.fin, 777, 'Host-wins باید باقی بماند');
+});
+
 test('رزرو در exe فقط Writer هسته باشد و بدون Host همان جهش JS بماند', () => {
   const runSrc = extractFunctionSource(html, 'runBusinessCore');
   const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
