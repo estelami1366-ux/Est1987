@@ -216,7 +216,9 @@ Diff is the two HTML files, `test_laegh.js`, and this report.
 
 # 13. COMMIT
 
-Filled after git commit.
+```text
+e07b41f83734df9178d461406a7e44df7d994b64
+```
 
 ---
 
@@ -271,5 +273,5 @@ Final status:
 PASS
 
 Commit:
-(pending)
+e07b41f83734df9178d461406a7e44df7d994b64
 ```
