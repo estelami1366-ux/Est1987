@@ -1,9 +1,9 @@
 # SIRMAN — PHASE 3 MIGRATION TRACKER
 
 **Tracker mode:** ACTIVE  
-**Last updated:** 1405/05/29 19:09:01 (Asia/Tehran)  
+**Last updated:** 1405/05/29 19:15:37 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `f3b4202`  
+**Current known HEAD:** `0aec497`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **Live version:** `1405.5.27γ`
 
@@ -28,8 +28,8 @@
 | B4 | Select next seam | ✅ COMPLETED | 1405/05/29 | ثبت قبلی | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B4_NEXT_OWNERSHIP_SEAM.md` — انتخاب `calc.sla` |
 | B5 | `calc.sla` ownership | ✅ COMPLETED | 1405/05/29 | ثبت قبلی | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B5_CALC_SLA_OWNERSHIP.md` — HTML 592 / Core 139 |
 | B6 | `sale.line` ownership | ✅ COMPLETED | 1405/05/29 | 19:09:01 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B6_SALE_LINE_OWNERSHIP.md` — commit `66e78be` — HTML 596 / Core 142 PASS |
-| B7 | Next ownership seam | ⬜ NOT STARTED | — | — | فقط پس از دستور صریح B7 |
-| B8 | Next ownership seam | ⬜ NOT STARTED | — | — | تعیین پس از B7 |
+| B7 | Next ownership seam (analysis) | ANALYSIS COMPLETED | 1405/05/29 | 19:15:37 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B7_NEXT_OWNERSHIP_SEAM.md` — انتخاب `sale.total` — implementation NOT STARTED |
+| B8 | Next ownership seam | ⬜ NOT STARTED | — | — | فقط پس از دستور صریح B8 — نامزد: `sale.total` |
 | B9 | Next ownership seam | ⬜ NOT STARTED | — | — | تعیین پس از B8 |
 | B10 | Migration checkpoint | ⬜ NOT STARTED | — | — | فقط طبق Change Gate |
 
@@ -60,13 +60,27 @@
 
 ---
 
+## B7 Analysis Record
+
+- **B7:** next ownership seam analysis (not a product migration)
+- **Report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B7_NEXT_OWNERSHIP_SEAM.md`
+- **Analysis:** ANALYSIS COMPLETED
+- **Implementation:** NOT STARTED
+- **CODE MODIFIED:** NO
+- **Recommended next seam:** `sale.total` (`calcSaleTotal` → `InvoicePricing.SaleTotal`)
+- **Readiness:** READY FOR FUTURE IMPLEMENTATION
+- **Parity:** PARITY PARTIAL (formula = sum of B6 `sale.line`; frozen totals table missing)
+- **B8:** NOT STARTED / NOT AUTHORIZED by B7
+
+---
+
 ## Rules for Updating This Tracker
 
 1. هر مرحله فقط با گزارش MD همان مرحله ثبت می‌شود.
 2. بدون تست و گزارش، مرحله تیک نمی‌خورد.
 3. `NEEDS HUMAN VERIFICATION` به معنی `COMPLETED` خودکار نیست؛ هر دو وضعیت جدا ثبت می‌شوند.
 4. تغییرات Print، Persistence، Backup، Invoice locked workflow، Inventory mutation، Accounting، Warranty mutation و Security باید با Change Gate کنترل شوند.
-5. `sale.total` در B6 عمداً تغییر نکرده است.
+5. `sale.total` در B6 عمداً تغییر نکرده است. B7 آن را به‌عنوان نامزد بعدی انتخاب کرد؛ پیاده‌سازی فقط با دستور B8.
 6. هیچ مرحله‌ای بدون دستور مرحله بعد شروع نمی‌شود.
 7. هر مرحله جدید باید تاریخ و ساعت اجرای واقعی خودش را ثبت کند.
 8. فایل‌های Cursor و گزارش‌های Cursor باید Markdown (`.md`) باشند.
@@ -80,12 +94,15 @@
 ```text
 A1–A6 = COMPLETED
 B1–B6 = COMPLETED
-B7     = NOT STARTED
+B7     = ANALYSIS COMPLETED
+B7 IMPLEMENTATION = NOT STARTED
+B8     = NOT STARTED
 
+Recommended B8 seam = sale.total
 B6 LIVE EXE = NEEDS HUMAN VERIFICATION
 PRINT       = FROZEN
 PERSISTENCE = UNCHANGED
 BACKUP      = UNCHANGED
 ```
 
-**NEXT ACTION:** تعیین و اجرای B7 فقط پس از دستور صریح.
+**NEXT ACTION:** اجرای `sale.total` فقط پس از دستور صریح B8. B7 پیاده‌سازی نشده است.
