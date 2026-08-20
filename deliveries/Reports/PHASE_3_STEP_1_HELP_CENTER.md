@@ -199,7 +199,9 @@ HTML 575/575. Core 134/134. No unrelated files in the diff.
 
 # 11. COMMIT
 
-Filled after `git commit`.
+```text
+55528bb435cb8145fad720612e2ca4c7612fccc0
+```
 
 ---
 
@@ -278,5 +280,5 @@ Final status:
 PASS
 
 Commit:
-(pending)
+55528bb435cb8145fad720612e2ca4c7612fccc0
 ```
