@@ -7923,6 +7923,64 @@ test('قانون ۷: مرکز راهنما باید شروع سریع، فرآی
   assertTrue(!!prod && prod[0].indexOf('به‌زودی') === -1, 'راهنمای کالا و انبار نباید ناتمام بماند');
 });
 
+test('مرکز راهنما باید باز/بسته کردن همه موضوع‌ها و شمارش نتیجه جستجو داشته باشد', () => {
+  assertContainsString(html, 'id="help-expand-all"', 'دکمه باز کردن همه موضوع‌ها پیدا نشد');
+  assertContainsString(html, 'id="help-collapse-all"', 'دکمه بستن همه موضوع‌ها پیدا نشد');
+  assertContainsString(html, 'id="help-search-count"', 'شمارش نتیجه جستجوی راهنما پیدا نشد');
+  assertContainsString(html, 'onclick="expandAllHelpTopics()"', 'دکمه باز کردن همه به expandAllHelpTopics وصل نیست');
+  assertContainsString(html, 'onclick="collapseAllHelpTopics()"', 'دکمه بستن همه به collapseAllHelpTopics وصل نیست');
+  const expSrc = extractFunctionSource(html, 'expandAllHelpTopics');
+  const colSrc = extractFunctionSource(html, 'collapseAllHelpTopics');
+  const cntSrc = extractFunctionSource(html, 'updateHelpSearchCount');
+  const txtSrc = extractFunctionSource(html, 'helpNavCountText');
+  assertTrue(!!expSrc && !!colSrc && !!cntSrc && !!txtSrc, 'توابع ناوبری درخت راهنما پیدا نشد');
+  const initSrc = extractFunctionSource(html, 'initHelpTree');
+  assertTrue(initSrc.indexOf('next=el.nextElementSibling') >= 0 || initSrc.indexOf('const next=el.nextElementSibling') >= 0,
+    'initHelpTree باید قبل از جابه‌جایی کارت، خواهر بعدی را نگه دارد وگرنه هر شاخه فقط یک مقاله می‌گیرد');
+  const runner = new Function(txtSrc + '\n' + cntSrc + '\n' + expSrc + '\n' + colSrc + `
+    function initHelpTree(){}
+    function faNum(s){ return String(s); }
+    var treeCls = ['collapsed'];
+    var cardCls = ['help-collapsed'];
+    function cls(arr){
+      return {
+        add: function(c){ if(arr.indexOf(c)<0) arr.push(c); },
+        remove: function(c){ var i=arr.indexOf(c); if(i>=0) arr.splice(i,1); }
+      };
+    }
+    var tree = { classList: cls(treeCls) };
+    var card = { classList: cls(cardCls) };
+    var count = { textContent: '' };
+    var document = {
+      querySelectorAll: function(sel){
+        if (sel.indexOf('help-tree-node')>=0) return [tree];
+        if (sel.indexOf('help-card')>=0) return [card];
+        return [];
+      },
+      getElementById: function(id){ return id==='help-search-count' ? count : null; }
+    };
+    expandAllHelpTopics();
+    var afterExp = { tree: treeCls.slice(), card: cardCls.slice() };
+    collapseAllHelpTopics();
+    var afterCol = { tree: treeCls.slice(), card: cardCls.slice() };
+    updateHelpSearchCount('', 12);
+    var allTxt = count.textContent;
+    updateHelpSearchCount('فاکتور', 3);
+    var hitTxt = count.textContent;
+    updateHelpSearchCount('xyz', 0);
+    var emptyTxt = count.textContent;
+    return { afterExp: afterExp, afterCol: afterCol, allTxt: allTxt, hitTxt: hitTxt, emptyTxt: emptyTxt };
+  `);
+  const r = runner();
+  assertTrue(r.afterExp.tree.indexOf('collapsed') < 0, 'باز کردن همه باید collapsed را از گره درخت بردارد');
+  assertTrue(r.afterExp.card.indexOf('help-collapsed') < 0, 'باز کردن همه باید help-collapsed را از کارت بردارد');
+  assertTrue(r.afterCol.tree.indexOf('collapsed') >= 0, 'بستن همه باید collapsed را به گره درخت برگرداند');
+  assertTrue(r.afterCol.card.indexOf('help-collapsed') >= 0, 'بستن همه باید help-collapsed را به کارت برگرداند');
+  assertTrue(/مقاله/.test(r.allTxt), 'بدون جستجو باید تعداد مقاله نشان داده شود');
+  assertTrue(/نتیجه/.test(r.hitTxt), 'با جستجو باید تعداد نتیجه نشان داده شود');
+  assertTrue(/۰ نتیجه|0 نتیجه/.test(r.emptyTxt), 'جستجوی بی‌نتیجه باید صفر نتیجه بگوید');
+});
+
 
 console.log('');
 console.log('📋 گروه: هسته هوشمند — محاسبه، گردش‌کار، پیشنهاد قطعه');
