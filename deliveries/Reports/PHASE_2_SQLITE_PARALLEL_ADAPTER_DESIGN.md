@@ -4,6 +4,8 @@
 **Kind:** DESIGN ONLY — کد، NuGet، Host، HTML، و پرامپت اجرایی در این کار نیست  
 **Branch:** `cursor/phase-2-sqlite-design-3733`  
 **Depends on:** Phase 1 PR #51 + Phase 1b PR #52  
+**Human approval:** **APPROVED** — 1405/05/29 (20 August 2026)  
+**Work report:** `deliveries/Reports/PHASE_2_SQLITE_DESIGN_REPORT.md`  
 **Blocked for execution:** Phase 0 print checklist (`docs/PHASE_0_PRINT_VERIFICATION_CHECKLIST.md`) still `OUTCOME = NOT_RUN`  
 **Version bumped:** NO  
 
@@ -16,7 +18,7 @@
 | نام | چیست | وضعیت |
 |---|---|---|
 | **فاز ۲ محصول** (چاپ / Business Core) | `RunBusiness`، انزوای چاپ، تگ `phase-2-closed-1405.5.27-alpha` | بسته |
-| **فاز ۲ مهاجرت persist** | آداپتر SQLite روی قراردادهای `Sirman.Core.Data.Repositories` | **همین سند — فقط طراحی** |
+| **فاز ۲ مهاجرت persist** | آداپتر SQLite روی قراردادهای `Sirman.Core.Data.Repositories` | **طراحی تأیید شد — اجرا نشده** |
 
 از این به بعد در این مسیر مهاجرت، «فاز ۲» یعنی **آداپتر موازی SQLite**. چاپ منجمد است و به این فاز مربوط نیست.
 
@@ -241,13 +243,13 @@ EF Core / Dapper / sqlite-net انتخاب نمی‌شود. ADO.NET روی `Micr
 
 ---
 
-## پیشنهاد ثبت در معماری (الان اعمال نشود)
+## ثبت در معماری
 
-بعد از پذیرش این طراحی و بسته شدن فاز ۰، یک بند جدید در بخش ۴.۱:
+طراحی توسط صاحب پروژه تأیید شد. بند جدید در `docs/ARCHITECTURE_RULES.md` بخش ۴.۱ **الان نوشته نمی‌شود** — اجرا هنوز پشت فاز ۰ است. متن آمادهٔ ثبت بعد از بسته شدن فاز ۰:
 
 > آداپتر SQLite مجاز است فقط به‌عنوان پیاده‌سازی دوم قراردادهای `Sirman.Core.Data.Repositories`، بدون سیم‌کشی به Host/UI. منبع حقیقت تا اطلاع ثانوی HTML localStorage است. Client مستقیم به فایل SQLite و REST CRUD ممنوع می‌ماند.
 
-تا آن بند ثبت نشود، اجرای کد SQLite با متن فعلی بند ۱۰ (`Database در این فاز ساخته نمی‌شود`) تنش دارد؛ به همین دلیل اجرا به بعد از فاز ۰ **و** مرور این گزارش موکول است.
+تا آن بند ثبت نشود و فاز ۰ بسته نشود، کد SQLite داخل ریپو نمی‌آید.
 
 ---
 
@@ -281,10 +283,10 @@ Rollback طراحی: حذف همین فایل و شاخه؛ کد محصول تغ
 12. **Real Environment Test:** لازم نیست برای سند طراحی؛ چاپ فیزیکی همچنان NOT_RUN  
 13. **Risks:** اجرای زودهنگام قبل از فاز ۰ / Dual-write  
 14. **Rollback:** revert همین سند  
-15. **Final Status:** **BLOCKED** برای اجرا (فاز ۰ باز است). طراحی: کامل برای مرور.
+15. **Final Status:** طراحی **APPROVED**. اجرا **BLOCKED** (فاز ۰ باز است).
 
 ```text
-PHASE 2 SQLITE = DESIGNED, NOT IMPLEMENTED
+PHASE 2 SQLITE = DESIGN APPROVED, NOT IMPLEMENTED
 EXECUTABLE PROMPT = NOT WRITTEN (waiting on Phase 0)
 WIRED INTO APP = NO
 RUNTIME BEHAVIOR CHANGED = NO
