@@ -248,6 +248,16 @@ Feature جدید فاز ۳ روی شاخه جدا: Implementation → Tests → 
 
 چاپ **FROZEN / ISOLATED** است. بدون دلیل مشخص (شکست اثبات‌شده روی چاپگر واقعی) به ماژول چاپ دست نزن.
 
+**PHASE 3 CHANGE GATE = MANDATORY.** منبع کامل: `docs/PHASE_3_CHANGE_GATE.md`.
+
+قبل از نوشتن، ویرایش، حذف، جابه‌جایی یا بازنام‌گذاری هر فایل منبع:
+
+`STOP → CLASSIFY → TRACE → CHECK BOUNDARIES → PRODUCE GATE RESULT → ONLY THEN IMPLEMENT`
+
+بدون `Gate: PASS` پیاده‌سازی ممنوع است. `BLOCK` یعنی هیچ فایلی عوض نشود. شواهد ناکافی = `INSUFFICIENT EVIDENCE`، نه `PASS`.
+
+در فاز ۳: seam معماری امن وجود ندارد؛ استخراج معماری، SQL/SQLite به‌عنوان منبع حقیقت، REST کسب‌وکار، Host دوم، ACL دوم، و بازنویسی چاپ ممنوع است مگر تصمیم معماری بعدی همان تغییر را صریح مجاز کند.
+
 ## Rollback و انتشار
 
 اولویت بعد از Regression بحرانی: **ROLLBACK**، نه وصله تصادفی.
