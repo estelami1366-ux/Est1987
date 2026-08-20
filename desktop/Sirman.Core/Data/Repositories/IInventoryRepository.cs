@@ -1,18 +1,21 @@
 using System.Text.Json.Nodes;
-using Sirman.Core.Business;
 
 namespace Sirman.Core.Data.Repositories;
 
 /// <summary>
 /// مرز persist موجودی. آیتم واقعی <see cref="JsonObject"/> است؛ کلید <c>code</c>.
-/// Reserve/Consume در Core امروز در <see cref="InventoryCore"/> است نه در CurrentJsonStore.
-/// همنام <c>Sirman.Core.Data.IInventoryRepository</c> (MergeItem/MergeMap) نیست.
+/// Reserve/Consume قانون کسب‌وکار است و در <c>Sirman.Core.Business.InventoryCore</c> می‌ماند — روی این اینترفیس نیست.
+/// همنام <c>Sirman.Core.Data.IInventoryRepository</c> (MergeItem/MergeMap) نیست؛ آن قرارداد قدیمی جدا می‌ماند.
+/// این اینترفیس هنوز به BusinessFacade / HTML وصل نشده است.
 /// </summary>
 public interface IInventoryRepository
 {
+    /// <summary>خواندن کالا با کد.</summary>
     JsonObject? GetById(string itemId);
+
+    /// <summary>همهٔ کالاهای کیسهٔ persist.</summary>
     IReadOnlyList<JsonObject> GetAll();
+
+    /// <summary>ذخیره/ادغام سند کالا. رزرو و مصرف موجودی اینجا نیست.</summary>
     void Save(JsonObject item);
-    InventoryMutateResult Reserve(string itemId, int qty, string? whId);
-    InventoryMutateResult Consume(string itemId, int qty);
 }

@@ -1,5 +1,4 @@
 using System.Text.Json.Nodes;
-using Sirman.Core.Business;
 using Sirman.Core.Data.Repositories;
 using Sirman.Core.Security;
 
@@ -56,30 +55,6 @@ internal sealed class FakeInventoryRepository : IInventoryRepository
         _byId[id] = Clone(item);
     }
 
-    public InventoryMutateResult Reserve(string itemId, int qty, string? whId)
-    {
-        _ = whId;
-        var item = GetById(itemId);
-        if (item is null) return new InventoryMutateResult { Ok = false, Error = "missing" };
-        var qtyNow = item["qty"]?.GetValue<int>() ?? 0;
-        var reserved = item["reserved"]?.GetValue<int>() ?? 0;
-        if (qtyNow - reserved < qty) return new InventoryMutateResult { Ok = false, Error = "stock" };
-        item["reserved"] = reserved + qty;
-        Save(item);
-        return new InventoryMutateResult { Ok = true, Item = item };
-    }
-
-    public InventoryMutateResult Consume(string itemId, int qty)
-    {
-        var item = GetById(itemId);
-        if (item is null) return new InventoryMutateResult { Ok = false, Error = "missing" };
-        var qtyNow = item["qty"]?.GetValue<int>() ?? 0;
-        if (qtyNow < qty) return new InventoryMutateResult { Ok = false, Error = "stock" };
-        item["qty"] = qtyNow - qty;
-        Save(item);
-        return new InventoryMutateResult { Ok = true, Item = item };
-    }
-
     private static JsonObject Clone(JsonObject o) =>
         JsonNode.Parse(o.ToJsonString()) as JsonObject ?? new JsonObject();
 }
@@ -109,21 +84,6 @@ internal sealed class FakePaymentRepository : IPaymentRepository
         var id = account["id"]?.ToString() ?? "";
         if (id.Length == 0) return;
         _byId[id] = JsonNode.Parse(account.ToJsonString()) as JsonObject ?? new JsonObject();
-    }
-
-    public IReadOnlyList<JsonObject> Reverse(string invoiceId)
-    {
-        var want = (invoiceId ?? "").Trim();
-        foreach (var acc in _byId.Values)
-        {
-            if (acc["trx"] is not JsonArray arr) continue;
-            for (var i = arr.Count - 1; i >= 0; i--)
-            {
-                if (arr[i] is JsonObject t && (t["refId"]?.ToString() == want || t["invoiceId"]?.ToString() == want))
-                    arr.RemoveAt(i);
-            }
-        }
-        return _byId.Values.Select(a => JsonNode.Parse(a.ToJsonString()) as JsonObject ?? new JsonObject()).ToList();
     }
 }
 

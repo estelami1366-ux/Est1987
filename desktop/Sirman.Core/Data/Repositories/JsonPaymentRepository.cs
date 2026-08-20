@@ -1,9 +1,8 @@
 using System.Text.Json.Nodes;
-using Sirman.Core.Business;
 
 namespace Sirman.Core.Data.Repositories;
 
-/// <summary>لیست حساب JSON + MergeItem. Reverse به PaymentRules.ReverseOwned موجود تفویض می‌شود.</summary>
+/// <summary>لیست حساب JSON + MergeItem. برگشت تراکنش روی این کلاس نیست؛ PaymentRules دست‌نخورده می‌ماند.</summary>
 public sealed class JsonPaymentRepository : IPaymentRepository
 {
     private readonly CurrentJsonStore _store;
@@ -37,21 +36,6 @@ public sealed class JsonPaymentRepository : IPaymentRepository
         if (id.Length == 0) return;
         var live = _byId.TryGetValue(id, out var existing) ? existing : new JsonObject();
         _byId[id] = RepositoryJson.Clone(_store.MergeItem(live, account));
-    }
-
-    public IReadOnlyList<JsonObject> Reverse(string invoiceId)
-    {
-        var want = (invoiceId ?? "").Trim();
-        var updated = new List<JsonObject>();
-        if (want.Length == 0) return updated;
-        foreach (var id in _byId.Keys.ToList())
-        {
-            var r = PaymentRules.ReverseOwned(_byId[id], want);
-            if (!r.Ok || r.Account is null) continue;
-            Save(r.Account);
-            updated.Add(RepositoryJson.Clone(_byId[id]));
-        }
-        return updated;
     }
 
     private static bool TrxMatches(JsonObject t, string invoiceId)
