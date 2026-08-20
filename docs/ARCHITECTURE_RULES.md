@@ -1,0 +1,526 @@
+# قوانین معماری سیرمان / لایق
+
+این سند قانون رسمی معماری بلندمدت است. نسخهٔ کامل‌تر (`ARCHITECTURE_RULES.cl.md`) مبنا است؛ نسخهٔ کوتاه‌تر (`ARCHITECTURE_RULES.ch.md`) زیرمجموعهٔ همین سند است و جداگانه اعمال نمی‌شود.
+
+عامل هوش مصنوعی **باید** این سند را قبل از هر تغییر در منطق کسب‌وکار، داده، بک‌آپ، چاپ، انبار، امنیت یا پوستهٔ دات‌نت بخواند و رعایت کند.
+
+گردش‌کار تحویل روزانه (نسخه، تست، فایل تک‌تکه، لانچر) در `.agents/skills/laegh-software-workflow/SKILL.md` است. حاکمیت توسعه و حفاظت کد پایدار در `docs/DEVELOPMENT_GOVERNANCE.md` است. آن قوانین باطل نشده‌اند. این سند جهت معماری را مشخص می‌کند.
+
+---
+
+## تصمیم‌های ثبت‌شده برای سیرمان (بخش ۴.۱)
+
+تا وقتی تصمیم صریح جدیدی ثبت نشود، این‌ها قطعی‌اند:
+
+1. **مسیر ارتباط UI با Core:** میزبانی HTML داخل WebView2 و ارتباط از طریق Host Object.
+   - نام شیء: `sirmanHost`
+   - مسیر JS: `chrome.webview.hostObjects.sync.sirmanHost`
+   - پیاده‌سازی: `desktop/Sirman.Desktop/SirmanHostObject.cs`
+2. **مسیرهای غیرمجاز:** Local API روی localhost + `fetch`/`XHR` برای منطق کسب‌وکار. Blazor Hybrid انتخاب نشده است.
+3. **لیست مجاز فعلی Host Object:** `Ping`, `CloseApp`, `Notify`, `GetNotifyPort`, `GetBackupDir`, `SaveAppPref`, `LoadAppPref`, `WriteBackupText`, `GetWarrantyBrowseCatalog`, `GetWarrantyBrowseCss`, `ApplyUiSkin`, `GetPrinters`, `PrintHtml`, `PrintDocument`, `GetPrintJob`, `GetMachineInfo`, `GetNetworkInfo`, `SetNetworkConfig`, `WriteWorkspaceFile`, `ReadWorkspaceFile`, `Login`, `Logout`, `BindSession`, `CheckPermission`, `HashPassword`, `VerifyPassword`, `ValidateEntity`, `GetSecurityStatus`, `SaveSecret`, `LoadSecret`, `RunBusiness`, `RunPrintHardwareDiagnostic`. هر متد جدید باید به همین شیء اضافه شود، نه با مسیر موازی. `RunBusiness` پل محاسبات/قوانین فاز ۲ است (نه REST). مسیر چاپ تولیدی فقط `GetPrinters` / `PrintHtml` / `PrintDocument` / `GetPrintJob` است و از `IPrintService` می‌گذرد. `RunPrintHardwareDiagnostic` فقط هارنس تشخیص چاپگر است و داده کسب‌وکار را تغییر نمی‌دهد. عملیات حساس (`SetNetworkConfig`, `WriteWorkspaceFile`, `ReadWorkspaceFile`, `PrintHtml`) از Host Security Gate با نشست و مجوز صفحهٔ موجود عبور می‌کنند. `WriteBackupText` و `SaveAppPref` برای حفظ داده/ظاهر بدون ورود هم مجاز می‌مانند.
+4. **محصول UI:** فایل HTML تک‌تکه (`Sirman_Final.html`) همچنان رابط کاربری و مسیر اجرای بدون نصب است. HTML حذف نمی‌شود.
+5. **هستهٔ هدف:** منطق کسب‌وکار، دیتابیس، بک‌آپ، چاپ، امنیت و گزارش در .NET. انتقال تدریجی است، نه بازنویسی یک‌شبه.
+6. **سازگاری مسیر HTML-only:** تا وقتی داده هنوز در مرورگر/HTML است، باز کردن مستقیم HTML نباید بشکند. منطق جدید مهم باید طوری اضافه شود که در exe از Core عبور کند و در HTML-only یا کار کند یا با پیام واضح غیرفعال شود — نه اینکه کل برنامه از کار بیفتد.
+7. **شبکه داخلی (مرحله ۳ سند معماری شبکه):** Application Server همین لانچر موجود است (`sirman_run.ps1`، پورت ۸۷۶۵). پیش‌فرض فقط Loopback. اشتراک LAN با نشانگر `%AppData%\Sirman\lan-share.on` یا `SIRMAN_LAN=1` روی `0.0.0.0` bind می‌شود. مسیرهای HTTP مجاز روی این سرور: فایل UI + `/health` + `/sirman-net.json` (health/identity). `fetch`/`XHR` برای این دو مسیر هویت/سلامت مجاز است و منطق کسب‌وکار نیست. CRUD فاکتور/گارانتی/مشتری روی HTTP، REST API موازی، ASP.NET جدا، و HTTPS عمومی/Gateway هنوز مرحلهٔ ۶ است و در این نسخه ساخته نمی‌شود. همگام‌سازی داده بین ایستگاه‌ها از پوشهٔ مشترک فایل (UNC/درایو شبکه) با همان بستهٔ بک‌آپ موجود است، از مسیر Host `ReadWorkspaceFile`/`WriteWorkspaceFile` — نه دیتابیس جدا و نه اتصال مستقیم Client به Database.
+8. **شماره نسخه واحد:** فایل `SIRMAN_VERSION.json` در ریشه منبع شماره نسخه است. HTML (`APP_VERSION`) و پوسته ویندوز (`desktop/Directory.Build.props` → `Version`/`InformationalVersion`) باید با همان فایل یکی باشند. حرف یونانی همان روز به رقم چهارم اسمبلی نگاشت می‌شود (α=1 … η=8، θ=9، ι=10، κ=11، λ=12، μ=13، ν=14، ξ=15).
+9. **لایه امنیت Host (فاز ۱):** کتابخانه `desktop/Sirman.Core` (Password / Authentication / Authorization / Validation) از همان نقش‌ها و کلید صفحات HTML استفاده می‌کند — سیستم نقش موازی نیست. ورود HTML همچنان منبع حقیقت مسیر HTML-only است؛ exe بعد از ورود موفق با `BindSession` نشست Host را همگام می‌کند.
+10. **Business Core (فاز ۲):** محاسبات و قوانین موجود در `desktop/Sirman.Core/Business` از Host با `RunBusiness` صدا می‌شوند. در exe نتیجه C# منبع حقیقت است. مسیر HTML-only همان توابع JS را به‌عنوان fallback نگه می‌دارد چون Host نیست. persist از آداپتر JSON به localStorage است؛ Core به جزئیات localStorage وابسته نیست. Database و REST در این فاز ساخته نمی‌شوند.
+11. **Print module (خروج فاز ۲):** PRINT MODULE ISOLATED. PHASE 3 MUST NOT BREAK PRINT. PRINT MUST NOT BLOCK PHASE 3. ماژول‌های کسب‌وکار به اسپولر / درایور / پورت / PrintAsync وابسته نیستند؛ فقط از قرارداد چاپ (`printEngine*` در UI و `IPrintService` در Core) استفاده می‌کنند. هارنس تشخیص جدا می‌ماند. خروجی PDF با چاپ کاغذ یکی نیست. چاپ فیزیکی تا تست واقعی ویندوز+چاپگر `PHYSICAL_PRINT_NOT_VERIFIED` است. از این پس چاپ **FROZEN** است مگر شکست سخت‌افزار با شاهد ثابت شود. بازنویسی مرکز پرینت و fix حدسی ممنوع است.
+
+### وضعیت فعلی در برابر هدف
+
+| موضوع | امروز | هدف |
+|---|---|---|
+| داده | `localStorage` / IndexedDB داخل HTML | Database از طریق Data Access در .NET |
+| قوانین کسب‌وکار | بیشتر داخل JS | Business Logic در .NET با اعتبارسنجی مستقل |
+| بک‌آپ | بسته JSON داخل HTML (از ۱۴۰۵.۵.۲۲ε) | Backup Engine مستقل از UI در Core |
+| چاپ | Print Center در HTML + `IPrintService` روی `WindowsPrintHost` (ایزوله / منجمد) | همان قرارداد؛ بدون بازنویسی تا شاهد سخت‌افزار |
+| انبار | Inventory Engine در JS | Inventory Core مشترک در .NET |
+| دسترسی | نقش‌ها در HTML | بررسی دسترسی در Core، نه فقط مخفی کردن دکمه |
+
+بازنویسی کل HTML یا عوض کردن فریم‌ورک بدون درخواست صریح کاربر ممنوع است (بخش ۱۵). قابلیت موجود را توسعه بده؛ سیستم موازی نساز.
+
+---
+
+# ARCHITECTURE_RULES.md
+
+## هدف پروژه
+
+این پروژه یک نرم‌افزار دسکتاپ حرفه‌ای برای مدیریت خدمات پس از فروش است.
+
+نرم‌افزار باید در بلندمدت قابل توسعه، قابل نگهداری، پایدار و قابل ارتقا باشد.
+
+اصل مهم:
+
+> قابلیت جدید نباید باعث خراب شدن قابلیت‌های قبلی شود.
+
+---
+
+# 1. معماری اصلی
+
+پروژه باید به صورت Modular Monolith طراحی شود.
+
+ساختار کلی:
+
+Application
+│
+├── UI
+├── Application Core
+├── Business Logic
+├── Data Access
+├── Database
+├── Printing
+├── Backup
+├── Reporting
+└── Modules
+
+---
+
+# 2. تکنولوژی رابط کاربری
+
+رابط کاربری می‌تواند با HTML، CSS و JavaScript ساخته شود.
+
+استفاده از HTML ممنوع نیست و نیازی به حذف رابط‌های HTML موجود نیست.
+
+اما HTML فقط مسئول UI است.
+
+HTML نباید مستقیماً مسئول Business Logic، Database Logic، Backup Logic یا منطق پیچیده کسب‌وکار باشد.
+
+---
+
+# 3. نقش .NET
+
+.NET هسته اصلی برنامه باشد.
+
+منطق اصلی سیستم در .NET قرار گیرد:
+
+- Business Rules
+- Customers
+- Products
+- Inventory
+- Service Management
+- Orders
+- Accounting
+- Reports
+- Printing
+- Backup/Restore
+- Security
+- Permissions
+- Database Operations
+
+---
+
+# 4. ارتباط UI با Core
+
+UI نباید مستقیماً به Database متصل شود.
+
+HTML / JavaScript
+        ↓
+Application Services
+        ↓
+Business Logic
+        ↓
+Data Access
+        ↓
+Database
+
+## 4.1 مکانیزم فنی ارتباط (باید صریح تعیین شود)
+
+این سند باید مشخص کند HTML/JS دقیقاً از چه مسیر فنی با .NET صحبت می‌کند. تا این تصمیم مشخص و مستند نشود، هر توسعه جدید (حتی توسط AI) به سادگی‌ترین راه در دسترس متوسل می‌شود که معمولاً نوشتن منطق مستقیم داخل JS است.
+
+گزینه‌های معمول:
+
+- میزبانی HTML داخل WebView2 (یا معادل آن) و ارتباط از طریق Host Object / Message Bridge با .NET
+- بالا آوردن یک Local API توسط .NET (مثلاً روی localhost) و ارتباط JS با آن از طریق fetch
+- استفاده از Blazor Hybrid (معماری متفاوتی دارد و باید آگاهانه انتخاب شود)
+
+هرکدام که انتخاب شود، باید در این سند به‌صورت قطعی ثبت شود و بدون تصمیم صریح جدید تغییر نکند.
+
+## 4.2 لیست مجاز ارتباط
+
+UI فقط مجاز است از طریق یک لیست مشخص از متدها/Endpointهای Application Service Layer با Core ارتباط بگیرد.
+
+استفاده مستقیم از fetch/XHR یا هر مسیر دیگر برای اجرای Query یا هر بخشی از Business Logic از سمت JS ممنوع است، حتی برای قابلیت‌های کوچک یا موقت.
+
+---
+
+# 5. Business Logic
+
+قوانین کسب‌وکار نباید داخل HTML یا JavaScript پراکنده شوند.
+
+قوانین مهم سیستم باید در Business Logic و .NET پیاده‌سازی شوند.
+
+---
+
+# 6. ماژول‌ها
+
+ماژول‌های اصلی:
+
+- Customers
+- Products
+- Service
+- Inventory
+- Warehouses
+- Repairs
+- Parts
+- Accounting
+- Reports
+- Printing
+- Backup
+- Settings
+- Users & Permissions
+
+هر ماژول تا حد امکان مستقل باشد.
+
+---
+
+# 7. Database
+
+Database فقط از طریق Data Access Layer مدیریت شود.
+
+UI نباید Query مستقیم به Database ارسال کند.
+
+هر تغییر ساختار Database باید Version داشته باشد.
+
+---
+
+# 8. Backup و Restore
+
+Backup مستقل از UI باشد.
+
+هر Backup دارای این اطلاعات باشد:
+
+- Backup ID
+- Date
+- Application Version
+- Database Schema Version
+- Manifest
+- Checksum
+- Data
+- Attachments
+
+Backup قدیمی باید در نسخه‌های جدید تا حد امکان قابل Restore باشد.
+
+Restore:
+
+Verify
+↓
+Temporary Database
+↓
+Migration
+↓
+Validation
+↓
+Atomic Replace
+↓
+Success
+
+در صورت خطا:
+
+Rollback
+
+---
+
+# 9. Migration
+
+هر تغییر Database باید Migration نسخه‌دار داشته باشد.
+
+مثال:
+
+V1 → V2
+V2 → V3
+V3 → V4
+
+Migrationهای قدیمی نباید حذف شوند.
+
+هدف این است که Backup نسخه‌های قدیمی بتواند در نسخه جدید به ساختار جدید تبدیل شود.
+
+---
+
+# 10. Printing
+
+تمام قابلیت‌های چاپ از یک Print Engine مرکزی استفاده کنند.
+
+لایهٔ اجباری (Phase 2 exit):
+
+```
+Business Module
+        ↓
+Print Contract (printEngine* / IPrintService)
+        ↓
+Print Module (WindowsPrintHost + Print Center UI)
+        ↓
+Windows / WebView2 / Printer
+```
+
+PRINT MODULE ISOLATED. PHASE 3 MUST NOT BREAK PRINT.
+
+جزئیات اسپولر، درایور، پورت و PrintAsync داخل ماژول چاپ می‌ماند.
+تشخیص سخت‌افزار (`RunPrintHardwareDiagnostic`) جدا از این مسیر است و به فاکتور/انبار/حساب/گارانتی وابسته نیست.
+
+خروجی PDF و چاپ فیزیکی دو مسیر جدا هستند. موفقیت PDF موفقیت چاپ کاغذ نیست.
+وضعیت کاغذ تا تأیید انسانی روی چاپگر واقعی: `PHYSICAL_PRINT_NOT_VERIFIED`.
+
+Print Center شامل:
+
+- Print Preview
+- Printer Selection
+- A4
+- A5
+- Thermal
+- Zebra
+- PDF
+- Print Settings
+- Print History
+
+باشد.
+
+---
+
+# 11. Inventory
+
+تمام انبارها از یک Inventory Core مشترک استفاده کنند.
+
+انبارها می‌توانند شامل:
+
+- انبار قطعات
+- انبار کالا
+- انبار خدمات
+- انبار محصولات معیوب
+- انبار مرجوعی
+- انبار اسقاط
+
+باشند.
+
+ساختار اصلی:
+
+Product + Warehouse + Stock + Transaction
+
+---
+
+# 12. امنیت و دسترسی
+
+سطح دسترسی کاربران در Core کنترل شود.
+
+مخفی کردن دکمه در UI به‌تنهایی کافی نیست.
+
+Backend/Core نیز باید دسترسی را بررسی کند.
+
+عملیات مهم دارای Audit Log باشند:
+
+- کاربر
+- زمان
+- عملیات
+- داده
+- تغییر انجام‌شده
+
+---
+
+# 13. توسعه قابلیت جدید
+
+قبل از اضافه کردن قابلیت جدید:
+
+1. ساختار فعلی پروژه بررسی شود.
+2. ماژول مناسب مشخص شود.
+3. قابلیت در محل مناسب قرار گیرد.
+4. از کد تکراری جلوگیری شود.
+5. از تغییر غیرضروری بخش‌های موجود خودداری شود.
+
+---
+
+# 14. قانون مهم برای AI
+
+قبل از نوشتن کد:
+
+> ابتدا ساختار فعلی پروژه را بررسی کن.
+
+نباید بدون بررسی پروژه فایل یا معماری جدید ایجاد شود.
+
+اگر قابلیت مشابهی وجود دارد، همان قابلیت توسعه داده شود.
+
+---
+
+# 15. تغییرات حداقلی
+
+برای هر درخواست، کمترین تغییر لازم انجام شود.
+
+از Rewrite کردن کل پروژه خودداری شود.
+
+Framework یا معماری اصلی بدون درخواست صریح تغییر نکند.
+
+---
+
+# 16. جلوگیری از Technical Debt
+
+موارد زیر ممنوع:
+
+- کد تکراری غیرضروری
+- Database Query پراکنده
+- Business Logic داخل UI
+- مسیرهای Hard-coded
+- تنظیمات Hard-coded
+- وابستگی غیرضروری بین ماژول‌ها
+- ایجاد فایل‌های مشابه با نام‌های مختلف
+- ایجاد سیستم موازی برای قابلیت موجود
+
+---
+
+# 17. UI و ظاهر
+
+ظاهر نرم‌افزار Modern Desktop و حرفه‌ای باشد.
+
+UI باید:
+
+- ساده
+- سریع
+- منظم
+- یکپارچه
+- مناسب کاربران اداری
+
+باشد.
+
+استفاده از HTML/CSS برای UI کاملاً مجاز است.
+
+---
+
+# 18. مدیریت خطا
+
+خطاها باید مدیریت شوند.
+
+برنامه نباید با یک خطای عادی Crash کند.
+
+خطا باید:
+
+- ثبت شود
+- قابل پیگیری باشد
+- پیام مناسب به کاربر نمایش داده شود
+
+اطلاعات حساس فنی مستقیماً به کاربر نمایش داده نشود.
+
+---
+
+# 19. Logging
+
+برای عملیات مهم Logging وجود داشته باشد:
+
+- Error Log
+- Audit Log
+- Backup Log
+- Restore Log
+- Migration Log
+
+---
+
+# 20. سازگاری نسخه‌ها
+
+هر Release جدید تا حد امکان با داده‌های نسخه‌های قبلی سازگار باشد.
+
+قبل از انتشار نسخه جدید:
+
+- Backup قدیمی تست شود.
+- Restore تست شود.
+- Migration تست شود.
+- اطلاعات مهم بررسی شود.
+- قابلیت‌های قبلی تست شوند.
+
+---
+
+# 21. قانون عدم تخریب
+
+هیچ تغییر جدیدی نباید بدون دلیل:
+
+- Database قبلی را حذف کند.
+- اطلاعات قبلی را حذف کند.
+- Backupهای قبلی را غیرقابل استفاده کند.
+- قابلیت‌های قبلی را حذف کند.
+- ساختار موجود را بدون ضرورت تغییر دهد.
+
+---
+
+# 22. اصل بلندمدت پروژه
+
+نرم‌افزار باید طوری ساخته شود که سال‌ها توسعه پیدا کند.
+
+هدف:
+
+Version 1
+↓
+Version 2
+↓
+Version 3
+↓
+...
+↓
+Version 20+
+
+بدون اینکه اطلاعات قدیمی از بین برود.
+
+---
+
+# 23. اولویت‌های توسعه
+
+در تصمیم‌گیری این اولویت رعایت شود:
+
+1. حفظ اطلاعات
+2. پایداری
+3. امنیت
+4. سازگاری نسخه‌ها
+5. قابلیت نگهداری
+6. عملکرد
+7. امکانات جدید
+8. زیبایی UI
+
+زیبایی رابط کاربری نباید باعث قربانی شدن پایداری و امنیت شود.
+
+---
+
+# 24. اعتبارسنجی مستقل در Core (حتی برای API محلی)
+
+از آنجا که HTML/JS داخل WebView از طریق DevTools قابل بازرسی و حتی دستکاری است، Core هرگز نباید به بررسی‌های سمت UI اعتماد کند.
+
+هر درخواستی که از UI به Application Service Layer می‌رسد، باید مستقل در Core از نظر دسترسی، اعتبار داده و صحت منطق کسب‌وکار بررسی شود؛ صرف‌نظر از اینکه UI همان بررسی را انجام داده یا خیر.
+
+این قانون توسعه‌ی بخش ۱۲ (امنیت و دسترسی) است و شامل ارتباط محلی UI↔Core نیز می‌شود.
+
+---
+
+# 25. تست Business Logic
+
+علاوه بر Migration Log، Restore Log و Backup Log، باید برای Business Logic حیاتی (محاسبات مالی، موجودی انبار، قوانین سرویس) Unit Test وجود داشته باشد.
+
+قابلیت جدید یا تغییر در قابلیت موجود، در صورت داشتن منطق کسب‌وکار مهم، بدون تست مرتبط پذیرفته نشود.
+
+هدف: جلوگیری از رگرسیون در پروژه‌ای که قرار است سال‌ها توسعه پیدا کند (هم‌راستا با اصل «قابلیت جدید نباید قابلیت قبلی را خراب کند»).
+
+---
+
+# 26. جلوگیری از نشت Business Logic به UI
+
+هرگاه در حین توسعه مشاهده شد که یک قابلیت به‌سادگی و به‌سرعت داخل HTML/JS قابل پیاده‌سازی است اما شامل منطق کسب‌وکار، Database یا Backup می‌شود، این سادگی به‌تنهایی دلیل کافی برای پیاده‌سازی در UI نیست.
+
+در چنین مواردی باید:
+
+1. متد/Endpoint متناظر در Application Service Layer (در .NET) تعریف شود.
+2. UI فقط آن را فراخوانی کند.
+
+این قانون مستقیماً برای جلوگیری از تکرار مشکلی است که پیش‌تر باعث شد بخش قابل توجهی از منطق پروژه به‌مرور داخل HTML جای بگیرد.
+
+---
+
+# 27. قانون نهایی
+
+قبل از هر تغییر بررسی کن:
+
+1. این تغییر در کدام Layer قرار می‌گیرد؟
+2. آیا قابلیت مشابه قبلاً وجود دارد؟
+3. آیا Business Logic از UI جدا می‌ماند؟
+4. آیا Database Migration لازم دارد؟
+5. آیا Backup/Restore همچنان کار می‌کند؟
+6. آیا قابلیت‌های قبلی حفظ می‌شوند؟
+7. آیا این تصمیم در نسخه‌های آینده قابل توسعه است؟
+8. آیا این تغییر از مسیر مجاز ارتباط UI↔Core (بخش ۴.۲) عبور می‌کند؟
+
+اگر پاسخ یکی از موارد بالا منفی است، قبل از پیاده‌سازی ساختار را اصلاح کن.
+
+> هدف پروژه فقط «کار کردن امروز» نیست؛
+> هدف ساخت نرم‌افزاری است که 5 تا 10 سال بعد نیز قابل توسعه، قابل بازیابی و قابل استفاده باشد.
