@@ -10282,6 +10282,35 @@ test('رندر داشبورد باید KPI و هشدار و وظایف سررس�
   assertEqual(H.writesNow(), 0, 'رندر داشبوردِ خلاصه نباید state بنویسد');
 });
 
+test('داشبورد باید کارهای باز را از فروش و مالی جدا نشان بدهد بدون نوشتن داده', () => {
+  assertContainsString(html, 'dash-lead', 'متن راهنمای فقط‌خواندنی داشبورد پیدا نشد');
+  assertContainsString(html, 'dash-section-title', 'عنوان بخش KPI داشبورد پیدا نشد');
+  const dash = extractFunctionSource(html, 'renderDashboard');
+  assertContainsString(dash, 'کارهای باز', 'بخش کارهای باز لازم است');
+  assertContainsString(dash, 'فروش و مالی', 'بخش فروش و مالی لازم است');
+  assertContainsString(dash, 'از اینجا چیزی ذخیره نمی‌شود', 'باید صریح فقط‌خواندنی باشد');
+  assertTrue(dash.indexOf('localStorage.setItem') === -1, 'renderDashboard نباید localStorage بنویسد');
+  assertTrue(dash.indexOf('RunBusiness(') === -1, 'renderDashboard نباید RunBusiness صدا بزند');
+  const H = dailyOpsBriefHarness()();
+  const live = {
+    invoices: [{num:'INV-OPEN', seller:'الف', status:'open'}],
+    warranties: [{id:'W1', name:'رضا', status:'open'}],
+    parts: [{code:'P1', name:'فیلتر', qty:0, min:2}],
+    tasks: [],
+    sales: [{id:'SL-F', name:'فروش', status:'final', total:1}],
+    accounts: [{id:'A', name:'صندوق', balance:10, transactions:[]}]
+  };
+  const before = JSON.stringify(live);
+  const out = H.runDash(live);
+  assertEqual(JSON.stringify(live), before, 'رندر نباید آرایه‌های زنده را عوض کند');
+  assertEqual(H.writesNow(), 0, 'گروه‌بندی KPI نباید persist بنویسد');
+  assertTrue(out.indexOf('کارهای باز')>=0, 'عنوان کارهای باز باید رندر شود');
+  assertTrue(out.indexOf('فروش و مالی')>=0, 'عنوان فروش و مالی باید رندر شود');
+  assertTrue(out.indexOf('فاکتور باز')>=0, 'برچسب KPI فاکتور باید بماند');
+  assertTrue(out.indexOf('فروش نهایی')>=0, 'برچسب KPI فروش باید بماند');
+  assertTrue(out.indexOf('dash-kpi-grid')>=0, 'شبکه KPI باید بماند');
+});
+
 test('فرم پنجره باید داخل win-body اسکرول شود نه body قفل‌شده', () => {
   assertContainsString(html, 'grid-auto-rows:minmax(0,1fr)', 'ردیف میزکار باید ارتفاع محدود داشته باشد تا win-body اسکرول شود');
   assertContainsString(html, 'function scrollActiveWinBody(', 'تابع اسکرول بدنه پنجره باید وجود داشته باشد');
