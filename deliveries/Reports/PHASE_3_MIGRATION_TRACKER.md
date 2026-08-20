@@ -3,9 +3,9 @@
 **Tracker mode:** ACTIVE  
 **Last updated:** 1405/05/29 19:26:00 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `44dc56f`  
+**Current known HEAD:** `9582215`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
-**B8 commit:** pending `feat: migrate sale.total ownership to core`  
+**B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
@@ -30,7 +30,7 @@
 | B5 | `calc.sla` ownership | ✅ COMPLETED | 1405/05/29 | ثبت قبلی | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B5_CALC_SLA_OWNERSHIP.md` — HTML 592 / Core 139 |
 | B6 | `sale.line` ownership | ✅ COMPLETED | 1405/05/29 | 19:09:01 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B6_SALE_LINE_OWNERSHIP.md` — commit `66e78be` — HTML 596 / Core 142 PASS |
 | B7 | Next ownership seam (analysis) | ANALYSIS COMPLETED | 1405/05/29 | 19:15:37 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B7_NEXT_OWNERSHIP_SEAM.md` — انتخاب `sale.total` |
-| B8 | `sale.total` ownership | ✅ COMPLETED | 1405/05/29 | 19:26:00 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B8_SALE_TOTAL.md` — HTML 600 / Core 146 PASS — live EXE NEEDS HUMAN VERIFICATION |
+| B8 | `sale.total` ownership | ✅ COMPLETED | 1405/05/29 | 19:26:00 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B8_SALE_TOTAL.md` — commit `9582215` — HTML 600 / Core 146 PASS — live EXE NEEDS HUMAN VERIFICATION |
 | B9 | Next ownership seam | ⬜ NOT STARTED | — | — | تعیین پس از B8 |
 | B10 | Migration checkpoint | ⬜ NOT STARTED | — | — | فقط طبق Change Gate |
 
@@ -78,6 +78,7 @@
 ## B8 Verification Record
 
 - **B8:** `sale.total`
+- **Commit:** `9582215`
 - **Report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B8_SALE_TOTAL.md`
 - **Implementation:** COMPLETED
 - **HTML tests:** `600 PASS / 0 FAIL`

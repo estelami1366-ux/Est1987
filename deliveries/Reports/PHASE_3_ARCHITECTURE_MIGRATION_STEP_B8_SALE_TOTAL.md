@@ -36,11 +36,11 @@ Worktree at gate: clean. Descendant of B7 `44dc56f` / tracker `f3b4202`.
 
 # 4. HEAD after
 
-Recorded after the B8 implementation commit (see §20). Product commit message:
-
 ```text
-feat: migrate sale.total ownership to core
+9582215  feat: migrate sale.total ownership to core
 ```
+
+B8 rollback target (HEAD before): `44dc56f`.
 
 ---
 
