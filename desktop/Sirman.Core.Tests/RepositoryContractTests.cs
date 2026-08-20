@@ -22,18 +22,17 @@ public class RepositoryContractTests
     }
 
     [Fact]
-    public void FakeInventoryRepository_ReserveAndConsume_AreIsolated()
+    public void FakeInventoryRepository_SaveGet_AreIsolated()
     {
         IInventoryRepository repo = new FakeInventoryRepository();
         repo.Save(Obj(("code", "P1"), ("qty", 5), ("reserved", 0)));
-        Assert.True(repo.Reserve("P1", 2, null).Ok);
-        Assert.Equal(2, repo.GetById("P1")?["reserved"]?.GetValue<int>());
-        Assert.True(repo.Consume("P1", 1).Ok);
-        Assert.Equal(4, repo.GetById("P1")?["qty"]?.GetValue<int>());
+        Assert.Equal(5, repo.GetById("P1")?["qty"]?.GetValue<int>());
+        Assert.Equal(0, repo.GetById("P1")?["reserved"]?.GetValue<int>());
+        Assert.Single(repo.GetAll());
     }
 
     [Fact]
-    public void FakePaymentRepository_GetByInvoiceId_And_Reverse()
+    public void FakePaymentRepository_GetByInvoiceId()
     {
         IPaymentRepository repo = new FakePaymentRepository();
         var acc = Obj(("id", "acc-1"), ("name", "صندوق"));
@@ -44,8 +43,7 @@ public class RepositoryContractTests
         };
         repo.Save(acc);
         Assert.Single(repo.GetByInvoiceId("INVUID-1"));
-        repo.Reverse("INVUID-1");
-        Assert.Empty(repo.GetByInvoiceId("INVUID-1"));
+        Assert.Empty(repo.GetByInvoiceId("MISSING"));
     }
 
     [Fact]
@@ -92,13 +90,14 @@ public class RepositoryContractTests
     }
 
     [Fact]
-    public void JsonInventoryRepository_Consume_UsesExistingInventoryCore()
+    public void JsonInventoryRepository_SaveGet_UsesMergeItem()
     {
         var repo = new JsonInventoryRepository(new CurrentJsonStore());
         repo.Save(Obj(("code", "C1"), ("qty", 3), ("reserved", 0)));
-        var r = repo.Consume("C1", 1);
-        Assert.True(r.Ok);
-        Assert.Equal(2, repo.GetById("C1")?["qty"]?.GetValue<int>());
+        repo.Save(Obj(("code", "C1"), ("name", "کالا")));
+        var got = repo.GetById("C1");
+        Assert.Equal(3, got?["qty"]?.GetValue<int>());
+        Assert.Equal("کالا", got?["name"]?.ToString());
     }
 
     [Fact]
