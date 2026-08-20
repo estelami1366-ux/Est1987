@@ -16,5 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="InvoicePricingParityVectors.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="SaleLineParityVectors.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

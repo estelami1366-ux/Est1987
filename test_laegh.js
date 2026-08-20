@@ -9367,6 +9367,98 @@ test('calc.sla نباید persist بنویسد و هشدار گارانتی null
   assertContainsString(alertSrc, '!slaKey', 'هشدار گارانتی نباید null را مثل وضعیت واقعی اعلان کند');
 });
 
+console.log('');
+console.log('📋 گروه: فاز ۳ B6 مالکیت sale.line');
+
+function loadSaleLineParityVectors() {
+  const name = 'SaleLineParityVectors.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول بردار B6 پیدا نشد: ' + name);
+}
+
+function makeHtmlOnlySaleLine() {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcSaleLine');
+  assertTrue(!!runSrc && !!takeSrc && !!hasSrc && !!lineSrc, 'توابع calcSaleLine / takeBusinessCore پیدا نشد');
+  return new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + `
+    function getSirmanHostSync(){ return null; }
+    return function(qty, price, disc){ return calcSaleLine(qty, price, disc); };
+  `)();
+}
+
+function makeExeSaleLineHost(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcSaleLine');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: runImpl };
+    }
+    return function(qty, price, disc){ return calcSaleLine(qty, price, disc); };
+  `)(runImpl);
+}
+
+test('مسیر EXE باید RunBusiness("sale.line") را صدا بزند و نتیجه هسته را بدون فرمول JS برگرداند', () => {
+  var calls = [];
+  const calc = makeExeSaleLineHost(function(name, json){
+    calls.push({name:name, payload: JSON.parse(json)});
+    return JSON.stringify({ok:true, result:{qty:1, price:1000, disc:10, discAmt:777, total:888888}});
+  });
+  const got = calc(2, 1000, 10);
+  assertEqual(calls.length, 1, 'باید یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'sale.line', 'نام عملیات باید sale.line باشد');
+  assertEqual(calls[0].payload.qty, 2, 'qty باید به Core برود');
+  assertEqual(calls[0].payload.price, 1000, 'price باید به Core برود');
+  assertEqual(calls[0].payload.disc, 10, 'disc باید به Core برود');
+  assertEqual(got.total, 888888, 'Host-wins نباید با جمع JS بازنویسی شود');
+  assertEqual(got.discAmt, 777, 'Host-wins نباید discAmt جاوااسکریپت را نگه دارد');
+});
+
+test('مسیر HTML-only باید بردارهای موجود sale.line را بدون Host اجرا کند', () => {
+  const pack = loadSaleLineParityVectors();
+  const calc = makeHtmlOnlySaleLine();
+  pack.line.forEach(function(row) {
+    const got = calc(row.qty, row.price, row.disc);
+    assertEqual(got.discAmt, row.discAmt, row.id + ' discAmt');
+    assertEqual(got.total, row.total, row.id + ' total');
+    assertEqual(got.qty, row.outQty, row.id + ' qty');
+  });
+  const src = extractFunctionSource(html, 'calcSaleLine');
+  assertContainsString(src, 'Math.round(price * disc / 100)', 'fallback JS نباید حذف شود');
+  assertContainsString(src, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+});
+
+test('شکست Core روی EXE نباید فرمول sale.line جاوااسکریپت را اجرا کند', () => {
+  const calc = makeExeSaleLineHost(function(){
+    return JSON.stringify({ok:false, error:'business-failed', message:'محاسبه انجام نشد'});
+  });
+  const got = calc(2, 1000, 10);
+  assertTrue(got == null, 'اگر Host هست و Core رد کند نباید total=1800 از JS برگردد');
+});
+
+test('sale.line نباید persist بنویسد و calcSaleTotal نباید در B6 مهاجرت شود', () => {
+  const lineSrc = extractFunctionSource(html, 'calcSaleLine');
+  const getSrc = extractFunctionSource(html, 'getSaleData');
+  const printSrc = extractFunctionSource(html, 'printSaleDoc');
+  const totSrc = extractFunctionSource(html, 'calcSaleTotal');
+  assertTrue(lineSrc.indexOf('localStorage') === -1, 'calcSaleLine نباید localStorage بنویسد');
+  assertTrue(lineSrc.indexOf('indexedDB') === -1, 'calcSaleLine نباید IndexedDB بنویسد');
+  assertTrue(lineSrc.indexOf('svSales') === -1 && lineSrc.indexOf('persistCoreSnapshot') === -1, 'calcSaleLine نباید ذخیره کند');
+  assertContainsString(getSrc, 'calcSaleLine', 'getSaleData باید از calcSaleLine استفاده کند');
+  assertContainsString(printSrc, 'calcSaleLine', 'printSaleDoc باید محاسبه خط را از calcSaleLine بخواهد');
+  assertTrue(getSrc.indexOf("takeBusinessCore('sale.line'") === -1, 'getSaleData نباید IIFE موازی sale.line داشته باشد');
+  assertContainsString(totSrc, 'sale.total', 'جمع فروش هنوز sale.total است نه مهاجرت B6');
+});
+
 test('رزرو در exe فقط Writer هسته باشد و بدون Host همان جهش JS بماند', () => {
   const runSrc = extractFunctionSource(html, 'runBusinessCore');
   const takeSrc = extractFunctionSource(html, 'takeBusinessCore');

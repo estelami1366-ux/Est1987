@@ -21671,6 +21671,19 @@ function calcSaleTotal(){
   return localTotal;
 }
 
+function calcSaleLine(qty, price, disc){
+  // مالک EXE: InvoicePricing.SaleLine از RunBusiness("sale.line"). Fallback JS فقط بدون Host.
+  qty = qty||1; price = price||0; disc = disc||0;
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('sale.line', {qty:qty, price:price, disc:disc}) : null;
+    if(core && typeof core==='object' && core.discAmt!=null && core.total!=null) return core;
+    return null;
+  }
+  var discAmt = Math.round(price * disc / 100);
+  var total = Math.round(qty * (price - discAmt));
+  return {qty:qty, price:price, disc:disc, discAmt:discAmt, total:total};
+}
 function getSaleData(){
   const grandTotal = calcSaleTotal();
   const shipLabels = {post:'پست پیشتاز',tipax:'تیپاکس',snap:'اسنپ‌باکس',inperson:'حضوری',person:'تحویل از طریق شخص',other:'سایر'};
@@ -21680,15 +21693,18 @@ function getSaleData(){
     id: window._saleEditIdx===-1 ? peekNextSaleId() : sales[window._saleEditIdx].id,
     saleUid: window._saleEditIdx===-1 ? '' : (sales[window._saleEditIdx].saleUid || sales[window._saleEditIdx].SaleUid || ''),
     items: saleItems.map(function(item){
-      var discAmt = Math.round((item.price||0) * (item.disc||0) / 100);
+      var cl = (typeof calcSaleLine==='function') ? calcSaleLine(item.qty||1, item.price||0, item.disc||0) : null;
+      if(!cl || cl.total==null){
+        if((typeof hasBusinessCore==='function') && hasBusinessCore()){ ntf('محاسبه فروش انجام نشد','err'); }
+      }
       return {
         partCode: item.partCode,
         partName: item.partName,
         qty: item.qty||1,
         price: item.price||0,
         disc: item.disc||0,
-        discAmt: (function(){ var cl = (typeof hasBusinessCore==='function' && hasBusinessCore()) ? takeBusinessCore('sale.line', {qty:item.qty||1, price:item.price||0, disc:item.disc||0}) : null; return (cl && cl.discAmt!=null) ? cl.discAmt : Math.round((item.price||0) * (item.disc||0) / 100); })(),
-        total: (function(){ var cl = (typeof hasBusinessCore==='function' && hasBusinessCore()) ? takeBusinessCore('sale.line', {qty:item.qty||1, price:item.price||0, disc:item.disc||0}) : null; return (cl && cl.total!=null) ? cl.total : Math.round((item.qty||1) * ((item.price||0) - Math.round((item.price||0) * (item.disc||0) / 100))); })()
+        discAmt: (cl && cl.discAmt!=null) ? cl.discAmt : null,
+        total: (cl && cl.total!=null) ? cl.total : null
       };
     }),
     total: grandTotal,
@@ -21921,9 +21937,8 @@ function printSaleDoc(saleId){
   var title = isProforma ? 'پیش‌فاکتور فروش قطعات' : 'فاکتور فروش قطعات';
   var docNo = s.id + (isProforma ? ' (پیش‌فاکتور)' : ' (نهایی)');
   var rows = (s.items||[]).map(function(it,idx){
-    var cl = (typeof hasBusinessCore==='function' && hasBusinessCore()) ? takeBusinessCore('sale.line', {qty:it.qty||1, price:it.price||0, disc:it.disc||0}) : null;
-    var discAmt = (it.discAmt!=null)?it.discAmt:(cl&&cl.discAmt!=null?cl.discAmt:Math.round((it.price||0) * (it.disc||0) / 100));
-    var lineNet = (it.total!=null)?it.total:(cl&&cl.total!=null?cl.total:Math.round((it.qty||1) * ((it.price||0) - discAmt)));
+    var cl = (typeof calcSaleLine==='function') ? calcSaleLine(it.qty||1, it.price||0, it.disc||0) : null;
+    var lineNet = (it.total!=null)?it.total:(cl&&cl.total!=null?cl.total:null);
     return '<tr>' +
       '<td style="text-align:center">'+(idx+1)+'</td>' +
       '<td>'+(it.partCode||'—')+'</td>' +
@@ -21931,7 +21946,7 @@ function printSaleDoc(saleId){
       '<td style="text-align:center">'+(it.qty||1)+'</td>' +
       '<td style="text-align:left">'+(it.price||0).toLocaleString('fa-IR')+'</td>' +
       '<td style="text-align:center">'+(it.disc||0)+'</td>' +
-      '<td style="text-align:left;font-weight:700">'+lineNet.toLocaleString('fa-IR')+'</td>' +
+      '<td style="text-align:left;font-weight:700">'+(lineNet!=null?Number(lineNet).toLocaleString('fa-IR'):'—')+'</td>' +
     '</tr>';
   }).join('');
   // اطلاعات حساب گیرنده (اگر موجود)
