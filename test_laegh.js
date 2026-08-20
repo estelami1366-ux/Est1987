@@ -9071,9 +9071,10 @@ function loadInvoicePricingParityVectors() {
 function makeHtmlOnlyInvoiceLine() {
   const runSrc = extractFunctionSource(html, 'runBusinessCore');
   const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
   const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
-  assertTrue(!!runSrc && !!takeSrc && !!lineSrc, 'توابع calcInvoiceLine / takeBusinessCore پیدا نشد');
-  return new Function(runSrc + '\n' + takeSrc + '\n' + lineSrc + `
+  assertTrue(!!runSrc && !!takeSrc && !!hasSrc && !!lineSrc, 'توابع calcInvoiceLine / takeBusinessCore پیدا نشد');
+  return new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + `
     function getSirmanHostSync(){ return null; }
     return function(est, disc, finRaw){ return calcInvoiceLine(est, disc, finRaw); };
   `)();
@@ -9142,6 +9143,71 @@ test('قفل B1 باید HTML-only و Host-wins قبلی را نگه دارد و
     return calcInvoiceLine(1000, 10, 9999);
   `)();
   assertEqual(exeCore.fin, 777, 'Host-wins باید باقی بماند');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B2 مالکیت invoice.line');
+
+function makeExeInvoiceLineHost(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: runImpl };
+    }
+    return function(est, disc, finRaw){ return calcInvoiceLine(est, disc, finRaw); };
+  `)(runImpl);
+}
+
+test('مسیر EXE باید RunBusiness("invoice.line") را با DTO است/تخفیف/finRaw صدا بزند و نتیجه Core را برگرداند', () => {
+  var calls = [];
+  const calc = makeExeInvoiceLineHost(function(name, json){
+    calls.push({name:name, payload: JSON.parse(json)});
+    return JSON.stringify({ok:true, result:{est:1000, disc:10, da:100, fin:777}});
+  });
+  const got = calc(1000, 10, 9999);
+  assertEqual(calls.length, 1, 'باید دقیقاً یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'invoice.line', 'نام عملیات باید invoice.line باشد');
+  assertEqual(calls[0].payload.est, 1000, 'est باید به Core برود');
+  assertEqual(calls[0].payload.disc, 10, 'disc باید به Core برود');
+  assertEqual(calls[0].payload.finRaw, 9999, 'finRaw باید به Core برود');
+  assertEqual(got.est, 1000, 'قرارداد est');
+  assertEqual(got.disc, 10, 'قرارداد disc');
+  assertEqual(got.da, 100, 'قرارداد da');
+  assertEqual(got.fin, 777, 'نتیجه Core باید برگردد نه فرمول JS');
+});
+
+test('مسیر HTML-only باید همان fallback JS را با بردار B1 نگه دارد', () => {
+  const calc = makeHtmlOnlyInvoiceLine();
+  const got = calc(1000, 10, 9999);
+  assertEqual(got.est, 1000, 'est');
+  assertEqual(got.disc, 10, 'disc');
+  assertEqual(got.da, 100, 'da');
+  assertEqual(got.fin, 900, 'fin HTML-only');
+  const src = extractFunctionSource(html, 'calcInvoiceLine');
+  assertContainsString(src, 'Math.round(est*disc/100)', 'fallback JS نباید حذف شود');
+  assertContainsString(src, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+});
+
+test('شکست Core روی EXE نباید فرمول JS را به‌جای InvoicePricing اجرا کند', () => {
+  const calc = makeExeInvoiceLineHost(function(){
+    return JSON.stringify({ok:false, error:'business-failed', message:'محاسبه انجام نشد'});
+  });
+  const got = calc(1000, 10, 9999);
+  assertTrue(got == null, 'اگر Host هست و Core رد کند نباید شیء خط JS برگردد');
+});
+
+test('calcInvoiceLine نباید persist بنویسد و calcT/getData نباید فرمول موازی EXE داشته باشند', () => {
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  const calcTSrc = extractFunctionSource(html, 'calcT');
+  const getDataSrc = extractFunctionSource(html, 'getData');
+  assertTrue(lineSrc.indexOf('localStorage') === -1, 'calcInvoiceLine نباید localStorage بنویسد');
+  assertTrue(lineSrc.indexOf('indexedDB') === -1 && lineSrc.indexOf('IndexedDB') === -1, 'calcInvoiceLine نباید IndexedDB بنویسد');
+  assertTrue(lineSrc.indexOf('persistCoreSnapshot') === -1, 'calcInvoiceLine نباید persistCoreSnapshot صدا بزند');
+  assertTrue(calcTSrc.indexOf('Math.round(est*disc') === -1, 'calcT نباید فرمول موازی خط فاکتور داشته باشد');
+  assertTrue(getDataSrc.indexOf('Math.round(est*disc') === -1, 'getData نباید فرمول موازی خط فاکتور داشته باشد');
 });
 
 test('رزرو در exe فقط Writer هسته باشد و بدون Host همان جهش JS بماند', () => {

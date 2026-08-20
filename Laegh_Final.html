@@ -12375,8 +12375,13 @@ function calcT(){
     const ee=document.getElementById('d'+i+'_est');
     if(!ee) continue;
     const est=parseFloat(ee.value)||0, disc=parseFloat(document.getElementById('d'+i+'_disc').value)||0;
-    const da=Math.round(est*disc/100), finRaw=parseFloat(document.getElementById('d'+i+'_fin').value)||0;
-    const line = (typeof calcInvoiceLine==='function') ? calcInvoiceLine(est, disc, finRaw) : {da:da, fin: disc>0 ? (est-da) : (finRaw||(est-da))};
+    const finRaw=parseFloat(document.getElementById('d'+i+'_fin').value)||0;
+    // disc>0: fin از (est-da) در calcInvoiceLine / Core invoice.line — اینجا فرمول موازی نیست
+    const line = (typeof calcInvoiceLine==='function') ? calcInvoiceLine(est, disc, finRaw) : null;
+    if(!line || line.fin==null){
+      if(hostOn){ ntf('محاسبه فاکتور انجام نشد','err'); return {tE:0,tD:0,tF:0}; }
+      continue;
+    }
     const fin = line.fin;
     totLines.push({est:est, disc:disc, finRaw:finRaw});
     if(!hostOn){ tE+=est; tD+=line.da; tF+=fin; }
@@ -12396,8 +12401,13 @@ function calcT(){
 }
 
 function calcInvoiceLine(est, disc, finRaw){
-  var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('invoice.line', {est:est, disc:disc, finRaw:finRaw}) : null;
-  if(core && typeof core==='object' && core.fin!=null) return core;
+  // مالک EXE: InvoicePricing.Line از RunBusiness("invoice.line"). Fallback JS فقط بدون Host.
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('invoice.line', {est:est, disc:disc, finRaw:finRaw}) : null;
+    if(core && typeof core==='object' && core.fin!=null) return core;
+    return null;
+  }
   est=parseFloat(est)||0; disc=parseFloat(disc)||0; finRaw=parseFloat(finRaw)||0;
   var da=Math.round(est*disc/100);
   var fin = disc>0 ? (est-da) : (finRaw||(est-da));
@@ -12410,10 +12420,13 @@ function getData(){
     if(!document.getElementById('dv-'+i)) continue;
     const est=parseFloat(document.getElementById('d'+i+'_est').value)||0;
     const disc=parseFloat(document.getElementById('d'+i+'_disc').value)||0;
-    const da=Math.round(est*disc/100);
     const finRaw=parseFloat(document.getElementById('d'+i+'_fin').value)||0;
-    // 🔑 رفع باگ تخفیف: اگر درصد تخفیف > 0 است، fin را از (est-da) محاسبه کن
-    const line = (typeof calcInvoiceLine==='function') ? calcInvoiceLine(est, disc, finRaw) : {da:da, fin: disc>0 ? (est-da) : (finRaw||(est-da))};
+    // disc>0: fin از (est-da) در calcInvoiceLine / Core invoice.line — اینجا فرمول موازی نیست
+    const line = (typeof calcInvoiceLine==='function') ? calcInvoiceLine(est, disc, finRaw) : null;
+    if(!line || line.fin==null){
+      if((typeof hasBusinessCore==='function') && hasBusinessCore()){ ntf('محاسبه فاکتور انجام نشد','err'); }
+      continue;
+    }
     const fin = line.fin;
     items.push({num:items.length+1,code:gf(i,'code'),model:gf(i,'model'),date:gf(i,'date'),
       carton:gf(i,'carton'),body:gf(i,'body'),acc:gf(i,'acc'),warranty:gf(i,'warr'),
