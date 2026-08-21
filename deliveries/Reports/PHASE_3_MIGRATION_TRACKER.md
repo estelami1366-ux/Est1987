@@ -13,6 +13,7 @@
 **B13 commit:** `8446619` (`test: lock rules.suggestParts JS/C# parity vectors`)  
 **B13 report commit:** `82ce509` (`docs: record B13 rules.suggestParts parity lock`)  
 **B14 commit:** `dae7cde` (`feat: migrate rules.suggestParts ownership to core`)  
+**B14 report commit:** `3fa389f` (`docs: record B14 rules.suggestParts ownership migration`)  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
