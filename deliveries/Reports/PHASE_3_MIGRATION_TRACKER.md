@@ -1,9 +1,9 @@
 # SIRMAN — PHASE 3 MIGRATION TRACKER
 
 **Tracker mode:** ACTIVE  
-**Last updated:** 1405/05/30 13:00:55 (Asia/Tehran)  
+**Last updated:** 1405/05/30 13:12:57 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `16330de`  
+**Current known HEAD:** `1fcf054`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **B10 commit:** `da78c6a` (`test: lock calc.warrantyEndDate JS/C# parity vectors`)  
@@ -23,6 +23,7 @@
 **B18 report commit:** `5742e4f` (`docs: record B18 inventory.stock ownership migration`)  
 **B19 commit:** `e414025` (`fix: keep Core stock when availability predicate is absent`; gates `fb4a8fe`)  
 **B19 report commit:** `16330de` (`docs: record B19 inventory mutation boundary safety`)  
+**B19R commit:** `1fcf054` (`fix: close remaining inventory mutation boundary risks`)  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
@@ -59,6 +60,7 @@
 | B17 | Safe fail-closed contract for `inventory.stock` | ✅ COMPLETED (contract + tests) | 1405/05/30 | 12:12:09 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B17_SAFE_FAIL_CLOSED_INVENTORY.md` — `{ok:false, reason:"INVENTORY_UNAVAILABLE"}` — HTML 625 / Core 159 PASS — runtime UNCHANGED — ownership NOT migrated — checkpoint B17-SAFE-FAIL-CLOSED=`935377a` |
 | B18 | `inventory.stock` ownership | ✅ COMPLETED | 1405/05/30 | 12:29:33 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B18_INVENTORY_STOCK_OWNERSHIP.md` — commit `76c92e6` — HTML 631 / Core 159 PASS — EXE fail-closed — HTML-only JS preserved — mutations NONE — live EXE NEEDS HUMAN VERIFICATION |
 | B19 | Inventory mutation boundary safety | ✅ COMPLETED | 1405/05/30 | 13:00:55 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B19_INVENTORY_MUTATION_BOUNDARY_SAFETY.md` — product `e414025` (gates `fb4a8fe`) — HTML 639 / Core 159 PASS — reserve/release/consume/OUT gated on `stockDataAvailable` — no `core.stock \|\| snapshot` — live EXE NEEDS HUMAN VERIFICATION |
+| B19R | Close remaining inventory mutation risks | ✅ COMPLETED | 1405/05/30 | 13:12:57 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B19R_INVENTORY_MUTATION_RISK_CLOSURE.md` — product `1fcf054` — HTML 644 / Core 159 PASS — R1 preflight / R2 restock log / R3 truthful ok:true — live EXE NEEDS HUMAN VERIFICATION |
 
 ---
 
@@ -365,12 +367,33 @@
 - **Backup:** UNCHANGED
 - **Print engine:** UNTOUCHED
 - **Locked business workflows:** UNCHANGED
-- **Deferred:** `saveWarehouseDoc` EXE reorder (TRANSACTION ORDERING BLOCKER); `_restockFromSale` move-on-miss
+- **Deferred:** closed by B19R (`saveWarehouseDoc` preflight; `_restockFromSale` move-on-miss)
 - **Checkpoint:** `B19-FINAL-GOOD` = `e414025`
 - **B20:** NOT STARTED
 - **Live EXE:** NEEDS HUMAN VERIFICATION
 
 ### B19 Human Verification
+
+⬜ NOT YET VERIFIED
+
+---
+
+## B19R Verification Record
+
+- **B19R:** close remaining inventory mutation boundary risks
+- **Commit:** `1fcf054`
+- **Report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B19R_INVENTORY_MUTATION_RISK_CLOSURE.md`
+- **Implementation:** COMPLETED
+- **R1:** RESOLVED (preflight before `applyWarehouseDoc`; post-adjust snapshot order unchanged)
+- **R2:** RESOLVED (`recordStockMove` only after successful `addStock` / HTML-only increment)
+- **R3:** RESOLVED (`ok:true` remains truthful after mutation; invalid `stock` is not numeric)
+- **HTML tests:** `644 PASS / 0 FAIL`
+- **Core tests:** `159 PASS / 0 FAIL`
+- **Checkpoint:** `B19R-FINAL-GOOD` = `1fcf054`
+- **B20:** NOT STARTED
+- **Live EXE:** NEEDS HUMAN VERIFICATION
+
+### B19R Human Verification
 
 ⬜ NOT YET VERIFIED
 
@@ -425,8 +448,12 @@ B18 LIVE EXE = NEEDS HUMAN VERIFICATION
 B19    = COMPLETED
 B19 IMPLEMENTATION = COMPLETED
 B19 LIVE EXE = NEEDS HUMAN VERIFICATION
+B19R   = COMPLETED
+B19R IMPLEMENTATION = COMPLETED
+B19R LIVE EXE = NEEDS HUMAN VERIFICATION
 
-Last known good product checkpoint = B19-FINAL-GOOD e414025
+Last known good product checkpoint = B19R-FINAL-GOOD 1fcf054
+B19-FINAL-GOOD = e414025
 B18-FINAL-GOOD = 76c92e6
 B16 parity checkpoint = B16-PARITY 23a4776
 B17 contract checkpoint = B17-SAFE-FAIL-CLOSED 935377a
