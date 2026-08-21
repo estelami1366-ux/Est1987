@@ -1,12 +1,13 @@
 # SIRMAN — PHASE 3 MIGRATION TRACKER
 
 **Tracker mode:** ACTIVE  
-**Last updated:** 1405/05/30 10:40:28 (Asia/Tehran)  
+**Last updated:** 1405/05/30 10:58:48 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `da78c6a`  
+**Current known HEAD:** `405bcb1`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **B10 commit:** `da78c6a` (`test: lock calc.warrantyEndDate JS/C# parity vectors`)  
+**B11 commit:** `405bcb1` (`feat: migrate calc.warrantyEndDate ownership to core`)  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
@@ -34,6 +35,8 @@
 | B8 | `sale.total` ownership | ✅ COMPLETED | 1405/05/29 | 19:26:00 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B8_SALE_TOTAL.md` — commit `9582215` — HTML 600 / Core 146 PASS — live EXE NEEDS HUMAN VERIFICATION |
 | B9 | Next ownership seam (analysis) | ANALYSIS COMPLETED | 1405/05/30 | 10:20:55 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B9_NEXT_OWNERSHIP_SEAM.md` — انتخاب `calc.warrantyEndDate` — PARITY LOCK REQUIRED — implementation NOT STARTED |
 | B10 | `calc.warrantyEndDate` parity lock | ✅ COMPLETED | 1405/05/30 | 10:40:28 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B10_PARITY_LOCK.md` — PARITY CONFIRMED — HTML 602 / Core 149 PASS — ownership NOT migrated |
+| B11 | `calc.warrantyEndDate` ownership | ✅ COMPLETED | 1405/05/30 | 10:58:48 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B11_WARRANTY_ENDDATE_OWNERSHIP.md` — commit `405bcb1` — HTML 609 / Core 149 PASS — live EXE NEEDS HUMAN VERIFICATION |
+| B12 | next step | NOT STARTED | — | — | wait for explicit B12 instruction |
 
 ---
 
@@ -129,7 +132,33 @@
 - **Backup:** UNCHANGED
 - **Print engine:** UNTOUCHED
 - **Locked business workflows:** UNCHANGED
-- **B11:** NOT STARTED
+- **B11:** COMPLETED (see B11 Verification Record)
+
+---
+
+## B11 Verification Record
+
+- **B11:** `calc.warrantyEndDate`
+- **Commit:** `405bcb1`
+- **Report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B11_WARRANTY_ENDDATE_OWNERSHIP.md`
+- **Implementation:** COMPLETED
+- **PRODUCT CODE MODIFIED:** YES
+- **HTML tests:** `609 PASS / 0 FAIL`
+- **Core tests:** `149 PASS / 0 FAIL`
+- **Parity:** CONFIRMED (B10 slash-date table still green)
+- **Fail-closed:** `null` on Host present + Core miss; JS `addJalaliMonths` not used
+- **HTML-only:** PASS (`addJalaliMonths` unchanged)
+- **Persistence:** UNCHANGED
+- **Backup:** UNCHANGED
+- **Print engine:** UNTOUCHED
+- **Locked business workflows:** UNCHANGED (`warranty.save` / `warranty.close` / `warranty.delete`)
+- **Calendar arithmetic:** UNCHANGED
+- **B12:** NOT STARTED
+- **Live EXE:** NEEDS HUMAN VERIFICATION
+
+### B11 Human Verification
+
+⬜ NOT YET VERIFIED
 
 ---
 
@@ -158,14 +187,15 @@ B8     = COMPLETED
 B8 LIVE EXE = NEEDS HUMAN VERIFICATION
 B9     = ANALYSIS COMPLETED
 B10    = COMPLETED (parity lock)
-B10 IMPLEMENTATION = NOT STARTED
-B11    = NOT STARTED
+B11    = COMPLETED
+B11 IMPLEMENTATION = COMPLETED
+B11 LIVE EXE = NEEDS HUMAN VERIFICATION
+B12    = NOT STARTED
 
-Recommended next seam = calc.warrantyEndDate
-READINESS = PARITY CONFIRMED (slash-date table)
+Recommended next seam = wait for B12 instruction
 PRINT       = FROZEN
 PERSISTENCE = UNCHANGED
 BACKUP      = UNCHANGED
 ```
 
-**NEXT ACTION:** مهاجرت مالکیت `calc.warrantyEndDate` فقط پس از دستور صریح B11.
+**NEXT ACTION:** هیچ مرحلهٔ بعد شروع نشود تا دستور صریح B12 برسد.
