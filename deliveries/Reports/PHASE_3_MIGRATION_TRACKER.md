@@ -3,7 +3,7 @@
 **Tracker mode:** ACTIVE  
 **Last updated:** 1405/05/30 12:02:36 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `23a4776`  
+**Current known HEAD:** `380c7f2`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **B10 commit:** `da78c6a` (`test: lock calc.warrantyEndDate JS/C# parity vectors`)  
@@ -16,6 +16,7 @@
 **B14 report commit:** `3fa389f` (`docs: record B14 rules.suggestParts ownership migration`)  
 **B15 report commit:** `bd75162` (`docs: B15 change gate finds no authorized seam`)  
 **B16 commit:** `23a4776` (`test: lock inventory.stock JS/C# parity vectors`)  
+**B16 report commit:** `380c7f2` (`docs: record B16 inventory.stock parity lock and rollback protocol`)  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
