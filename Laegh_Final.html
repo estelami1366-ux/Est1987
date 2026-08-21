@@ -18295,6 +18295,10 @@ function applyStockByWarehouse(type, code, name, qty, whId, source, refDoc, meta
       item = defectiveStock.find(function(d){return d.id===code;}) || null;
     }
     if(!item) item = {code:code, qty:0};
+    if(type === 'out'){
+      var preOut = (typeof invStockSnapshot==='function') ? invStockSnapshot(item, whId) : null;
+      if(typeof stockDataAvailable==='function' && !stockDataAvailable(preOut)) return {ok:false, err:'محاسبه انجام نشد'};
+    }
     var core = takeBusinessCore('inventory.applyByWarehouse', {item:item, type:type, qty:qty, whId:whId||''});
     if(!core) return {ok:false, err:'محاسبه انجام نشد'};
     if(core.ok===false) return {ok:false, err: core.err||core.error||'موجودی اعمال نشد'};
@@ -18452,11 +18456,15 @@ function invReserveOnItem(item, qty, whId){
   qty = parseInt(qty)||0;
   var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
   if(hostOn){
+    var preRes = (typeof invStockSnapshot==='function') ? invStockSnapshot(item, whId) : null;
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(preRes)) return {ok:false, err:'محاسبه انجام نشد'};
     var core = takeBusinessCore('inventory.reserve', {item:item, qty:qty, whId:whId||''});
     if(!core) return {ok:false, err:'محاسبه انجام نشد'};
     if(core.ok===false) return {ok:false, err: core.err||core.error||'رزرو نشد'};
     if(typeof applyCoreItemOnto==='function') applyCoreItemOnto(item, core.item);
-    return {ok:true, stock: core.stock || (typeof invStockSnapshot==='function' ? invStockSnapshot(item, whId) : null)};
+    var stockRes = core.stock;
+    if(typeof stockDataAvailable!=='function' || !stockDataAvailable(stockRes)) stockRes = {ok:false, reason:'INVENTORY_UNAVAILABLE'};
+    return {ok:true, stock: stockRes};
   }
   if(!item || qty<=0) return {ok:false, err:'مقدار نامعتبر'};
   var snap = invStockSnapshot(item, whId);
@@ -18475,13 +18483,19 @@ function invReleaseReserveOnItem(item, qty, whId){
   qty = parseInt(qty)||0;
   var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
   if(hostOn){
+    var preRel = (typeof invStockSnapshot==='function') ? invStockSnapshot(item, whId) : null;
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(preRel)) return {ok:false, err:'محاسبه انجام نشد'};
     var core = takeBusinessCore('inventory.release', {item:item, qty:qty, whId:whId||''});
     if(!core) return {ok:false, err:'محاسبه انجام نشد'};
     if(core.ok===false) return {ok:false, err: core.err||core.error||'آزادسازی نشد'};
     if(typeof applyCoreItemOnto==='function') applyCoreItemOnto(item, core.item);
-    return {ok:true, stock: core.stock || (typeof invStockSnapshot==='function' ? invStockSnapshot(item, whId) : null)};
+    var stockRel = core.stock;
+    if(typeof stockDataAvailable!=='function' || !stockDataAvailable(stockRel)) stockRel = {ok:false, reason:'INVENTORY_UNAVAILABLE'};
+    return {ok:true, stock: stockRel};
   }
   if(!item || qty<=0) return {ok:false, err:'مقدار نامعتبر'};
+  var preRelHtml = (typeof invStockSnapshot==='function') ? invStockSnapshot(item, whId) : null;
+  if(typeof stockDataAvailable==='function' && !stockDataAvailable(preRelHtml)) return {ok:false, err:'محاسبه انجام نشد'};
   if(!item.reservedByWh) item.reservedByWh = {};
   if(whId){
     item.reservedByWh[whId] = Math.max(0, (parseInt(item.reservedByWh[whId])||0) - qty);
@@ -20241,6 +20255,8 @@ function saveWar(){
         var available=parts[idx].qty||0;
         var qty=parseInt(it.qty)||1;
         if(hostOn){
+          var snapPart = (typeof invStockSnapshot==='function') ? invStockSnapshot(parts[idx]) : null;
+          if(typeof stockDataAvailable==='function' && !stockDataAvailable(snapPart)){ ntf('محاسبه موجودی انجام نشد','err'); return false; }
           var corePart = takeBusinessCore('inventory.consume', {item: parts[idx], qty:qty});
           if(!corePart){ ntf('محاسبه موجودی انجام نشد','err'); return false; }
           if(corePart.wouldGoNegative){
@@ -21775,6 +21791,8 @@ function _deductStock(items, refDoc){
     if(idx !== -1){
       var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
       if(hostOn){
+        var snapSale = (typeof invStockSnapshot==='function') ? invStockSnapshot(parts[idx]) : null;
+        if(typeof stockDataAvailable==='function' && !stockDataAvailable(snapSale)){ ntf('محاسبه موجودی انجام نشد','err'); return; }
         var core = takeBusinessCore('inventory.consume', {item: parts[idx], qty: it.qty});
         if(!core){ ntf('محاسبه موجودی انجام نشد','err'); return; }
         if(core.wouldGoNegative){
