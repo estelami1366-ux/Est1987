@@ -1,0 +1,31 @@
+{
+  "id": "SIRMAN_PHASE_3_B17_INVENTORY_STOCK_FAIL_CLOSED_CONTRACT",
+  "note": "B17 contract only. Does not change invStockSnapshot runtime, InventoryCore.Stock, mutations, or Host. B18 may implement this after callers check stockDataAvailable. Zero stock is real data, not failure.",
+  "predicate": "snap && typeof snap==='object' && snap.ok!==false && typeof snap.qty==='number' && isFinite(snap.qty)",
+  "success": {
+    "stockDataAvailable": true,
+    "fields": ["qty", "reserved", "available", "min", "reorder", "price"],
+    "zeroStockIsData": true,
+    "example": {"qty": 0, "reserved": 0, "available": 0, "min": 0, "reorder": 0, "price": 0}
+  },
+  "failure": {
+    "ok": false,
+    "reason": "INVENTORY_UNAVAILABLE",
+    "stockDataAvailable": false,
+    "mustNotIncludeNumericStock": ["qty", "reserved", "available"]
+  },
+  "currentRuntime": "Host present + Core miss still runs JS snapshot. B17 does not change this.",
+  "callers": [
+    {"id": "renderInv", "line": 13029, "fields": ["qty", "reserved", "available", "min"], "kind": "display", "nullHandling": "none", "ifMissing": "template interpolates undefined; low=snap.qty<=snap.min is false so shows in-stock badge", "mutation": "none"},
+    {"id": "openInvModal", "line": 13042, "fields": ["reserved"], "kind": "display", "nullHandling": "none", "ifMissing": "input value becomes undefined", "mutation": "none"},
+    {"id": "saveWarehouseDoc-exe-adjust-move", "line": 17650, "fields": ["qty"], "kind": "post-mutation-move", "nullHandling": "none", "ifMissing": "jit.qty - undefined is NaN; may record a bogus stock move", "mutation": "applyWarehouseDoc already ran; snapshot only for move log"},
+    {"id": "saveWarehouseDoc-html-adjust", "line": 17692, "fields": ["qty"], "kind": "html-only-mutation-gate", "nullHandling": "none", "ifMissing": "it.qty - undefined is NaN; Math.abs(NaN) is NaN then applyStockByWarehouse", "mutation": "can reach applyStockByWarehouse on HTML-only path"},
+    {"id": "applyStockByWarehouse-html-out", "line": 18296, "fields": ["available"], "kind": "html-only-mutation-gate", "nullHandling": "none", "ifMissing": "undefined < qty is false so OUT is allowed", "mutation": "HTML-only out; EXE uses inventory.applyByWarehouse"},
+    {"id": "invReserveOnItem-html", "line": 18432, "fields": ["available"], "kind": "html-only-mutation-gate", "nullHandling": "none", "ifMissing": "undefined < qty is false so reserve is allowed", "mutation": "HTML-only reserve; EXE uses inventory.reserve"},
+    {"id": "invReserveOnItem-exe-display", "line": 18429, "fields": ["stock object"], "kind": "post-mutation-display", "nullHandling": "core.stock || snapshot", "ifMissing": "returns failure as stock field if snapshot fail-closed", "mutation": "reserve already decided by Core"},
+    {"id": "invReleaseReserveOnItem-html", "line": 18461, "fields": ["full snapshot"], "kind": "post-mutation-display", "nullHandling": "none", "ifMissing": "returns failure as stock field", "mutation": "release already applied in HTML-only"},
+    {"id": "invLowStockFromLists", "line": 18475, "fields": ["qty", "min", "reorder"], "kind": "display", "nullHandling": "none", "ifMissing": "undefined<=undefined is false; may omit or mis-classify low stock", "mutation": "none"},
+    {"id": "renderKardexPreview", "line": 18578, "fields": ["qty", "reserved", "available", "min"], "kind": "display", "nullHandling": "none", "ifMissing": "summary text shows undefined", "mutation": "none"},
+    {"id": "suggestPartsForCase-html-fallback", "line": 26712, "fields": ["available"], "kind": "html-only-ranking", "nullHandling": "try/catch; keeps p.qty on throw", "ifMissing": "qty becomes undefined, not 0; EXE ranking uses PartsAdvisor not this path", "mutation": "none"}
+  ]
+}

@@ -21,5 +21,6 @@
     <None Include="WarrantyEndDateParityVectors.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="SuggestPartsParityVectors.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="InventoryStockParityVectors.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="InventoryStockFailClosedContract.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

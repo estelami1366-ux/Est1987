@@ -10035,6 +10035,133 @@ test('شکست Host در inventory.stock هنوز snapshot جاوااسکریپ�
 });
 
 console.log('');
+console.log('📋 گروه: فاز ۳ B17 قرارداد fail-closed امن inventory.stock');
+
+function loadInventoryStockFailClosedContract() {
+  const name = 'InventoryStockFailClosedContract.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('قرارداد B17 پیدا نشد: ' + name);
+}
+
+function stockDataAvailable(snap) {
+  return !!(snap && typeof snap === 'object' && snap.ok !== false && typeof snap.qty === 'number' && isFinite(snap.qty));
+}
+
+function inventoryUnavailable() {
+  const pack = loadInventoryStockFailClosedContract();
+  return { ok: pack.failure.ok, reason: pack.failure.reason };
+}
+
+test('قرارداد موفقیت باید داده موجودی واقعی باشد از جمله موجودی صفر', () => {
+  const pack = loadInventoryStockParityVectors();
+  const snap = makeHtmlOnlyInvStockSnapshot();
+  pack.cases.forEach(function(row) {
+    const got = snap(row.item, row.whId);
+    assertTrue(stockDataAvailable(got), row.id + ' باید stockDataAvailable باشد');
+    assertEqual(got.ok === false, false, row.id + ' نباید ok:false باشد');
+  });
+  const zero = pack.success ? null : {qty:0, reserved:0, available:0, min:0, reorder:0, price:0};
+  const zeroSnap = snap({qty:0, reserved:0, min:0, price:0}, '');
+  assertTrue(stockDataAvailable(zeroSnap), 'موجودی صفر داده است نه شکست');
+  assertEqual(zeroSnap.qty, 0, 'qty صفر باید عدد صفر باشد');
+  assertEqual(zeroSnap.available, 0, 'available صفر باید عدد صفر باشد');
+  void zero;
+});
+
+test('قرارداد شکست نباید موجودی صفر جعلی بسازد', () => {
+  const fail = inventoryUnavailable();
+  assertEqual(fail.ok, false, 'ok باید false باشد');
+  assertEqual(fail.reason, 'INVENTORY_UNAVAILABLE', 'reason باید INVENTORY_UNAVAILABLE باشد');
+  assertEqual(stockDataAvailable(fail), false, 'شکست نباید stockDataAvailable باشد');
+  assertEqual(typeof fail.qty, 'undefined', 'qty نباید عدد باشد');
+  assertEqual(typeof fail.reserved, 'undefined', 'reserved نباید عدد باشد');
+  assertEqual(typeof fail.available, 'undefined', 'available نباید عدد باشد');
+  assertTrue(fail.qty !== 0, 'شکست نباید qty=0 باشد');
+  assertTrue(fail.available !== 0, 'شکست نباید available=0 باشد');
+});
+
+test('خواندن فیلدهای UI از شیء شکست نباید استثنا بدهد و نباید عدد تفسیر شود', () => {
+  const fail = inventoryUnavailable();
+  const callers = [
+    function renderInv(snap){ var low = snap.qty<=snap.min; return String(snap.qty)+'/'+String(snap.reserved)+'/'+String(snap.available)+'/'+String(snap.min)+'|'+low; },
+    function openInvModal(snap){ return String(snap.reserved); },
+    function warehouseAdjust(snap){ return (5 - snap.qty); },
+    function applyOut(snap){ return snap.available < 2; },
+    function reserveGate(snap){ return snap.available < 4; },
+    function lowStock(snap){ return snap.qty <= snap.min || !!(snap.reorder && snap.qty <= snap.reorder); },
+    function kardex(snap){ return 'موجودی '+snap.qty+' | رزرو '+snap.reserved+' | قابل استفاده '+snap.available; }
+  ];
+  callers.forEach(function(fn, i) {
+    var threw = false;
+    var out;
+    try { out = fn(fail); } catch (e) { threw = true; out = e && e.message; }
+    assertEqual(threw, false, 'caller['+i+'] نباید throw کند: '+out);
+  });
+  assertEqual(fail.available < 4, false, 'undefined < qty نباید اجازه رزرو تلقی شود بدون گارد');
+  assertEqual(typeof (5 - fail.qty), 'number', 'تفریق از qty ناموجود NaN است');
+  assertTrue(isNaN(5 - fail.qty), 'qty ناموجود نباید تفاضل عددی معتبر بدهد');
+});
+
+test('پیشنهاد قطعه: موجودی ناموجود با موجودی صفر یکی نیست', () => {
+  const fail = inventoryUnavailable();
+  const zero = {qty:0, reserved:0, available:0, min:0, reorder:0, price:0};
+  function suggestQty(snap, raw) {
+    if (!stockDataAvailable(snap)) return {kind:'unavailable', qty:null};
+    return {kind:'available', qty:snap.available};
+  }
+  const u = suggestQty(fail, 10);
+  const z = suggestQty(zero, 10);
+  assertEqual(u.kind, 'unavailable', 'شکست باید unavailable باشد');
+  assertEqual(u.qty, null, 'شکست نباید qty صفر بدهد');
+  assertEqual(z.kind, 'available', 'صفر واقعی داده است');
+  assertEqual(z.qty, 0, 'صفر واقعی available=0 است');
+  assertTrue(u.kind !== z.kind, 'ناموجود ≠ صفر');
+  const rawOnThrow = (function(){
+    var qty = 10;
+    try { qty = fail.available; } catch (_e) {}
+    return qty;
+  })();
+  assertTrue(rawOnThrow !== 0, 'بدون گارد، available ناموجود نباید 0 شود');
+});
+
+test('گارد قرارداد نباید جهش reserve/release/consume را از روی شکست راه بدهد', () => {
+  const fail = inventoryUnavailable();
+  var calls = [];
+  function reserve(){ calls.push('reserve'); }
+  function release(){ calls.push('release'); }
+  function consume(){ calls.push('consume'); }
+  function addStock(){ calls.push('addStock'); }
+  function applyWarehouseDoc(){ calls.push('applyWarehouseDoc'); }
+  function guardedMutate(snap) {
+    if (!stockDataAvailable(snap)) return {ok:false, reason:'INVENTORY_UNAVAILABLE'};
+    reserve(); release(); consume(); addStock(); applyWarehouseDoc();
+    return {ok:true};
+  }
+  const r = guardedMutate(fail);
+  assertEqual(r.ok, false, 'شکست باید جهش را قطع کند');
+  assertEqual(r.reason, 'INVENTORY_UNAVAILABLE', 'دلیل باید قرارداد باشد');
+  assertEqual(calls.length, 0, 'هیچ جهش انبار نباید صدا شود');
+  const unguardedWouldReserve = (fail.available < 4) === false;
+  assertEqual(unguardedWouldReserve, true, 'بدون گارد HTML-only reserve اشتباه اجازه می‌دهد — B18 باید گارد بگذارد');
+});
+
+test('runtime فعلی inventory.stock هنوز fail-open است و مالکیت مهاجرت نشده', () => {
+  const src = extractFunctionSource(html, 'invStockSnapshot');
+  assertTrue(src.indexOf('hasBusinessCore') === -1, 'B17 نباید hasBusinessCore به snapshot اضافه کند');
+  assertTrue(src.indexOf('INVENTORY_UNAVAILABLE') === -1, 'B17 نباید قرارداد را در runtime بنویسد');
+  assertContainsString(src, "takeBusinessCore('inventory.stock'", 'مسیر Host باید بماند');
+  const pack = loadInventoryStockFailClosedContract();
+  assertEqual(pack.failure.reason, 'INVENTORY_UNAVAILABLE', 'فایل قرارداد باید قفل شود');
+  assertTrue(pack.callers.length >= 11, 'همه callerهای زنده باید در قرارداد باشند');
+});
+
+console.log('');
 console.log('📋 گروه: تکمیل فاز ۲ (C# منبع حقیقت عملیات حساس)');
 
 test('در exe جمع فاکتور و فروش نباید بعد از هسته دوباره با JS بازنویسی شود', () => {
