@@ -1,9 +1,9 @@
 # SIRMAN — PHASE 3 MIGRATION TRACKER
 
 **Tracker mode:** ACTIVE  
-**Last updated:** 1405/05/30 12:29:33 (Asia/Tehran)  
+**Last updated:** 1405/05/30 13:00:55 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `5742e4f`  
+**Current known HEAD:** `e414025`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **B10 commit:** `da78c6a` (`test: lock calc.warrantyEndDate JS/C# parity vectors`)  
@@ -21,6 +21,7 @@
 **B17 report commit:** `229973f` (`docs: record B17 inventory.stock fail-closed contract`)  
 **B18 commit:** `76c92e6` (`feat: migrate inventory.stock ownership to core`)  
 **B18 report commit:** `5742e4f` (`docs: record B18 inventory.stock ownership migration`)  
+**B19 commit:** `e414025` (`fix: keep Core stock when availability predicate is absent`; gates `fb4a8fe`)  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
@@ -56,6 +57,7 @@
 | B16 | Architecture decision + `inventory.stock` parity | ✅ COMPLETED (parity lock) | 1405/05/30 | 12:02:36 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B16_ARCHITECTURE_DECISION_AND_ROLLBACK_GATE.md` — PARITY CONFIRMED — HTML 619 / Core 154 PASS — ownership NOT migrated — checkpoint B14-GOOD=`dae7cde` / B16-PARITY=`23a4776` |
 | B17 | Safe fail-closed contract for `inventory.stock` | ✅ COMPLETED (contract + tests) | 1405/05/30 | 12:12:09 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B17_SAFE_FAIL_CLOSED_INVENTORY.md` — `{ok:false, reason:"INVENTORY_UNAVAILABLE"}` — HTML 625 / Core 159 PASS — runtime UNCHANGED — ownership NOT migrated — checkpoint B17-SAFE-FAIL-CLOSED=`935377a` |
 | B18 | `inventory.stock` ownership | ✅ COMPLETED | 1405/05/30 | 12:29:33 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B18_INVENTORY_STOCK_OWNERSHIP.md` — commit `76c92e6` — HTML 631 / Core 159 PASS — EXE fail-closed — HTML-only JS preserved — mutations NONE — live EXE NEEDS HUMAN VERIFICATION |
+| B19 | Inventory mutation boundary safety | ✅ COMPLETED | 1405/05/30 | 13:00:55 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B19_INVENTORY_MUTATION_BOUNDARY_SAFETY.md` — product `e414025` (gates `fb4a8fe`) — HTML 639 / Core 159 PASS — reserve/release/consume/OUT gated on `stockDataAvailable` — no `core.stock \|\| snapshot` — live EXE NEEDS HUMAN VERIFICATION |
 
 ---
 
@@ -334,10 +336,40 @@
 - **Locked business workflows:** UNCHANGED
 - **InventoryCore.Stock / PartsAdvisor:** UNCHANGED
 - **Checkpoint:** `B18-FINAL-GOOD` = `76c92e6`
-- **B19:** NOT STARTED
+- **B19:** COMPLETED (see B19 Verification Record)
 - **Live EXE:** NEEDS HUMAN VERIFICATION
 
 ### B18 Human Verification
+
+⬜ NOT YET VERIFIED
+
+---
+
+## B19 Verification Record
+
+- **B19:** inventory mutation boundary safety (not a new ownership seam)
+- **Commits:** `fb4a8fe` (gates) / `e414025` (return sanitize) — FINAL-GOOD `e414025`
+- **Report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B19_INVENTORY_MUTATION_BOUNDARY_SAFETY.md`
+- **Implementation:** COMPLETED
+- **PRODUCT CODE MODIFIED:** YES (HTML mutation **boundary** only)
+- **HTML tests:** `639 PASS / 0 FAIL`
+- **Core tests:** `159 PASS / 0 FAIL`
+- **B16 parity:** PASS (18 vectors unchanged)
+- **B17 contract:** PASS
+- **B18 ownership:** PRESERVED
+- **Fail-closed:** Core stock unavailable → reserve/release/consume/applyByWarehouse OUT **not** called; no fake zero; no JS snapshot on EXE return
+- **HTML-only:** PASS (existing success path; unavailable stub does not mutate)
+- **Inventory algorithms:** UNCHANGED
+- **Persistence:** UNCHANGED
+- **Backup:** UNCHANGED
+- **Print engine:** UNTOUCHED
+- **Locked business workflows:** UNCHANGED
+- **Deferred:** `saveWarehouseDoc` EXE reorder (TRANSACTION ORDERING BLOCKER); `_restockFromSale` move-on-miss
+- **Checkpoint:** `B19-FINAL-GOOD` = `e414025`
+- **B20:** NOT STARTED
+- **Live EXE:** NEEDS HUMAN VERIFICATION
+
+### B19 Human Verification
 
 ⬜ NOT YET VERIFIED
 
@@ -389,15 +421,18 @@ B17 LIVE EXE = NEEDS HUMAN VERIFICATION
 B18    = COMPLETED
 B18 IMPLEMENTATION = COMPLETED
 B18 LIVE EXE = NEEDS HUMAN VERIFICATION
-B19    = NOT STARTED
+B19    = COMPLETED
+B19 IMPLEMENTATION = COMPLETED
+B19 LIVE EXE = NEEDS HUMAN VERIFICATION
 
-Last known good product checkpoint = B18-FINAL-GOOD 76c92e6
+Last known good product checkpoint = B19-FINAL-GOOD e414025
+B18-FINAL-GOOD = 76c92e6
 B16 parity checkpoint = B16-PARITY 23a4776
 B17 contract checkpoint = B17-SAFE-FAIL-CLOSED 935377a
-Recommended next seam = wait for B19 instruction
+Recommended next seam = wait for B20 instruction
 PRINT       = FROZEN
 PERSISTENCE = UNCHANGED
 BACKUP      = UNCHANGED
 ```
 
-**NEXT ACTION:** هیچ مرحلهٔ بعد شروع نشود تا دستور صریح B19 برسد.
+**NEXT ACTION:** هیچ مرحلهٔ بعد شروع نشود تا دستور صریح B20 برسد.
