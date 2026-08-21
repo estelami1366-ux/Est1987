@@ -19650,7 +19650,10 @@ function calcWarrExpFromBuy(n){
   var months = (document.getElementById('wd'+n+'_wmonths')||{}).value||'';
   var expEl = document.getElementById('wd'+n+'_wexp');
   if(!expEl) return;
-  if(buy && months){ expEl.value = (typeof calcWarrantyEndDate==='function') ? calcWarrantyEndDate(buy, months) : addJalaliMonths(buy, months); }
+  if(buy && months){
+    var exp = (typeof calcWarrantyEndDate==='function') ? calcWarrantyEndDate(buy, months) : addJalaliMonths(buy, months);
+    if(exp!=null && typeof exp!=='undefined') expEl.value = exp;
+  }
 }
 
 function addWDev(){
@@ -26630,8 +26633,13 @@ var ErrorEngine = {
 
 // ─── هسته هوشمند: محاسبه / گردش‌کار / پیشنهاد — روی موتورهای موجود، نه سیستم موازی ───
 function calcWarrantyEndDate(purchaseDate, periodMonths){
-  var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('calc.warrantyEndDate', {purchaseDate:purchaseDate, periodMonths:periodMonths}) : null;
-  if(core!=null && typeof core!=='undefined') return core;
+  // مالک EXE: CalculationEngine.WarrantyEndDate از RunBusiness("calc.warrantyEndDate"). Fallback JS فقط بدون Host.
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('calc.warrantyEndDate', {purchaseDate:purchaseDate, periodMonths:periodMonths}) : null;
+    if(core!=null && typeof core!=='undefined') return core;
+    return null;
+  }
   return (typeof addJalaliMonths==='function') ? addJalaliMonths(purchaseDate, periodMonths) : (purchaseDate||'');
 }
 function calcBalance(totalAmount, paidAmount){
