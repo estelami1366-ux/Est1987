@@ -1,15 +1,16 @@
 # SIRMAN — PHASE 3 MIGRATION TRACKER
 
 **Tracker mode:** ACTIVE  
-**Last updated:** 1405/05/30 11:10:07 (Asia/Tehran)  
+**Last updated:** 1405/05/30 11:25:13 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `4986bc5`  
+**Current known HEAD:** `8446619`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **B10 commit:** `da78c6a` (`test: lock calc.warrantyEndDate JS/C# parity vectors`)  
 **B11 commit:** `405bcb1` (`feat: migrate calc.warrantyEndDate ownership to core`)  
 **B11 report commit:** `da5353d` (`docs: record B11 calc.warrantyEndDate ownership migration`)  
 **B12 report commit:** `4986bc5` (`docs: B12 change gate selects rules.suggestParts`)  
+**B13 commit:** `8446619` (`test: lock rules.suggestParts JS/C# parity vectors`)  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
@@ -39,6 +40,7 @@
 | B10 | `calc.warrantyEndDate` parity lock | ✅ COMPLETED | 1405/05/30 | 10:40:28 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B10_PARITY_LOCK.md` — PARITY CONFIRMED — HTML 602 / Core 149 PASS — ownership NOT migrated |
 | B11 | `calc.warrantyEndDate` ownership | ✅ COMPLETED | 1405/05/30 | 10:58:48 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B11_WARRANTY_ENDDATE_OWNERSHIP.md` — commit `405bcb1` — HTML 609 / Core 149 PASS — live EXE NEEDS HUMAN VERIFICATION |
 | B12 | Next ownership seam (change gate) | ANALYSIS COMPLETED | 1405/05/30 | 11:10:07 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B12_CHANGE_GATE.md` — انتخاب `rules.suggestParts` — PARITY LOCK REQUIRED — implementation NOT STARTED |
+| B13 | `rules.suggestParts` parity lock | ✅ COMPLETED | 1405/05/30 | 11:25:13 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B13_RULES_SUGGESTPARTS_PARITY_LOCK.md` — PARITY CONFIRMED — HTML 611 / Core 151 PASS — ownership NOT migrated |
 
 ---
 
@@ -177,7 +179,27 @@
 - **Readiness:** PARITY LOCK REQUIRED
 - **Parity:** PARITY PARTIAL (JS ranking ≈ Core `PartsAdvisor.Suggest`; no shared frozen suggestion table)
 - **Not selected:** unused `calc.*` (no live caller); `inventory.stock` (locked family); `warranty.canTransition` (locked-apply adjacency); `service.*` (FORBIDDEN)
-- **Follow-up:** do not implement until an explicit later gate; live EXE still NEEDS HUMAN VERIFICATION
+- **Follow-up:** B13 locked suggestion vectors; ownership still NOT STARTED
+
+---
+
+## B13 Parity Lock Record
+
+- **B13:** `rules.suggestParts` parity lock (not ownership migration)
+- **Commit:** `8446619`
+- **Report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B13_RULES_SUGGESTPARTS_PARITY_LOCK.md`
+- **Parity:** CONFIRMED (frozen catalog table, 13 cases)
+- **Implementation:** NOT STARTED
+- **PRODUCT CODE MODIFIED:** NO
+- **HTML tests:** `611 PASS / 0 FAIL`
+- **Core tests:** `151 PASS / 0 FAIL`
+- **B5 / B6 / B8 / B11 regression:** PASS
+- **Inventory mutation:** NONE
+- **Persistence:** UNCHANGED
+- **Backup:** UNCHANGED
+- **Print engine:** UNTOUCHED
+- **Locked business workflows:** UNCHANGED
+- **B14:** NOT STARTED
 
 ---
 
@@ -211,12 +233,14 @@ B11 IMPLEMENTATION = COMPLETED
 B11 LIVE EXE = NEEDS HUMAN VERIFICATION
 B12    = ANALYSIS COMPLETED
 B12 IMPLEMENTATION = NOT STARTED
+B13    = COMPLETED (parity lock)
+B13 IMPLEMENTATION = NOT STARTED
 
 Recommended next seam = rules.suggestParts
-READINESS = PARITY LOCK REQUIRED
+READINESS = PARITY CONFIRMED (frozen suggestion table)
 PRINT       = FROZEN
 PERSISTENCE = UNCHANGED
 BACKUP      = UNCHANGED
 ```
 
-**NEXT ACTION:** هیچ پیاده‌سازی `rules.suggestParts` شروع نشود تا دستور صریح مرحلهٔ بعد برسد.
+**NEXT ACTION:** مهاجرت مالکیت `rules.suggestParts` فقط پس از دستور صریح B14.
