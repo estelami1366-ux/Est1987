@@ -1,9 +1,9 @@
 # SIRMAN — PHASE 3 MIGRATION TRACKER
 
 **Tracker mode:** ACTIVE  
-**Last updated:** 1405/05/30 11:47:25 (Asia/Tehran)  
+**Last updated:** 1405/05/30 12:02:36 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `bd75162`  
+**Current known HEAD:** `23a4776`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **B10 commit:** `da78c6a` (`test: lock calc.warrantyEndDate JS/C# parity vectors`)  
@@ -15,6 +15,7 @@
 **B14 commit:** `dae7cde` (`feat: migrate rules.suggestParts ownership to core`)  
 **B14 report commit:** `3fa389f` (`docs: record B14 rules.suggestParts ownership migration`)  
 **B15 report commit:** `bd75162` (`docs: B15 change gate finds no authorized seam`)  
+**B16 commit:** `23a4776` (`test: lock inventory.stock JS/C# parity vectors`)  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
@@ -47,6 +48,7 @@
 | B13 | `rules.suggestParts` parity lock | ✅ COMPLETED | 1405/05/30 | 11:25:13 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B13_RULES_SUGGESTPARTS_PARITY_LOCK.md` — PARITY CONFIRMED — HTML 611 / Core 151 PASS — ownership NOT migrated |
 | B14 | `rules.suggestParts` ownership | ✅ COMPLETED | 1405/05/30 | 11:34:57 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B14_RULES_SUGGESTPARTS_OWNERSHIP.md` — commit `dae7cde` — HTML 616 / Core 151 PASS — live EXE NEEDS HUMAN VERIFICATION |
 | B15 | Next ownership seam (change gate) | ANALYSIS COMPLETED / SELECTION BLOCKED | 1405/05/30 | 11:47:25 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B15_CHANGE_GATE.md` — هیچ seam مجاز نماند — implementation NOT STARTED — محصول تغییر نکرد |
+| B16 | Architecture decision + `inventory.stock` parity | ✅ COMPLETED (parity lock) | 1405/05/30 | 12:02:36 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B16_ARCHITECTURE_DECISION_AND_ROLLBACK_GATE.md` — PARITY CONFIRMED — HTML 619 / Core 154 PASS — ownership NOT migrated — checkpoint B14-GOOD=`dae7cde` / B16-PARITY=`23a4776` |
 
 ---
 
@@ -252,6 +254,34 @@
 
 ---
 
+## B16 Verification Record
+
+- **B16:** architecture decision + `inventory.stock` parity preparation
+- **Report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B16_ARCHITECTURE_DECISION_AND_ROLLBACK_GATE.md`
+- **Decision:** `inventory.stock` AUTHORIZED for parity only; OWNERSHIP NOT AUTHORIZED
+- **Parity:** CONFIRMED (18 frozen snapshot vectors)
+- **Implementation (ownership):** NOT STARTED
+- **CODE MODIFIED:** tests/docs only
+- **PRODUCT CODE MODIFIED:** NO
+- **HTML tests:** `619 PASS / 0 FAIL`
+- **Core tests:** `154 PASS / 0 FAIL`
+- **Regression:** PASS
+- **Inventory mutation:** NONE
+- **Persistence:** UNCHANGED
+- **Backup:** UNCHANGED
+- **Print engine:** UNTOUCHED
+- **Rollback protocol:** DEFINED (`B14-GOOD` = `dae7cde`; revert not `reset --hard`)
+- **Checkpoint protocol:** DEFINED (`B16-PARITY` = `23a4776`)
+- **Fail-closed:** NOT DESIGNED (current `invStockSnapshot` remains fail-open)
+- **B17:** NOT STARTED
+- **Live EXE:** NEEDS HUMAN VERIFICATION
+
+### B16 Human Verification
+
+⬜ NOT YET VERIFIED
+
+---
+
 ## Rules for Updating This Tracker
 
 1. هر مرحله فقط با گزارش MD همان مرحله ثبت می‌شود.
@@ -289,11 +319,17 @@ B14 LIVE EXE = NEEDS HUMAN VERIFICATION
 B15    = ANALYSIS COMPLETED
 B15 IMPLEMENTATION = NOT STARTED
 B15 SELECTION = BLOCKED
+B16    = COMPLETED (parity lock)
+B16 OWNERSHIP = NOT STARTED
+B16 LIVE EXE = NEEDS HUMAN VERIFICATION
+B17    = NOT STARTED
 
-Recommended next seam = NONE (wait for B16 instruction)
+Last known good product checkpoint = B14-GOOD dae7cde
+B16 parity checkpoint = B16-PARITY 23a4776
+Recommended next seam = inventory.stock ownership (NOT authorized by B16; wait for B17)
 PRINT       = FROZEN
 PERSISTENCE = UNCHANGED
 BACKUP      = UNCHANGED
 ```
 
-**NEXT ACTION:** هیچ مرحلهٔ بعد شروع نشود تا دستور صریح B16 برسد.
+**NEXT ACTION:** هیچ مرحلهٔ بعد شروع نشود تا دستور صریح B17 برسد.
