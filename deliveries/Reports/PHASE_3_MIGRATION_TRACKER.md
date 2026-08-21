@@ -1,7 +1,7 @@
 # SIRMAN — PHASE 3 MIGRATION TRACKER
 
 **Tracker mode:** ACTIVE  
-**Last updated:** 1405/05/30 13:23:01 (Asia/Tehran)  
+**Last updated:** 1405/05/30 13:36:46 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
 **Current known HEAD:** `b11ac50`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
@@ -65,6 +65,7 @@
 | B19 | Inventory mutation boundary safety | ✅ COMPLETED | 1405/05/30 | 13:00:55 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B19_INVENTORY_MUTATION_BOUNDARY_SAFETY.md` — product `e414025` (gates `fb4a8fe`) — HTML 639 / Core 159 PASS — reserve/release/consume/OUT gated on `stockDataAvailable` — no `core.stock \|\| snapshot` — live EXE NEEDS HUMAN VERIFICATION |
 | B19R | Close remaining inventory mutation risks | ✅ COMPLETED | 1405/05/30 | 13:12:57 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B19R_INVENTORY_MUTATION_RISK_CLOSURE.md` — product `1fcf054` — HTML 644 / Core 159 PASS — R1 preflight / R2 restock log / R3 truthful ok:true — live EXE NEEDS HUMAN VERIFICATION |
 | B20 | Next ownership seam + completion gate | ANALYSIS COMPLETED / OPTION C | 1405/05/30 | 13:23:01 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B20_NEXT_SEAM_AND_COMPLETION_GATE.md` — NO AUTHORIZED NEXT SEAM — implementation NOT STARTED — محصول تغییر نکرد — AUTHORIZED PHASE 3 MIGRATION COMPLETE |
+| FINAL | Shop delivery package `1405.5.27γ_FINAL` | PACKAGED / NEEDS HUMAN VERIFICATION | 1405/05/30 | 13:36:46 | `PHASE_3_FINAL_DELIVERY_PACKAGE_REPORT.md` — `deliveries/Sirman_Setup_1405.5.27γ_FINAL.zip` — HTML 644 / Core 159 PASS — product `1fcf054` — version unchanged — previous γ kit preserved |
 
 ---
 
@@ -499,4 +500,4 @@ AUTHORIZED PHASE 3 MIGRATION = COMPLETE
 FULL ARCHITECTURAL MIGRATION = NO (projections / persist / print / auth remain future programs)
 ```
 
-**NEXT ACTION:** B21 اختراع نشود. هیچ seam مجاز بعدی وجود ندارد. محصول روی `1fcf054` بماند تا تصمیم معماری جداگانه.
+**NEXT ACTION:** کیت `deliveries/Sirman_Setup_1405.5.27γ_FINAL.zip` برای نصب فروشگاه آماده است. راستی‌آزمایی انسانی روی ویندوز فروشگاه لازم است. B21 اختراع نشود.
