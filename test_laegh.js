@@ -9733,6 +9733,76 @@ test('B11 نباید save/close/delete گارانتی را عوض کند', () =>
   assertTrue(endSrc.indexOf('warranty.close') === -1, 'calcWarrantyEndDate نباید close باشد');
 });
 
+console.log('');
+console.log('📋 گروه: فاز ۳ B13 قفل برابری rules.suggestParts');
+
+function loadSuggestPartsParityVectors() {
+  const name = 'SuggestPartsParityVectors.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول بردار B13 پیدا نشد: ' + name);
+}
+
+function makeHtmlOnlySuggestParts() {
+  const suggestSrc = extractFunctionSource(html, 'suggestPartsForCase');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  assertTrue(!!suggestSrc && !!snapSrc && !!sumSrc, 'توابع suggestPartsForCase / invStockSnapshot / _sumByWh پیدا نشد');
+  return new Function(sumSrc + '\n' + snapSrc + '\n' + suggestSrc + `
+    function hasBusinessCore(){ return false; }
+    function takeBusinessCore(){ return null; }
+    return function(opts){ return suggestPartsForCase(opts); };
+  `)();
+}
+
+function slimSuggestHit(h) {
+  return {
+    code: String(h.code || ''),
+    name: String(h.name || ''),
+    qty: Number(h.qty),
+    explain: String(h.explain || '')
+  };
+}
+
+test('مسیر HTML-only باید بردارهای قفل‌شده rules.suggestParts را بدون Host اجرا کند', () => {
+  const pack = loadSuggestPartsParityVectors();
+  const suggest = makeHtmlOnlySuggestParts();
+  pack.cases.forEach(function(row) {
+    const parts = Object.prototype.hasOwnProperty.call(row, 'parts') ? row.parts : pack.catalog;
+    const got = (suggest({parts: parts, prodCode: row.prodCode, model: row.model, problem: row.problem}) || []).map(slimSuggestHit);
+    const expected = (row.expected || []).map(slimSuggestHit);
+    assertEqual(got.length, expected.length, row.id + ' length');
+    expected.forEach(function(exp, i) {
+      assertEqual(got[i].code, exp.code, row.id + ' [' + i + '] code');
+      assertEqual(got[i].name, exp.name, row.id + ' [' + i + '] name');
+      assertEqual(got[i].qty, exp.qty, row.id + ' [' + i + '] qty');
+      assertEqual(got[i].explain, exp.explain, row.id + ' [' + i + '] explain');
+    });
+  });
+  const src = extractFunctionSource(html, 'suggestPartsForCase');
+  assertContainsString(src, 'rules.suggestParts', 'عملیات هسته باید rules.suggestParts بماند');
+  assertContainsString(src, 'catalog.forEach', 'fallback JS ranking باید بماند');
+  assertContainsString(src, 'invStockSnapshot', 'fallback باید موجودی را از invStockSnapshot بخواند');
+});
+
+test('rules.suggestParts نباید persist یا جهش انبار بنویسد و مالکیت B13 مهاجرت نشده باشد', () => {
+  const src = extractFunctionSource(html, 'suggestPartsForCase');
+  assertTrue(src.indexOf('localStorage') === -1, 'نباید localStorage بنویسد');
+  assertTrue(src.indexOf('indexedDB') === -1, 'نباید IndexedDB بنویسد');
+  assertTrue(src.indexOf('svWars') === -1, 'نباید svWars صدا بزند');
+  assertTrue(src.indexOf('persistCoreSnapshot') === -1, 'نباید persistCoreSnapshot صدا بزند');
+  assertTrue(src.indexOf('warranty.save') === -1, 'نباید warranty.save باشد');
+  assertTrue(src.indexOf('inventory.reserve') === -1, 'نباید inventory.reserve باشد');
+  assertTrue(src.indexOf('inventory.consume') === -1, 'نباید inventory.consume باشد');
+  assertContainsString(src, 'if(Array.isArray(core)) return core', 'B13 نباید fail-closed را کامل کند');
+  assertTrue(src.indexOf('return [];') === -1 || src.indexOf('catalog.forEach') >= 0, 'fallback ranking باید بماند');
+});
+
 test('رزرو در exe فقط Writer هسته باشد و بدون Host همان جهش JS بماند', () => {
   const runSrc = extractFunctionSource(html, 'runBusinessCore');
   const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
