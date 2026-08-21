@@ -3,7 +3,7 @@
 **Tracker mode:** ACTIVE  
 **Last updated:** 1405/05/30 12:29:33 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `76c92e6`  
+**Current known HEAD:** `5742e4f`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **B10 commit:** `da78c6a` (`test: lock calc.warrantyEndDate JS/C# parity vectors`)  
@@ -20,6 +20,7 @@
 **B17 commit:** `935377a` (`test: lock inventory.stock safe fail-closed contract`)  
 **B17 report commit:** `229973f` (`docs: record B17 inventory.stock fail-closed contract`)  
 **B18 commit:** `76c92e6` (`feat: migrate inventory.stock ownership to core`)  
+**B18 report commit:** `5742e4f` (`docs: record B18 inventory.stock ownership migration`)  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
