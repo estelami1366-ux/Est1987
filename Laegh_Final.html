@@ -18463,7 +18463,7 @@ function invReserveOnItem(item, qty, whId){
     if(core.ok===false) return {ok:false, err: core.err||core.error||'رزرو نشد'};
     if(typeof applyCoreItemOnto==='function') applyCoreItemOnto(item, core.item);
     var stockRes = core.stock;
-    if(typeof stockDataAvailable!=='function' || !stockDataAvailable(stockRes)) stockRes = {ok:false, reason:'INVENTORY_UNAVAILABLE'};
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(stockRes)) stockRes = {ok:false, reason:'INVENTORY_UNAVAILABLE'};
     return {ok:true, stock: stockRes};
   }
   if(!item || qty<=0) return {ok:false, err:'مقدار نامعتبر'};
@@ -18490,7 +18490,7 @@ function invReleaseReserveOnItem(item, qty, whId){
     if(core.ok===false) return {ok:false, err: core.err||core.error||'آزادسازی نشد'};
     if(typeof applyCoreItemOnto==='function') applyCoreItemOnto(item, core.item);
     var stockRel = core.stock;
-    if(typeof stockDataAvailable!=='function' || !stockDataAvailable(stockRel)) stockRel = {ok:false, reason:'INVENTORY_UNAVAILABLE'};
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(stockRel)) stockRel = {ok:false, reason:'INVENTORY_UNAVAILABLE'};
     return {ok:true, stock: stockRel};
   }
   if(!item || qty<=0) return {ok:false, err:'مقدار نامعتبر'};
