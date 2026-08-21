@@ -11,6 +11,7 @@
 **B11 report commit:** `da5353d` (`docs: record B11 calc.warrantyEndDate ownership migration`)  
 **B12 report commit:** `4986bc5` (`docs: B12 change gate selects rules.suggestParts`)  
 **B13 commit:** `8446619` (`test: lock rules.suggestParts JS/C# parity vectors`)  
+**B13 report commit:** `82ce509` (`docs: record B13 rules.suggestParts parity lock`)  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
