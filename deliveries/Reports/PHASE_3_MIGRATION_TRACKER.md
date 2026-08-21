@@ -1,9 +1,9 @@
 # SIRMAN — PHASE 3 MIGRATION TRACKER
 
 **Tracker mode:** ACTIVE  
-**Last updated:** 1405/05/30 11:34:57 (Asia/Tehran)  
+**Last updated:** 1405/05/30 11:47:25 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `dae7cde`  
+**Current known HEAD:** `79a9104`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **B10 commit:** `da78c6a` (`test: lock calc.warrantyEndDate JS/C# parity vectors`)  
@@ -14,6 +14,7 @@
 **B13 report commit:** `82ce509` (`docs: record B13 rules.suggestParts parity lock`)  
 **B14 commit:** `dae7cde` (`feat: migrate rules.suggestParts ownership to core`)  
 **B14 report commit:** `3fa389f` (`docs: record B14 rules.suggestParts ownership migration`)  
+**B15 report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B15_CHANGE_GATE.md`  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
@@ -45,6 +46,7 @@
 | B12 | Next ownership seam (change gate) | ANALYSIS COMPLETED | 1405/05/30 | 11:10:07 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B12_CHANGE_GATE.md` — انتخاب `rules.suggestParts` — PARITY LOCK REQUIRED — implementation NOT STARTED |
 | B13 | `rules.suggestParts` parity lock | ✅ COMPLETED | 1405/05/30 | 11:25:13 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B13_RULES_SUGGESTPARTS_PARITY_LOCK.md` — PARITY CONFIRMED — HTML 611 / Core 151 PASS — ownership NOT migrated |
 | B14 | `rules.suggestParts` ownership | ✅ COMPLETED | 1405/05/30 | 11:34:57 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B14_RULES_SUGGESTPARTS_OWNERSHIP.md` — commit `dae7cde` — HTML 616 / Core 151 PASS — live EXE NEEDS HUMAN VERIFICATION |
+| B15 | Next ownership seam (change gate) | ANALYSIS COMPLETED / SELECTION BLOCKED | 1405/05/30 | 11:47:25 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B15_CHANGE_GATE.md` — هیچ seam مجاز نماند — implementation NOT STARTED — محصول تغییر نکرد |
 
 ---
 
@@ -225,12 +227,28 @@
 - **Print engine:** UNTOUCHED
 - **Locked business workflows:** UNCHANGED (`warranty.save` / `warranty.close` / `warranty.delete`)
 - **PartsAdvisor algorithm:** UNCHANGED
-- **B15:** NOT STARTED
+- **B15:** ANALYSIS COMPLETED / SELECTION BLOCKED (see B15 Analysis Record)
 - **Live EXE:** NEEDS HUMAN VERIFICATION
 
 ### B14 Human Verification
 
 ⬜ NOT YET VERIFIED
+
+---
+
+## B15 Analysis Record
+
+- **B15:** change gate / next ownership seam analysis (not a product migration)
+- **Report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B15_CHANGE_GATE.md`
+- **Analysis:** ANALYSIS COMPLETED
+- **Selection:** BLOCKED
+- **Implementation:** NOT STARTED
+- **CODE MODIFIED:** NO
+- **Recommended next seam:** NONE (no remaining seam satisfies all ten B15 §5 rules)
+- **Readiness:** NO AUTHORIZED SEAM
+- **Parity:** N/A (no selected seam; no parity lock added)
+- **Not selected:** unused `calc.*` (no live caller); `inventory.stock` (locked family + §6 do-not-auto-choose); `warranty.canTransition` (no EXE live caller + locked-apply adjacency); `payment.deposit` (unused result); `service.*` (FORBIDDEN)
+- **Follow-up:** wait for B16 instruction. Do not start B16 from this report.
 
 ---
 
@@ -268,12 +286,14 @@ B13    = COMPLETED (parity lock)
 B14    = COMPLETED
 B14 IMPLEMENTATION = COMPLETED
 B14 LIVE EXE = NEEDS HUMAN VERIFICATION
-B15    = NOT STARTED
+B15    = ANALYSIS COMPLETED
+B15 IMPLEMENTATION = NOT STARTED
+B15 SELECTION = BLOCKED
 
-Recommended next seam = wait for B15 instruction
+Recommended next seam = NONE (wait for B16 instruction)
 PRINT       = FROZEN
 PERSISTENCE = UNCHANGED
 BACKUP      = UNCHANGED
 ```
 
-**NEXT ACTION:** هیچ مرحلهٔ بعد شروع نشود تا دستور صریح B15 برسد.
+**NEXT ACTION:** هیچ مرحلهٔ بعد شروع نشود تا دستور صریح B16 برسد.
