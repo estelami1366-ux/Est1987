@@ -1,9 +1,9 @@
 # SIRMAN — PHASE 3 MIGRATION TRACKER
 
 **Tracker mode:** ACTIVE  
-**Last updated:** 1405/05/30 10:58:48 (Asia/Tehran)  
+**Last updated:** 1405/05/30 11:10:07 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `da5353d`  
+**Current known HEAD:** `5347034`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **B10 commit:** `da78c6a` (`test: lock calc.warrantyEndDate JS/C# parity vectors`)  
@@ -37,7 +37,7 @@
 | B9 | Next ownership seam (analysis) | ANALYSIS COMPLETED | 1405/05/30 | 10:20:55 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B9_NEXT_OWNERSHIP_SEAM.md` — انتخاب `calc.warrantyEndDate` — PARITY LOCK REQUIRED — implementation NOT STARTED |
 | B10 | `calc.warrantyEndDate` parity lock | ✅ COMPLETED | 1405/05/30 | 10:40:28 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B10_PARITY_LOCK.md` — PARITY CONFIRMED — HTML 602 / Core 149 PASS — ownership NOT migrated |
 | B11 | `calc.warrantyEndDate` ownership | ✅ COMPLETED | 1405/05/30 | 10:58:48 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B11_WARRANTY_ENDDATE_OWNERSHIP.md` — commit `405bcb1` — HTML 609 / Core 149 PASS — live EXE NEEDS HUMAN VERIFICATION |
-| B12 | next step | NOT STARTED | — | — | wait for explicit B12 instruction |
+| B12 | Next ownership seam (change gate) | ANALYSIS COMPLETED | 1405/05/30 | 11:10:07 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B12_CHANGE_GATE.md` — انتخاب `rules.suggestParts` — PARITY LOCK REQUIRED — implementation NOT STARTED |
 
 ---
 
@@ -154,12 +154,29 @@
 - **Print engine:** UNTOUCHED
 - **Locked business workflows:** UNCHANGED (`warranty.save` / `warranty.close` / `warranty.delete`)
 - **Calendar arithmetic:** UNCHANGED
-- **B12:** NOT STARTED
+- **B12:** ANALYSIS COMPLETED (see B12 Analysis Record)
 - **Live EXE:** NEEDS HUMAN VERIFICATION
+
+---
 
 ### B11 Human Verification
 
 ⬜ NOT YET VERIFIED
+
+---
+
+## B12 Analysis Record
+
+- **B12:** change gate / next ownership seam analysis (not a product migration)
+- **Report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B12_CHANGE_GATE.md`
+- **Analysis:** ANALYSIS COMPLETED
+- **Implementation:** NOT STARTED
+- **CODE MODIFIED:** NO
+- **Recommended next seam:** `rules.suggestParts` (`suggestPartsForCase` → `PartsAdvisor.Suggest`)
+- **Readiness:** PARITY LOCK REQUIRED
+- **Parity:** PARITY PARTIAL (JS ranking ≈ Core `PartsAdvisor.Suggest`; no shared frozen suggestion table)
+- **Not selected:** unused `calc.*` (no live caller); `inventory.stock` (locked family); `warranty.canTransition` (locked-apply adjacency); `service.*` (FORBIDDEN)
+- **Follow-up:** do not implement until an explicit later gate; live EXE still NEEDS HUMAN VERIFICATION
 
 ---
 
@@ -191,12 +208,14 @@ B10    = COMPLETED (parity lock)
 B11    = COMPLETED
 B11 IMPLEMENTATION = COMPLETED
 B11 LIVE EXE = NEEDS HUMAN VERIFICATION
-B12    = NOT STARTED
+B12    = ANALYSIS COMPLETED
+B12 IMPLEMENTATION = NOT STARTED
 
-Recommended next seam = wait for B12 instruction
+Recommended next seam = rules.suggestParts
+READINESS = PARITY LOCK REQUIRED
 PRINT       = FROZEN
 PERSISTENCE = UNCHANGED
 BACKUP      = UNCHANGED
 ```
 
-**NEXT ACTION:** هیچ مرحلهٔ بعد شروع نشود تا دستور صریح B12 برسد.
+**NEXT ACTION:** هیچ پیاده‌سازی `rules.suggestParts` شروع نشود تا دستور صریح مرحلهٔ بعد برسد.
