@@ -6280,7 +6280,7 @@ test('UI انبار ارتقا‌یافته: رزرو، برگشت، کارتک�
 });
 
 test('توابع موتور Inventory باید تعریف شده باشند', () => {
-  ['registerWarehouseKind','invNormalizeWarehouse','invStockSnapshot','invReserveOnItem','invReleaseReserveOnItem','invKardexFromMoves','invLowStockFromLists','invSearchCatalog','invStockValueFromLists','invDeadStockFromMoves','invConsumedInService','defIsInWarehouse','openKardexModal'].forEach(fn=>{
+  ['registerWarehouseKind','invNormalizeWarehouse','stockDataAvailable','invStockSnapshot','invReserveOnItem','invReleaseReserveOnItem','invKardexFromMoves','invLowStockFromLists','invSearchCatalog','invStockValueFromLists','invDeadStockFromMoves','invConsumedInService','defIsInWarehouse','openKardexModal'].forEach(fn=>{
     assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
   });
   assertContainsString(html, 'var InventoryEngine = {', 'شیء InventoryEngine پیدا نشد');
@@ -6296,6 +6296,7 @@ test('شبیه‌سازی: موجودی/رزرو/کارتکس/کم‌موجود�
     extractFunctionSource(html, '_sumByWh'),
     extractFunctionSource(html, 'registerWarehouseKind'),
     extractFunctionSource(html, 'invNormalizeWarehouse'),
+    extractFunctionSource(html, 'stockDataAvailable'),
     extractFunctionSource(html, 'invStockSnapshot'),
     extractFunctionSource(html, 'invReserveOnItem'),
     extractFunctionSource(html, 'invReleaseReserveOnItem'),
@@ -9750,10 +9751,11 @@ function loadSuggestPartsParityVectors() {
 
 function makeHtmlOnlySuggestParts() {
   const suggestSrc = extractFunctionSource(html, 'suggestPartsForCase');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
   const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
   const sumSrc = extractFunctionSource(html, '_sumByWh');
   assertTrue(!!suggestSrc && !!snapSrc && !!sumSrc, 'توابع suggestPartsForCase / invStockSnapshot / _sumByWh پیدا نشد');
-  return new Function(sumSrc + '\n' + snapSrc + '\n' + suggestSrc + `
+  return new Function((availSrc || '') + '\n' + sumSrc + '\n' + snapSrc + '\n' + suggestSrc + `
     function hasBusinessCore(){ return false; }
     function takeBusinessCore(){ return null; }
     return function(opts){ return suggestPartsForCase(opts); };
@@ -9811,10 +9813,11 @@ function makeExeSuggestPartsHost(runImpl) {
   const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
   const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
   const suggestSrc = extractFunctionSource(html, 'suggestPartsForCase');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
   const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
   const sumSrc = extractFunctionSource(html, '_sumByWh');
   assertTrue(!!runSrc && !!takeSrc && !!hasSrc && !!suggestSrc, 'توابع suggestPartsForCase / Host پیدا نشد');
-  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + (sumSrc || '') + '\n' + (snapSrc || '') + '\n' + suggestSrc + `
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + (availSrc || '') + '\n' + (sumSrc || '') + '\n' + (snapSrc || '') + '\n' + suggestSrc + `
     function getSirmanHostSync(){
       return { RunBusiness: runImpl };
     }
@@ -9967,9 +9970,10 @@ function loadInventoryStockParityVectors() {
 
 function makeHtmlOnlyInvStockSnapshot() {
   const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
   const sumSrc = extractFunctionSource(html, '_sumByWh');
   assertTrue(!!snapSrc && !!sumSrc, 'توابع invStockSnapshot / _sumByWh پیدا نشد');
-  return new Function(sumSrc + '\n' + snapSrc + `
+  return new Function((availSrc || '') + '\n' + sumSrc + '\n' + snapSrc + `
     function hasBusinessCore(){ return false; }
     function takeBusinessCore(){ return null; }
     return function(item, whId){ return invStockSnapshot(item, whId); };
@@ -10019,8 +10023,8 @@ test('inventory.stock نباید persist یا جهش انبار بنویسد و 
   assertTrue(src.indexOf('inventory.applyWarehouseDoc') === -1, 'نباید applyWarehouseDoc باشد');
   assertTrue(src.indexOf('invoice.close') === -1, 'نباید invoice.close باشد');
   assertTrue(src.indexOf('warranty.close') === -1, 'نباید warranty.close باشد');
-  assertTrue(src.indexOf('hasBusinessCore') === -1, 'مالکیت EXE هنوز مهاجرت نشده');
-  assertContainsString(src, 'if(core && typeof core===\'object\' && core.qty!=null) return core', 'مسیر فعلی هنوز Core object با qty را برمی‌گرداند');
+  assertContainsString(src, 'hasBusinessCore', 'B18 مالکیت EXE باید صریح باشد');
+  assertContainsString(src, 'INVENTORY_UNAVAILABLE', 'شکست هسته باید قرارداد B17 باشد');
 });
 
 test('شکست Host در inventory.stock هنوز snapshot جاوااسکریپت را اجرا می‌کند (fail-open فعلی)', () => {
@@ -10149,14 +10153,167 @@ test('گارد قرارداد نباید جهش reserve/release/consume را ا�
   assertEqual(unguardedWouldReserve, true, 'بدون گارد HTML-only reserve اشتباه اجازه می‌دهد — B18 باید گارد بگذارد');
 });
 
-test('runtime فعلی inventory.stock هنوز fail-open است و مالکیت مهاجرت نشده', () => {
+test('runtime فعلی inventory.stock در EXE fail-closed است و HTML-only هنوز snapshot جاوااسکریپت دارد', () => {
   const src = extractFunctionSource(html, 'invStockSnapshot');
-  assertTrue(src.indexOf('hasBusinessCore') === -1, 'B17 نباید hasBusinessCore به snapshot اضافه کند');
-  assertTrue(src.indexOf('INVENTORY_UNAVAILABLE') === -1, 'B17 نباید قرارداد را در runtime بنویسد');
+  assertContainsString(src, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+  assertContainsString(src, 'INVENTORY_UNAVAILABLE', 'قرارداد شکست باید در runtime باشد');
   assertContainsString(src, "takeBusinessCore('inventory.stock'", 'مسیر Host باید بماند');
   const pack = loadInventoryStockFailClosedContract();
   assertEqual(pack.failure.reason, 'INVENTORY_UNAVAILABLE', 'فایل قرارداد باید قفل شود');
   assertTrue(pack.callers.length >= 11, 'همه callerهای زنده باید در قرارداد باشند');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B18 مالکیت inventory.stock');
+
+function makeExeInvStockSnapshot(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  assertTrue(!!runSrc && !!takeSrc && !!hasSrc && !!availSrc && !!snapSrc, 'توابع inventory.stock / Host پیدا نشد');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + (sumSrc || '') + '\n' + snapSrc + `
+    function getSirmanHostSync(){ return { RunBusiness: runImpl }; }
+    return { snap: invStockSnapshot, available: stockDataAvailable };
+  `)(runImpl);
+}
+
+test('مسیر EXE باید موجودی هسته را برگرداند و موجودی صفر را داده بداند', () => {
+  var calls = [];
+  const api = makeExeInvStockSnapshot(function(name, json){
+    calls.push({name:name, payload: JSON.parse(json)});
+    return JSON.stringify({ok:true, result:{qty:0, reserved:0, available:0, min:2, reorder:2, price:10}});
+  });
+  const got = api.snap({qty:99, reserved:1, min:2, reorder:2, price:10}, '');
+  assertEqual(calls.length, 1, 'باید یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'inventory.stock', 'نام عملیات باید inventory.stock باشد');
+  assertEqual(got.qty, 0, 'qty صفر هسته باید برگردد نه 99 جاوااسکریپت');
+  assertEqual(api.available(got), true, 'صفر واقعی باید stockDataAvailable باشد');
+  assertEqual(got.ok === false, false, 'موفقیت نباید ok:false باشد');
+});
+
+test('شکست Core روی EXE باید INVENTORY_UNAVAILABLE بدهد نه snapshot جاوااسکریپت', () => {
+  const failed = makeExeInvStockSnapshot(function(){
+    return JSON.stringify({ok:false, error:'business-failed'});
+  }).snap({qty:10, reserved:4, min:2, reorder:3, price:1000}, '');
+  assertEqual(failed.ok, false, 'ok باید false باشد');
+  assertEqual(failed.reason, 'INVENTORY_UNAVAILABLE', 'reason باید قرارداد B17 باشد');
+  assertEqual(typeof failed.qty, 'undefined', 'نباید qty جعلی باشد');
+  assertEqual(failed.qty === 10, false, 'نباید qty جاوااسکریپت ۱۰ باشد');
+  assertEqual(failed.available === 6, false, 'نباید available جاوااسکریپت باشد');
+  const invalid = makeExeInvStockSnapshot(function(){
+    return JSON.stringify({ok:true, result:{name:'no-qty'}});
+  }).snap({qty:10, reserved:4}, '');
+  assertEqual(invalid.reason, 'INVENTORY_UNAVAILABLE', 'نتیجه بدون qty عددی باید شکست باشد');
+});
+
+test('جدول موجودی در شکست هسته نباید کم‌موجودی یا موجود نشان بدهد', () => {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const renderSrc = extractFunctionSource(html, 'renderInv');
+  const htmlOut = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + snapSrc + '\n' + renderSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: function(){ return JSON.stringify({ok:false}); } };
+    }
+    var products = [{code:'A1', name:'کالا', brand:''}];
+    var inventory = {A1:{qty:1, min:5}};
+    var body = { innerHTML: '' };
+    var stats = { innerHTML: '' };
+    var document = { getElementById: function(id){
+      if(id==='inv-q') return {value:''};
+      if(id==='inv-body') return body;
+      if(id==='inv-stats-bar') return stats;
+      return {value:'', innerHTML:''};
+    }};
+    renderInv();
+    return body.innerHTML;
+  `)();
+  assertTrue(htmlOut.indexOf('محاسبه انجام نشد') >= 0, 'باید حالت ناموجود نشان داده شود');
+  assertTrue(htmlOut.indexOf('⚠ کم') < 0, 'نباید کم‌موجودی جعلی باشد');
+  assertTrue(htmlOut.indexOf('✓ موجود') < 0, 'نباید موجود جعلی باشد');
+});
+
+test('مودال موجودی در شکست هسته نباید reserved صفر جعلی بنویسد', () => {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const modalSrc = extractFunctionSource(html, 'openInvModal');
+  const got = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + snapSrc + '\n' + modalSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: function(){ return JSON.stringify({ok:false}); } };
+    }
+    var products = [{code:'A1', name:'کالا'}];
+    var inventory = {A1:{qty:10, min:1, reserved:4, note:''}};
+    var fields = {};
+    var document = {
+      getElementById: function(id){
+        if(!fields[id]) fields[id] = {value:'', textContent:'', classList:{add:function(){}}};
+        return fields[id];
+      }
+    };
+    openInvModal('A1');
+    return {reserved: fields['im-reserved'].value, qty: fields['im-qty'].value};
+  `)();
+  assertEqual(got.reserved, '', 'reserved ناموجود نباید 0 شود');
+  assertEqual(String(got.qty), '10', 'qty فرم از رکورد است نه از snapshot شکست');
+});
+
+test('کم‌موجودی و کاردکس نباید موجودی ناموجود را موجود یا کم طبقه‌بندی کنند', () => {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const lowSrc = extractFunctionSource(html, 'invLowStockFromLists');
+  const kardexSrc = extractFunctionSource(html, 'renderKardexPreview');
+  const searchSrc = extractFunctionSource(html, 'invSearchCatalog');
+  const findSrc = extractFunctionSource(html, 'invFindStockItem');
+  const kxSrc = extractFunctionSource(html, 'invKardexFromMoves');
+  const got = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + snapSrc + '\n' + lowSrc + '\n' + searchSrc + '\n' + findSrc + '\n' + kxSrc + '\n' + kardexSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: function(){ return JSON.stringify({ok:false}); } };
+    }
+    var parts = [{code:'P1', name:'قطعه', qty:1, min:5}];
+    var products = [];
+    var inventory = {};
+    var stockMoves = [];
+    var lows = invLowStockFromLists(parts, products, inventory);
+    var sum = {textContent:''};
+    var list = {innerHTML:''};
+    var document = { getElementById: function(id){
+      if(id==='kardex-code') return {value:'P1'};
+      if(id==='kardex-wh') return {value:''};
+      if(id==='kardex-summary') return sum;
+      if(id==='kardex-list') return list;
+      return {value:'', textContent:'', innerHTML:''};
+    }};
+    renderKardexPreview();
+    return {lowLen: lows.length, summary: sum.textContent};
+  `)();
+  assertEqual(got.lowLen, 0, 'ناموجود نباید کم‌موجودی شود');
+  assertTrue(got.summary.indexOf('محاسبه انجام نشد') >= 0, 'کاردکس باید ناموجود را بگوید');
+  assertTrue(got.summary.indexOf('موجودی undefined') < 0, 'نباید undefined نمایش دهد');
+});
+
+test('HTML-only پیشنهاد قطعه باید بردارهای B13 را نگه دارد و جهش انبار نکند', () => {
+  const pack = loadSuggestPartsParityVectors();
+  const suggest = makeHtmlOnlySuggestParts();
+  const row = pack.cases.filter(function(c){ return c.id === 'exact-prodcode'; })[0];
+  const got = suggest({parts: pack.catalog, prodCode: row.prodCode, model: row.model, problem: row.problem});
+  assertEqual(got[0].code, 'P-HEAT', 'اولین پیشنهاد باید P-HEAT بماند');
+  assertEqual(got[0].qty, 6, 'qty باید available جاوااسکریپت باشد');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const resSrc = extractFunctionSource(html, 'invReserveOnItem');
+  assertTrue(snapSrc.indexOf('inventory.reserve') === -1, 'snapshot نباید reserve باشد');
+  assertContainsString(resSrc, 'inventory.reserve', 'رزرو EXE باید inventory.reserve بماند');
+  assertContainsString(resSrc, 'hasBusinessCore', 'رزرو EXE باید fail-closed بماند');
 });
 
 console.log('');
@@ -11111,7 +11268,7 @@ function dailyOpsBriefHarness(){
   const names = [
     'faNum','tehranParts','div_','gregorian_to_jalali','fdate',
     'faToEnDigits','_normDate','sameTehranDay','calcSlaStatusFromAgeHours',
-    '_sumByWh','invStockSnapshot','invLowStockFromLists','defStatusOf','defIsInWarehouse',
+    '_sumByWh','stockDataAvailable','invStockSnapshot','invLowStockFromLists','defStatusOf','defIsInWarehouse',
     '_briefStripMarks','_briefJalaliDayKey','_briefIsJalaliToday','_briefIsTsToday',
     '_briefPickArr','_briefPickMap','_briefFlattenTransactions','_briefEsc',
     'getDailyOperationsBriefSnapshot','_briefLines','_briefJoin','renderDailyOperationsBriefHtml',

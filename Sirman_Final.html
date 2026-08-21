@@ -13026,7 +13026,15 @@ function renderInv(){
   const q=(document.getElementById('inv-q').value||'').toLowerCase();
   const filtered=products.filter(p=>!q||(p.code+p.name+(p.brand||'')).toLowerCase().includes(q));
   const body=document.getElementById('inv-body');
-  body.innerHTML=filtered.map(p=>{const inv=inventory[p.code]||{qty:0,min:0};const snap=typeof invStockSnapshot==='function'?invStockSnapshot(inv):{qty:inv.qty||0,reserved:inv.reserved||0,available:Math.max(0,(inv.qty||0)-(inv.reserved||0)),min:inv.min||0};const low=snap.qty<=snap.min;return`<tr><td><b>${p.code}</b></td><td>${p.name}</td><td>${p.brand||'—'}</td><td style="font-weight:700;color:${low?'var(--red)':'var(--green)'}">${snap.qty}</td><td>${snap.reserved}</td><td>${snap.available}</td><td>${snap.min}</td><td>${low?'<span class="badge" style="background:var(--red-l);color:var(--red)">⚠ کم</span>':'<span class="badge" style="background:var(--green-l);color:var(--green)">✓ موجود</span>'}</td><td><button class="btn btn-sm btn-p" onclick="openInvModal('${p.code}')">ویرایش موجودی</button></td></tr>`;}).join('');
+  body.innerHTML=filtered.map(p=>{
+    const inv=inventory[p.code]||{qty:0,min:0};
+    const snap=typeof invStockSnapshot==='function'?invStockSnapshot(inv):{qty:inv.qty||0,reserved:inv.reserved||0,available:Math.max(0,(inv.qty||0)-(inv.reserved||0)),min:inv.min||0};
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(snap)){
+      return `<tr><td><b>${p.code}</b></td><td>${p.name}</td><td>${p.brand||'—'}</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="badge">محاسبه انجام نشد</span></td><td><button class="btn btn-sm btn-p" onclick="openInvModal('${p.code}')">ویرایش موجودی</button></td></tr>`;
+    }
+    const low=snap.qty<=snap.min;
+    return `<tr><td><b>${p.code}</b></td><td>${p.name}</td><td>${p.brand||'—'}</td><td style="font-weight:700;color:${low?'var(--red)':'var(--green)'}">${snap.qty}</td><td>${snap.reserved}</td><td>${snap.available}</td><td>${snap.min}</td><td>${low?'<span class="badge" style="background:var(--red-l);color:var(--red)">⚠ کم</span>':'<span class="badge" style="background:var(--green-l);color:var(--green)">✓ موجود</span>'}</td><td><button class="btn btn-sm btn-p" onclick="openInvModal('${p.code}')">ویرایش موجودی</button></td></tr>`;
+  }).join('');
   // stats
   const total=products.length, low=products.filter(p=>{const inv=inventory[p.code]||{qty:0,min:0};return inv.qty<=inv.min;}).length;
   document.getElementById('inv-stats-bar').innerHTML=`<div class="inv-stat"><div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">کل کالاها</div></div><div class="stat-card"><div class="stat-val" style="color:var(--red)">${low}</div><div class="stat-lbl">کمبود موجودی</div></div><div class="stat-card"><div class="stat-val" style="color:var(--green)">${total-low}</div><div class="stat-lbl">موجود</div></div></div>`;
@@ -13039,7 +13047,11 @@ function openInvModal(code){
   document.getElementById('im-qty').value=inv.qty;
   document.getElementById('im-min').value=inv.min;
   var imRe=document.getElementById('im-reorder'); if(imRe) imRe.value = (inv.reorder!=null?inv.reorder:inv.min)||0;
-  var imRs=document.getElementById('im-reserved'); if(imRs) imRs.value = invStockSnapshot(inv).reserved;
+  var imRs=document.getElementById('im-reserved');
+  if(imRs){
+    var snapRs = typeof invStockSnapshot==='function' ? invStockSnapshot(inv) : null;
+    imRs.value = (typeof stockDataAvailable==='function' && stockDataAvailable(snapRs)) ? snapRs.reserved : '';
+  }
   document.getElementById('im-note').value=inv.note||'';
   document.getElementById('inv-modal').classList.add('open');
 }
@@ -17648,8 +17660,12 @@ function saveWarehouseDoc(){
       } else if(type==='adjust'){
         var cur = invFindStockItem(jit.code);
         var snap = cur ? invStockSnapshot(cur.item, jwh) : {qty:0};
-        var diff = jit.qty - snap.qty;
-        if(diff!==0) recordStockMove(diff>0?'in':'out', jit.code, jit.name, Math.abs(diff), 'adjust', doc.id, jwh, meta);
+        if(typeof stockDataAvailable==='function' && !stockDataAvailable(snap)){
+          /* جهش حواله قبلاً اعمال شده؛ بدون qty عددی حرکت NaN ثبت نشود */
+        } else {
+          var diff = jit.qty - snap.qty;
+          if(diff!==0) recordStockMove(diff>0?'in':'out', jit.code, jit.name, Math.abs(diff), 'adjust', doc.id, jwh, meta);
+        }
       } else {
         recordStockMove(type==='out'?'out':'in', jit.code, jit.name, jit.qty, type==='return'?'return':'warehouse', doc.id, jwh, meta);
       }
@@ -17690,6 +17706,9 @@ function saveWarehouseDoc(){
       if(type==='adjust'){
         var cur = invFindStockItem(it.code);
         var snap = cur ? invStockSnapshot(cur.item, whId) : {qty:0};
+        if(typeof stockDataAvailable==='function' && !stockDataAvailable(snap)){
+          ntf('محاسبه انجام نشد','err'); return;
+        }
         var diff = it.qty - snap.qty;
         if(diff===0) continue;
         mvType = diff>0 ? 'in' : 'out';
@@ -17958,6 +17977,7 @@ function renderWarehouseReport(){
   if(lowEl){
     var lows = invLowStockFromLists(typeof parts!=='undefined'?parts:[], typeof products!=='undefined'?products:[], typeof inventory!=='undefined'?inventory:{});
     lowEl.innerHTML = lows.length ? lows.map(function(x){
+      if(typeof stockDataAvailable==='function' && !stockDataAvailable(x.stock)) return '';
       return '<div style="padding:6px 0;border-bottom:1px solid var(--border)">'+(x.kind==='part'?'🔩':'📦')+' <b>'+x.code+'</b> '+(x.name||'')+' — موجودی '+x.stock.qty+' / حداقل '+x.stock.min+(x.stock.reorder?' / سفارش '+x.stock.reorder:'')+'</div>';
     }).join('') : '<div style="color:#aaa;padding:8px">کالای کم‌موجودی نیست</div>';
   }
@@ -18293,11 +18313,13 @@ function applyStockByWarehouse(type, code, name, qty, whId, source, refDoc, meta
     var target = null;
     if(typeof parts !== 'undefined'){
       var pIdx = parts.findIndex(function(p){return p.code === code;});
-      if(pIdx !== -1){ target = parts[pIdx]; avail = invStockSnapshot(target, whId).available; }
+      if(pIdx !== -1){ target = parts[pIdx]; var snapPart = invStockSnapshot(target, whId); if(typeof stockDataAvailable==='function' && !stockDataAvailable(snapPart)) return {ok:false, err:'محاسبه انجام نشد'}; avail = snapPart.available; }
     }
     if(!target && typeof inventory !== 'undefined' && inventory[code]){
       target = inventory[code];
-      avail = invStockSnapshot(target, whId).available;
+      var snapInv = invStockSnapshot(target, whId);
+      if(typeof stockDataAvailable==='function' && !stockDataAvailable(snapInv)) return {ok:false, err:'محاسبه انجام نشد'};
+      avail = snapInv.available;
     }
     if(target && avail < qty){
       return {ok:false, err:'موجودی قابل‌استفاده «'+(name||code)+'» در '+getWhName(whId)+' کافی نیست (قابل استفاده: '+avail+'، درخواست: '+qty+')'};
@@ -18392,9 +18414,17 @@ function invCurrentUser(){
   }catch(_e){}
   return 'کاربر';
 }
+function stockDataAvailable(snap){
+  return !!(snap && typeof snap==='object' && snap.ok !== false && typeof snap.qty === 'number' && isFinite(snap.qty));
+}
 function invStockSnapshot(item, whId){
-  var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('inventory.stock', {item:item||{}, whId:whId||''}) : null;
-  if(core && typeof core==='object' && core.qty!=null) return core;
+  // مالک EXE: InventoryCore.Stock از RunBusiness("inventory.stock"). شکست هسته = INVENTORY_UNAVAILABLE. Fallback JS فقط بدون Host.
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('inventory.stock', {item:item||{}, whId:whId||''}) : null;
+    if(typeof stockDataAvailable==='function' && stockDataAvailable(core)) return core;
+    return {ok:false, reason:'INVENTORY_UNAVAILABLE'};
+  }
   item = item || {};
   var qty = 0, reserved = 0;
   if(whId){
@@ -18430,6 +18460,7 @@ function invReserveOnItem(item, qty, whId){
   }
   if(!item || qty<=0) return {ok:false, err:'مقدار نامعتبر'};
   var snap = invStockSnapshot(item, whId);
+  if(typeof stockDataAvailable==='function' && !stockDataAvailable(snap)) return {ok:false, err:'محاسبه انجام نشد'};
   if(snap.available < qty) return {ok:false, err:'موجودی قابل‌استفاده کافی نیست (قابل استفاده: '+snap.available+')'};
   if(!item.reservedByWh || typeof item.reservedByWh!=='object') item.reservedByWh = {};
   if(whId){
@@ -18473,11 +18504,13 @@ function invLowStockFromLists(partsArr, productsArr, inventoryObj){
   var out = [];
   (partsArr||[]).forEach(function(p){
     var s = invStockSnapshot(p);
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(s)) return;
     if(s.qty <= s.min || (s.reorder && s.qty <= s.reorder)) out.push({code:p.code, name:p.name, kind:'part', stock:s});
   });
   (productsArr||[]).forEach(function(p){
     var inv = (inventoryObj && inventoryObj[p.code]) || {qty:0, min:0};
     var s = invStockSnapshot(inv);
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(s)) return;
     if(s.qty <= s.min || (s.reorder && s.qty <= s.reorder)) out.push({code:p.code, name:p.name, kind:'product', stock:s});
   });
   return out;
@@ -18543,6 +18576,7 @@ var InventoryEngine = {
   registerKind: registerWarehouseKind,
   normalizeWarehouse: invNormalizeWarehouse,
   stock: invStockSnapshot,
+  stockDataAvailable: stockDataAvailable,
   reserve: invReserveOnItem,
   release: invReleaseReserveOnItem,
   kardex: invKardexFromMoves,
@@ -18576,7 +18610,12 @@ function renderKardexPreview(){
   var useCode = (hits[0] && hits[0].code) || code;
   var found = invFindStockItem(useCode);
   var snap = found ? invStockSnapshot(found.item, whId||'') : {qty:0,reserved:0,available:0,min:0,reorder:0};
-  if(sumEl) sumEl.textContent = 'کد '+useCode+' — موجودی '+snap.qty+' | رزرو '+snap.reserved+' | قابل استفاده '+snap.available+(snap.min?(' | حداقل '+snap.min):'');
+  if(sumEl){
+    if(found && typeof stockDataAvailable==='function' && !stockDataAvailable(snap))
+      sumEl.textContent = 'کد '+useCode+' — محاسبه انجام نشد';
+    else
+      sumEl.textContent = 'کد '+useCode+' — موجودی '+snap.qty+' | رزرو '+snap.reserved+' | قابل استفاده '+snap.available+(snap.min?(' | حداقل '+snap.min):'');
+  }
   var rows = invKardexFromMoves(typeof stockMoves!=='undefined'?stockMoves:[], useCode, whId||'');
   if(!rows.length){ listEl.innerHTML = '<div style="text-align:center;color:#aaa;padding:16px">گردشی ثبت نشده</div>'; return; }
   var bal = 0;
@@ -26709,7 +26748,10 @@ function suggestPartsForCase(opts){
     if(!why.length) return;
     var qty = p.qty;
     if(typeof invStockSnapshot==='function'){
-      try{ qty = invStockSnapshot(p).available; }catch(_e){}
+      try{
+        var s = invStockSnapshot(p);
+        if(typeof stockDataAvailable!=='function' || stockDataAvailable(s)) qty = s.available;
+      }catch(_e){}
     }
     out.push({code:p.code, name:p.name||'', qty:qty, explain: why.join('؛ ')});
   });
