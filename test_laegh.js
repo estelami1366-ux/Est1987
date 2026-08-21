@@ -9799,8 +9799,123 @@ test('rules.suggestParts نباید persist یا جهش انبار بنویسد 
   assertTrue(src.indexOf('warranty.save') === -1, 'نباید warranty.save باشد');
   assertTrue(src.indexOf('inventory.reserve') === -1, 'نباید inventory.reserve باشد');
   assertTrue(src.indexOf('inventory.consume') === -1, 'نباید inventory.consume باشد');
-  assertContainsString(src, 'if(Array.isArray(core)) return core', 'B13 نباید fail-closed را کامل کند');
+  assertContainsString(src, 'if(Array.isArray(core)) return core', 'آرایه هسته باید همچنان برگردد');
   assertTrue(src.indexOf('return [];') === -1 || src.indexOf('catalog.forEach') >= 0, 'fallback ranking باید بماند');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B14 مالکیت rules.suggestParts');
+
+function makeExeSuggestPartsHost(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const suggestSrc = extractFunctionSource(html, 'suggestPartsForCase');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  assertTrue(!!runSrc && !!takeSrc && !!hasSrc && !!suggestSrc, 'توابع suggestPartsForCase / Host پیدا نشد');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + (sumSrc || '') + '\n' + (snapSrc || '') + '\n' + suggestSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: runImpl };
+    }
+    return function(opts){ return suggestPartsForCase(opts); };
+  `)(runImpl);
+}
+
+test('مسیر EXE باید RunBusiness("rules.suggestParts") را صدا بزند و آرایه هسته را بدون ranking جاوااسکریپت برگرداند', () => {
+  var calls = [];
+  const suggest = makeExeSuggestPartsHost(function(name, json){
+    calls.push({name:name, payload: JSON.parse(json)});
+    return JSON.stringify({ok:true, result:[{code:'CORE-ONLY', name:'from-core', qty:99, explain:'from-core'}]});
+  });
+  const catalog = [
+    {code:'P-HEAT', name:'هیتر', prodCode:'402003', cat:'گرمایش', qty:10, reserved:4}
+  ];
+  const got = suggest({parts:catalog, prodCode:'402003', model:'', problem:''});
+  assertEqual(calls.length, 1, 'باید یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'rules.suggestParts', 'نام عملیات باید rules.suggestParts باشد');
+  assertEqual(calls[0].payload.prodCode, '402003', 'prodCode باید به Core برود');
+  assertTrue(Array.isArray(got) && got.length === 1, 'باید آرایه هسته برگردد');
+  assertEqual(got[0].code, 'CORE-ONLY', 'Host-wins نباید P-HEAT جاوااسکریپت را برگرداند');
+  assertTrue(got[0].code !== 'P-HEAT', 'نتیجه متمایز هسته نباید با fallback یکی باشد');
+});
+
+test('مسیر HTML-only باید بردارهای B13 را بعد از مهاجرت مالکیت هم اجرا کند', () => {
+  const pack = loadSuggestPartsParityVectors();
+  const suggest = makeHtmlOnlySuggestParts();
+  pack.cases.forEach(function(row) {
+    const parts = Object.prototype.hasOwnProperty.call(row, 'parts') ? row.parts : pack.catalog;
+    const got = (suggest({parts: parts, prodCode: row.prodCode, model: row.model, problem: row.problem}) || []).map(slimSuggestHit);
+    const expected = (row.expected || []).map(slimSuggestHit);
+    assertEqual(got.length, expected.length, row.id + ' length');
+    expected.forEach(function(exp, i) {
+      assertEqual(got[i].code, exp.code, row.id + ' [' + i + '] code');
+      assertEqual(got[i].qty, exp.qty, row.id + ' [' + i + '] qty');
+      assertEqual(got[i].explain, exp.explain, row.id + ' [' + i + '] explain');
+    });
+  });
+  const src = extractFunctionSource(html, 'suggestPartsForCase');
+  assertContainsString(src, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+  assertContainsString(src, 'catalog.forEach', 'fallback JS ranking نباید حذف شود');
+  assertContainsString(src, 'invStockSnapshot', 'حساب موجودی fallback نباید عوض شود');
+  assertContainsString(src, "why.push('چون کالای مرتبط همین مدل است')", 'متن دلیل fallback نباید عوض شود');
+});
+
+test('شکست Core روی EXE نباید ranking جاوااسکریپت را اجرا کند', () => {
+  const catalog = [
+    {code:'P-HEAT', name:'هیتر', prodCode:'402003', cat:'گرمایش', qty:10, reserved:4}
+  ];
+  const failed = makeExeSuggestPartsHost(function(){
+    return JSON.stringify({ok:false, error:'business-failed', message:'محاسبه انجام نشد'});
+  })({parts:catalog, prodCode:'402003', model:'', problem:''});
+  assertTrue(failed == null, 'ok:false نباید P-HEAT از JS برگردد');
+  const invalid = makeExeSuggestPartsHost(function(){
+    return JSON.stringify({ok:true, result:{code:'P-HEAT'}});
+  })({parts:catalog, prodCode:'402003', model:'', problem:''});
+  assertTrue(invalid == null, 'نتیجه غیرآرایه نباید ranking JS را اجرا کند');
+});
+
+test('applySuggestedWarParts نباید با null هسته قطعه JS به درخواست اضافه کند', () => {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const suggestSrc = extractFunctionSource(html, 'suggestPartsForCase');
+  const applySrc = extractFunctionSource(html, 'applySuggestedWarParts');
+  const got = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + suggestSrc + '\n' + applySrc + `
+    var notes = [];
+    function ntf(msg){ notes.push(String(msg||'')); }
+    var parts = [{code:'P-HEAT', name:'هیتر', prodCode:'402003', cat:'گرمایش', qty:10, reserved:4}];
+    function getWarSuggestContext(){ return {prodCode:'402003', model:'', problem:''}; }
+    function renderWarPartReqs(){}
+    var window = { _waParts: [] };
+    function getSirmanHostSync(){
+      return { RunBusiness: function(){ return JSON.stringify({ok:false, error:'business-failed'}); } };
+    }
+    applySuggestedWarParts('agency');
+    return {len: window._waParts.length, notes: notes.join('|')};
+  `)();
+  assertEqual(got.len, 0, 'شکست Core نباید P-HEAT را به _waParts اضافه کند');
+  assertTrue(got.notes.indexOf('null') === -1, 'نباید رشته null در اعلان باشد');
+});
+
+test('B14 نباید persist / جهش انبار / save گارانتی را عوض کند', () => {
+  const src = extractFunctionSource(html, 'suggestPartsForCase');
+  const applySrc = extractFunctionSource(html, 'applySuggestedWarParts');
+  const saveSrc = extractFunctionSource(html, 'saveWar');
+  [src, applySrc].forEach(function(s) {
+    assertTrue(s.indexOf('localStorage') === -1, 'نباید localStorage بنویسد');
+    assertTrue(s.indexOf('indexedDB') === -1, 'نباید IndexedDB بنویسد');
+    assertTrue(s.indexOf('inventory.reserve') === -1, 'نباید inventory.reserve باشد');
+    assertTrue(s.indexOf('inventory.consume') === -1, 'نباید inventory.consume باشد');
+    assertTrue(s.indexOf('inventory.release') === -1, 'نباید inventory.release باشد');
+    assertTrue(s.indexOf('warranty.save') === -1, 'نباید warranty.save باشد');
+    assertTrue(s.indexOf('warranty.close') === -1, 'نباید warranty.close باشد');
+    assertTrue(s.indexOf('warranty.delete') === -1, 'نباید warranty.delete باشد');
+  });
+  assertContainsString(saveSrc, "warranty.save", 'saveWar باید warranty.save بماند');
+  assertContainsString(html, "takeBusinessCore('warranty.close'", 'close باید warranty.close بماند');
+  assertContainsString(html, "takeBusinessCore('warranty.delete'", 'حذف باید warranty.delete بماند');
+  assertContainsString(src, 'return null', 'شکست Core باید fail-closed null باشد');
 });
 
 test('رزرو در exe فقط Writer هسته باشد و بدون Host همان جهش JS بماند', () => {

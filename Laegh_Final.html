@@ -19529,7 +19529,7 @@ function applySuggestedWarParts(which){
   var ctx = typeof getWarSuggestContext==='function' ? getWarSuggestContext() : {};
   var catalog = (typeof parts!=='undefined' && Array.isArray(parts)) ? parts : [];
   var hits = (typeof suggestPartsForCase==='function') ? suggestPartsForCase({prodCode:ctx.prodCode, model:ctx.model, problem:ctx.problem, parts:catalog}) : [];
-  if(!hits.length){
+  if(!hits || !hits.length){
     if(typeof ntf==='function') ntf('پیشنهادی از کاتالوگ فعلی پیدا نشد','warn');
     return;
   }
@@ -26690,10 +26690,12 @@ function suggestPartsForCase(opts){
   var prodCode = String(opts.prodCode||'').trim();
   var model = String(opts.model||'').trim();
   var problem = String(opts.problem||opts.fault||'').trim().toLowerCase();
+  // مالک EXE: PartsAdvisor.Suggest از RunBusiness("rules.suggestParts"). Fallback JS ranking فقط بدون Host.
   var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
   if(hostOn){
-    var core = takeBusinessCore('rules.suggestParts', {parts:catalog, prodCode:prodCode, model:model, problem:problem});
+    var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('rules.suggestParts', {parts:catalog, prodCode:prodCode, model:model, problem:problem}) : null;
     if(Array.isArray(core)) return core;
+    return null;
   }
   var out = [];
   catalog.forEach(function(p){
