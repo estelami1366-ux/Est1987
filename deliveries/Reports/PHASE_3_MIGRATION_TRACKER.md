@@ -3,7 +3,7 @@
 **Tracker mode:** ACTIVE  
 **Last updated:** 1405/05/30 13:23:01 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `e176de9`  
+**Current known HEAD:** `b11ac50`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **B10 commit:** `da78c6a` (`test: lock calc.warrantyEndDate JS/C# parity vectors`)  
@@ -26,6 +26,7 @@
 **B19R commit:** `1fcf054` (`fix: close remaining inventory mutation boundary risks`)  
 **B19R report commit:** `9b10ecb` (`docs: record B19R inventory mutation risk closure`)  
 **B20 report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B20_NEXT_SEAM_AND_COMPLETION_GATE.md`  
+**B20 report commit:** `b11ac50` (`docs: B20 completion gate finds no authorized next seam`)  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
@@ -406,6 +407,7 @@
 
 - **B20:** next ownership seam + completion gate (read-only)
 - **Report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B20_NEXT_SEAM_AND_COMPLETION_GATE.md`
+- **Report commit:** `b11ac50`
 - **Implementation:** NOT STARTED
 - **PRODUCT CODE MODIFIED:** NO
 - **Decision:** OPTION C — NO AUTHORIZED NEXT SEAM
