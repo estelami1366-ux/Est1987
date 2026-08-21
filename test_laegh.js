@@ -10066,12 +10066,10 @@ test('قرارداد موفقیت باید داده موجودی واقعی با
     assertTrue(stockDataAvailable(got), row.id + ' باید stockDataAvailable باشد');
     assertEqual(got.ok === false, false, row.id + ' نباید ok:false باشد');
   });
-  const zero = pack.success ? null : {qty:0, reserved:0, available:0, min:0, reorder:0, price:0};
   const zeroSnap = snap({qty:0, reserved:0, min:0, price:0}, '');
   assertTrue(stockDataAvailable(zeroSnap), 'موجودی صفر داده است نه شکست');
   assertEqual(zeroSnap.qty, 0, 'qty صفر باید عدد صفر باشد');
   assertEqual(zeroSnap.available, 0, 'available صفر باید عدد صفر باشد');
-  void zero;
 });
 
 test('قرارداد شکست نباید موجودی صفر جعلی بسازد', () => {
