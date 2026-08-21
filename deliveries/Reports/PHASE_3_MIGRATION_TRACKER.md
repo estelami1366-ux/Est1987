@@ -3,9 +3,10 @@
 **Tracker mode:** ACTIVE  
 **Last updated:** 1405/05/30 10:40:28 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `cf9099f`  
+**Current known HEAD:** `da78c6a`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
+**B10 commit:** `da78c6a` (`test: lock calc.warrantyEndDate JS/C# parity vectors`)  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
@@ -116,6 +117,7 @@
 ## B10 Parity Lock Record
 
 - **B10:** `calc.warrantyEndDate` parity lock (not ownership migration)
+- **Commit:** `da78c6a`
 - **Report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B10_PARITY_LOCK.md`
 - **Parity:** CONFIRMED (frozen slash-date table)
 - **Implementation:** NOT STARTED

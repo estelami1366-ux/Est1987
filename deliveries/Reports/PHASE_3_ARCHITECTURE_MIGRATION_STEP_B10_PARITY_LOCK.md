@@ -60,7 +60,11 @@ Gate (before B10 files):
 cf9099f
 ```
 
-After the B10 test/docs commit, HEAD is that commit (recorded in the tracker).
+After the B10 test/docs commit:
+
+```text
+da78c6a  test: lock calc.warrantyEndDate JS/C# parity vectors
+```
 
 ---
 
