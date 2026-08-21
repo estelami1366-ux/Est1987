@@ -3,12 +3,13 @@
 **Tracker mode:** ACTIVE  
 **Last updated:** 1405/05/30 11:10:07 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `5347034`  
+**Current known HEAD:** `4986bc5`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **B10 commit:** `da78c6a` (`test: lock calc.warrantyEndDate JS/C# parity vectors`)  
 **B11 commit:** `405bcb1` (`feat: migrate calc.warrantyEndDate ownership to core`)  
 **B11 report commit:** `da5353d` (`docs: record B11 calc.warrantyEndDate ownership migration`)  
+**B12 report commit:** `4986bc5` (`docs: B12 change gate selects rules.suggestParts`)  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
