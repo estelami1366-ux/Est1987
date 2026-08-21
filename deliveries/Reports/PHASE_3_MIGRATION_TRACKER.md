@@ -1,9 +1,9 @@
 # SIRMAN — PHASE 3 MIGRATION TRACKER
 
 **Tracker mode:** ACTIVE  
-**Last updated:** 1405/05/29 19:26:00 (Asia/Tehran)  
+**Last updated:** 1405/05/30 10:20:55 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `9582215`  
+**Current known HEAD:** `79784f6`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **Live version:** `1405.5.27γ`
@@ -31,7 +31,7 @@
 | B6 | `sale.line` ownership | ✅ COMPLETED | 1405/05/29 | 19:09:01 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B6_SALE_LINE_OWNERSHIP.md` — commit `66e78be` — HTML 596 / Core 142 PASS |
 | B7 | Next ownership seam (analysis) | ANALYSIS COMPLETED | 1405/05/29 | 19:15:37 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B7_NEXT_OWNERSHIP_SEAM.md` — انتخاب `sale.total` |
 | B8 | `sale.total` ownership | ✅ COMPLETED | 1405/05/29 | 19:26:00 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B8_SALE_TOTAL.md` — commit `9582215` — HTML 600 / Core 146 PASS — live EXE NEEDS HUMAN VERIFICATION |
-| B9 | Next ownership seam | ⬜ NOT STARTED | — | — | تعیین پس از B8 |
+| B9 | Next ownership seam (analysis) | ANALYSIS COMPLETED | 1405/05/30 | 10:20:55 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B9_NEXT_OWNERSHIP_SEAM.md` — انتخاب `calc.warrantyEndDate` — PARITY LOCK REQUIRED — implementation NOT STARTED |
 | B10 | Migration checkpoint | ⬜ NOT STARTED | — | — | فقط طبق Change Gate |
 
 ---
@@ -99,6 +99,20 @@
 
 ---
 
+## B9 Analysis Record
+
+- **B9:** next ownership seam analysis (not a product migration)
+- **Report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B9_NEXT_OWNERSHIP_SEAM.md`
+- **Analysis:** ANALYSIS COMPLETED
+- **Implementation:** NOT STARTED
+- **CODE MODIFIED:** NO
+- **Recommended next seam:** `calc.warrantyEndDate` (`calcWarrantyEndDate` → `CalculationEngine.WarrantyEndDate`)
+- **Readiness:** PARITY LOCK REQUIRED
+- **Parity:** PARITY PARTIAL (JS `addJalaliMonths` ≈ Core `AddJalaliMonths`; no shared frozen date table)
+- **B10:** NOT STARTED (checkpoint; not authorized by B9)
+
+---
+
 ## Rules for Updating This Tracker
 
 1. هر مرحله فقط با گزارش MD همان مرحله ثبت می‌شود.
@@ -122,11 +136,15 @@ B1–B6 = COMPLETED
 B7     = ANALYSIS COMPLETED
 B8     = COMPLETED
 B8 LIVE EXE = NEEDS HUMAN VERIFICATION
-B9     = NOT STARTED
+B9     = ANALYSIS COMPLETED
+B9 IMPLEMENTATION = NOT STARTED
+B10    = NOT STARTED
 
+Recommended next seam = calc.warrantyEndDate
+READINESS = PARITY LOCK REQUIRED
 PRINT       = FROZEN
 PERSISTENCE = UNCHANGED
 BACKUP      = UNCHANGED
 ```
 
-**NEXT ACTION:** تعیین B9 فقط پس از دستور صریح. B8 تمام شده است؛ B9 شروع نشده است.
+**NEXT ACTION:** پیاده‌سازی `calc.warrantyEndDate` فقط پس از دستور صریح جداگانه. B10 (checkpoint) شروع نشده است.
