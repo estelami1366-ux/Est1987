@@ -9951,6 +9951,90 @@ test('رزرو در exe فقط Writer هسته باشد و بدون Host هما�
 });
 
 console.log('');
+console.log('📋 گروه: فاز ۳ B16 قفل برابری inventory.stock');
+
+function loadInventoryStockParityVectors() {
+  const name = 'InventoryStockParityVectors.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول بردار B16 پیدا نشد: ' + name);
+}
+
+function makeHtmlOnlyInvStockSnapshot() {
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  assertTrue(!!snapSrc && !!sumSrc, 'توابع invStockSnapshot / _sumByWh پیدا نشد');
+  return new Function(sumSrc + '\n' + snapSrc + `
+    function hasBusinessCore(){ return false; }
+    function takeBusinessCore(){ return null; }
+    return function(item, whId){ return invStockSnapshot(item, whId); };
+  `)();
+}
+
+function slimStockSnap(s) {
+  s = s || {};
+  return {
+    qty: Number(s.qty),
+    reserved: Number(s.reserved),
+    available: Number(s.available),
+    min: Number(s.min),
+    reorder: Number(s.reorder),
+    price: Number(s.price)
+  };
+}
+
+test('مسیر HTML-only باید بردارهای قفل‌شده inventory.stock را بدون Host اجرا کند', () => {
+  const pack = loadInventoryStockParityVectors();
+  const snap = makeHtmlOnlyInvStockSnapshot();
+  pack.cases.forEach(function(row) {
+    const before = row.item == null ? null : JSON.stringify(row.item);
+    const got = slimStockSnap(snap(row.item, row.whId));
+    const expected = slimStockSnap(row.expected);
+    ['qty','reserved','available','min','reorder','price'].forEach(function(k) {
+      assertEqual(got[k], expected[k], row.id + ' ' + k);
+    });
+    if (before != null) {
+      assertEqual(JSON.stringify(row.item), before, row.id + ' must not mutate item');
+    }
+  });
+  const src = extractFunctionSource(html, 'invStockSnapshot');
+  assertContainsString(src, "takeBusinessCore('inventory.stock'", 'عملیات هسته باید inventory.stock بماند');
+  assertContainsString(src, 'available:Math.max(0, qty-reserved)', 'فرمول available نباید عوض شود');
+});
+
+test('inventory.stock نباید persist یا جهش انبار بنویسد و مالکیت B16 مهاجرت نشده باشد', () => {
+  const src = extractFunctionSource(html, 'invStockSnapshot');
+  assertTrue(src.indexOf('localStorage') === -1, 'نباید localStorage بنویسد');
+  assertTrue(src.indexOf('indexedDB') === -1, 'نباید IndexedDB بنویسد');
+  assertTrue(src.indexOf('persistCoreSnapshot') === -1, 'نباید persistCoreSnapshot صدا بزند');
+  assertTrue(src.indexOf('inventory.reserve') === -1, 'نباید inventory.reserve باشد');
+  assertTrue(src.indexOf('inventory.release') === -1, 'نباید inventory.release باشد');
+  assertTrue(src.indexOf('inventory.consume') === -1, 'نباید inventory.consume باشد');
+  assertTrue(src.indexOf('inventory.addStock') === -1, 'نباید inventory.addStock باشد');
+  assertTrue(src.indexOf('inventory.applyWarehouseDoc') === -1, 'نباید applyWarehouseDoc باشد');
+  assertTrue(src.indexOf('invoice.close') === -1, 'نباید invoice.close باشد');
+  assertTrue(src.indexOf('warranty.close') === -1, 'نباید warranty.close باشد');
+  assertTrue(src.indexOf('hasBusinessCore') === -1, 'مالکیت EXE هنوز مهاجرت نشده');
+  assertContainsString(src, 'if(core && typeof core===\'object\' && core.qty!=null) return core', 'مسیر فعلی هنوز Core object با qty را برمی‌گرداند');
+});
+
+test('شکست Host در inventory.stock هنوز snapshot جاوااسکریپت را اجرا می‌کند (fail-open فعلی)', () => {
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  const got = new Function(sumSrc + '\n' + snapSrc + `
+    function takeBusinessCore(){ return null; }
+    return invStockSnapshot({qty:10, reserved:4, min:2, reorder:3, price:1000}, '');
+  `)();
+  assertEqual(got.available, 6, 'Core null هنوز باید available جاوااسکریپت را بدهد');
+  assertEqual(got.qty, 10, 'Core null هنوز باید qty جاوااسکریپت را بدهد');
+});
+
+console.log('');
 console.log('📋 گروه: تکمیل فاز ۲ (C# منبع حقیقت عملیات حساس)');
 
 test('در exe جمع فاکتور و فروش نباید بعد از هسته دوباره با JS بازنویسی شود', () => {
