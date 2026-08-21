@@ -10577,11 +10577,13 @@ test('HTML-only باید رزرو/آزادسازی/خروج موفق قبلی ر
 test('حواله EXE نباید ترتیب جهش/خواندن را عوض کند و حرکت adjust بدون qty عددی نسازد', () => {
   const whSrc = extractFunctionSource(html, 'saveWarehouseDoc');
   const applyIdx = whSrc.indexOf("takeBusinessCore('inventory.applyWarehouseDoc'");
-  const snapIdx = whSrc.indexOf('invStockSnapshot');
-  const guardIdx = whSrc.indexOf('stockDataAvailable');
   assertTrue(applyIdx >= 0, 'حواله EXE باید applyWarehouseDoc بماند');
-  assertTrue(snapIdx > applyIdx, 'خواندن موجودی adjust باید بعد از جهش سند بماند');
-  assertTrue(guardIdx > applyIdx, 'گارد NaN باید بعد از جهش سند بماند نه قبل از آن');
+  const beforeApply = whSrc.slice(0, applyIdx);
+  const afterApply = whSrc.slice(applyIdx);
+  assertTrue(beforeApply.indexOf('invStockSnapshot') >= 0, 'پیش‌پرواز موجودی باید قبل از applyWarehouseDoc باشد');
+  assertTrue(beforeApply.indexOf('stockDataAvailable') >= 0, 'پیش‌پرواز باید stockDataAvailable را قبل از جهش سند چک کند');
+  assertTrue(afterApply.indexOf('invStockSnapshot') >= 0, 'خواندن موجودی adjust باید بعد از جهش سند بماند');
+  assertTrue(afterApply.indexOf('stockDataAvailable') >= 0, 'گارد NaN باید بعد از جهش سند بماند نه به‌جای آن');
   const warSrc = extractFunctionSource(html, 'saveWar');
   const stockIdx = warSrc.indexOf('invStockSnapshot(parts[idx])');
   const consumeIdx = warSrc.indexOf("takeBusinessCore('inventory.consume'");
@@ -10594,6 +10596,247 @@ test('حواله EXE نباید ترتیب جهش/خواندن را عوض کن�
   assertTrue(resSrc.indexOf('core.stock ||') < 0, 'رزرو نباید failure object را با || به‌عنوان stock برگرداند');
   const relSrc = extractFunctionSource(html, 'invReleaseReserveOnItem');
   assertTrue(relSrc.indexOf('core.stock ||') < 0, 'آزادسازی نباید failure object را با || به‌عنوان stock برگرداند');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B19R بستن ریسک مرز جهش');
+
+function makeExeWarehouseDoc(runImpl, type) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const findSrc = extractFunctionSource(html, 'invFindStockItem');
+  const moveSrc = extractFunctionSource(html, 'recordStockMove');
+  const saveSrc = extractFunctionSource(html, 'saveWarehouseDoc');
+  assertTrue(!!saveSrc && !!snapSrc && !!availSrc, 'saveWarehouseDoc / snapshot پیدا نشد');
+  return new Function('runImpl', 'docType', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + (sumSrc || '') + '\n' + recSrc + '\n' + snapSrc + '\n' + findSrc + '\n' + moveSrc + '\n' + saveSrc + `
+    var calls = [];
+    var stockMoves = [];
+    var ntfCalls = [];
+    var warehouseDocs = [];
+    var _whItems = [{code:'P1', name:'قطعه', qty:2, qtyPhy:2}];
+    var parts = [{code:'P1', name:'قطعه', qty:10, min:0, reorder:0, reserved:0, byWh:{'WH-A':10}, reservedByWh:{}, price:0}];
+    var inventory = {};
+    var fields = {
+      'wh-doc-type': {value: docType},
+      'wh-party': {value:'طرف'},
+      'wh-date': {value:'1405/05/30'},
+      'wh-location': {value:''},
+      'wh-location-out': {value:''},
+      'wh-note': {value:''},
+      'wh-reason': {value:'علت تست'},
+      'wh-docno': {value:''},
+      'wh-price': {value:'0'},
+      'wh-fromwh': {value:'WH-A'},
+      'wh-towh': {value:'WH-A'},
+      'wh-same-company': {value:'', checked:false}
+    };
+    var document = { getElementById: function(id){ return fields[id] || {value:'', checked:false}; } };
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        calls.push(name);
+        return runImpl(name, json);
+      }};
+    }
+    function ntf(msg, k){ ntfCalls.push({msg:msg, k:k}); }
+    function closeMod(){}
+    function auditUser(){}
+    function emit(){}
+    function persistCoreSnapshot(){}
+    function renderWarehouseDocs(){}
+    function checkStarredAlarms(){}
+    function currentWhCatalog(){ return ''; }
+    function getDefaultWhId(){ return 'WH-A'; }
+    function fdt(){ return '1405/05/30'; }
+    function invCurrentUser(){ return 'tester'; }
+    function _whTag(){ return 'parts'; }
+    function svStockMoves(){}
+    function svWarehouse(){}
+    saveWarehouseDoc();
+    return {calls:calls, stockMoves:stockMoves, ntfCalls:ntfCalls, docs:warehouseDocs, parts:parts};
+  `)(runImpl, type);
+}
+
+function makeExeRestock(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const moveSrc = extractFunctionSource(html, 'recordStockMove');
+  const restSrc = extractFunctionSource(html, '_restockFromSale');
+  assertTrue(!!restSrc, '_restockFromSale پیدا نشد');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + recSrc + '\n' + moveSrc + '\n' + restSrc + `
+    var calls = [];
+    var stockMoves = [];
+    var ntfCalls = [];
+    var parts = [{code:'P1', name:'پره', qty:3}];
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        calls.push(name);
+        return runImpl(name, json);
+      }};
+    }
+    function ntf(msg, k){ ntfCalls.push({msg:msg, k:k}); }
+    function fdt(){ return '1405/05/30'; }
+    function svStockMoves(){}
+    function _whTag(){ return 'parts'; }
+    function invCurrentUser(){ return 'tester'; }
+    return {
+      calls: calls,
+      stockMoves: stockMoves,
+      ntfCalls: ntfCalls,
+      parts: parts,
+      restock: _restockFromSale
+    };
+  `)(runImpl);
+}
+
+test('R1: موجودی ناموجود روی EXE نباید applyWarehouseDoc را صدا بزند', () => {
+  const api = makeExeWarehouseDoc(function(){ return JSON.stringify({ok:false}); }, 'out');
+  assertEqual(api.calls.indexOf('inventory.applyWarehouseDoc') < 0, true, 'applyWarehouseDoc نباید صدا شود');
+  assertEqual(api.calls.indexOf('inventory.stock') >= 0, true, 'باید پیش‌پرواز inventory.stock باشد');
+  assertEqual(api.docs.length, 0, 'سند نباید ثبت شود');
+  assertEqual(api.stockMoves.length, 0, 'حرکت نباید ثبت شود');
+  assertEqual(api.parts[0].qty, 10, 'qty نباید جهش کند');
+});
+
+test('R1: موجودی معتبر باید applyWarehouseDoc موجود را صدا بزند و حرکت NaN نسازد', () => {
+  const api = makeExeWarehouseDoc(function(name){
+    if (name === 'inventory.stock') {
+      return JSON.stringify({ok:true, result:{qty:10, reserved:0, available:10, min:0, reorder:0, price:0}});
+    }
+    if (name === 'inventory.applyWarehouseDoc') {
+      return JSON.stringify({ok:true, result:{ok:true, doc:{id:'WH-OUT-0001', type:'out'}, mutated:{P1:{code:'P1', qty:8, byWh:{'WH-A':8}}}, persistKeys:[]}});
+    }
+    return JSON.stringify({ok:false});
+  }, 'out');
+  assertEqual(api.calls.indexOf('inventory.applyWarehouseDoc') >= 0, true, 'applyWarehouseDoc باید صدا شود');
+  assertEqual(api.docs.length, 1, 'سند موفق باید ثبت شود');
+  api.stockMoves.forEach(function(m){
+    assertEqual(typeof m.qty === 'number' && isFinite(m.qty), true, 'qty حرکت نباید NaN باشد');
+  });
+});
+
+test('R1: HTML-only حواله ورود/خروج موفق و adjust ناموجود باید رفتار قبلی را نگه دارد', () => {
+  const saveSrc = extractFunctionSource(html, 'saveWarehouseDoc');
+  const hostIdx = saveSrc.indexOf('if(hostOn)');
+  const htmlOnly = saveSrc.slice(saveSrc.indexOf('for(var i=0;i<validItems.length;i++)'));
+  assertTrue(htmlOnly.indexOf("invReserveOnItem") >= 0, 'رزرو HTML-only باید بماند');
+  assertTrue(htmlOnly.indexOf("applyStockByWarehouse") >= 0, 'حرکت HTML-only باید بماند');
+  assertTrue(htmlOnly.indexOf('stockDataAvailable') >= 0, 'adjust HTML-only ناموجود باید قطع شود');
+  const htmlIn = new Function(
+    extractFunctionSource(html, 'stockDataAvailable') + '\n' +
+    (extractFunctionSource(html, '_sumByWh') || '') + '\n' +
+    extractFunctionSource(html, 'invStockSnapshot') + '\n' +
+    extractFunctionSource(html, 'invFindStockItem') + '\n' +
+    extractFunctionSource(html, 'invReserveOnItem') + '\n' +
+    extractFunctionSource(html, 'applyStockByWarehouse') + `
+      function hasBusinessCore(){ return false; }
+      function getDefaultWhId(){ return 'WH-A'; }
+      function getWhName(id){ return id; }
+      function fdt(){ return '1405/05/30'; }
+      function _whTag(){ return 'parts'; }
+      function svParts(){}
+      function svStockMoves(){}
+      var stockMoves = [];
+      var parts = [{code:'P1', name:'قطعه', qty:10, reserved:0, byWh:{'WH-A':10}, reservedByWh:{}}];
+      var inventory = {};
+      var defectiveStock = [];
+      var out = applyStockByWarehouse('out', 'P1', 'قطعه', 2, 'WH-A', 'warehouse', 'WH-OUT');
+      var inn = applyStockByWarehouse('in', 'P1', 'قطعه', 1, 'WH-A', 'warehouse', 'WH-IN');
+      return {outOk:out.ok, inOk:inn.ok, qty:parts[0].qty, moves:stockMoves.length};
+    `
+  )();
+  assertEqual(htmlIn.outOk, true, 'خروج HTML-only باید موفق بماند');
+  assertEqual(htmlIn.inOk, true, 'ورود HTML-only باید موفق بماند');
+  assertEqual(htmlIn.qty, 9, 'qty باید ۱۰-۲+۱=۹ شود');
+  void hostIdx;
+});
+
+test('R2: addStock موفق باید دقیقاً یک حرکت معتبر بسازد و شکست صفر حرکت بسازد', () => {
+  const ok = makeExeRestock(function(name){
+    if (name === 'inventory.addStock') {
+      return JSON.stringify({ok:true, result:{ok:true, item:{code:'P1', qty:7}}});
+    }
+    return JSON.stringify({ok:false});
+  });
+  ok.restock({id:'S-1', items:[{partCode:'P1', qty:4, partName:'پره'}]});
+  assertEqual(ok.calls.filter(function(n){ return n === 'inventory.addStock'; }).length, 1, 'باید یک addStock باشد');
+  assertEqual(ok.parts[0].qty, 7, 'qty باید از هسته ۷ شود');
+  assertEqual(ok.stockMoves.length, 1, 'باید دقیقاً یک حرکت ثبت شود');
+  assertEqual(ok.stockMoves[0].qty === 4 || ok.stockMoves[0].qty === -4 || Math.abs(ok.stockMoves[0].qty) === 4, true, 'qty حرکت باید ۴ معتبر باشد');
+  assertEqual(typeof ok.stockMoves[0].qty === 'number' && isFinite(ok.stockMoves[0].qty), true, 'حرکت نباید NaN باشد');
+  const fail = makeExeRestock(function(){ return JSON.stringify({ok:false}); });
+  fail.restock({id:'S-2', items:[{partCode:'P1', qty:4, partName:'پره'}]});
+  assertEqual(fail.calls.indexOf('inventory.addStock') >= 0, true, 'شکست باید پس از تلاش addStock باشد');
+  assertEqual(fail.parts[0].qty, 3, 'qty نباید عوض شود');
+  assertEqual(fail.stockMoves.length, 0, 'شکست addStock نباید حرکت بسازد');
+  const htmlRestock = extractFunctionSource(html, '_restockFromSale');
+  const htmlOnly = new Function(htmlRestock + `
+    function hasBusinessCore(){ return false; }
+    var parts = [{code:'P1', name:'پره', qty:3}];
+    _restockFromSale({items:[{partCode:'P1', qty:4, partName:'پره'}], status:'final'});
+    return parts[0].qty;
+  `)();
+  assertEqual(htmlOnly, 7, 'HTML-only باید ۴ را به ۳ برگرداند → ۷');
+});
+
+test('R3: جهش موفق با stock نامعتبر نباید عدد تفسیر شود و نباید جهش دوم بسازد', () => {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const itemSrc = extractFunctionSource(html, 'applyCoreItemOnto');
+  const resSrc = extractFunctionSource(html, 'invReserveOnItem');
+  const relSrc = extractFunctionSource(html, 'invReleaseReserveOnItem');
+  const got = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + snapSrc + '\n' + recSrc + '\n' + itemSrc + '\n' + resSrc + '\n' + relSrc + `
+    var calls = [];
+    var mutateCount = 0;
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        calls.push(name);
+        if (name === 'inventory.stock') {
+          return JSON.stringify({ok:true, result:{qty:10, reserved:0, available:10, min:0, reorder:0, price:0}});
+        }
+        if (name === 'inventory.reserve') {
+          mutateCount++;
+          return JSON.stringify({ok:true, result:{ok:true, item:{qty:10, reserved:4, reservedByWh:{'WH-A':4}}, stock:{ok:false, reason:'INVENTORY_UNAVAILABLE'}}});
+        }
+        return JSON.stringify({ok:false});
+      }};
+    }
+    var item = {qty:10, reserved:0, reservedByWh:{}, byWh:{'WH-A':10}};
+    var r = invReserveOnItem(item, 4, 'WH-A');
+    var numeric = (function(){
+      if (!r.ok) return {kind:'fail'};
+      if (typeof stockDataAvailable==='function' && !stockDataAvailable(r.stock)) return {kind:'mutated-no-stock', qty:null, available:r.stock && r.stock.available};
+      return {kind:'ok', qty:r.stock.available};
+    })();
+    return {r:r, numeric:numeric, reserved:item.reserved, mutateCount:mutateCount, calls:calls};
+  `)();
+  assertEqual(got.r.ok, true, 'جهش موفق نباید ok:false دروغین شود');
+  assertEqual(got.reserved, 4, 'reserved هسته باید نوشته شده باشد');
+  assertEqual(got.mutateCount, 1, 'نباید جهش دوم reserve رخ دهد');
+  assertEqual(got.numeric.kind, 'mutated-no-stock', 'caller نباید available را عدد بگیرد');
+  assertEqual(got.numeric.qty, null, 'qty عددی نباید از stock نامعتبر خوانده شود');
+  assertEqual(got.r.stock && got.r.stock.reason, 'INVENTORY_UNAVAILABLE', 'stock برگشتی باید قرارداد B17 باشد');
+  const saveSrc = extractFunctionSource(html, 'saveWarehouseDoc');
+  const resCall = saveSrc.indexOf('invReserveOnItem(found.item');
+  const after = saveSrc.slice(resCall, resCall + 800);
+  assertTrue(after.indexOf('r.stock.available') < 0 && after.indexOf('r.stock.qty') < 0, 'حواله رزرو نباید r.stock را عدد تفسیر کند');
+  assertTrue(after.indexOf('it.qty') >= 0, 'حرکت رزرو باید از مقدار سند باشد');
+  const failR = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + snapSrc + '\n' + recSrc + '\n' + itemSrc + '\n' + resSrc + `
+    function getSirmanHostSync(){ return { RunBusiness: function(){ return JSON.stringify({ok:false}); } }; }
+    var item = {qty:10, reserved:0, reservedByWh:{}, byWh:{'WH-A':10}};
+    return invReserveOnItem(item, 4, 'WH-A');
+  `)();
+  assertEqual(failR.ok, false, 'شکست جهش باید ok:false باشد');
 });
 
 console.log('');

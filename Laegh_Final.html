@@ -17644,6 +17644,15 @@ function saveWarehouseDoc(){
       var foundH = (typeof invFindStockItem==='function') ? invFindStockItem(hit.code) : null;
       if(foundH) stockByCode[hit.code] = foundH.item;
     }
+    for(var hp=0; hp<validItems.length; hp++){
+      var pit = validItems[hp];
+      var pwh = (type==='out'||type==='reserve') ? fromWh : toWh;
+      var pitem = stockByCode[pit.code] || {code:pit.code, qty:0};
+      var preWh = (typeof invStockSnapshot==='function') ? invStockSnapshot(pitem, pwh) : null;
+      if(typeof stockDataAvailable==='function' && !stockDataAvailable(preWh)){
+        ntf('محاسبه انجام نشد','err'); return;
+      }
+    }
     var applied = takeBusinessCore('inventory.applyWarehouseDoc', {doc:doc, items:validItems, stockByCode:stockByCode, now:(typeof fdt==='function'?fdt():'')});
     if(!applied){ ntf('ثبت سند انبار انجام نشد','err'); return; }
     if(applied.ok===false){ ntf(applied.error||applied.err||'سند ثبت نشد','err'); return; }
@@ -17692,6 +17701,9 @@ function saveWarehouseDoc(){
       if(!found){ ntf('قلم «'+(it.name||it.code)+'» پیدا نشد','err'); return; }
       var r = invReserveOnItem(found.item, it.qty, whId);
       if(!r.ok){ ntf(r.err,'err'); return; }
+      if(typeof stockDataAvailable==='function' && r.stock && !stockDataAvailable(r.stock)){
+        /* جهش رزرو با r.ok مشخص است؛ stock ناموجود عدد تفسیر نشود — حرکت از it.qty است */
+      }
       if(found.kind==='part' && typeof svParts==='function') svParts();
       if(found.kind==='product' && typeof sv==='function') sv();
       stockMoves.push({
@@ -21821,13 +21833,16 @@ function _restockFromSale(old){
   var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
   list.forEach(function(it){
     var idx = parts.findIndex(function(p){return p.code === it.partCode;});
-    if(idx !== -1){
-      if(hostOn){
-        var core = takeBusinessCore('inventory.addStock', {item: parts[idx], qty: it.qty||1});
-        if(core && core.ok!==false && core.item) applyCoreRecordOnto(parts[idx], core.item);
-      } else {
-        parts[idx].qty = (parts[idx].qty||0) + (it.qty||1);
+    if(idx === -1) return;
+    if(hostOn){
+      var core = takeBusinessCore('inventory.addStock', {item: parts[idx], qty: it.qty||1});
+      if(!core || core.ok===false || !core.item){
+        if(typeof ntf==='function') ntf('محاسبه موجودی انجام نشد','err');
+        return;
       }
+      applyCoreRecordOnto(parts[idx], core.item);
+    } else {
+      parts[idx].qty = (parts[idx].qty||0) + (it.qty||1);
     }
     if(typeof recordStockMove==='function') recordStockMove('in', it.partCode, it.partName||'', it.qty||1, 'sale', 'برگشت '+(old.id||''));
     else if(typeof _applyStockMovement==='function') _applyStockMovement('in', it.partCode, it.partName||'', it.qty||1, 'sale', 'برگشت '+old.id||'');
