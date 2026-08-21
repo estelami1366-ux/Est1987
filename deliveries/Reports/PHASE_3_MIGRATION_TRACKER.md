@@ -1,9 +1,9 @@
 # SIRMAN — PHASE 3 MIGRATION TRACKER
 
 **Tracker mode:** ACTIVE  
-**Last updated:** 1405/05/30 12:12:09 (Asia/Tehran)  
+**Last updated:** 1405/05/30 12:29:33 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `229973f`  
+**Current known HEAD:** `76c92e6`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **B10 commit:** `da78c6a` (`test: lock calc.warrantyEndDate JS/C# parity vectors`)  
@@ -19,6 +19,7 @@
 **B16 report commit:** `380c7f2` (`docs: record B16 inventory.stock parity lock and rollback protocol`)  
 **B17 commit:** `935377a` (`test: lock inventory.stock safe fail-closed contract`)  
 **B17 report commit:** `229973f` (`docs: record B17 inventory.stock fail-closed contract`)  
+**B18 commit:** `76c92e6` (`feat: migrate inventory.stock ownership to core`)  
 **Live version:** `1405.5.27γ`
 
 > این فایل Tracker مرکزی است. هر مرحله فقط پس از دریافت گزارش MD و بررسی نتیجه، تیک می‌خورد.
@@ -53,6 +54,7 @@
 | B15 | Next ownership seam (change gate) | ANALYSIS COMPLETED / SELECTION BLOCKED | 1405/05/30 | 11:47:25 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B15_CHANGE_GATE.md` — هیچ seam مجاز نماند — implementation NOT STARTED — محصول تغییر نکرد |
 | B16 | Architecture decision + `inventory.stock` parity | ✅ COMPLETED (parity lock) | 1405/05/30 | 12:02:36 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B16_ARCHITECTURE_DECISION_AND_ROLLBACK_GATE.md` — PARITY CONFIRMED — HTML 619 / Core 154 PASS — ownership NOT migrated — checkpoint B14-GOOD=`dae7cde` / B16-PARITY=`23a4776` |
 | B17 | Safe fail-closed contract for `inventory.stock` | ✅ COMPLETED (contract + tests) | 1405/05/30 | 12:12:09 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B17_SAFE_FAIL_CLOSED_INVENTORY.md` — `{ok:false, reason:"INVENTORY_UNAVAILABLE"}` — HTML 625 / Core 159 PASS — runtime UNCHANGED — ownership NOT migrated — checkpoint B17-SAFE-FAIL-CLOSED=`935377a` |
+| B18 | `inventory.stock` ownership | ✅ COMPLETED | 1405/05/30 | 12:29:33 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B18_INVENTORY_STOCK_OWNERSHIP.md` — commit `76c92e6` — HTML 631 / Core 159 PASS — EXE fail-closed — HTML-only JS preserved — mutations NONE — live EXE NEEDS HUMAN VERIFICATION |
 
 ---
 
@@ -303,10 +305,38 @@
 - **Backup:** UNCHANGED
 - **Print engine:** UNTOUCHED
 - **Checkpoint:** `B17-SAFE-FAIL-CLOSED` = `935377a`
-- **B18:** NOT STARTED
+- **B18:** COMPLETED (see B18 Verification Record)
 - **Live EXE:** NEEDS HUMAN VERIFICATION
 
 ### B17 Human Verification
+
+⬜ NOT YET VERIFIED
+
+---
+
+## B18 Verification Record
+
+- **B18:** `inventory.stock` EXE ownership
+- **Commit:** `76c92e6`
+- **Report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B18_INVENTORY_STOCK_OWNERSHIP.md`
+- **Implementation:** COMPLETED
+- **PRODUCT CODE MODIFIED:** YES
+- **HTML tests:** `631 PASS / 0 FAIL`
+- **Core tests:** `159 PASS / 0 FAIL`
+- **Parity:** CONFIRMED (B16 18 vectors still green)
+- **Fail-closed:** `{ok:false, reason:"INVENTORY_UNAVAILABLE"}` on Host present + Core miss; JS snapshot not used
+- **HTML-only:** PASS (B16 vectors)
+- **Inventory mutation:** NONE
+- **Persistence:** UNCHANGED
+- **Backup:** UNCHANGED
+- **Print engine:** UNTOUCHED
+- **Locked business workflows:** UNCHANGED
+- **InventoryCore.Stock / PartsAdvisor:** UNCHANGED
+- **Checkpoint:** `B18-FINAL-GOOD` = `76c92e6`
+- **B19:** NOT STARTED
+- **Live EXE:** NEEDS HUMAN VERIFICATION
+
+### B18 Human Verification
 
 ⬜ NOT YET VERIFIED
 
@@ -355,15 +385,18 @@ B16 LIVE EXE = NEEDS HUMAN VERIFICATION
 B17    = COMPLETED (contract + tests)
 B17 OWNERSHIP = NOT STARTED
 B17 LIVE EXE = NEEDS HUMAN VERIFICATION
-B18    = NOT STARTED
+B18    = COMPLETED
+B18 IMPLEMENTATION = COMPLETED
+B18 LIVE EXE = NEEDS HUMAN VERIFICATION
+B19    = NOT STARTED
 
-Last known good product checkpoint = B14-GOOD dae7cde
+Last known good product checkpoint = B18-FINAL-GOOD 76c92e6
 B16 parity checkpoint = B16-PARITY 23a4776
 B17 contract checkpoint = B17-SAFE-FAIL-CLOSED 935377a
-Recommended next seam = inventory.stock ownership (NOT authorized by B17; wait for B18)
+Recommended next seam = wait for B19 instruction
 PRINT       = FROZEN
 PERSISTENCE = UNCHANGED
 BACKUP      = UNCHANGED
 ```
 
-**NEXT ACTION:** هیچ مرحلهٔ بعد شروع نشود تا دستور صریح B18 برسد.
+**NEXT ACTION:** هیچ مرحلهٔ بعد شروع نشود تا دستور صریح B19 برسد.
