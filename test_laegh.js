@@ -9559,6 +9559,60 @@ test('sale.total نباید persist بنویسد', () => {
   assertTrue(totSrc.indexOf('inventory.consume') === -1, 'calcSaleTotal نباید مصرف انبار باشد');
 });
 
+console.log('');
+console.log('📋 گروه: فاز ۳ B10 قفل برابری calc.warrantyEndDate');
+
+function loadWarrantyEndDateParityVectors() {
+  const name = 'WarrantyEndDateParityVectors.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول بردار B10 پیدا نشد: ' + name);
+}
+
+function makeHtmlOnlyWarrantyEndDate() {
+  const addSrc = extractFunctionSource(html, 'addJalaliMonths');
+  const endSrc = extractFunctionSource(html, 'calcWarrantyEndDate');
+  assertTrue(!!addSrc && !!endSrc, 'توابع addJalaliMonths / calcWarrantyEndDate پیدا نشد');
+  return new Function(addSrc + '\n' + endSrc + `
+    return {
+      add: function(date, months){ return addJalaliMonths(date, months); },
+      end: function(date, months){ return calcWarrantyEndDate(date, months); }
+    };
+  `)();
+}
+
+test('مسیر HTML-only باید بردارهای قفل‌شده calc.warrantyEndDate را بدون Host اجرا کند', () => {
+  const pack = loadWarrantyEndDateParityVectors();
+  const calc = makeHtmlOnlyWarrantyEndDate();
+  pack.date.forEach(function(row) {
+    const addGot = calc.add(row.date, row.months);
+    const endGot = calc.end(row.date, row.months);
+    assertEqual(addGot, row.expected, row.id + ' addJalaliMonths');
+    assertEqual(endGot, row.expected, row.id + ' calcWarrantyEndDate');
+  });
+  const endSrc = extractFunctionSource(html, 'calcWarrantyEndDate');
+  assertContainsString(endSrc, 'calc.warrantyEndDate', 'B10 نباید مالکیت را مهاجرت دهد');
+  assertContainsString(endSrc, 'addJalaliMonths', 'fallback JS باید بماند');
+  assertTrue(endSrc.indexOf('hasBusinessCore') === -1, 'B10 نباید دروازه hasBusinessCore اضافه کند');
+});
+
+test('calc.warrantyEndDate و addJalaliMonths نباید persist بنویسند', () => {
+  const endSrc = extractFunctionSource(html, 'calcWarrantyEndDate');
+  const addSrc = extractFunctionSource(html, 'addJalaliMonths');
+  [endSrc, addSrc].forEach(function(src) {
+    assertTrue(src.indexOf('localStorage') === -1, 'نباید localStorage بنویسد');
+    assertTrue(src.indexOf('indexedDB') === -1, 'نباید IndexedDB بنویسد');
+    assertTrue(src.indexOf('svWars') === -1, 'نباید svWars صدا بزند');
+    assertTrue(src.indexOf('persistCoreSnapshot') === -1, 'نباید persistCoreSnapshot صدا بزند');
+    assertTrue(src.indexOf('warranty.save') === -1, 'نباید warranty.save باشد');
+  });
+});
+
 test('رزرو در exe فقط Writer هسته باشد و بدون Host همان جهش JS بماند', () => {
   const runSrc = extractFunctionSource(html, 'runBusinessCore');
   const takeSrc = extractFunctionSource(html, 'takeBusinessCore');

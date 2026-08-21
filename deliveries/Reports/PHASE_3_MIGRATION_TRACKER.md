@@ -1,9 +1,9 @@
 # SIRMAN — PHASE 3 MIGRATION TRACKER
 
 **Tracker mode:** ACTIVE  
-**Last updated:** 1405/05/30 10:20:55 (Asia/Tehran)  
+**Last updated:** 1405/05/30 10:40:28 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
-**Current known HEAD:** `79784f6`  
+**Current known HEAD:** `cf9099f`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
 **B8 commit:** `9582215` (`feat: migrate sale.total ownership to core`)  
 **Live version:** `1405.5.27γ`
@@ -32,7 +32,7 @@
 | B7 | Next ownership seam (analysis) | ANALYSIS COMPLETED | 1405/05/29 | 19:15:37 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B7_NEXT_OWNERSHIP_SEAM.md` — انتخاب `sale.total` |
 | B8 | `sale.total` ownership | ✅ COMPLETED | 1405/05/29 | 19:26:00 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B8_SALE_TOTAL.md` — commit `9582215` — HTML 600 / Core 146 PASS — live EXE NEEDS HUMAN VERIFICATION |
 | B9 | Next ownership seam (analysis) | ANALYSIS COMPLETED | 1405/05/30 | 10:20:55 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B9_NEXT_OWNERSHIP_SEAM.md` — انتخاب `calc.warrantyEndDate` — PARITY LOCK REQUIRED — implementation NOT STARTED |
-| B10 | Migration checkpoint | ⬜ NOT STARTED | — | — | فقط طبق Change Gate |
+| B10 | `calc.warrantyEndDate` parity lock | ✅ COMPLETED | 1405/05/30 | 10:40:28 | `PHASE_3_ARCHITECTURE_MIGRATION_STEP_B10_PARITY_LOCK.md` — PARITY CONFIRMED — HTML 602 / Core 149 PASS — ownership NOT migrated |
 
 ---
 
@@ -108,8 +108,26 @@
 - **CODE MODIFIED:** NO
 - **Recommended next seam:** `calc.warrantyEndDate` (`calcWarrantyEndDate` → `CalculationEngine.WarrantyEndDate`)
 - **Readiness:** PARITY LOCK REQUIRED
-- **Parity:** PARITY PARTIAL (JS `addJalaliMonths` ≈ Core `AddJalaliMonths`; no shared frozen date table)
-- **B10:** NOT STARTED (checkpoint; not authorized by B9)
+- **Parity:** PARITY PARTIAL at B9 time (JS `addJalaliMonths` ≈ Core `AddJalaliMonths`; no shared frozen date table)
+- **Follow-up:** B10 locked slash-date vectors; ownership still NOT STARTED
+
+---
+
+## B10 Parity Lock Record
+
+- **B10:** `calc.warrantyEndDate` parity lock (not ownership migration)
+- **Report:** `deliveries/Reports/PHASE_3_ARCHITECTURE_MIGRATION_STEP_B10_PARITY_LOCK.md`
+- **Parity:** CONFIRMED (frozen slash-date table)
+- **Implementation:** NOT STARTED
+- **PRODUCT CODE MODIFIED:** NO
+- **HTML tests:** `602 PASS / 0 FAIL`
+- **Core tests:** `149 PASS / 0 FAIL`
+- **B5 / B6 / B8 regression:** PASS
+- **Persistence:** UNCHANGED
+- **Backup:** UNCHANGED
+- **Print engine:** UNTOUCHED
+- **Locked business workflows:** UNCHANGED
+- **B11:** NOT STARTED
 
 ---
 
@@ -137,14 +155,15 @@ B7     = ANALYSIS COMPLETED
 B8     = COMPLETED
 B8 LIVE EXE = NEEDS HUMAN VERIFICATION
 B9     = ANALYSIS COMPLETED
-B9 IMPLEMENTATION = NOT STARTED
-B10    = NOT STARTED
+B10    = COMPLETED (parity lock)
+B10 IMPLEMENTATION = NOT STARTED
+B11    = NOT STARTED
 
 Recommended next seam = calc.warrantyEndDate
-READINESS = PARITY LOCK REQUIRED
+READINESS = PARITY CONFIRMED (slash-date table)
 PRINT       = FROZEN
 PERSISTENCE = UNCHANGED
 BACKUP      = UNCHANGED
 ```
 
-**NEXT ACTION:** پیاده‌سازی `calc.warrantyEndDate` فقط پس از دستور صریح جداگانه. B10 (checkpoint) شروع نشده است.
+**NEXT ACTION:** مهاجرت مالکیت `calc.warrantyEndDate` فقط پس از دستور صریح B11.
