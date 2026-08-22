@@ -1595,7 +1595,7 @@ test('پیام به مشتری در فاکتور و فروش قطعه: دکمه�
   assertContainsString(html, 'id="msg-pdf-btn"', 'دکمه‌ی تهیه PDF در مودال پیام پیدا نشد');
   // فاکتور باید PDF را از طریق printInv برای پیوست آماده کند
   const invSrc = extractFunctionSource(html, 'notifyInvoiceCustomer');
-  assertContainsString(invSrc, 'printInv', 'پیام فاکتور باید printInv را به‌عنوان pdfFn پاس بدهد تا PDF قابل تهیه باشد');
+  assertContainsString(invSrc, 'expPDF', 'پیام فاکتور باید expPDF را به‌عنوان pdfFn پاس بدهد تا PDF از مسیر کاغذ جدا بماند');
   // openMsgModal باید پارامتر opts و دکمه‌ی PDF را پشتیبانی کند
   const omSrc = extractFunctionSource(html, 'openMsgModal');
   assertContainsString(omSrc, 'pdfFn', 'openMsgModal باید گزینه‌ی pdfFn را پشتیبانی کند');
@@ -4815,8 +4815,8 @@ test('پس‌زمینه تصویری چاپ برای بخش‌های قابل چ
   assertContainsString(html, "setPrintBgImage('postal'", 'UI پستی برای تصویر پس‌زمینه نیست');
   assertContainsString(html, "setPrintBgImage('list'", 'UI لیست برای تصویر پس‌زمینه نیست');
   assertContainsString(html, 'bgImage', 'فیلد bgImage در تنظیمات چاپ نیست');
-  const invSrc = extractFunctionSource(html, 'printInv');
-  assertContainsString(invSrc, 'printBgCss', 'چاپ فاکتور باید printBgCss را اعمال کند');
+  const htmlSrc = extractFunctionSource(html, 'printEngineBuildInvoiceHtml');
+  assertContainsString(htmlSrc, 'printBgCss', 'خروجی HTML/PDF فاکتور باید printBgCss را اعمال کند');
 });
 
 test('شبیه‌سازی: printBgCss با تصویر باید CSS پس‌زمینه بسازد', () => {
@@ -5123,7 +5123,8 @@ test('چاپ تازه openFreshPrintWindow باید جلوی حافظه چسبن
   assertContainsString(html, 'function openFreshPrintWindow(', 'openFreshPrintWindow پیدا نشد');
   assertContainsString(html, 'document.open()', 'باید document را تازه باز کند');
   const printInv = extractFunctionSource(html, 'printInv');
-  assertContainsString(printInv || html, 'openFreshPrintWindow', 'printInv باید از پنجره تازه استفاده کند');
+  assertContainsString(printInv || html, 'printEnginePrintNative', 'چاپ کاغذ فاکتور باید بومی باشد نه پنجره HTML');
+  assertTrue((printInv||'').indexOf('openFreshPrintWindow') < 0, 'printInv نباید پنجره HTML را برای کاغذ باز کند');
 });
 
 test('دفترچه تلفن باید شبکه اجتماعی لیستی با گزینه دستی داشته باشد', () => {
@@ -5857,7 +5858,7 @@ test('مرکز پرینت باید در تنظیمات با سه ستون سند
 });
 
 test('Print Engine مرکزی، پروفایل‌ها و چاپ سریع باید موجود باشند', () => {
-  ['printCenterDefaultState','getPrintCenterState','savePrintCenterState','printDocCatalog','registerPrintDocument','printEngineJob','printEngineApplyProfile','printEnginePrintHtml','printEngineQuickPrint','printEngineSavePdf','printEngineRecordHistory','printEngineHistory','printEngineLastJob','printEngineListPrinters','printEngineBuildPreview','openPrintCenter','refreshPrintCenterUI','pcDoPrint','pcDoPdf','pcDoRetry','printEngineFailResult','printEngineIsPdfPrinter'].forEach(fn=>{
+  ['printCenterDefaultState','getPrintCenterState','savePrintCenterState','printDocCatalog','registerPrintDocument','printEngineJob','printEngineApplyProfile','printEnginePrintHtml','printEnginePrintNative','printEngineBuildInvoiceModel','printEngineBuildTestPageModel','printEngineSplitPaper','printEngineQuickPrint','printEngineSavePdf','printEngineRecordHistory','printEngineHistory','printEngineLastJob','printEngineListPrinters','printEngineBuildPreview','openPrintCenter','refreshPrintCenterUI','pcDoPrint','pcDoNativeTestPage','pcDoPdf','pcDoRetry','printEngineFailResult','printEngineIsPdfPrinter'].forEach(fn=>{
     assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
   });
   assertContainsString(html, "var PrintEngine = {", 'شیء PrintEngine پیدا نشد');
@@ -5996,6 +5997,91 @@ test('میزبان دات‌نت باید فهرست چاپگر و چاپ HTML �
   const printHtmlSrc = extractFunctionSource(html, 'printEnginePrintHtml');
   assertContainsString(printHtmlSrc, 'documentId', 'بار چاپ باید شناسه سند داشته باشد');
   assertContainsString(printHtmlSrc, 'PrintDocument', 'چاپ باید از PrintDocument میزبان برود');
+  const nativeSvc = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'NativeWindowsPrintService.cs'), 'utf8');
+  assertContainsString(nativeSvc, 'new PrintDocument()', 'موتور بومی باید PrintDocument بسازد');
+  assertTrue(nativeSvc.indexOf('PrintAsync') < 0, 'موتور کاغذ بومی نباید PrintAsync داشته باشد');
+  assertContainsString(printHost, 'EnqueueNative', 'میزبان باید EnqueueNative داشته باشد');
+  assertContainsString(printHost, 'NativeWindowsPrintService', 'مسیر کاغذ باید NativeWindowsPrintService را صدا بزند');
+  const nativePrintSrc = extractFunctionSource(html, 'printEnginePrintNative');
+  assertContainsString(nativePrintSrc, "engine: 'native'", 'بار بومی باید engine native باشد');
+  assertContainsString(nativePrintSrc, 'delete payload.html', 'بار کاغذ بومی نباید html بفرستد');
+  assertTrue(!!extractFunctionSource(html, 'pcDoNativeTestPage'), 'دکمه صفحه آزمایش بومی لازم است');
+});
+
+test('شبیه‌سازی: چاپ بومی فاکتور html نمی‌فرستد و صفحه آزمایش همان موتور است', () => {
+  const start = html.indexOf("var PC_KEY = 'laegh_printCenter';");
+  const pe = html.indexOf('\nvar PrintEngine = {');
+  const objEnd = html.indexOf('\n};', pe);
+  const src = html.slice(start, objEnd + 3);
+  const store = {};
+  const fakeLS = {
+    getItem(k){ return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },
+    setItem(k,v){ store[k]=String(v); },
+    removeItem(k){ delete store[k]; }
+  };
+  const captured = [];
+  const fakeWindow = {
+    chrome: {
+      webview: {
+        hostObjects: {
+          sync: {
+            sirmanHost: {
+              GetPrinters(){ return JSON.stringify({ok:true, printers:[{name:'HP Laser', isDefault:true, isValid:true, isPhysical:true}], count:1, defaultPrinter:'HP Laser'}); },
+              PrintDocument(json){
+                captured.push(typeof json==='string' ? JSON.parse(json) : json);
+                return JSON.stringify({ok:true, status:'PRINT_SUBMITTED', errorCode:null, message:'queued', printJobId:'PJ-aabbccddeeff', printer:'HP Laser'});
+              },
+              PrintHtml(){ return JSON.stringify({ok:false, status:'PRINT_FAILED', errorCode:'NO_PRINTER'}); },
+              GetPrintJob(){ return JSON.stringify({ok:true, status:'PRINT_SUBMITTED', printJobId:'PJ-aabbccddeeff'}); }
+            }
+          }
+        }
+      }
+    }
+  };
+  const runner = new Function(
+    'window','localStorage','ntf','getPrintSettings','getBrand','logoSrc','fdt','PS_KEY','captured',
+    src + `
+      var paper = printEngineSplitPaper('A4 landscape');
+      var model = printEngineBuildInvoiceModel({
+        num:'1001', seller:'علی', phone:'0912', date:'1405/05/31', status:'closed',
+        notes:'یادداشت', tE:1000, tD:100, tF:900, invoiceId:'INVUID-N',
+        items:[{num:1, code:'TV1', model:'سامسونگ', date:'1405/01/01', color:'مشکی', carton:1, body:'سالم', dmg:'', acc:'ریموت', miss:'', perf:'سالم', warranty:'بله', svc:'تعمیر', pd:'', est:1000, disc:10, fin:900}]
+      }, {paper:'A4 landscape', copies:2, printerName:'HP Laser', documentId:'INVUID-N'});
+      var native = printEnginePrintNative(model, {docId:'invoice', documentId:'INVUID-N', printer:'HP Laser', copies:2, paper:'A4 landscape'});
+      var testPage = printEnginePrintNative(printEngineBuildTestPageModel({printerName:'HP Laser', paper:'A4', copies:1}), {printer:'HP Laser'});
+      var pdfBlocked = printEnginePrintNative(model, {printer:'Microsoft Print to PDF'});
+      return {
+        paper: paper.paper,
+        landscape: paper.landscape,
+        engine: captured[0] && captured[0].engine,
+        html: captured[0] && captured[0].html,
+        kind: captured[0] && captured[0].kind,
+        seller: captured[0] && captured[0].seller,
+        copies: captured[0] && captured[0].copies,
+        nativeStatus: native && native.status,
+        testKind: captured[1] && captured[1].kind,
+        testEngine: captured[1] && captured[1].engine,
+        testHtml: captured[1] && captured[1].html,
+        pdfCode: pdfBlocked && pdfBlocked.errorCode,
+        afterPdf: captured.length
+      };
+    `
+  );
+  const r = runner(fakeWindow, fakeLS, function(){}, function(){ return {invoice:{paper:'A4 landscape'}}; }, function(){ return {nameFa:'سیرمان',nameEn:'Sirman'}; }, '', function(){ return '1405/05/31'; }, 'laegh_printSettings', captured);
+  assertEqual(r.paper, 'A4', 'A4 landscape باید کاغذ A4 شود');
+  assertTrue(r.landscape, 'A4 landscape باید افقی باشد');
+  assertEqual(r.engine, 'native', 'بار فاکتور باید engine native باشد');
+  assertTrue(r.html == null, 'بار کاغذ فاکتور نباید html داشته باشد');
+  assertEqual(r.kind, 'invoice', 'kind باید invoice باشد');
+  assertEqual(r.seller, 'علی', 'فروشنده باید در مدل بومی باشد');
+  assertEqual(r.copies, 2, 'تعداد کپی باید به میزبان برسد');
+  assertEqual(r.nativeStatus, 'PRINT_SUBMITTED', 'ارسال بومی باید PRINT_SUBMITTED باشد نه تأیید کاغذ');
+  assertEqual(r.testKind, 'testPage', 'صفحه آزمایش باید kind testPage باشد');
+  assertEqual(r.testEngine, 'native', 'صفحه آزمایش باید همان موتور native باشد');
+  assertTrue(r.testHtml == null, 'صفحه آزمایش نباید html بفرستد');
+  assertEqual(r.pdfCode, 'PDF_NOT_PRINT', 'PDF نباید مسیر کاغذ بومی باشد');
+  assertEqual(r.afterPdf, 2, 'مسیر PDF نباید PrintDocument کاغذ را صدا بزند');
 });
 
 test('شبیه‌سازی: بدون سند زنده، چاپ ناموفق است و داده را عوض نمی‌کند', () => {

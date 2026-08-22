@@ -284,6 +284,20 @@ public sealed class MainForm : Form
         PrintPhase0Observer.Observe("ENQUEUE_RETURN", json);
         return json;
     }
+
+    public string EnqueueNativePrint(string documentJson, string printerName, string paper, string orientation, int copies, string documentId, string documentType, string user, string purpose = "print")
+    {
+        PrintPhase0Observer.Observe("ENQUEUE_NATIVE",
+            "purpose=" + purpose
+            + " printer=" + printerName
+            + " documentId=" + documentId
+            + " documentType=" + documentType
+            + " copies=" + copies
+            + " jsonChars=" + (documentJson ?? "").Length);
+        var json = _printHost.EnqueueNative(documentJson, printerName, paper, orientation, copies, documentId, documentType, user, purpose);
+        PrintPhase0Observer.Observe("ENQUEUE_NATIVE_RETURN", json);
+        return json;
+    }
     public string RunPrintHardwareDiagnostic(string json) => _printDiag.Run(json);
 
     /// <summary>
