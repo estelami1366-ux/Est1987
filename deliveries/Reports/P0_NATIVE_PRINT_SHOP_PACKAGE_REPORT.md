@@ -6,6 +6,7 @@
 **Gregorian:** 22 August 2026  
 **Branch:** `cursor/p0-native-print-shop-package-fa01`  
 **HEAD at packaging:** `31ebe26` (`docs: record P0 native print architecture migration`)  
+**Packaging commit:** `f511203` (`pack: add 1405.5.27γ NATIVE_PRINT shop setup kit from P0 5d79f20`)  
 **P0 product checkpoint:** `PRINT-NATIVE-TEST-PAGE-GOOD` / `PRINT-NATIVE-INVOICE-GOOD` = `5d79f20`  
 **Live version:** `1405.5.27γ` / assembly `1405.5.27.3`
 
@@ -77,13 +78,15 @@ Worktree was clean before packaging. No reset / rebase / merge / cherry-pick. Pr
 # 6. HEAD
 
 ```text
-31ebe26  docs: record P0 native print architecture migration
-full:    31ebe26c25f7a3e1c6b78ef0372c6b6906231367
+source HEAD     31ebe26  docs: record P0 native print architecture migration
+                31ebe26c25f7a3e1c6b78ef0372c6b6906231367
+packaging commit f511203  pack: add 1405.5.27γ NATIVE_PRINT shop setup kit from P0 5d79f20
+                f5112032bef2108284f54351de7e445a8f770043
 ancestor of 5d79f20 = YES
 ancestor of 1fcf054 = YES
 ```
 
-HEAD at packaging is the P0 docs commit on top of the native-print product commit. Allowed: packaging-only, no product-code change.
+Source HEAD is the P0 docs commit on top of the native-print product commit. This report records the packaging commit SHA after the kit was added. Allowed: packaging-only, no product-code change.
 
 ---
 
