@@ -17,6 +17,7 @@ public class PrintStatusContractTests
     [InlineData("PRINTING", null, "print", PrintStatusContract.Printing)]
     [InlineData("PRINT_COMPLETED", null, "print", PrintStatusContract.Completed)]
     [InlineData("PRINT_FAILED", "PRINT_ASYNC_FAILED", "print", PrintStatusContract.Failed)]
+    [InlineData("PRINT_FAILED", "NATIVE_PRINT_FAILED", "print", PrintStatusContract.Failed)]
     [InlineData("PDF_EXPORTED", null, "pdf", PrintStatusContract.PdfExported)]
     public void Normalize_MapsLegacyWithoutBoolean(string status, string? code, string? purpose, string expected)
     {

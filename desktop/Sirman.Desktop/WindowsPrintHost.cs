@@ -6,11 +6,13 @@ using System.Text.Json;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using Sirman.Core.Infrastructure;
+using Sirman.Core.Printing;
 
 namespace Sirman.Desktop;
 
 /// <summary>
-/// چاپ واقعی: WebView2.PrintAsync روی چاپگر فیزیکی ویندوز.
+/// کاغذ تولیدی فاکتور/صفحه آزمایشی: NativeWindowsPrintService / PrintDocument.
+/// PDF و اسناد مهاجرت‌نشده: WebView2.PrintAsync (موفقیت PDF چاپ کاغذ نیست).
 /// Microsoft Print to PDF و XPS چاپ نیستند و در مسیر PRINT انتخاب نمی‌شوند.
 /// </summary>
 internal sealed class WindowsPrintHost
@@ -62,6 +64,122 @@ internal sealed class WindowsPrintHost
         if (string.IsNullOrWhiteSpace(printJobId) || !_jobs.TryGetValue(printJobId.Trim(), out var job))
             return "{\"ok\":false,\"error\":\"missing-job\",\"errorCode\":\"MISSING_JOB\",\"message\":\"این کار چاپ پیدا نشد\",\"status\":\"PRINT_FAILED\"}";
         return job.ToJson();
+    }
+
+    public string EnqueueNative(string documentJson, string printerName, string paper, string orientation, int copies, string documentId, string documentType, string user, string purpose)
+    {
+        var printPurpose = string.Equals(purpose, "pdf", StringComparison.OrdinalIgnoreCase) ? "pdf" : "print";
+        if (printPurpose == "pdf")
+            return "{\"ok\":false,\"status\":\"PRINT_FAILED\",\"errorCode\":\"PDF_NOT_PRINT\",\"message\":\"چاپ بومی مسیر PDF نیست.\"}";
+        if (!NativePrintRequest.TryParse(documentJson, out var request, out var parseError))
+        {
+            var fail = PrintJobState.New(printerName, documentId, documentType, user, printPurpose);
+            _jobs[fail.PrintJobId] = fail;
+            fail.Fail("NO_DOCUMENT", string.IsNullOrWhiteSpace(parseError) ? "سندی برای چاپ نیست" : parseError);
+            AppendLog(fail);
+            return fail.ToJson();
+        }
+        if (!string.IsNullOrWhiteSpace(printerName))
+            request = request with { PrinterName = printerName };
+        if (!string.IsNullOrWhiteSpace(paper))
+            request = request with { Paper = paper };
+        if (!string.IsNullOrWhiteSpace(orientation))
+            request = request with { Orientation = orientation };
+        request = request with
+        {
+            Copies = copies > 0 ? copies : request.Copies,
+            DocumentId = string.IsNullOrWhiteSpace(documentId) ? request.DocumentId : documentId,
+            DocumentType = string.IsNullOrWhiteSpace(documentType) ? request.DocumentType : documentType,
+            User = string.IsNullOrWhiteSpace(user) ? request.User : user,
+            Purpose = printPurpose
+        };
+
+        var job = PrintJobState.New(request.PrinterName, request.DocumentId, request.DocumentType, request.User, printPurpose);
+        _jobs[job.PrintJobId] = job;
+        job.Log("PRINT_REQUESTED", "کار چاپ بومی ثبت شد", request.PrinterName);
+        AppendLog(job);
+        if (!_ui.IsHandleCreated)
+        {
+            job.Fail("NO_UI", "پنجره برنامه برای چاپ آماده نیست");
+            AppendLog(job);
+            return job.ToJson();
+        }
+        _ = Task.Run(() => RunNative(job, request));
+        return job.ToJson();
+    }
+
+    private void RunNative(PrintJobState job, NativePrintRequest request)
+    {
+        try
+        {
+            job.Set("PRINTING", null, "در حال آماده‌سازی سند بومی برای چاپ");
+            job.Log("PRINTING", "شروع چاپ بومی PrintDocument", request.PrinterName);
+            AppendLog(job);
+
+            var listed = ReadPrinters();
+            var physical = listed.Where(p => p.IsPhysical).ToList();
+            if (physical.Count == 0)
+            {
+                job.Fail("NO_PRINTER", "چاپگر واقعی نصب نیست. Microsoft Print to PDF چاپ نیست.");
+                job.Log("PRINT_FAILED", job.ErrorMessage ?? "", request.PrinterName);
+                AppendLog(job);
+                return;
+            }
+
+            var chosen = ResolvePrinter(request.PrinterName, listed, "print", out var resolveError, out var resolveCode);
+            if (string.IsNullOrEmpty(chosen))
+            {
+                job.Fail(resolveCode, resolveError);
+                job.Log("PRINT_FAILED", resolveError, request.PrinterName);
+                AppendLog(job);
+                return;
+            }
+
+            job.Printer = chosen;
+            job.Log("PRINTER_RESOLVED", "چاپگر انتخاب شد", chosen);
+            AppendLog(job);
+
+            var ps = new PrinterSettings { PrinterName = chosen };
+            if (!ps.IsValid)
+            {
+                job.Fail("PRINTER_UNAVAILABLE", "Printer is unavailable.");
+                job.Log("PRINT_FAILED", "PrinterSettings.IsValid=false", chosen);
+                AppendLog(job);
+                return;
+            }
+
+            if (!Winspool.TryOpen(chosen, out var openErr))
+            {
+                job.Fail("PRINT_SPOOLER_FAILED", string.IsNullOrEmpty(openErr) ? "صف چاپ ویندوز این چاپگر را باز نکرد." : openErr);
+                job.Log("PRINT_SPOOLER_FAILED", openErr, chosen);
+                AppendLog(job);
+                return;
+            }
+
+            if (Winspool.IsOffline(chosen))
+            {
+                job.Fail("PRINTER_UNAVAILABLE", "Printer is unavailable.");
+                job.Log("PRINT_FAILED", "چاپگر آفلاین است", chosen);
+                AppendLog(job);
+                return;
+            }
+
+            var spec = NativePrintLayout.ParsePaper(request.Paper, request.Orientation);
+            job.SettingsSummary = "engine=native; PrinterName=" + chosen + "; paper=" + spec.Name
+                + "; orientation=" + (spec.Landscape ? "landscape" : "portrait") + "; copies=" + NativePrintLayout.ClampCopies(request.Copies);
+            job.Log("PRINT_SETTINGS_CREATED", job.SettingsSummary, chosen);
+            AppendLog(job);
+
+            NativeWindowsPrintService.Submit(job, request with { PrinterName = chosen });
+            AppendLog(job);
+        }
+        catch (Exception ex)
+        {
+            job.Fail("NATIVE_PRINT_FAILED", "چاپ بومی انجام نشد: " + ex.Message);
+            job.ErrorDetail = ex.GetType().Name + ": " + ex.Message;
+            job.Log("PRINT_FAILED", ex.Message, request.PrinterName);
+            AppendLog(job);
+        }
     }
 
     public string Enqueue(string html, string printerName, string paper, string orientation, int copies, string documentId, string documentType, string user, string purpose)
@@ -522,7 +640,7 @@ internal sealed class PrintJobState
         var now = DateTimeOffset.Now.ToString("o");
         return new PrintJobState
         {
-            PrintJobId = "PJ-" + Guid.NewGuid().ToString("N")[..12],
+            PrintJobId = PrintJobIdentity.Create(),
             Status = "PRINT_REQUESTED",
             Printer = printer ?? "",
             DocumentId = documentId ?? "",

@@ -50,6 +50,29 @@ internal sealed class PrintServiceAdapter : IPrintService
         }
     }
 
+    public string EnqueueNative(
+        string documentJson,
+        string printerName,
+        string paper,
+        string orientation,
+        int copies,
+        string documentId,
+        string documentType,
+        string user,
+        string purpose)
+    {
+        try
+        {
+            return PrintStatusContract.Annotate(
+                _inner.EnqueueNative(documentJson, printerName, paper, orientation, copies, documentId, documentType, user, purpose));
+        }
+        catch (Exception ex)
+        {
+            return PrintStatusContract.Annotate(
+                SafeError.Json("NATIVE_PRINT_FAILED", "چاپ بومی انجام نشد: " + ex.Message, ex));
+        }
+    }
+
     public string GetJobJson(string printJobId)
     {
         try

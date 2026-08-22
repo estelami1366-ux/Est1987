@@ -41,6 +41,8 @@ public static class PrintStatusContract
             return PrinterResolutionFailed;
         if (code is "PRINT_SPOOLER_FAILED" or "SPOOLER_UNAVAILABLE" or "SPOOLER_REJECTED_JOB")
             return SpoolerUnavailable;
+        if (code is "NATIVE_PRINT_FAILED")
+            return Failed;
         if (st is "PRINT_FAILED" or "FAILED")
             return Failed;
         if (st is "PRINTING")

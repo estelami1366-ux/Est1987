@@ -344,7 +344,7 @@ public class SirmanHostObject
         }
     }
 
-    /// <summary>چاپ با شناسه سند، نوع سند و کاربر — همان موتور PrintHtml.</summary>
+    /// <summary>چاپ با شناسه سند، نوع سند و کاربر. مسیر کاغذ بومی JSON است نه HTML.</summary>
     public string PrintDocument(string json)
     {
         var denied = Guard("PrintHtml");
@@ -371,6 +371,16 @@ public class SirmanHostObject
             var user = Str(root, "user");
             var purpose = Str(root, "purpose");
             if (purpose.Length == 0) purpose = Str(root, "mode");
+            if (purpose.Length == 0) purpose = "print";
+            var engine = Str(root, "engine");
+            var kind = Str(root, "kind");
+            if (kind.Length == 0) kind = documentType;
+            var nativePaper = string.Equals(engine, "native", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(purpose, "pdf", StringComparison.OrdinalIgnoreCase);
+            if (!nativePaper && html.Length == 0 && (kind is "testPage" or "invoice") && !string.Equals(purpose, "pdf", StringComparison.OrdinalIgnoreCase))
+                nativePaper = true;
+            if (nativePaper)
+                return _form.EnqueueNativePrint(json ?? "{}", printer, paper, orientation, copies, documentId, documentType, user, purpose);
             if (html.Length == 0)
                 return "{\"ok\":false,\"status\":\"PRINT_FAILED\",\"errorCode\":\"NO_DOCUMENT\",\"message\":\"سندی برای چاپ نیست\"}";
             return _form.EnqueueHtmlPrint(html, printer, paper, orientation, copies, documentId, documentType, user, purpose);
