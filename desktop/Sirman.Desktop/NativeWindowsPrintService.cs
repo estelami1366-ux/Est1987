@@ -19,14 +19,7 @@ internal static class NativeWindowsPrintService
         doc.PrinterSettings.PrinterName = job.Printer;
         doc.PrinterSettings.Copies = (short)copies;
         doc.DefaultPageSettings.Landscape = spec.Landscape;
-        try
-        {
-            doc.DefaultPageSettings.PaperSize = new PaperSize("SIRMAN-" + spec.Name, spec.WidthHundredthsInch, spec.HeightHundredthsInch);
-        }
-        catch
-        {
-            /* keep printer default paper if custom size is rejected */
-        }
+        ApplyPaperSize(doc, spec);
         var marginMm = request.Invoice is null
             ? spec.MarginMm
             : NativePrintLayout.ParseMarginMm(request.Invoice.Margin, spec.MarginMm);
@@ -68,6 +61,39 @@ internal static class NativeWindowsPrintService
         finally
         {
             logo?.Dispose();
+        }
+    }
+
+    /// <summary>
+    /// A4/A5: use the driver-installed PaperSize (Kind / RawKind / name).
+    /// 80mm, label, custom, or missing ISO form: keep constructed SIRMAN-* size.
+    /// </summary>
+    private static void ApplyPaperSize(PrintDocument doc, NativePrintLayout.PaperSpec spec)
+    {
+        if (NativePrintLayout.IsIsoA4OrA5(spec.Name))
+        {
+            var installed = new List<NativePrintLayout.PaperFormCandidate>();
+            var sizes = new List<PaperSize>();
+            foreach (PaperSize ps in doc.PrinterSettings.PaperSizes)
+            {
+                sizes.Add(ps);
+                installed.Add(new NativePrintLayout.PaperFormCandidate(ps.PaperName, (int)ps.Kind, ps.RawKind));
+            }
+            if (NativePrintLayout.TrySelectInstalledIsoForm(spec.Name, installed, out var index)
+                && index >= 0 && index < sizes.Count)
+            {
+                doc.DefaultPageSettings.PaperSize = sizes[index];
+                return;
+            }
+        }
+
+        try
+        {
+            doc.DefaultPageSettings.PaperSize = new PaperSize("SIRMAN-" + spec.Name, spec.WidthHundredthsInch, spec.HeightHundredthsInch);
+        }
+        catch
+        {
+            /* keep printer default paper if custom size is rejected */
         }
     }
 

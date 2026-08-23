@@ -489,21 +489,13 @@ internal sealed class WindowsPrintHost
 
     private static void ApplyPaper(CoreWebView2PrintSettings settings, string paper, string orientation)
     {
-        var landscape = string.Equals(orientation, "landscape", StringComparison.OrdinalIgnoreCase);
-        double w, h;
-        switch ((paper ?? "A4").Trim())
-        {
-            case "A5":
-                w = 5.83; h = 8.27; break;
-            case "80mm":
-                w = 3.15; h = 7.87; break;
-            case "label":
-                w = 3.94; h = 5.91; break;
-            default:
-                w = 8.27; h = 11.69; break;
-        }
-        settings.PageWidth = landscape ? h : w;
-        settings.PageHeight = landscape ? w : h;
+        var spec = NativePrintLayout.ParsePaper(paper, orientation);
+        if (NativePrintLayout.IsIsoA4OrA5(spec.Name))
+            return;
+        double w = spec.WidthHundredthsInch / 100.0;
+        double h = spec.HeightHundredthsInch / 100.0;
+        settings.PageWidth = spec.Landscape ? h : w;
+        settings.PageHeight = spec.Landscape ? w : h;
     }
 
     private static void ApplyMargins(CoreWebView2PrintSettings settings, string paper)
