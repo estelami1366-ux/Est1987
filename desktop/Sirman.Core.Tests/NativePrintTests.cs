@@ -161,4 +161,78 @@ public class NativePrintTests
         Assert.False(NativePrintRequest.TryParse("""{"kind":"warranty"}""", out _, out var kindErr));
         Assert.Equal("نوع سند بومی پشتیبانی نمی‌شود", kindErr);
     }
+
+    [Fact]
+    public void A4_SelectsInstalledKindForm()
+    {
+        var installed = new[]
+        {
+            new NativePrintLayout.PaperFormCandidate("Letter", 1, 1),
+            new NativePrintLayout.PaperFormCandidate("A4", NativePrintLayout.IsoA4Kind, NativePrintLayout.IsoA4Kind),
+            new NativePrintLayout.PaperFormCandidate("A4", 0, 0)
+        };
+        Assert.True(NativePrintLayout.TrySelectInstalledIsoForm("A4", installed, out var i));
+        Assert.Equal(1, i);
+        Assert.Equal(NativePrintLayout.IsoA4Kind, installed[i].Kind);
+        Assert.True(NativePrintLayout.IsIsoA4OrA5("A4 landscape"));
+    }
+
+    [Fact]
+    public void A5_SelectsInstalledKindForm()
+    {
+        var installed = new[]
+        {
+            new NativePrintLayout.PaperFormCandidate("A5", NativePrintLayout.IsoA5Kind, NativePrintLayout.IsoA5Kind)
+        };
+        Assert.True(NativePrintLayout.TrySelectInstalledIsoForm("A5", installed, out var i));
+        Assert.Equal(0, i);
+        Assert.Equal(NativePrintLayout.IsoA5Kind, installed[i].Kind);
+        Assert.True(NativePrintLayout.IsIsoA4OrA5("A5"));
+    }
+
+    [Fact]
+    public void A4_FallsBackToRawKindThenName()
+    {
+        var rawOnly = new[]
+        {
+            new NativePrintLayout.PaperFormCandidate("ISO A4", 0, NativePrintLayout.IsoA4Kind)
+        };
+        Assert.True(NativePrintLayout.TrySelectInstalledIsoForm("A4", rawOnly, out var iRaw));
+        Assert.Equal(0, iRaw);
+
+        var nameOnly = new[]
+        {
+            new NativePrintLayout.PaperFormCandidate("A4", 0, 0)
+        };
+        Assert.True(NativePrintLayout.TrySelectInstalledIsoForm("A4", nameOnly, out var iName));
+        Assert.Equal(0, iName);
+        Assert.True(NativePrintLayout.IsoNameMatches("A4 (210 x 297 mm)", "A4"));
+    }
+
+    [Fact]
+    public void LabelAnd80mm_KeepCustomPath()
+    {
+        var a4 = new[] { new NativePrintLayout.PaperFormCandidate("A4", NativePrintLayout.IsoA4Kind, NativePrintLayout.IsoA4Kind) };
+        Assert.True(NativePrintLayout.RequiresCustomPaperForm("label"));
+        Assert.True(NativePrintLayout.RequiresCustomPaperForm("80mm"));
+        Assert.True(NativePrintLayout.RequiresCustomPaperForm("custom"));
+        Assert.False(NativePrintLayout.IsIsoA4OrA5("label"));
+        Assert.False(NativePrintLayout.IsIsoA4OrA5("80mm"));
+        Assert.False(NativePrintLayout.TrySelectInstalledIsoForm("label", a4, out var iLabel));
+        Assert.Equal(-1, iLabel);
+        Assert.False(NativePrintLayout.TrySelectInstalledIsoForm("80mm", a4, out _));
+        Assert.Equal("label", NativePrintLayout.ParsePaper("label", "").Name);
+        Assert.Equal("80mm", NativePrintLayout.ParsePaper("80mm", "").Name);
+        Assert.Equal(394, NativePrintLayout.ParsePaper("label", "").WidthHundredthsInch);
+        Assert.Equal(315, NativePrintLayout.ParsePaper("80mm", "").WidthHundredthsInch);
+    }
+
+    [Fact]
+    public void StandardFormMissing_SignalsCustomFallback()
+    {
+        Assert.False(NativePrintLayout.TrySelectInstalledIsoForm("A4", Array.Empty<NativePrintLayout.PaperFormCandidate>(), out var i));
+        Assert.Equal(-1, i);
+        Assert.True(NativePrintLayout.IsIsoA4OrA5("A4"));
+        Assert.False(NativePrintLayout.RequiresCustomPaperForm("A4"));
+    }
 }

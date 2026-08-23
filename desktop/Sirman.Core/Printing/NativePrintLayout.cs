@@ -103,4 +103,77 @@ public static class NativePrintLayout
         if (n == "a5") return landscape ? 10 : 14;
         return landscape ? 12 : 18;
     }
+
+    /// <summary>ISO A4 = PaperKind.A4 (9). ISO A5 = PaperKind.A5 (11).</summary>
+    public const int IsoA4Kind = 9;
+    public const int IsoA5Kind = 11;
+
+    public readonly record struct PaperFormCandidate(string Name, int Kind, int RawKind);
+
+    public static bool IsIsoA4OrA5(string? paperName)
+    {
+        var n = IsoToken(paperName);
+        return n is "a4" or "a5";
+    }
+
+    /// <summary>80mm / label / custom keep constructed sizes. Unknown names are not ISO forms.</summary>
+    public static bool RequiresCustomPaperForm(string? paperName)
+    {
+        var n = IsoToken(paperName);
+        return n is "80mm" or "label" or "custom";
+    }
+
+    public static int IsoPaperKind(string? paperName)
+    {
+        var n = IsoToken(paperName);
+        if (n == "a5") return IsoA5Kind;
+        if (n == "a4") return IsoA4Kind;
+        return 0;
+    }
+
+    public static bool IsoNameMatches(string? installedName, string? isoName)
+    {
+        var iso = IsoToken(isoName);
+        if (iso is not ("a4" or "a5")) return false;
+        var n = (installedName ?? "").Trim();
+        if (n.Equals(iso, StringComparison.OrdinalIgnoreCase)) return true;
+        if (n.Equals("iso " + iso, StringComparison.OrdinalIgnoreCase)) return true;
+        if (n.StartsWith(iso + " ", StringComparison.OrdinalIgnoreCase)) return true;
+        if (n.StartsWith(iso + "(", StringComparison.OrdinalIgnoreCase)) return true;
+        return false;
+    }
+
+    /// <summary>
+    /// Order: PaperKind, then RawKind, then normalized PaperName.
+    /// Returns the index into <paramref name="installed"/> or -1.
+    /// </summary>
+    public static bool TrySelectInstalledIsoForm(string? paperName, IReadOnlyList<PaperFormCandidate> installed, out int index)
+    {
+        index = -1;
+        var wantKind = IsoPaperKind(paperName);
+        if (wantKind == 0 || installed is null || installed.Count == 0) return false;
+
+        var byKind = -1;
+        var byRaw = -1;
+        var byName = -1;
+        for (var i = 0; i < installed.Count; i++)
+        {
+            var form = installed[i];
+            if (byKind < 0 && form.Kind == wantKind) byKind = i;
+            if (byRaw < 0 && form.RawKind == wantKind) byRaw = i;
+            if (byName < 0 && IsoNameMatches(form.Name, paperName)) byName = i;
+        }
+        index = byKind >= 0 ? byKind : (byRaw >= 0 ? byRaw : byName);
+        return index >= 0;
+    }
+
+    private static string IsoToken(string? paperName)
+    {
+        var n = (paperName ?? "").Trim().ToLowerInvariant();
+        if (n.EndsWith(" landscape", StringComparison.Ordinal))
+            n = n[..^" landscape".Length].Trim();
+        else if (n.EndsWith(" portrait", StringComparison.Ordinal))
+            n = n[..^" portrait".Length].Trim();
+        return n;
+    }
 }
