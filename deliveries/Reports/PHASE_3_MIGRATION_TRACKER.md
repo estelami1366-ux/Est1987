@@ -521,3 +521,5 @@ Persist/backup is **not** a Phase 3 B-step (B20 Option C). This is a separate re
 | Shop backup file on this VM | UNKNOWN (file not present) |
 
 Do not start SQLite/LiteDB/SQL Server implementation from this tracker row. Wait for review.
+
+**Follow-on (design only, 1405/06/02 19:35):** `deliveries/Reports/STORAGE_ARCHITECTURE_DECISION_RECORD.md` — engine SQLite; first entity `services`; **APPROVED FOR IMPLEMENTATION** as a dedicated persist program. No product/database code in that packet.
