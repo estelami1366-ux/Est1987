@@ -1,7 +1,7 @@
 # SIRMAN — PHASE 3 MIGRATION TRACKER
 
 **Tracker mode:** ACTIVE  
-**Last updated:** 1405/05/30 13:36:46 (Asia/Tehran)  
+**Last updated:** 1405/06/02 14:50:00 (Asia/Tehran)  
 **Branch:** `cursor/phase-3-architecture-migration-3733`  
 **Current known HEAD:** `b11ac50`  
 **B6 commit:** `66e78be` (`feat: migrate sale.line ownership to core`)  
@@ -501,3 +501,23 @@ FULL ARCHITECTURAL MIGRATION = NO (projections / persist / print / auth remain f
 ```
 
 **NEXT ACTION:** کیت `deliveries/Sirman_Setup_1405.5.27γ_FINAL.zip` برای نصب فروشگاه آماده است. راستی‌آزمایی انسانی روی ویندوز فروشگاه لازم است. B21 اختراع نشود.
+
+---
+
+## P3 Storage Forensic Audit (not a B-step)
+
+Persist/backup is **not** a Phase 3 B-step (B20 Option C). This is a separate read-only program.
+
+| Field | Value |
+|---|---|
+| Report | `deliveries/Reports/P3_STORAGE_FORENSIC_AUDIT.md` |
+| Date | 1405/06/02 14:50 Asia/Tehran |
+| Gate branch | `cursor/p0-2s-windows-runtime-print-diagnostic-fa01` |
+| Gate HEAD | `da229b8` |
+| Product code | NO |
+| Database added | NO |
+| Decision | **OPTION A — STORAGE ARCHITECTURE MIGRATION REQUIRED** |
+| Canonical today | HTML `localStorage` → RAM (`CurrentStorage.Kind = html-localStorage-indexeddb`) |
+| Shop backup file on this VM | UNKNOWN (file not present) |
+
+Do not start SQLite/LiteDB/SQL Server implementation from this tracker row. Wait for review.
