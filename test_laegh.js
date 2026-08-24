@@ -12110,7 +12110,7 @@ test('وظیفه فوری/سررسیدگذشته باید قاعده renderTasks
     invoices: [], warranties: [], sales: [], accounts: [], parts: [], products: [], inventory: {}, defectiveStock: [],
     tasks: [
       {id:'U', title:'فوری', status:'open', priority:'urgent', deadlineTS: null},
-      {id:'SAME', title:'امروز گذشته', status:'open', priority:'normal', deadlineTS: now-60*60*1000},
+      {id:'SAME', title:'امروز گذشته', status:'open', priority:'normal', deadlineTS: H.sameTehranDay(now-60*60*1000, now) ? now-60*60*1000 : now},
       {id:'OLD', title:'دیروز', status:'open', priority:'normal', deadlineTS: now-48*3600000},
       {id:'DONE', title:'انجام', status:'done', priority:'urgent', deadlineTS: now-48*3600000}
     ]
