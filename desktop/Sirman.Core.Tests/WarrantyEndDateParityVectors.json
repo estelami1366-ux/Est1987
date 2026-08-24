@@ -1,0 +1,14 @@
+{
+  "id": "SIRMAN_PHASE_3_B10_WARRANTY_END_DATE_PARITY",
+  "note": "Frozen JS↔C# vectors for calc.warrantyEndDate / addJalaliMonths vs CalculationEngine.WarrantyEndDate / AddJalaliMonths. Slash-separated Jalali dates only. Esfand is 29 in both implementations (not a leap-year calendar). Do not invent a new calendar. Dash-separated dates and non-numeric 3-part dates are excluded: JS and C# currently diverge there; B10 does not correct them.",
+  "date": [
+    { "id": "empty", "date": "", "months": 12, "expected": "" },
+    { "id": "zero-months", "date": "1405/05/05", "months": 0, "expected": "1405/05/05" },
+    { "id": "normal-24", "date": "1405/05/05", "months": 24, "expected": "1407/05/05" },
+    { "id": "esfand-clamp", "date": "1405/11/30", "months": 1, "expected": "1405/12/29" },
+    { "id": "day-31", "date": "1405/01/31", "months": 1, "expected": "1405/02/31" },
+    { "id": "year-wrap", "date": "1405/11/15", "months": 2, "expected": "1406/01/15" },
+    { "id": "short-2part", "date": "1405/05", "months": 12, "expected": "1405/05" },
+    { "id": "garbage", "date": "x", "months": 12, "expected": "x" }
+  ]
+}

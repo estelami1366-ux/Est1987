@@ -1,0 +1,18 @@
+{
+  "id": "SIRMAN_PHASE_3_B6_SALE_LINE_PARITY",
+  "note": "Frozen JS↔C# vectors for sale.line from current HTML-only Math.round formula and InvoicePricing.SaleLine. qty 0 and missing qty become 1 (JS qty||1 and C# SaleLine). No tax on this op. Negatives excluded.",
+  "line": [
+    { "id": "qty1-price1000-disc0", "qty": 1, "price": 1000, "disc": 0, "outQty": 1, "discAmt": 0, "total": 1000 },
+    { "id": "qty2-price1000-disc10", "qty": 2, "price": 1000, "disc": 10, "outQty": 2, "discAmt": 100, "total": 1800 },
+    { "id": "qty0-becomes-1", "qty": 0, "price": 500, "disc": 0, "outQty": 1, "discAmt": 0, "total": 500 },
+    { "id": "zero-price", "qty": 1, "price": 0, "disc": 10, "outQty": 1, "discAmt": 0, "total": 0 },
+    { "id": "decimal-qty", "qty": 2.5, "price": 100, "disc": 0, "outQty": 2.5, "discAmt": 0, "total": 250 },
+    { "id": "decimal-price", "qty": 3, "price": 100.5, "disc": 0, "outQty": 3, "discAmt": 0, "total": 302 },
+    { "id": "round-half-1.5", "qty": 1, "price": 15, "disc": 10, "outQty": 1, "discAmt": 2, "total": 13 },
+    { "id": "round-half-qty2", "qty": 2, "price": 15, "disc": 10, "outQty": 2, "discAmt": 2, "total": 26 },
+    { "id": "round-half-0.5", "qty": 1, "price": 5, "disc": 10, "outQty": 1, "discAmt": 1, "total": 4 },
+    { "id": "below-half", "qty": 1, "price": 7, "disc": 7, "outQty": 1, "discAmt": 0, "total": 7 },
+    { "id": "disc-100", "qty": 1, "price": 1000, "disc": 100, "outQty": 1, "discAmt": 1000, "total": 0 },
+    { "id": "decimal-price-disc", "qty": 1, "price": 1000.5, "disc": 10, "outQty": 1, "discAmt": 100, "total": 901 }
+  ]
+}

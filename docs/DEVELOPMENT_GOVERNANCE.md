@@ -276,6 +276,12 @@ WHY / WHAT / AFFECTED MODULES / RISK / ROLLBACK PLAN
 
 ## گزارش کار الزامی (بعد از هر Feature/Bugfix)
 
+گزارش کار **همیشه فایل Markdown** است، نه متن داخل چت.
+
+- مسیر: `deliveries/Reports/<NAME>.md`
+- وقتی کاربر «گزارش» می‌خواهد، مسیر همان فایل را بده؛ گزارش را در پاسخ بازنویسی نکن.
+- قالب `.docx` به‌جای گزارش کار جدید ساخته نمی‌شود مگر کاربر صریح بخواهد.
+
 1. Task
 2. Branch
 3. Baseline Version

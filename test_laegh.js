@@ -6280,7 +6280,7 @@ test('UI انبار ارتقا‌یافته: رزرو، برگشت، کارتک�
 });
 
 test('توابع موتور Inventory باید تعریف شده باشند', () => {
-  ['registerWarehouseKind','invNormalizeWarehouse','invStockSnapshot','invReserveOnItem','invReleaseReserveOnItem','invKardexFromMoves','invLowStockFromLists','invSearchCatalog','invStockValueFromLists','invDeadStockFromMoves','invConsumedInService','defIsInWarehouse','openKardexModal'].forEach(fn=>{
+  ['registerWarehouseKind','invNormalizeWarehouse','stockDataAvailable','invStockSnapshot','invReserveOnItem','invReleaseReserveOnItem','invKardexFromMoves','invLowStockFromLists','invSearchCatalog','invStockValueFromLists','invDeadStockFromMoves','invConsumedInService','defIsInWarehouse','openKardexModal'].forEach(fn=>{
     assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
   });
   assertContainsString(html, 'var InventoryEngine = {', 'شیء InventoryEngine پیدا نشد');
@@ -6296,6 +6296,7 @@ test('شبیه‌سازی: موجودی/رزرو/کارتکس/کم‌موجود�
     extractFunctionSource(html, '_sumByWh'),
     extractFunctionSource(html, 'registerWarehouseKind'),
     extractFunctionSource(html, 'invNormalizeWarehouse'),
+    extractFunctionSource(html, 'stockDataAvailable'),
     extractFunctionSource(html, 'invStockSnapshot'),
     extractFunctionSource(html, 'invReserveOnItem'),
     extractFunctionSource(html, 'invReleaseReserveOnItem'),
@@ -8041,6 +8042,7 @@ test('وضعیت SLA باید آستانه ۲۴/۴۸/۷۲ ساعت موجود ر
   const src = extractFunctionSource(html, 'calcSlaStatusFromAgeHours');
   assertTrue(!!src, 'تابع calcSlaStatusFromAgeHours پیدا نشد');
   const runner = new Function(src + `
+    function hasBusinessCore(){ return false; }
     return {
       n: calcSlaStatusFromAgeHours(10),
       w: calcSlaStatusFromAgeHours(24),
@@ -9071,9 +9073,10 @@ function loadInvoicePricingParityVectors() {
 function makeHtmlOnlyInvoiceLine() {
   const runSrc = extractFunctionSource(html, 'runBusinessCore');
   const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
   const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
-  assertTrue(!!runSrc && !!takeSrc && !!lineSrc, 'توابع calcInvoiceLine / takeBusinessCore پیدا نشد');
-  return new Function(runSrc + '\n' + takeSrc + '\n' + lineSrc + `
+  assertTrue(!!runSrc && !!takeSrc && !!hasSrc && !!lineSrc, 'توابع calcInvoiceLine / takeBusinessCore پیدا نشد');
+  return new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + `
     function getSirmanHostSync(){ return null; }
     return function(est, disc, finRaw){ return calcInvoiceLine(est, disc, finRaw); };
   `)();
@@ -9098,10 +9101,13 @@ test('مسیر جمع calcT بدون Host باید همان Totals جدول B1 �
   const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
   const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
   const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  const totSrc = extractFunctionSource(html, 'calcInvoiceTotals');
   const calcTSrc = extractFunctionSource(html, 'calcT');
   assertTrue(!!calcTSrc, 'calcT پیدا نشد');
-  assertContainsString(calcTSrc, 'tE+=est', 'calcT بدون Host باید برآورد را جمع بزند');
-  assertContainsString(calcTSrc, 'tD+=line.da', 'calcT بدون Host باید تخفیف خط را جمع بزند');
+  assertTrue(!!totSrc, 'calcInvoiceTotals پیدا نشد');
+  assertContainsString(totSrc, 'tE+=est', 'fallback جمع باید برآورد را جمع بزند');
+  assertContainsString(totSrc, 'tD+=line.da', 'fallback جمع باید تخفیف خط را جمع بزند');
+  assertContainsString(calcTSrc, 'calcInvoiceTotals', 'calcT باید جمع را از calcInvoiceTotals بخواهد');
   pack.totals.forEach(function(row) {
     const mockDoc = buildMockDocument();
     const n = row.lines.length;
@@ -9111,7 +9117,7 @@ test('مسیر جمع calcT بدون Host باید همان Totals جدول B1 �
       mockDoc.getElementById('d' + i + '_disc').value = String(src.disc);
       mockDoc.getElementById('d' + i + '_fin').value = String(src.finRaw);
     }
-    const run = new Function('document', 'devCnt', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + '\n' + calcTSrc + `
+    const run = new Function('document', 'devCnt', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + '\n' + totSrc + '\n' + calcTSrc + `
       function getSirmanHostSync(){ return null; }
       function fmt(n){ return String(n); }
       function ntf(){}
@@ -9142,6 +9148,777 @@ test('قفل B1 باید HTML-only و Host-wins قبلی را نگه دارد و
     return calcInvoiceLine(1000, 10, 9999);
   `)();
   assertEqual(exeCore.fin, 777, 'Host-wins باید باقی بماند');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B2 مالکیت invoice.line');
+
+function makeExeInvoiceLineHost(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: runImpl };
+    }
+    return function(est, disc, finRaw){ return calcInvoiceLine(est, disc, finRaw); };
+  `)(runImpl);
+}
+
+test('مسیر EXE باید RunBusiness("invoice.line") را با DTO است/تخفیف/finRaw صدا بزند و نتیجه Core را برگرداند', () => {
+  var calls = [];
+  const calc = makeExeInvoiceLineHost(function(name, json){
+    calls.push({name:name, payload: JSON.parse(json)});
+    return JSON.stringify({ok:true, result:{est:1000, disc:10, da:100, fin:777}});
+  });
+  const got = calc(1000, 10, 9999);
+  assertEqual(calls.length, 1, 'باید دقیقاً یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'invoice.line', 'نام عملیات باید invoice.line باشد');
+  assertEqual(calls[0].payload.est, 1000, 'est باید به Core برود');
+  assertEqual(calls[0].payload.disc, 10, 'disc باید به Core برود');
+  assertEqual(calls[0].payload.finRaw, 9999, 'finRaw باید به Core برود');
+  assertEqual(got.est, 1000, 'قرارداد est');
+  assertEqual(got.disc, 10, 'قرارداد disc');
+  assertEqual(got.da, 100, 'قرارداد da');
+  assertEqual(got.fin, 777, 'نتیجه Core باید برگردد نه فرمول JS');
+});
+
+test('مسیر HTML-only باید همان fallback JS را با بردار B1 نگه دارد', () => {
+  const calc = makeHtmlOnlyInvoiceLine();
+  const got = calc(1000, 10, 9999);
+  assertEqual(got.est, 1000, 'est');
+  assertEqual(got.disc, 10, 'disc');
+  assertEqual(got.da, 100, 'da');
+  assertEqual(got.fin, 900, 'fin HTML-only');
+  const src = extractFunctionSource(html, 'calcInvoiceLine');
+  assertContainsString(src, 'Math.round(est*disc/100)', 'fallback JS نباید حذف شود');
+  assertContainsString(src, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+});
+
+test('شکست Core روی EXE نباید فرمول JS را به‌جای InvoicePricing اجرا کند', () => {
+  const calc = makeExeInvoiceLineHost(function(){
+    return JSON.stringify({ok:false, error:'business-failed', message:'محاسبه انجام نشد'});
+  });
+  const got = calc(1000, 10, 9999);
+  assertTrue(got == null, 'اگر Host هست و Core رد کند نباید شیء خط JS برگردد');
+});
+
+test('calcInvoiceLine نباید persist بنویسد و calcT/getData نباید فرمول موازی EXE داشته باشند', () => {
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  const calcTSrc = extractFunctionSource(html, 'calcT');
+  const getDataSrc = extractFunctionSource(html, 'getData');
+  assertTrue(lineSrc.indexOf('localStorage') === -1, 'calcInvoiceLine نباید localStorage بنویسد');
+  assertTrue(lineSrc.indexOf('indexedDB') === -1 && lineSrc.indexOf('IndexedDB') === -1, 'calcInvoiceLine نباید IndexedDB بنویسد');
+  assertTrue(lineSrc.indexOf('persistCoreSnapshot') === -1, 'calcInvoiceLine نباید persistCoreSnapshot صدا بزند');
+  assertTrue(calcTSrc.indexOf('Math.round(est*disc') === -1, 'calcT نباید فرمول موازی خط فاکتور داشته باشد');
+  assertTrue(getDataSrc.indexOf('Math.round(est*disc') === -1, 'getData نباید فرمول موازی خط فاکتور داشته باشد');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B3 مالکیت invoice.totals');
+
+function makeHtmlOnlyInvoiceTotals() {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  const totSrc = extractFunctionSource(html, 'calcInvoiceTotals');
+  assertTrue(!!totSrc, 'calcInvoiceTotals پیدا نشد');
+  return new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + '\n' + totSrc + `
+    function getSirmanHostSync(){ return null; }
+    return function(lines){ return calcInvoiceTotals(lines); };
+  `)();
+}
+
+function makeExeInvoiceTotalsHost(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcInvoiceLine');
+  const totSrc = extractFunctionSource(html, 'calcInvoiceTotals');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + '\n' + totSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: runImpl };
+    }
+    return function(lines){ return calcInvoiceTotals(lines); };
+  `)(runImpl);
+}
+
+test('مسیر EXE باید RunBusiness("invoice.totals") را صدا بزند و DTO هسته را بدون بازنویسی JS برگرداند', () => {
+  var calls = [];
+  const calc = makeExeInvoiceTotalsHost(function(name, json){
+    calls.push({name:name, payload: JSON.parse(json)});
+    return JSON.stringify({ok:true, result:{tE:1, tD:2, tF:777777}});
+  });
+  const lines = [{est:1000, disc:10, finRaw:9999}, {est:1000, disc:0, finRaw:800}];
+  const got = calc(lines);
+  assertEqual(calls.length, 1, 'باید یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'invoice.totals', 'نام عملیات باید invoice.totals باشد');
+  assertEqual(calls[0].payload.lines.length, 2, 'خطوط باید به Core بروند');
+  assertEqual(got.tE, 1, 'tE هسته');
+  assertEqual(got.tD, 2, 'tD هسته');
+  assertEqual(got.tF, 777777, 'Host-wins: JS جمع ۱۷۰۰ را نباید بنویسد');
+});
+
+test('مسیر HTML-only باید fallback جمع JS را با بردارهای B1 اجرا کند', () => {
+  const calc = makeHtmlOnlyInvoiceTotals();
+  const pack = loadInvoicePricingParityVectors();
+  pack.totals.forEach(function(row){
+    const got = calc(row.lines);
+    assertEqual(got.tE, row.tE, row.id + ' tE');
+    assertEqual(got.tD, row.tD, row.id + ' tD');
+    assertEqual(got.tF, row.tF, row.id + ' tF');
+  });
+  const src = extractFunctionSource(html, 'calcInvoiceTotals');
+  assertContainsString(src, 'tE+=est', 'fallback JS جمع نباید حذف شود');
+  assertContainsString(src, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+});
+
+test('شکست Core روی EXE نباید فرمول جمع JS را به‌جای InvoicePricing.Totals اجرا کند', () => {
+  const calc = makeExeInvoiceTotalsHost(function(){
+    return JSON.stringify({ok:false, error:'business-failed', message:'محاسبه انجام نشد'});
+  });
+  const got = calc([{est:1000, disc:10, finRaw:9999}, {est:1000, disc:0, finRaw:800}]);
+  assertTrue(got == null, 'اگر Host هست و Core رد کند نباید {tE:2000,tF:1700} از JS برگردد');
+});
+
+test('calcInvoiceTotals نباید persist بنویسد و calcT/getData نباید reduce موازی EXE داشته باشند', () => {
+  const totSrc = extractFunctionSource(html, 'calcInvoiceTotals');
+  const calcTSrc = extractFunctionSource(html, 'calcT');
+  const getDataSrc = extractFunctionSource(html, 'getData');
+  assertTrue(totSrc.indexOf('localStorage') === -1, 'calcInvoiceTotals نباید localStorage بنویسد');
+  assertTrue(totSrc.indexOf('indexedDB') === -1, 'calcInvoiceTotals نباید IndexedDB بنویسد');
+  assertTrue(totSrc.indexOf('persistCoreSnapshot') === -1, 'calcInvoiceTotals نباید persistCoreSnapshot صدا بزند');
+  assertContainsString(calcTSrc, 'calcInvoiceTotals', 'calcT باید از calcInvoiceTotals استفاده کند');
+  assertContainsString(getDataSrc, 'calcInvoiceTotals', 'getData باید از calcInvoiceTotals استفاده کند');
+  assertTrue(getDataSrc.indexOf('s+r.fin') === -1, 'getData نباید جمع JS موازی داشته باشد');
+  assertTrue(calcTSrc.indexOf('tE+=est') === -1, 'calcT نباید جمع JS موازی داشته باشد');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B5 مالکیت calc.sla');
+
+function makeHtmlOnlySla() {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const slaSrc = extractFunctionSource(html, 'calcSlaStatusFromAgeHours');
+  return new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + slaSrc + `
+    function getSirmanHostSync(){ return null; }
+    return function(ageH){ return calcSlaStatusFromAgeHours(ageH); };
+  `)();
+}
+
+function makeExeSlaHost(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const slaSrc = extractFunctionSource(html, 'calcSlaStatusFromAgeHours');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + slaSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: runImpl };
+    }
+    return function(ageH){ return calcSlaStatusFromAgeHours(ageH); };
+  `)(runImpl);
+}
+
+test('مسیر EXE باید RunBusiness("calc.sla") را صدا بزند و نتیجه هسته را بدون فرمول JS برگرداند', () => {
+  var calls = [];
+  const calc = makeExeSlaHost(function(name, json){
+    calls.push({name:name, payload: JSON.parse(json)});
+    return JSON.stringify({ok:true, result:'core-distinctive-status'});
+  });
+  const got = calc(10);
+  assertEqual(calls.length, 1, 'باید یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'calc.sla', 'نام عملیات باید calc.sla باشد');
+  assertEqual(calls[0].payload.ageHours, 10, 'ageHours باید به Core برود');
+  assertEqual(got, 'core-distinctive-status', 'Host-wins نباید با normal بازنویسی شود');
+});
+
+test('مسیر HTML-only باید آستانه‌های موجود SLA را بدون Host اجرا کند', () => {
+  const calc = makeHtmlOnlySla();
+  assertEqual(calc(10), 'normal', '10 → normal');
+  assertEqual(calc(23.99), 'normal', 'parseInt(23.99) → 23 normal');
+  assertEqual(calc(24), 'warning', '24 → warning');
+  assertEqual(calc(47.99), 'warning', 'parseInt(47.99) → 47 warning');
+  assertEqual(calc(48), 'critical', '48 → critical');
+  assertEqual(calc(71.99), 'critical', 'parseInt(71.99) → 71 critical');
+  assertEqual(calc(72), 'overdue', '72 → overdue');
+  assertEqual(calc(73), 'overdue', '>72 → overdue');
+  const src = extractFunctionSource(html, 'calcSlaStatusFromAgeHours');
+  assertContainsString(src, "ageH<24)?'normal'", 'fallback JS نباید حذف شود');
+  assertContainsString(src, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+});
+
+test('شکست Core روی EXE نباید فرمول SLA جاوااسکریپت را اجرا کند', () => {
+  const calc = makeExeSlaHost(function(){
+    return JSON.stringify({ok:false, error:'business-failed', message:'محاسبه انجام نشد'});
+  });
+  const got = calc(10);
+  assertTrue(got == null, 'اگر Host هست و Core رد کند نباید normal از JS برگردد');
+});
+
+test('calc.sla نباید persist بنویسد و هشدار گارانتی null را اعلان نکند', () => {
+  const slaSrc = extractFunctionSource(html, 'calcSlaStatusFromAgeHours');
+  const alertSrc = extractFunctionSource(html, 'checkWarrantySlaAlerts');
+  assertTrue(slaSrc.indexOf('localStorage') === -1, 'calcSla نباید localStorage بنویسد');
+  assertTrue(slaSrc.indexOf('indexedDB') === -1, 'calcSla نباید IndexedDB بنویسد');
+  assertTrue(slaSrc.indexOf('svWars') === -1 && slaSrc.indexOf('persistCoreSnapshot') === -1, 'calcSla نباید ذخیره کند');
+  assertContainsString(alertSrc, '!slaKey', 'هشدار گارانتی نباید null را مثل وضعیت واقعی اعلان کند');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B6 مالکیت sale.line');
+
+function loadSaleLineParityVectors() {
+  const name = 'SaleLineParityVectors.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول بردار B6 پیدا نشد: ' + name);
+}
+
+function makeHtmlOnlySaleLine() {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcSaleLine');
+  assertTrue(!!runSrc && !!takeSrc && !!hasSrc && !!lineSrc, 'توابع calcSaleLine / takeBusinessCore پیدا نشد');
+  return new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + `
+    function getSirmanHostSync(){ return null; }
+    return function(qty, price, disc){ return calcSaleLine(qty, price, disc); };
+  `)();
+}
+
+function makeExeSaleLineHost(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcSaleLine');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: runImpl };
+    }
+    return function(qty, price, disc){ return calcSaleLine(qty, price, disc); };
+  `)(runImpl);
+}
+
+test('مسیر EXE باید RunBusiness("sale.line") را صدا بزند و نتیجه هسته را بدون فرمول JS برگرداند', () => {
+  var calls = [];
+  const calc = makeExeSaleLineHost(function(name, json){
+    calls.push({name:name, payload: JSON.parse(json)});
+    return JSON.stringify({ok:true, result:{qty:1, price:1000, disc:10, discAmt:777, total:888888}});
+  });
+  const got = calc(2, 1000, 10);
+  assertEqual(calls.length, 1, 'باید یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'sale.line', 'نام عملیات باید sale.line باشد');
+  assertEqual(calls[0].payload.qty, 2, 'qty باید به Core برود');
+  assertEqual(calls[0].payload.price, 1000, 'price باید به Core برود');
+  assertEqual(calls[0].payload.disc, 10, 'disc باید به Core برود');
+  assertEqual(got.total, 888888, 'Host-wins نباید با جمع JS بازنویسی شود');
+  assertEqual(got.discAmt, 777, 'Host-wins نباید discAmt جاوااسکریپت را نگه دارد');
+});
+
+test('مسیر HTML-only باید بردارهای موجود sale.line را بدون Host اجرا کند', () => {
+  const pack = loadSaleLineParityVectors();
+  const calc = makeHtmlOnlySaleLine();
+  pack.line.forEach(function(row) {
+    const got = calc(row.qty, row.price, row.disc);
+    assertEqual(got.discAmt, row.discAmt, row.id + ' discAmt');
+    assertEqual(got.total, row.total, row.id + ' total');
+    assertEqual(got.qty, row.outQty, row.id + ' qty');
+  });
+  const src = extractFunctionSource(html, 'calcSaleLine');
+  assertContainsString(src, 'Math.round(price * disc / 100)', 'fallback JS نباید حذف شود');
+  assertContainsString(src, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+});
+
+test('شکست Core روی EXE نباید فرمول sale.line جاوااسکریپت را اجرا کند', () => {
+  const calc = makeExeSaleLineHost(function(){
+    return JSON.stringify({ok:false, error:'business-failed', message:'محاسبه انجام نشد'});
+  });
+  const got = calc(2, 1000, 10);
+  assertTrue(got == null, 'اگر Host هست و Core رد کند نباید total=1800 از JS برگردد');
+});
+
+test('sale.line نباید persist بنویسد و calcSaleTotal نباید در B6 مهاجرت شود', () => {
+  const lineSrc = extractFunctionSource(html, 'calcSaleLine');
+  const getSrc = extractFunctionSource(html, 'getSaleData');
+  const printSrc = extractFunctionSource(html, 'printSaleDoc');
+  const totSrc = extractFunctionSource(html, 'calcSaleTotal');
+  assertTrue(lineSrc.indexOf('localStorage') === -1, 'calcSaleLine نباید localStorage بنویسد');
+  assertTrue(lineSrc.indexOf('indexedDB') === -1, 'calcSaleLine نباید IndexedDB بنویسد');
+  assertTrue(lineSrc.indexOf('svSales') === -1 && lineSrc.indexOf('persistCoreSnapshot') === -1, 'calcSaleLine نباید ذخیره کند');
+  assertContainsString(getSrc, 'calcSaleLine', 'getSaleData باید از calcSaleLine استفاده کند');
+  assertContainsString(printSrc, 'calcSaleLine', 'printSaleDoc باید محاسبه خط را از calcSaleLine بخواهد');
+  assertTrue(getSrc.indexOf("takeBusinessCore('sale.line'") === -1, 'getSaleData نباید IIFE موازی sale.line داشته باشد');
+  assertContainsString(totSrc, 'sale.total', 'جمع فروش هنوز sale.total است نه مهاجرت B6');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B8 مالکیت sale.total');
+
+function loadSaleTotalParityVectors() {
+  const name = 'SaleTotalParityVectors.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول بردار B8 پیدا نشد: ' + name);
+}
+
+function makeSaleTotalHarness(hostFactory, items) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const lineSrc = extractFunctionSource(html, 'calcSaleLine');
+  const totSrc = extractFunctionSource(html, 'calcSaleTotal');
+  assertTrue(!!runSrc && !!takeSrc && !!hasSrc && !!lineSrc && !!totSrc, 'توابع calcSaleTotal / calcSaleLine / takeBusinessCore پیدا نشد');
+  return new Function('hostFactory', 'items', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + lineSrc + '\n' + totSrc + `
+    var saleItems = items.slice();
+    var ntfCalls = [];
+    function ntf(msg, kind){ ntfCalls.push({msg:msg, kind:kind}); }
+    var lbl = { textContent: '' };
+    var cnt = { textContent: '' };
+    var document = {
+      querySelectorAll: function(){ return []; },
+      getElementById: function(id){
+        if(id==='sale-total-lbl') return lbl;
+        if(id==='sale-item-count') return cnt;
+        return null;
+      }
+    };
+    function getSirmanHostSync(){ return hostFactory(); }
+    var total = calcSaleTotal();
+    return { total: total, ntfCalls: ntfCalls, label: lbl.textContent, count: String(cnt.textContent), saleItems: saleItems };
+  `)(hostFactory, items);
+}
+
+test('مسیر EXE باید RunBusiness("sale.total") را با items صدا بزند و نتیجه هسته را بدون جمع JS برگرداند', () => {
+  var calls = [];
+  const items = [{qty:2, price:1000, disc:10}];
+  const got = makeSaleTotalHarness(function(){
+    return { RunBusiness: function(name, json){
+      calls.push({name:name, payload: JSON.parse(json)});
+      return JSON.stringify({ok:true, result:777777});
+    }};
+  }, items);
+  assertEqual(calls.length, 1, 'باید یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'sale.total', 'نام عملیات باید sale.total باشد');
+  assertTrue(Array.isArray(calls[0].payload.items), 'payload باید items داشته باشد');
+  assertEqual(calls[0].payload.items.length, 1, 'باید یک ردیف به Core برود');
+  assertEqual(calls[0].payload.items[0].qty, 2, 'qty باید به Core برود');
+  assertEqual(calls[0].payload.items[0].price, 1000, 'price باید به Core برود');
+  assertEqual(calls[0].payload.items[0].disc, 10, 'disc باید به Core برود');
+  assertEqual(got.total, 777777, 'Host-wins نباید جمع JS=1800 را برگرداند');
+  assertTrue(got.total !== 1800, 'نتیجه متمایز هسته نباید با جمع جاوااسکریپت یکی باشد');
+});
+
+test('مسیر HTML-only باید بردارهای sale.total را بدون Host اجرا کند', () => {
+  const pack = loadSaleTotalParityVectors();
+  pack.total.forEach(function(row) {
+    const got = makeSaleTotalHarness(function(){ return null; }, row.items);
+    assertEqual(got.total, row.expected, row.id + ' total');
+  });
+  const src = extractFunctionSource(html, 'calcSaleTotal');
+  assertContainsString(src, 'sale.total', 'جمع فروش باید از هسته sale.total بیاید');
+  assertContainsString(src, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+  assertContainsString(src, 'calcSaleLine', 'fallback HTML-only باید از calcSaleLine جمع بزند');
+  assertTrue(src.indexOf('Math.round(item.price * item.disc / 100)') === -1, 'فرمول خط موازی نباید در calcSaleTotal بماند');
+});
+
+test('شکست Core روی EXE نباید reduce جاوااسکریپت sale.total را اجرا کند', () => {
+  var calls = [];
+  const items = [{qty:2, price:1000, disc:10}];
+  const got = makeSaleTotalHarness(function(){
+    return { RunBusiness: function(name, json){
+      calls.push({name:name, payload: JSON.parse(json)});
+      return JSON.stringify({ok:false, error:'business-failed', message:'محاسبه فروش انجام نشد'});
+    }};
+  }, items);
+  assertEqual(calls.length, 1, 'باید Host صدا شود');
+  assertEqual(calls[0].name, 'sale.total', 'فقط sale.total باید صدا شود نه sale.line به‌عنوان fallback');
+  assertEqual(got.total, 0, 'اگر Host هست و Core رد کند باید 0 بماند نه جمع JS=1800');
+  assertTrue(got.total !== 1800, 'fail-closed نباید reduce جاوااسکریپت را اجرا کند');
+});
+
+test('sale.total نباید persist بنویسد', () => {
+  const totSrc = extractFunctionSource(html, 'calcSaleTotal');
+  assertTrue(totSrc.indexOf('localStorage') === -1, 'calcSaleTotal نباید localStorage بنویسد');
+  assertTrue(totSrc.indexOf('indexedDB') === -1, 'calcSaleTotal نباید IndexedDB بنویسد');
+  assertTrue(totSrc.indexOf('svSales') === -1, 'calcSaleTotal نباید svSales صدا بزند');
+  assertTrue(totSrc.indexOf('persistCoreSnapshot') === -1, 'calcSaleTotal نباید persistCoreSnapshot صدا بزند');
+  assertTrue(totSrc.indexOf('migrateBackup') === -1, 'calcSaleTotal نباید backup بنویسد');
+  assertTrue(totSrc.indexOf('inventory.consume') === -1, 'calcSaleTotal نباید مصرف انبار باشد');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B10 قفل برابری calc.warrantyEndDate');
+
+function loadWarrantyEndDateParityVectors() {
+  const name = 'WarrantyEndDateParityVectors.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول بردار B10 پیدا نشد: ' + name);
+}
+
+function makeHtmlOnlyWarrantyEndDate() {
+  const addSrc = extractFunctionSource(html, 'addJalaliMonths');
+  const endSrc = extractFunctionSource(html, 'calcWarrantyEndDate');
+  assertTrue(!!addSrc && !!endSrc, 'توابع addJalaliMonths / calcWarrantyEndDate پیدا نشد');
+  return new Function(addSrc + '\n' + endSrc + `
+    return {
+      add: function(date, months){ return addJalaliMonths(date, months); },
+      end: function(date, months){ return calcWarrantyEndDate(date, months); }
+    };
+  `)();
+}
+
+test('مسیر HTML-only باید بردارهای قفل‌شده calc.warrantyEndDate را بدون Host اجرا کند', () => {
+  const pack = loadWarrantyEndDateParityVectors();
+  const calc = makeHtmlOnlyWarrantyEndDate();
+  pack.date.forEach(function(row) {
+    const addGot = calc.add(row.date, row.months);
+    const endGot = calc.end(row.date, row.months);
+    assertEqual(addGot, row.expected, row.id + ' addJalaliMonths');
+    assertEqual(endGot, row.expected, row.id + ' calcWarrantyEndDate');
+  });
+  const endSrc = extractFunctionSource(html, 'calcWarrantyEndDate');
+  assertContainsString(endSrc, 'calc.warrantyEndDate', 'عملیات هسته باید calc.warrantyEndDate بماند');
+  assertContainsString(endSrc, 'addJalaliMonths', 'fallback JS باید بماند');
+});
+
+test('calc.warrantyEndDate و addJalaliMonths نباید persist بنویسند', () => {
+  const endSrc = extractFunctionSource(html, 'calcWarrantyEndDate');
+  const addSrc = extractFunctionSource(html, 'addJalaliMonths');
+  [endSrc, addSrc].forEach(function(src) {
+    assertTrue(src.indexOf('localStorage') === -1, 'نباید localStorage بنویسد');
+    assertTrue(src.indexOf('indexedDB') === -1, 'نباید IndexedDB بنویسد');
+    assertTrue(src.indexOf('svWars') === -1, 'نباید svWars صدا بزند');
+    assertTrue(src.indexOf('persistCoreSnapshot') === -1, 'نباید persistCoreSnapshot صدا بزند');
+    assertTrue(src.indexOf('warranty.save') === -1, 'نباید warranty.save باشد');
+  });
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B11 مالکیت calc.warrantyEndDate');
+
+function makeHtmlOnlyWarrantyEndDateOwned() {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const addSrc = extractFunctionSource(html, 'addJalaliMonths');
+  const endSrc = extractFunctionSource(html, 'calcWarrantyEndDate');
+  assertTrue(!!runSrc && !!takeSrc && !!hasSrc && !!addSrc && !!endSrc, 'توابع calcWarrantyEndDate / Host پیدا نشد');
+  return new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + addSrc + '\n' + endSrc + `
+    function getSirmanHostSync(){ return null; }
+    return function(date, months){ return calcWarrantyEndDate(date, months); };
+  `)();
+}
+
+function makeExeWarrantyEndDateHost(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const addSrc = extractFunctionSource(html, 'addJalaliMonths');
+  const endSrc = extractFunctionSource(html, 'calcWarrantyEndDate');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + addSrc + '\n' + endSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: runImpl };
+    }
+    return function(date, months){ return calcWarrantyEndDate(date, months); };
+  `)(runImpl);
+}
+
+test('مسیر EXE باید RunBusiness("calc.warrantyEndDate") را صدا بزند و نتیجه هسته را بدون addJalaliMonths برگرداند', () => {
+  var calls = [];
+  const calc = makeExeWarrantyEndDateHost(function(name, json){
+    calls.push({name:name, payload: JSON.parse(json)});
+    return JSON.stringify({ok:true, result:'9999/09/09'});
+  });
+  const got = calc('1405/05/05', 24);
+  assertEqual(calls.length, 1, 'باید یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'calc.warrantyEndDate', 'نام عملیات باید calc.warrantyEndDate باشد');
+  assertEqual(calls[0].payload.purchaseDate, '1405/05/05', 'purchaseDate باید به Core برود');
+  assertEqual(calls[0].payload.periodMonths, 24, 'periodMonths باید به Core برود');
+  assertEqual(got, '9999/09/09', 'Host-wins نباید 1407/05/05 جاوااسکریپت را برگرداند');
+  assertTrue(got !== '1407/05/05', 'نتیجه متمایز هسته نباید با fallback یکی باشد');
+});
+
+test('مسیر HTML-only باید بردارهای B10 را بعد از مهاجرت مالکیت هم اجرا کند', () => {
+  const pack = loadWarrantyEndDateParityVectors();
+  const calc = makeHtmlOnlyWarrantyEndDateOwned();
+  pack.date.forEach(function(row) {
+    assertEqual(calc(row.date, row.months), row.expected, row.id);
+  });
+  const endSrc = extractFunctionSource(html, 'calcWarrantyEndDate');
+  const addSrc = extractFunctionSource(html, 'addJalaliMonths');
+  assertContainsString(endSrc, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+  assertContainsString(endSrc, 'addJalaliMonths', 'fallback JS نباید حذف شود');
+  assertContainsString(addSrc, 'm += months', 'حساب ماه جلالی fallback نباید عوض شود');
+  assertContainsString(addSrc, '(m<=6)?31:(m<=11?30:29)', 'کلمپ اسفند fallback نباید عوض شود');
+});
+
+test('شکست Core روی EXE نباید addJalaliMonths را اجرا کند', () => {
+  const calc = makeExeWarrantyEndDateHost(function(){
+    return JSON.stringify({ok:false, error:'business-failed', message:'محاسبه انجام نشد'});
+  });
+  const got = calc('1405/05/05', 24);
+  assertTrue(got == null, 'اگر Host هست و Core رد کند نباید 1407/05/05 از JS برگردد');
+});
+
+test('calcWarrExpFromBuy نباید رشته null را در تاریخ انقضا بنویسد', () => {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const addSrc = extractFunctionSource(html, 'addJalaliMonths');
+  const endSrc = extractFunctionSource(html, 'calcWarrantyEndDate');
+  const buySrc = extractFunctionSource(html, 'calcWarrExpFromBuy');
+  const got = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + addSrc + '\n' + endSrc + '\n' + buySrc + `
+    var store = {
+      wd1_buy: { value: '1405/05/05' },
+      wd1_wmonths: { value: '24' },
+      wd1_wexp: { value: 'KEEP' }
+    };
+    var document = { getElementById: function(id){ return store[id] || null; } };
+    function getSirmanHostSync(){
+      return { RunBusiness: function(){ return JSON.stringify({ok:false, error:'business-failed'}); } };
+    }
+    calcWarrExpFromBuy(1);
+    return store.wd1_wexp.value;
+  `)();
+  assertEqual(got, 'KEEP', 'شکست Core نباید value را null یا تاریخ JS کند');
+  assertTrue(got !== 'null', 'نباید رشته null در فیلد انقضا نوشته شود');
+});
+
+test('calcWarrExpFromBuy خودش takeBusinessCore صدا نمی‌زند — DRY از طریق calcWarrantyEndDate', () => {
+  const src = extractFunctionSource(html, 'calcWarrExpFromBuy');
+  if (!src) throw new Error('calcWarrExpFromBuy not found');
+  if (src.includes('takeBusinessCore')) throw new Error('calcWarrExpFromBuy must not call takeBusinessCore; use calcWarrantyEndDate');
+  assertContainsString(src, 'calcWarrantyEndDate(', 'calcWarrExpFromBuy must call calcWarrantyEndDate');
+});
+
+test('calcWarrantyEndDate نباید persist بنویسد', () => {
+  const endSrc = extractFunctionSource(html, 'calcWarrantyEndDate');
+  const buySrc = extractFunctionSource(html, 'calcWarrExpFromBuy');
+  [endSrc, buySrc].forEach(function(src) {
+    assertTrue(src.indexOf('localStorage') === -1, 'نباید localStorage بنویسد');
+    assertTrue(src.indexOf('indexedDB') === -1, 'نباید IndexedDB بنویسد');
+    assertTrue(src.indexOf('svWars') === -1, 'نباید svWars صدا بزند');
+    assertTrue(src.indexOf('persistCoreSnapshot') === -1, 'نباید persistCoreSnapshot صدا بزند');
+    assertTrue(src.indexOf('warranty.save') === -1, 'نباید warranty.save باشد');
+  });
+});
+
+test('B11 نباید save/close/delete گارانتی را عوض کند', () => {
+  const saveSrc = extractFunctionSource(html, 'saveWar');
+  const closeSrc = extractFunctionSource(html, 'closeWar');
+  const endSrc = extractFunctionSource(html, 'calcWarrantyEndDate');
+  assertContainsString(saveSrc, "warranty.save", 'saveWar باید warranty.save بماند');
+  assertContainsString(closeSrc, "warranty.close", 'closeWar باید warranty.close بماند');
+  assertContainsString(html, "takeBusinessCore('warranty.delete'", 'حذف گارانتی باید warranty.delete بماند');
+  assertTrue(endSrc.indexOf('warranty.save') === -1, 'calcWarrantyEndDate نباید save باشد');
+  assertTrue(endSrc.indexOf('warranty.close') === -1, 'calcWarrantyEndDate نباید close باشد');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B13 قفل برابری rules.suggestParts');
+
+function loadSuggestPartsParityVectors() {
+  const name = 'SuggestPartsParityVectors.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول بردار B13 پیدا نشد: ' + name);
+}
+
+function makeHtmlOnlySuggestParts() {
+  const suggestSrc = extractFunctionSource(html, 'suggestPartsForCase');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  assertTrue(!!suggestSrc && !!snapSrc && !!sumSrc, 'توابع suggestPartsForCase / invStockSnapshot / _sumByWh پیدا نشد');
+  return new Function((availSrc || '') + '\n' + sumSrc + '\n' + snapSrc + '\n' + suggestSrc + `
+    function hasBusinessCore(){ return false; }
+    function takeBusinessCore(){ return null; }
+    return function(opts){ return suggestPartsForCase(opts); };
+  `)();
+}
+
+function slimSuggestHit(h) {
+  return {
+    code: String(h.code || ''),
+    name: String(h.name || ''),
+    qty: Number(h.qty),
+    explain: String(h.explain || '')
+  };
+}
+
+test('مسیر HTML-only باید بردارهای قفل‌شده rules.suggestParts را بدون Host اجرا کند', () => {
+  const pack = loadSuggestPartsParityVectors();
+  const suggest = makeHtmlOnlySuggestParts();
+  pack.cases.forEach(function(row) {
+    const parts = Object.prototype.hasOwnProperty.call(row, 'parts') ? row.parts : pack.catalog;
+    const got = (suggest({parts: parts, prodCode: row.prodCode, model: row.model, problem: row.problem}) || []).map(slimSuggestHit);
+    const expected = (row.expected || []).map(slimSuggestHit);
+    assertEqual(got.length, expected.length, row.id + ' length');
+    expected.forEach(function(exp, i) {
+      assertEqual(got[i].code, exp.code, row.id + ' [' + i + '] code');
+      assertEqual(got[i].name, exp.name, row.id + ' [' + i + '] name');
+      assertEqual(got[i].qty, exp.qty, row.id + ' [' + i + '] qty');
+      assertEqual(got[i].explain, exp.explain, row.id + ' [' + i + '] explain');
+    });
+  });
+  const src = extractFunctionSource(html, 'suggestPartsForCase');
+  assertContainsString(src, 'rules.suggestParts', 'عملیات هسته باید rules.suggestParts بماند');
+  assertContainsString(src, 'catalog.forEach', 'fallback JS ranking باید بماند');
+  assertContainsString(src, 'invStockSnapshot', 'fallback باید موجودی را از invStockSnapshot بخواند');
+});
+
+test('rules.suggestParts نباید persist یا جهش انبار بنویسد و مالکیت B13 مهاجرت نشده باشد', () => {
+  const src = extractFunctionSource(html, 'suggestPartsForCase');
+  assertTrue(src.indexOf('localStorage') === -1, 'نباید localStorage بنویسد');
+  assertTrue(src.indexOf('indexedDB') === -1, 'نباید IndexedDB بنویسد');
+  assertTrue(src.indexOf('svWars') === -1, 'نباید svWars صدا بزند');
+  assertTrue(src.indexOf('persistCoreSnapshot') === -1, 'نباید persistCoreSnapshot صدا بزند');
+  assertTrue(src.indexOf('warranty.save') === -1, 'نباید warranty.save باشد');
+  assertTrue(src.indexOf('inventory.reserve') === -1, 'نباید inventory.reserve باشد');
+  assertTrue(src.indexOf('inventory.consume') === -1, 'نباید inventory.consume باشد');
+  assertContainsString(src, 'if(Array.isArray(core)) return core', 'آرایه هسته باید همچنان برگردد');
+  assertTrue(src.indexOf('return [];') === -1 || src.indexOf('catalog.forEach') >= 0, 'fallback ranking باید بماند');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B14 مالکیت rules.suggestParts');
+
+function makeExeSuggestPartsHost(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const suggestSrc = extractFunctionSource(html, 'suggestPartsForCase');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  assertTrue(!!runSrc && !!takeSrc && !!hasSrc && !!suggestSrc, 'توابع suggestPartsForCase / Host پیدا نشد');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + (availSrc || '') + '\n' + (sumSrc || '') + '\n' + (snapSrc || '') + '\n' + suggestSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: runImpl };
+    }
+    return function(opts){ return suggestPartsForCase(opts); };
+  `)(runImpl);
+}
+
+test('مسیر EXE باید RunBusiness("rules.suggestParts") را صدا بزند و آرایه هسته را بدون ranking جاوااسکریپت برگرداند', () => {
+  var calls = [];
+  const suggest = makeExeSuggestPartsHost(function(name, json){
+    calls.push({name:name, payload: JSON.parse(json)});
+    return JSON.stringify({ok:true, result:[{code:'CORE-ONLY', name:'from-core', qty:99, explain:'from-core'}]});
+  });
+  const catalog = [
+    {code:'P-HEAT', name:'هیتر', prodCode:'402003', cat:'گرمایش', qty:10, reserved:4}
+  ];
+  const got = suggest({parts:catalog, prodCode:'402003', model:'', problem:''});
+  assertEqual(calls.length, 1, 'باید یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'rules.suggestParts', 'نام عملیات باید rules.suggestParts باشد');
+  assertEqual(calls[0].payload.prodCode, '402003', 'prodCode باید به Core برود');
+  assertTrue(Array.isArray(got) && got.length === 1, 'باید آرایه هسته برگردد');
+  assertEqual(got[0].code, 'CORE-ONLY', 'Host-wins نباید P-HEAT جاوااسکریپت را برگرداند');
+  assertTrue(got[0].code !== 'P-HEAT', 'نتیجه متمایز هسته نباید با fallback یکی باشد');
+});
+
+test('مسیر HTML-only باید بردارهای B13 را بعد از مهاجرت مالکیت هم اجرا کند', () => {
+  const pack = loadSuggestPartsParityVectors();
+  const suggest = makeHtmlOnlySuggestParts();
+  pack.cases.forEach(function(row) {
+    const parts = Object.prototype.hasOwnProperty.call(row, 'parts') ? row.parts : pack.catalog;
+    const got = (suggest({parts: parts, prodCode: row.prodCode, model: row.model, problem: row.problem}) || []).map(slimSuggestHit);
+    const expected = (row.expected || []).map(slimSuggestHit);
+    assertEqual(got.length, expected.length, row.id + ' length');
+    expected.forEach(function(exp, i) {
+      assertEqual(got[i].code, exp.code, row.id + ' [' + i + '] code');
+      assertEqual(got[i].qty, exp.qty, row.id + ' [' + i + '] qty');
+      assertEqual(got[i].explain, exp.explain, row.id + ' [' + i + '] explain');
+    });
+  });
+  const src = extractFunctionSource(html, 'suggestPartsForCase');
+  assertContainsString(src, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+  assertContainsString(src, 'catalog.forEach', 'fallback JS ranking نباید حذف شود');
+  assertContainsString(src, 'invStockSnapshot', 'حساب موجودی fallback نباید عوض شود');
+  assertContainsString(src, "why.push('چون کالای مرتبط همین مدل است')", 'متن دلیل fallback نباید عوض شود');
+});
+
+test('شکست Core روی EXE نباید ranking جاوااسکریپت را اجرا کند', () => {
+  const catalog = [
+    {code:'P-HEAT', name:'هیتر', prodCode:'402003', cat:'گرمایش', qty:10, reserved:4}
+  ];
+  const failed = makeExeSuggestPartsHost(function(){
+    return JSON.stringify({ok:false, error:'business-failed', message:'محاسبه انجام نشد'});
+  })({parts:catalog, prodCode:'402003', model:'', problem:''});
+  assertTrue(failed == null, 'ok:false نباید P-HEAT از JS برگردد');
+  const invalid = makeExeSuggestPartsHost(function(){
+    return JSON.stringify({ok:true, result:{code:'P-HEAT'}});
+  })({parts:catalog, prodCode:'402003', model:'', problem:''});
+  assertTrue(invalid == null, 'نتیجه غیرآرایه نباید ranking JS را اجرا کند');
+});
+
+test('applySuggestedWarParts نباید با null هسته قطعه JS به درخواست اضافه کند', () => {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const suggestSrc = extractFunctionSource(html, 'suggestPartsForCase');
+  const applySrc = extractFunctionSource(html, 'applySuggestedWarParts');
+  const got = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + suggestSrc + '\n' + applySrc + `
+    var notes = [];
+    function ntf(msg){ notes.push(String(msg||'')); }
+    var parts = [{code:'P-HEAT', name:'هیتر', prodCode:'402003', cat:'گرمایش', qty:10, reserved:4}];
+    function getWarSuggestContext(){ return {prodCode:'402003', model:'', problem:''}; }
+    function renderWarPartReqs(){}
+    var window = { _waParts: [] };
+    function getSirmanHostSync(){
+      return { RunBusiness: function(){ return JSON.stringify({ok:false, error:'business-failed'}); } };
+    }
+    applySuggestedWarParts('agency');
+    return {len: window._waParts.length, notes: notes.join('|')};
+  `)();
+  assertEqual(got.len, 0, 'شکست Core نباید P-HEAT را به _waParts اضافه کند');
+  assertTrue(got.notes.indexOf('null') === -1, 'نباید رشته null در اعلان باشد');
+});
+
+test('B14 نباید persist / جهش انبار / save گارانتی را عوض کند', () => {
+  const src = extractFunctionSource(html, 'suggestPartsForCase');
+  const applySrc = extractFunctionSource(html, 'applySuggestedWarParts');
+  const saveSrc = extractFunctionSource(html, 'saveWar');
+  [src, applySrc].forEach(function(s) {
+    assertTrue(s.indexOf('localStorage') === -1, 'نباید localStorage بنویسد');
+    assertTrue(s.indexOf('indexedDB') === -1, 'نباید IndexedDB بنویسد');
+    assertTrue(s.indexOf('inventory.reserve') === -1, 'نباید inventory.reserve باشد');
+    assertTrue(s.indexOf('inventory.consume') === -1, 'نباید inventory.consume باشد');
+    assertTrue(s.indexOf('inventory.release') === -1, 'نباید inventory.release باشد');
+    assertTrue(s.indexOf('warranty.save') === -1, 'نباید warranty.save باشد');
+    assertTrue(s.indexOf('warranty.close') === -1, 'نباید warranty.close باشد');
+    assertTrue(s.indexOf('warranty.delete') === -1, 'نباید warranty.delete باشد');
+  });
+  assertContainsString(saveSrc, "warranty.save", 'saveWar باید warranty.save بماند');
+  assertContainsString(html, "takeBusinessCore('warranty.close'", 'close باید warranty.close بماند');
+  assertContainsString(html, "takeBusinessCore('warranty.delete'", 'حذف باید warranty.delete بماند');
+  assertContainsString(src, 'return null', 'شکست Core باید fail-closed null باشد');
 });
 
 test('رزرو در exe فقط Writer هسته باشد و بدون Host همان جهش JS بماند', () => {
@@ -9177,12 +9954,900 @@ test('رزرو در exe فقط Writer هسته باشد و بدون Host هما�
 });
 
 console.log('');
+console.log('📋 گروه: فاز ۳ B16 قفل برابری inventory.stock');
+
+function loadInventoryStockParityVectors() {
+  const name = 'InventoryStockParityVectors.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول بردار B16 پیدا نشد: ' + name);
+}
+
+function makeHtmlOnlyInvStockSnapshot() {
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  assertTrue(!!snapSrc && !!sumSrc, 'توابع invStockSnapshot / _sumByWh پیدا نشد');
+  return new Function((availSrc || '') + '\n' + sumSrc + '\n' + snapSrc + `
+    function hasBusinessCore(){ return false; }
+    function takeBusinessCore(){ return null; }
+    return function(item, whId){ return invStockSnapshot(item, whId); };
+  `)();
+}
+
+function slimStockSnap(s) {
+  s = s || {};
+  return {
+    qty: Number(s.qty),
+    reserved: Number(s.reserved),
+    available: Number(s.available),
+    min: Number(s.min),
+    reorder: Number(s.reorder),
+    price: Number(s.price)
+  };
+}
+
+test('مسیر HTML-only باید بردارهای قفل‌شده inventory.stock را بدون Host اجرا کند', () => {
+  const pack = loadInventoryStockParityVectors();
+  const snap = makeHtmlOnlyInvStockSnapshot();
+  pack.cases.forEach(function(row) {
+    const before = row.item == null ? null : JSON.stringify(row.item);
+    const got = slimStockSnap(snap(row.item, row.whId));
+    const expected = slimStockSnap(row.expected);
+    ['qty','reserved','available','min','reorder','price'].forEach(function(k) {
+      assertEqual(got[k], expected[k], row.id + ' ' + k);
+    });
+    if (before != null) {
+      assertEqual(JSON.stringify(row.item), before, row.id + ' must not mutate item');
+    }
+  });
+  const src = extractFunctionSource(html, 'invStockSnapshot');
+  assertContainsString(src, "takeBusinessCore('inventory.stock'", 'عملیات هسته باید inventory.stock بماند');
+  assertContainsString(src, 'available:Math.max(0, qty-reserved)', 'فرمول available نباید عوض شود');
+});
+
+test('inventory.stock نباید persist یا جهش انبار بنویسد و مالکیت B16 مهاجرت نشده باشد', () => {
+  const src = extractFunctionSource(html, 'invStockSnapshot');
+  assertTrue(src.indexOf('localStorage') === -1, 'نباید localStorage بنویسد');
+  assertTrue(src.indexOf('indexedDB') === -1, 'نباید IndexedDB بنویسد');
+  assertTrue(src.indexOf('persistCoreSnapshot') === -1, 'نباید persistCoreSnapshot صدا بزند');
+  assertTrue(src.indexOf('inventory.reserve') === -1, 'نباید inventory.reserve باشد');
+  assertTrue(src.indexOf('inventory.release') === -1, 'نباید inventory.release باشد');
+  assertTrue(src.indexOf('inventory.consume') === -1, 'نباید inventory.consume باشد');
+  assertTrue(src.indexOf('inventory.addStock') === -1, 'نباید inventory.addStock باشد');
+  assertTrue(src.indexOf('inventory.applyWarehouseDoc') === -1, 'نباید applyWarehouseDoc باشد');
+  assertTrue(src.indexOf('invoice.close') === -1, 'نباید invoice.close باشد');
+  assertTrue(src.indexOf('warranty.close') === -1, 'نباید warranty.close باشد');
+  assertContainsString(src, 'hasBusinessCore', 'B18 مالکیت EXE باید صریح باشد');
+  assertContainsString(src, 'INVENTORY_UNAVAILABLE', 'شکست هسته باید قرارداد B17 باشد');
+});
+
+test('شکست Host در inventory.stock هنوز snapshot جاوااسکریپت را اجرا می‌کند (fail-open فعلی)', () => {
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  const got = new Function(sumSrc + '\n' + snapSrc + `
+    function takeBusinessCore(){ return null; }
+    return invStockSnapshot({qty:10, reserved:4, min:2, reorder:3, price:1000}, '');
+  `)();
+  assertEqual(got.available, 6, 'Core null هنوز باید available جاوااسکریپت را بدهد');
+  assertEqual(got.qty, 10, 'Core null هنوز باید qty جاوااسکریپت را بدهد');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B17 قرارداد fail-closed امن inventory.stock');
+
+function loadInventoryStockFailClosedContract() {
+  const name = 'InventoryStockFailClosedContract.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('قرارداد B17 پیدا نشد: ' + name);
+}
+
+function stockDataAvailable(snap) {
+  return !!(snap && typeof snap === 'object' && snap.ok !== false && typeof snap.qty === 'number' && isFinite(snap.qty));
+}
+
+function inventoryUnavailable() {
+  const pack = loadInventoryStockFailClosedContract();
+  return { ok: pack.failure.ok, reason: pack.failure.reason };
+}
+
+test('قرارداد موفقیت باید داده موجودی واقعی باشد از جمله موجودی صفر', () => {
+  const pack = loadInventoryStockParityVectors();
+  const snap = makeHtmlOnlyInvStockSnapshot();
+  pack.cases.forEach(function(row) {
+    const got = snap(row.item, row.whId);
+    assertTrue(stockDataAvailable(got), row.id + ' باید stockDataAvailable باشد');
+    assertEqual(got.ok === false, false, row.id + ' نباید ok:false باشد');
+  });
+  const zeroSnap = snap({qty:0, reserved:0, min:0, price:0}, '');
+  assertTrue(stockDataAvailable(zeroSnap), 'موجودی صفر داده است نه شکست');
+  assertEqual(zeroSnap.qty, 0, 'qty صفر باید عدد صفر باشد');
+  assertEqual(zeroSnap.available, 0, 'available صفر باید عدد صفر باشد');
+});
+
+test('قرارداد شکست نباید موجودی صفر جعلی بسازد', () => {
+  const fail = inventoryUnavailable();
+  assertEqual(fail.ok, false, 'ok باید false باشد');
+  assertEqual(fail.reason, 'INVENTORY_UNAVAILABLE', 'reason باید INVENTORY_UNAVAILABLE باشد');
+  assertEqual(stockDataAvailable(fail), false, 'شکست نباید stockDataAvailable باشد');
+  assertEqual(typeof fail.qty, 'undefined', 'qty نباید عدد باشد');
+  assertEqual(typeof fail.reserved, 'undefined', 'reserved نباید عدد باشد');
+  assertEqual(typeof fail.available, 'undefined', 'available نباید عدد باشد');
+  assertTrue(fail.qty !== 0, 'شکست نباید qty=0 باشد');
+  assertTrue(fail.available !== 0, 'شکست نباید available=0 باشد');
+});
+
+test('خواندن فیلدهای UI از شیء شکست نباید استثنا بدهد و نباید عدد تفسیر شود', () => {
+  const fail = inventoryUnavailable();
+  const callers = [
+    function renderInv(snap){ var low = snap.qty<=snap.min; return String(snap.qty)+'/'+String(snap.reserved)+'/'+String(snap.available)+'/'+String(snap.min)+'|'+low; },
+    function openInvModal(snap){ return String(snap.reserved); },
+    function warehouseAdjust(snap){ return (5 - snap.qty); },
+    function applyOut(snap){ return snap.available < 2; },
+    function reserveGate(snap){ return snap.available < 4; },
+    function lowStock(snap){ return snap.qty <= snap.min || !!(snap.reorder && snap.qty <= snap.reorder); },
+    function kardex(snap){ return 'موجودی '+snap.qty+' | رزرو '+snap.reserved+' | قابل استفاده '+snap.available; }
+  ];
+  callers.forEach(function(fn, i) {
+    var threw = false;
+    var out;
+    try { out = fn(fail); } catch (e) { threw = true; out = e && e.message; }
+    assertEqual(threw, false, 'caller['+i+'] نباید throw کند: '+out);
+  });
+  assertEqual(fail.available < 4, false, 'undefined < qty نباید اجازه رزرو تلقی شود بدون گارد');
+  assertEqual(typeof (5 - fail.qty), 'number', 'تفریق از qty ناموجود NaN است');
+  assertTrue(isNaN(5 - fail.qty), 'qty ناموجود نباید تفاضل عددی معتبر بدهد');
+});
+
+test('پیشنهاد قطعه: موجودی ناموجود با موجودی صفر یکی نیست', () => {
+  const fail = inventoryUnavailable();
+  const zero = {qty:0, reserved:0, available:0, min:0, reorder:0, price:0};
+  function suggestQty(snap, raw) {
+    if (!stockDataAvailable(snap)) return {kind:'unavailable', qty:null};
+    return {kind:'available', qty:snap.available};
+  }
+  const u = suggestQty(fail, 10);
+  const z = suggestQty(zero, 10);
+  assertEqual(u.kind, 'unavailable', 'شکست باید unavailable باشد');
+  assertEqual(u.qty, null, 'شکست نباید qty صفر بدهد');
+  assertEqual(z.kind, 'available', 'صفر واقعی داده است');
+  assertEqual(z.qty, 0, 'صفر واقعی available=0 است');
+  assertTrue(u.kind !== z.kind, 'ناموجود ≠ صفر');
+  const rawOnThrow = (function(){
+    var qty = 10;
+    try { qty = fail.available; } catch (_e) {}
+    return qty;
+  })();
+  assertTrue(rawOnThrow !== 0, 'بدون گارد، available ناموجود نباید 0 شود');
+});
+
+test('گارد قرارداد نباید جهش reserve/release/consume را از روی شکست راه بدهد', () => {
+  const fail = inventoryUnavailable();
+  var calls = [];
+  function reserve(){ calls.push('reserve'); }
+  function release(){ calls.push('release'); }
+  function consume(){ calls.push('consume'); }
+  function addStock(){ calls.push('addStock'); }
+  function applyWarehouseDoc(){ calls.push('applyWarehouseDoc'); }
+  function guardedMutate(snap) {
+    if (!stockDataAvailable(snap)) return {ok:false, reason:'INVENTORY_UNAVAILABLE'};
+    reserve(); release(); consume(); addStock(); applyWarehouseDoc();
+    return {ok:true};
+  }
+  const r = guardedMutate(fail);
+  assertEqual(r.ok, false, 'شکست باید جهش را قطع کند');
+  assertEqual(r.reason, 'INVENTORY_UNAVAILABLE', 'دلیل باید قرارداد باشد');
+  assertEqual(calls.length, 0, 'هیچ جهش انبار نباید صدا شود');
+  const unguardedWouldReserve = (fail.available < 4) === false;
+  assertEqual(unguardedWouldReserve, true, 'بدون گارد HTML-only reserve اشتباه اجازه می‌دهد — B18 باید گارد بگذارد');
+});
+
+test('runtime فعلی inventory.stock در EXE fail-closed است و HTML-only هنوز snapshot جاوااسکریپت دارد', () => {
+  const src = extractFunctionSource(html, 'invStockSnapshot');
+  assertContainsString(src, 'hasBusinessCore', 'مرز EXE باید صریح باشد');
+  assertContainsString(src, 'INVENTORY_UNAVAILABLE', 'قرارداد شکست باید در runtime باشد');
+  assertContainsString(src, "takeBusinessCore('inventory.stock'", 'مسیر Host باید بماند');
+  const pack = loadInventoryStockFailClosedContract();
+  assertEqual(pack.failure.reason, 'INVENTORY_UNAVAILABLE', 'فایل قرارداد باید قفل شود');
+  assertTrue(pack.callers.length >= 11, 'همه callerهای زنده باید در قرارداد باشند');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B18 مالکیت inventory.stock');
+
+function makeExeInvStockSnapshot(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  assertTrue(!!runSrc && !!takeSrc && !!hasSrc && !!availSrc && !!snapSrc, 'توابع inventory.stock / Host پیدا نشد');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + (sumSrc || '') + '\n' + snapSrc + `
+    function getSirmanHostSync(){ return { RunBusiness: runImpl }; }
+    return { snap: invStockSnapshot, available: stockDataAvailable };
+  `)(runImpl);
+}
+
+test('مسیر EXE باید موجودی هسته را برگرداند و موجودی صفر را داده بداند', () => {
+  var calls = [];
+  const api = makeExeInvStockSnapshot(function(name, json){
+    calls.push({name:name, payload: JSON.parse(json)});
+    return JSON.stringify({ok:true, result:{qty:0, reserved:0, available:0, min:2, reorder:2, price:10}});
+  });
+  const got = api.snap({qty:99, reserved:1, min:2, reorder:2, price:10}, '');
+  assertEqual(calls.length, 1, 'باید یک بار Host صدا شود');
+  assertEqual(calls[0].name, 'inventory.stock', 'نام عملیات باید inventory.stock باشد');
+  assertEqual(got.qty, 0, 'qty صفر هسته باید برگردد نه 99 جاوااسکریپت');
+  assertEqual(api.available(got), true, 'صفر واقعی باید stockDataAvailable باشد');
+  assertEqual(got.ok === false, false, 'موفقیت نباید ok:false باشد');
+});
+
+test('شکست Core روی EXE باید INVENTORY_UNAVAILABLE بدهد نه snapshot جاوااسکریپت', () => {
+  const failed = makeExeInvStockSnapshot(function(){
+    return JSON.stringify({ok:false, error:'business-failed'});
+  }).snap({qty:10, reserved:4, min:2, reorder:3, price:1000}, '');
+  assertEqual(failed.ok, false, 'ok باید false باشد');
+  assertEqual(failed.reason, 'INVENTORY_UNAVAILABLE', 'reason باید قرارداد B17 باشد');
+  assertEqual(typeof failed.qty, 'undefined', 'نباید qty جعلی باشد');
+  assertEqual(failed.qty === 10, false, 'نباید qty جاوااسکریپت ۱۰ باشد');
+  assertEqual(failed.available === 6, false, 'نباید available جاوااسکریپت باشد');
+  const invalid = makeExeInvStockSnapshot(function(){
+    return JSON.stringify({ok:true, result:{name:'no-qty'}});
+  }).snap({qty:10, reserved:4}, '');
+  assertEqual(invalid.reason, 'INVENTORY_UNAVAILABLE', 'نتیجه بدون qty عددی باید شکست باشد');
+});
+
+test('جدول موجودی در شکست هسته نباید کم‌موجودی یا موجود نشان بدهد', () => {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const renderSrc = extractFunctionSource(html, 'renderInv');
+  const htmlOut = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + snapSrc + '\n' + renderSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: function(){ return JSON.stringify({ok:false}); } };
+    }
+    var products = [{code:'A1', name:'کالا', brand:''}];
+    var inventory = {A1:{qty:1, min:5}};
+    var body = { innerHTML: '' };
+    var stats = { innerHTML: '' };
+    var document = { getElementById: function(id){
+      if(id==='inv-q') return {value:''};
+      if(id==='inv-body') return body;
+      if(id==='inv-stats-bar') return stats;
+      return {value:'', innerHTML:''};
+    }};
+    renderInv();
+    return body.innerHTML;
+  `)();
+  assertTrue(htmlOut.indexOf('محاسبه انجام نشد') >= 0, 'باید حالت ناموجود نشان داده شود');
+  assertTrue(htmlOut.indexOf('⚠ کم') < 0, 'نباید کم‌موجودی جعلی باشد');
+  assertTrue(htmlOut.indexOf('✓ موجود') < 0, 'نباید موجود جعلی باشد');
+});
+
+test('مودال موجودی در شکست هسته نباید reserved صفر جعلی بنویسد', () => {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const modalSrc = extractFunctionSource(html, 'openInvModal');
+  const got = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + snapSrc + '\n' + modalSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: function(){ return JSON.stringify({ok:false}); } };
+    }
+    var products = [{code:'A1', name:'کالا'}];
+    var inventory = {A1:{qty:10, min:1, reserved:4, note:''}};
+    var fields = {};
+    var document = {
+      getElementById: function(id){
+        if(!fields[id]) fields[id] = {value:'', textContent:'', classList:{add:function(){}}};
+        return fields[id];
+      }
+    };
+    openInvModal('A1');
+    return {reserved: fields['im-reserved'].value, qty: fields['im-qty'].value};
+  `)();
+  assertEqual(got.reserved, '', 'reserved ناموجود نباید 0 شود');
+  assertEqual(String(got.qty), '10', 'qty فرم از رکورد است نه از snapshot شکست');
+});
+
+test('کم‌موجودی و کاردکس نباید موجودی ناموجود را موجود یا کم طبقه‌بندی کنند', () => {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const lowSrc = extractFunctionSource(html, 'invLowStockFromLists');
+  const kardexSrc = extractFunctionSource(html, 'renderKardexPreview');
+  const searchSrc = extractFunctionSource(html, 'invSearchCatalog');
+  const findSrc = extractFunctionSource(html, 'invFindStockItem');
+  const kxSrc = extractFunctionSource(html, 'invKardexFromMoves');
+  const got = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + snapSrc + '\n' + lowSrc + '\n' + searchSrc + '\n' + findSrc + '\n' + kxSrc + '\n' + kardexSrc + `
+    function getSirmanHostSync(){
+      return { RunBusiness: function(){ return JSON.stringify({ok:false}); } };
+    }
+    var parts = [{code:'P1', name:'قطعه', qty:1, min:5}];
+    var products = [];
+    var inventory = {};
+    var stockMoves = [];
+    var lows = invLowStockFromLists(parts, products, inventory);
+    var sum = {textContent:''};
+    var list = {innerHTML:''};
+    var document = { getElementById: function(id){
+      if(id==='kardex-code') return {value:'P1'};
+      if(id==='kardex-wh') return {value:''};
+      if(id==='kardex-summary') return sum;
+      if(id==='kardex-list') return list;
+      return {value:'', textContent:'', innerHTML:''};
+    }};
+    renderKardexPreview();
+    return {lowLen: lows.length, summary: sum.textContent};
+  `)();
+  assertEqual(got.lowLen, 0, 'ناموجود نباید کم‌موجودی شود');
+  assertTrue(got.summary.indexOf('محاسبه انجام نشد') >= 0, 'کاردکس باید ناموجود را بگوید');
+  assertTrue(got.summary.indexOf('موجودی undefined') < 0, 'نباید undefined نمایش دهد');
+});
+
+test('HTML-only پیشنهاد قطعه باید بردارهای B13 را نگه دارد و جهش انبار نکند', () => {
+  const pack = loadSuggestPartsParityVectors();
+  const suggest = makeHtmlOnlySuggestParts();
+  const row = pack.cases.filter(function(c){ return c.id === 'exact-prodcode'; })[0];
+  const got = suggest({parts: pack.catalog, prodCode: row.prodCode, model: row.model, problem: row.problem});
+  assertEqual(got[0].code, 'P-HEAT', 'اولین پیشنهاد باید P-HEAT بماند');
+  assertEqual(got[0].qty, 6, 'qty باید available جاوااسکریپت باشد');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const resSrc = extractFunctionSource(html, 'invReserveOnItem');
+  assertTrue(snapSrc.indexOf('inventory.reserve') === -1, 'snapshot نباید reserve باشد');
+  assertContainsString(resSrc, 'inventory.reserve', 'رزرو EXE باید inventory.reserve بماند');
+  assertContainsString(resSrc, 'hasBusinessCore', 'رزرو EXE باید fail-closed بماند');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B19 مرز جهش انبار');
+
+function makeExeInventoryBoundary(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const itemSrc = extractFunctionSource(html, 'applyCoreItemOnto');
+  const resSrc = extractFunctionSource(html, 'invReserveOnItem');
+  const relSrc = extractFunctionSource(html, 'invReleaseReserveOnItem');
+  const applySrc = extractFunctionSource(html, 'applyStockByWarehouse');
+  const findSrc = extractFunctionSource(html, 'invFindStockItem');
+  const deductSrc = extractFunctionSource(html, '_deductStock');
+  const moveSrc = extractFunctionSource(html, 'recordStockMove');
+  assertTrue(!!runSrc && !!takeSrc && !!hasSrc && !!availSrc && !!snapSrc && !!resSrc && !!relSrc && !!applySrc && !!deductSrc, 'توابع مرز جهش انبار پیدا نشد');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + (sumSrc || '') + '\n' + recSrc + '\n' + itemSrc + '\n' + snapSrc + '\n' + findSrc + '\n' + resSrc + '\n' + relSrc + '\n' + applySrc + '\n' + moveSrc + '\n' + deductSrc + `
+    var calls = [];
+    var stockMoves = [];
+    var ntfCalls = [];
+    var parts = [{code:'P1', name:'قطعه', qty:10, min:0, reorder:0, reserved:0, byWh:{'WH-A':10}, reservedByWh:{}, price:0}];
+    var inventory = {};
+    var defectiveStock = [];
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        calls.push(name);
+        return runImpl(name, json);
+      }};
+    }
+    function ntf(msg, k){ ntfCalls.push({msg:msg, k:k}); }
+    function confirm(){ return true; }
+    function svParts(){}
+    function sv(){}
+    function svDefective(){}
+    function svStockMoves(){}
+    function getDefaultWhId(){ return 'WH-A'; }
+    function getWhName(id){ return id || 'WH'; }
+    function fdt(){ return '1405/05/30'; }
+    function _whTag(){ return 'parts'; }
+    function invCurrentUser(){ return 'tester'; }
+    return {
+      calls: calls,
+      stockMoves: stockMoves,
+      ntfCalls: ntfCalls,
+      parts: parts,
+      reserve: invReserveOnItem,
+      release: invReleaseReserveOnItem,
+      apply: applyStockByWarehouse,
+      deduct: _deductStock,
+      snap: invStockSnapshot,
+      available: stockDataAvailable
+    };
+  `)(runImpl);
+}
+
+function makeHtmlOnlyInventoryBoundary() {
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  const resSrc = extractFunctionSource(html, 'invReserveOnItem');
+  const relSrc = extractFunctionSource(html, 'invReleaseReserveOnItem');
+  const applySrc = extractFunctionSource(html, 'applyStockByWarehouse');
+  const findSrc = extractFunctionSource(html, 'invFindStockItem');
+  assertTrue(!!availSrc && !!snapSrc && !!resSrc && !!relSrc && !!applySrc, 'توابع HTML-only مرز جهش پیدا نشد');
+  return new Function(availSrc + '\n' + (sumSrc || '') + '\n' + snapSrc + '\n' + (findSrc || '') + '\n' + resSrc + '\n' + relSrc + '\n' + applySrc + `
+    function hasBusinessCore(){ return false; }
+    function takeBusinessCore(){ throw new Error('HTML-only نباید هسته را صدا بزند'); }
+    function getDefaultWhId(){ return 'WH-A'; }
+    function getWhName(id){ return id || 'WH'; }
+    function fdt(){ return '1405/05/30'; }
+    function _whTag(){ return 'parts'; }
+    function invCurrentUser(){ return 'tester'; }
+    function svParts(){}
+    function sv(){}
+    function svDefective(){}
+    function svStockMoves(){}
+    var stockMoves = [];
+    var parts = [{code:'P1', name:'قطعه', qty:10, min:0, reorder:0, reserved:0, byWh:{'WH-A':10}, reservedByWh:{}, price:0}];
+    var inventory = {};
+    var defectiveStock = [];
+    return {
+      parts: parts,
+      stockMoves: stockMoves,
+      reserve: invReserveOnItem,
+      release: invReleaseReserveOnItem,
+      apply: applyStockByWarehouse,
+      snap: invStockSnapshot,
+      available: stockDataAvailable
+    };
+  `)();
+}
+
+test('شکست Core روی EXE نباید reserve را صدا بزند و موجودی را عوض نکند', () => {
+  const api = makeExeInventoryBoundary(function(){ return JSON.stringify({ok:false}); });
+  const item = api.parts[0];
+  const r = api.reserve(item, 4, 'WH-A');
+  assertEqual(r.ok, false, 'رزرو باید شکست کنترل‌شده بدهد');
+  assertEqual(api.calls.indexOf('inventory.reserve') < 0, true, 'inventory.reserve نباید صدا شود');
+  assertEqual(api.calls.indexOf('inventory.stock') >= 0, true, 'باید ابتدا inventory.stock پرسیده شود');
+  assertEqual(item.reserved, 0, 'reserved نباید جهش کند');
+  assertEqual(item.reservedByWh['WH-A'] == null || item.reservedByWh['WH-A'] === 0, true, 'reservedByWh نباید جهش کند');
+});
+
+test('شکست Core روی EXE نباید release را صدا بزند', () => {
+  const api = makeExeInventoryBoundary(function(){ return JSON.stringify({ok:false}); });
+  const item = api.parts[0];
+  item.reserved = 4;
+  item.reservedByWh['WH-A'] = 4;
+  const r = api.release(item, 1, 'WH-A');
+  assertEqual(r.ok, false, 'آزادسازی باید شکست کنترل‌شده بدهد');
+  assertEqual(api.calls.indexOf('inventory.release') < 0, true, 'inventory.release نباید صدا شود');
+  assertEqual(item.reserved, 4, 'reserved نباید جهش کند');
+  assertEqual(item.reservedByWh['WH-A'], 4, 'reservedByWh نباید جهش کند');
+});
+
+test('شکست Core روی EXE نباید consume را صدا بزند و حرکت NaN نسازد', () => {
+  const api = makeExeInventoryBoundary(function(){ return JSON.stringify({ok:false}); });
+  api.deduct([{partCode:'P1', partName:'قطعه', qty:2}], 'SALE-1');
+  assertEqual(api.calls.indexOf('inventory.consume') < 0, true, 'inventory.consume نباید صدا شود');
+  assertEqual(api.parts[0].qty, 10, 'qty نباید جهش کند');
+  assertEqual(api.stockMoves.length, 0, 'نباید حرکت انبار ساخته شود');
+  api.stockMoves.forEach(function(m){
+    assertEqual(typeof m.qty === 'number' && isFinite(m.qty), true, 'qty حرکت نباید NaN باشد');
+  });
+});
+
+test('خروج انبار EXE در شکست Core نباید applyByWarehouse را صدا بزند و حرکت جعلی نسازد', () => {
+  const api = makeExeInventoryBoundary(function(){ return JSON.stringify({ok:false}); });
+  const beforeQty = api.parts[0].qty;
+  const r = api.apply('out', 'P1', 'قطعه', 2, 'WH-A', 'warehouse', 'WH-OUT-1');
+  assertEqual(r.ok, false, 'خروج باید شکست کنترل‌شده بدهد');
+  assertEqual(api.calls.indexOf('inventory.applyByWarehouse') < 0, true, 'inventory.applyByWarehouse نباید صدا شود');
+  assertEqual(api.calls.indexOf('inventory.stock') >= 0, true, 'خروج باید اول موجودی را بپرسد');
+  assertEqual(api.parts[0].qty, beforeQty, 'qty نباید جهش کند');
+  assertEqual(api.stockMoves.length, 0, 'نباید حرکت انبار ساخته شود');
+  const nanDiff = 5 - api.snap(api.parts[0], 'WH-A').qty;
+  assertTrue(isNaN(nanDiff), 'qty ناموجود باید NaN بسازد — گارد باید قبل از حرکت بایستد');
+});
+
+test('موجودی صفر داده معتبر است و نباید جهش را به‌خاطر ناموجود قطع کند', () => {
+  const api = makeExeInventoryBoundary(function(name){
+    if (name === 'inventory.stock') {
+      return JSON.stringify({ok:true, result:{qty:0, reserved:0, available:0, min:0, reorder:0, price:0}});
+    }
+    if (name === 'inventory.reserve') {
+      return JSON.stringify({ok:true, result:{ok:false, err:'موجودی قابل‌استفاده کافی نیست (قابل استفاده: 0)'}});
+    }
+    return JSON.stringify({ok:false});
+  });
+  const zero = api.snap({qty:99, reserved:1}, 'WH-A');
+  assertEqual(api.available(zero), true, 'qty=0 باید stockDataAvailable باشد');
+  assertEqual(zero.qty, 0, 'صفر هسته باید داده باشد نه ۹۹ جاوااسکریپت');
+  const r = api.reserve(api.parts[0], 1, 'WH-A');
+  assertEqual(api.calls.indexOf('inventory.reserve') >= 0, true, 'با موجودی صفر معتبر، reserve باید صدا شود');
+  assertEqual(r.ok, false, 'کمبود موجودی باید رد کسب‌وکار باشد نه INVENTORY_UNAVAILABLE');
+  assertEqual(r.err && r.err.indexOf('INVENTORY_UNAVAILABLE') < 0, true, 'کمبود صفر نباید reason ناموجود باشد');
+});
+
+test('موفقیت EXE باید reserve/release/consume/ورود/خروج را با هسته حفظ کند و snapshot جاوااسکریپت برنگرداند', () => {
+  const api = makeExeInventoryBoundary(function(name){
+    if (name === 'inventory.stock') {
+      return JSON.stringify({ok:true, result:{qty:10, reserved:0, available:10, min:0, reorder:0, price:0}});
+    }
+    if (name === 'inventory.reserve') {
+      return JSON.stringify({ok:true, result:{ok:true, item:{qty:10, reserved:4, reservedByWh:{'WH-A':4}, byWh:{'WH-A':10}}, stock:{qty:10, reserved:4, available:6, min:0, reorder:0, price:0}}});
+    }
+    if (name === 'inventory.release') {
+      return JSON.stringify({ok:true, result:{ok:true, item:{qty:10, reserved:3, reservedByWh:{'WH-A':3}, byWh:{'WH-A':10}}, stock:{qty:10, reserved:3, available:7, min:0, reorder:0, price:0}}});
+    }
+    if (name === 'inventory.consume') {
+      return JSON.stringify({ok:true, result:{ok:true, item:{qty:8, code:'P1'}, stock:{qty:8, reserved:0, available:8, min:0, reorder:0, price:0}, wouldGoNegative:false}});
+    }
+    if (name === 'inventory.applyByWarehouse') {
+      return JSON.stringify({ok:true, result:{ok:true, item:{qty:12, byWh:{'WH-A':12}, code:'P1'}, stock:{qty:12, reserved:0, available:12, min:0, reorder:0, price:0}}});
+    }
+    return JSON.stringify({ok:false});
+  });
+  const item = api.parts[0];
+  const reserved = api.reserve(item, 4, 'WH-A');
+  assertEqual(reserved.ok, true, 'رزرو موفق باید بماند');
+  assertEqual(reserved.stock.available, 6, 'stock برگشتی باید از هسته باشد');
+  assertEqual(item.reserved, 4, 'reserved هسته باید روی قلم نوشته شود');
+  assertEqual(api.calls.filter(function(n){ return n === 'inventory.stock'; }).length, 1, 'بعد از رزرو نباید snapshot جاوااسکریپت/دوباره stock خوانده شود');
+  const released = api.release(item, 1, 'WH-A');
+  assertEqual(released.ok, true, 'آزادسازی موفق باید بماند');
+  assertEqual(released.stock.reserved, 3, 'stock آزادسازی باید از هسته باشد');
+  api.calls.length = 0;
+  const out = api.apply('out', 'P1', 'قطعه', 2, 'WH-A', 'warehouse', 'WH-OUT-1');
+  assertEqual(out.ok, true, 'خروج موفق باید بماند');
+  assertEqual(api.calls.indexOf('inventory.applyByWarehouse') >= 0, true, 'خروج موفق باید applyByWarehouse باشد');
+  assertEqual(api.stockMoves.length >= 1, true, 'خروج موفق باید حرکت ثبت کند');
+  api.stockMoves.forEach(function(m){
+    assertEqual(typeof m.qty === 'number' && isFinite(m.qty) && m.qty !== 0, true, 'حرکت موفق نباید NaN/صفر جعلی باشد');
+  });
+  api.calls.length = 0;
+  const inn = api.apply('in', 'P1', 'قطعه', 2, 'WH-A', 'warehouse', 'WH-IN-1');
+  assertEqual(inn.ok, true, 'ورود موفق باید بماند');
+  assertEqual(api.calls.indexOf('inventory.applyByWarehouse') >= 0, true, 'ورود باید applyByWarehouse باشد');
+  api.calls.length = 0;
+  api.parts[0].qty = 10;
+  api.deduct([{partCode:'P1', partName:'قطعه', qty:2}], 'SALE-1');
+  assertEqual(api.calls.indexOf('inventory.consume') >= 0, true, 'مصرف موفق باید consume باشد');
+  assertEqual(api.parts[0].qty, 8, 'qty مصرف باید از هسته بیاید');
+});
+
+test('HTML-only باید رزرو/آزادسازی/خروج موفق قبلی را نگه دارد و در ناموجود جهش نکند', () => {
+  const api = makeHtmlOnlyInventoryBoundary();
+  const item = api.parts[0];
+  const r1 = api.reserve(item, 4, 'WH-A');
+  assertEqual(r1.ok, true, 'رزرو HTML-only باید موفق باشد');
+  assertEqual(r1.stock.available, 6, 'قابل‌استفاده بعد از رزرو باید ۶ باشد');
+  const rel = api.release(item, 1, 'WH-A');
+  assertEqual(rel.ok, true, 'آزادسازی HTML-only باید موفق باشد');
+  assertEqual(rel.stock.reserved, 3, 'مانده رزرو باید ۳ باشد');
+  const out = api.apply('out', 'P1', 'قطعه', 2, 'WH-A', 'warehouse', 'WH-OUT-1');
+  assertEqual(out.ok, true, 'خروج HTML-only باید موفق باشد');
+  assertEqual(api.parts[0].qty, 8, 'qty HTML-only باید ۸ شود');
+  const zeroItem = {qty:0, reserved:0, min:0, reorder:0, byWh:{'WH-A':0}, reservedByWh:{}, price:0};
+  const zeroSnap = api.snap(zeroItem, 'WH-A');
+  assertEqual(api.available(zeroSnap), true, 'صفر HTML-only داده است');
+  const over = api.reserve(zeroItem, 1, 'WH-A');
+  assertEqual(over.ok, false, 'رزرو از صفر باید رد کسب‌وکار باشد');
+  const failHtml = new Function(
+    extractFunctionSource(html, 'stockDataAvailable') + '\n' +
+    (extractFunctionSource(html, '_sumByWh') || '') + '\n' +
+    extractFunctionSource(html, 'invReserveOnItem') + '\n' +
+    extractFunctionSource(html, 'invReleaseReserveOnItem') + '\n' +
+    extractFunctionSource(html, 'applyStockByWarehouse') + `
+      function hasBusinessCore(){ return false; }
+      function takeBusinessCore(){ throw new Error('نباید هسته صدا شود'); }
+      function invStockSnapshot(){ return {ok:false, reason:'INVENTORY_UNAVAILABLE'}; }
+      function getDefaultWhId(){ return 'WH-A'; }
+      function getWhName(id){ return id || 'WH'; }
+      function fdt(){ return '1405/05/30'; }
+      function _whTag(){ return 'parts'; }
+      function svParts(){}
+      var stockMoves = [];
+      var parts = [{code:'P1', qty:10, reserved:4, byWh:{'WH-A':10}, reservedByWh:{'WH-A':4}}];
+      var inventory = {};
+      var defectiveStock = [];
+      var rRes = invReserveOnItem(parts[0], 1, 'WH-A');
+      var beforeRel = parts[0].reserved;
+      var rRel = invReleaseReserveOnItem(parts[0], 1, 'WH-A');
+      var rOut = applyStockByWarehouse('out', 'P1', 'قطعه', 1, 'WH-A', 'warehouse', 'X');
+      return {rRes:rRes, rRel:rRel, rOut:rOut, reserved:parts[0].reserved, qty:parts[0].qty, moves:stockMoves.length};
+    `
+  )();
+  assertEqual(failHtml.rRes.ok, false, 'رزرو HTML-only با snapshot ناموجود باید بایستد');
+  assertEqual(failHtml.rRel.ok, false, 'آزادسازی HTML-only با snapshot ناموجود باید بایستد');
+  assertEqual(failHtml.rOut.ok, false, 'خروج HTML-only با snapshot ناموجود باید بایستد');
+  assertEqual(failHtml.reserved, 4, 'reserved نباید عوض شود');
+  assertEqual(failHtml.qty, 10, 'qty نباید عوض شود');
+  assertEqual(failHtml.moves, 0, 'حرکت نباید ثبت شود');
+});
+
+test('حواله EXE نباید ترتیب جهش/خواندن را عوض کند و حرکت adjust بدون qty عددی نسازد', () => {
+  const whSrc = extractFunctionSource(html, 'saveWarehouseDoc');
+  const applyIdx = whSrc.indexOf("takeBusinessCore('inventory.applyWarehouseDoc'");
+  assertTrue(applyIdx >= 0, 'حواله EXE باید applyWarehouseDoc بماند');
+  const beforeApply = whSrc.slice(0, applyIdx);
+  const afterApply = whSrc.slice(applyIdx);
+  assertTrue(beforeApply.indexOf('invStockSnapshot') >= 0, 'پیش‌پرواز موجودی باید قبل از applyWarehouseDoc باشد');
+  assertTrue(beforeApply.indexOf('stockDataAvailable') >= 0, 'پیش‌پرواز باید stockDataAvailable را قبل از جهش سند چک کند');
+  assertTrue(afterApply.indexOf('invStockSnapshot') >= 0, 'خواندن موجودی adjust باید بعد از جهش سند بماند');
+  assertTrue(afterApply.indexOf('stockDataAvailable') >= 0, 'گارد NaN باید بعد از جهش سند بماند نه به‌جای آن');
+  const warSrc = extractFunctionSource(html, 'saveWar');
+  const stockIdx = warSrc.indexOf('invStockSnapshot(parts[idx])');
+  const consumeIdx = warSrc.indexOf("takeBusinessCore('inventory.consume'");
+  assertTrue(stockIdx >= 0 && consumeIdx > stockIdx, 'مصرف گارانتی باید قبل از consume موجودی را چک کند');
+  const deductSrc = extractFunctionSource(html, '_deductStock');
+  const dStock = deductSrc.indexOf('invStockSnapshot(parts[idx])');
+  const dConsume = deductSrc.indexOf("takeBusinessCore('inventory.consume'");
+  assertTrue(dStock >= 0 && dConsume > dStock, 'مصرف فروش باید قبل از consume موجودی را چک کند');
+  const resSrc = extractFunctionSource(html, 'invReserveOnItem');
+  assertTrue(resSrc.indexOf('core.stock ||') < 0, 'رزرو نباید failure object را با || به‌عنوان stock برگرداند');
+  const relSrc = extractFunctionSource(html, 'invReleaseReserveOnItem');
+  assertTrue(relSrc.indexOf('core.stock ||') < 0, 'آزادسازی نباید failure object را با || به‌عنوان stock برگرداند');
+});
+
+console.log('');
+console.log('📋 گروه: فاز ۳ B19R بستن ریسک مرز جهش');
+
+function makeExeWarehouseDoc(runImpl, type) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const findSrc = extractFunctionSource(html, 'invFindStockItem');
+  const moveSrc = extractFunctionSource(html, 'recordStockMove');
+  const saveSrc = extractFunctionSource(html, 'saveWarehouseDoc');
+  assertTrue(!!saveSrc && !!snapSrc && !!availSrc, 'saveWarehouseDoc / snapshot پیدا نشد');
+  return new Function('runImpl', 'docType', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + (sumSrc || '') + '\n' + recSrc + '\n' + snapSrc + '\n' + findSrc + '\n' + moveSrc + '\n' + saveSrc + `
+    var calls = [];
+    var stockMoves = [];
+    var ntfCalls = [];
+    var warehouseDocs = [];
+    var _whItems = [{code:'P1', name:'قطعه', qty:2, qtyPhy:2}];
+    var parts = [{code:'P1', name:'قطعه', qty:10, min:0, reorder:0, reserved:0, byWh:{'WH-A':10}, reservedByWh:{}, price:0}];
+    var inventory = {};
+    var fields = {
+      'wh-doc-type': {value: docType},
+      'wh-party': {value:'طرف'},
+      'wh-date': {value:'1405/05/30'},
+      'wh-location': {value:''},
+      'wh-location-out': {value:''},
+      'wh-note': {value:''},
+      'wh-reason': {value:'علت تست'},
+      'wh-docno': {value:''},
+      'wh-price': {value:'0'},
+      'wh-fromwh': {value:'WH-A'},
+      'wh-towh': {value:'WH-A'},
+      'wh-same-company': {value:'', checked:false}
+    };
+    var document = { getElementById: function(id){ return fields[id] || {value:'', checked:false}; } };
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        calls.push(name);
+        return runImpl(name, json);
+      }};
+    }
+    function ntf(msg, k){ ntfCalls.push({msg:msg, k:k}); }
+    function closeMod(){}
+    function auditUser(){}
+    function emit(){}
+    function persistCoreSnapshot(){}
+    function renderWarehouseDocs(){}
+    function checkStarredAlarms(){}
+    function currentWhCatalog(){ return ''; }
+    function getDefaultWhId(){ return 'WH-A'; }
+    function fdt(){ return '1405/05/30'; }
+    function invCurrentUser(){ return 'tester'; }
+    function _whTag(){ return 'parts'; }
+    function svStockMoves(){}
+    function svWarehouse(){}
+    saveWarehouseDoc();
+    return {calls:calls, stockMoves:stockMoves, ntfCalls:ntfCalls, docs:warehouseDocs, parts:parts};
+  `)(runImpl, type);
+}
+
+function makeExeRestock(runImpl) {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const moveSrc = extractFunctionSource(html, 'recordStockMove');
+  const restSrc = extractFunctionSource(html, '_restockFromSale');
+  assertTrue(!!restSrc, '_restockFromSale پیدا نشد');
+  return new Function('runImpl', runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + recSrc + '\n' + moveSrc + '\n' + restSrc + `
+    var calls = [];
+    var stockMoves = [];
+    var ntfCalls = [];
+    var parts = [{code:'P1', name:'پره', qty:3}];
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        calls.push(name);
+        return runImpl(name, json);
+      }};
+    }
+    function ntf(msg, k){ ntfCalls.push({msg:msg, k:k}); }
+    function fdt(){ return '1405/05/30'; }
+    function svStockMoves(){}
+    function _whTag(){ return 'parts'; }
+    function invCurrentUser(){ return 'tester'; }
+    return {
+      calls: calls,
+      stockMoves: stockMoves,
+      ntfCalls: ntfCalls,
+      parts: parts,
+      restock: _restockFromSale
+    };
+  `)(runImpl);
+}
+
+test('R1: موجودی ناموجود روی EXE نباید applyWarehouseDoc را صدا بزند', () => {
+  const api = makeExeWarehouseDoc(function(){ return JSON.stringify({ok:false}); }, 'out');
+  assertEqual(api.calls.indexOf('inventory.applyWarehouseDoc') < 0, true, 'applyWarehouseDoc نباید صدا شود');
+  assertEqual(api.calls.indexOf('inventory.stock') >= 0, true, 'باید پیش‌پرواز inventory.stock باشد');
+  assertEqual(api.docs.length, 0, 'سند نباید ثبت شود');
+  assertEqual(api.stockMoves.length, 0, 'حرکت نباید ثبت شود');
+  assertEqual(api.parts[0].qty, 10, 'qty نباید جهش کند');
+});
+
+test('R1: موجودی معتبر باید applyWarehouseDoc موجود را صدا بزند و حرکت NaN نسازد', () => {
+  const api = makeExeWarehouseDoc(function(name){
+    if (name === 'inventory.stock') {
+      return JSON.stringify({ok:true, result:{qty:10, reserved:0, available:10, min:0, reorder:0, price:0}});
+    }
+    if (name === 'inventory.applyWarehouseDoc') {
+      return JSON.stringify({ok:true, result:{ok:true, doc:{id:'WH-OUT-0001', type:'out'}, mutated:{P1:{code:'P1', qty:8, byWh:{'WH-A':8}}}, persistKeys:[]}});
+    }
+    return JSON.stringify({ok:false});
+  }, 'out');
+  assertEqual(api.calls.indexOf('inventory.applyWarehouseDoc') >= 0, true, 'applyWarehouseDoc باید صدا شود');
+  assertEqual(api.docs.length, 1, 'سند موفق باید ثبت شود');
+  api.stockMoves.forEach(function(m){
+    assertEqual(typeof m.qty === 'number' && isFinite(m.qty), true, 'qty حرکت نباید NaN باشد');
+  });
+});
+
+test('R1: HTML-only حواله ورود/خروج موفق و adjust ناموجود باید رفتار قبلی را نگه دارد', () => {
+  const saveSrc = extractFunctionSource(html, 'saveWarehouseDoc');
+  const hostIdx = saveSrc.indexOf('if(hostOn)');
+  const htmlOnly = saveSrc.slice(saveSrc.indexOf('for(var i=0;i<validItems.length;i++)'));
+  assertTrue(htmlOnly.indexOf("invReserveOnItem") >= 0, 'رزرو HTML-only باید بماند');
+  assertTrue(htmlOnly.indexOf("applyStockByWarehouse") >= 0, 'حرکت HTML-only باید بماند');
+  assertTrue(htmlOnly.indexOf('stockDataAvailable') >= 0, 'adjust HTML-only ناموجود باید قطع شود');
+  const htmlIn = new Function(
+    extractFunctionSource(html, 'stockDataAvailable') + '\n' +
+    (extractFunctionSource(html, '_sumByWh') || '') + '\n' +
+    extractFunctionSource(html, 'invStockSnapshot') + '\n' +
+    extractFunctionSource(html, 'invFindStockItem') + '\n' +
+    extractFunctionSource(html, 'invReserveOnItem') + '\n' +
+    extractFunctionSource(html, 'applyStockByWarehouse') + `
+      function hasBusinessCore(){ return false; }
+      function getDefaultWhId(){ return 'WH-A'; }
+      function getWhName(id){ return id; }
+      function fdt(){ return '1405/05/30'; }
+      function _whTag(){ return 'parts'; }
+      function svParts(){}
+      function svStockMoves(){}
+      var stockMoves = [];
+      var parts = [{code:'P1', name:'قطعه', qty:10, reserved:0, byWh:{'WH-A':10}, reservedByWh:{}}];
+      var inventory = {};
+      var defectiveStock = [];
+      var out = applyStockByWarehouse('out', 'P1', 'قطعه', 2, 'WH-A', 'warehouse', 'WH-OUT');
+      var inn = applyStockByWarehouse('in', 'P1', 'قطعه', 1, 'WH-A', 'warehouse', 'WH-IN');
+      return {outOk:out.ok, inOk:inn.ok, qty:parts[0].qty, moves:stockMoves.length};
+    `
+  )();
+  assertEqual(htmlIn.outOk, true, 'خروج HTML-only باید موفق بماند');
+  assertEqual(htmlIn.inOk, true, 'ورود HTML-only باید موفق بماند');
+  assertEqual(htmlIn.qty, 9, 'qty باید ۱۰-۲+۱=۹ شود');
+  void hostIdx;
+});
+
+test('R2: addStock موفق باید دقیقاً یک حرکت معتبر بسازد و شکست صفر حرکت بسازد', () => {
+  const ok = makeExeRestock(function(name){
+    if (name === 'inventory.addStock') {
+      return JSON.stringify({ok:true, result:{ok:true, item:{code:'P1', qty:7}}});
+    }
+    return JSON.stringify({ok:false});
+  });
+  ok.restock({id:'S-1', items:[{partCode:'P1', qty:4, partName:'پره'}]});
+  assertEqual(ok.calls.filter(function(n){ return n === 'inventory.addStock'; }).length, 1, 'باید یک addStock باشد');
+  assertEqual(ok.parts[0].qty, 7, 'qty باید از هسته ۷ شود');
+  assertEqual(ok.stockMoves.length, 1, 'باید دقیقاً یک حرکت ثبت شود');
+  assertEqual(ok.stockMoves[0].qty === 4 || ok.stockMoves[0].qty === -4 || Math.abs(ok.stockMoves[0].qty) === 4, true, 'qty حرکت باید ۴ معتبر باشد');
+  assertEqual(typeof ok.stockMoves[0].qty === 'number' && isFinite(ok.stockMoves[0].qty), true, 'حرکت نباید NaN باشد');
+  const fail = makeExeRestock(function(){ return JSON.stringify({ok:false}); });
+  fail.restock({id:'S-2', items:[{partCode:'P1', qty:4, partName:'پره'}]});
+  assertEqual(fail.calls.indexOf('inventory.addStock') >= 0, true, 'شکست باید پس از تلاش addStock باشد');
+  assertEqual(fail.parts[0].qty, 3, 'qty نباید عوض شود');
+  assertEqual(fail.stockMoves.length, 0, 'شکست addStock نباید حرکت بسازد');
+  const htmlRestock = extractFunctionSource(html, '_restockFromSale');
+  const htmlOnly = new Function(htmlRestock + `
+    function hasBusinessCore(){ return false; }
+    var parts = [{code:'P1', name:'پره', qty:3}];
+    _restockFromSale({items:[{partCode:'P1', qty:4, partName:'پره'}], status:'final'});
+    return parts[0].qty;
+  `)();
+  assertEqual(htmlOnly, 7, 'HTML-only باید ۴ را به ۳ برگرداند → ۷');
+});
+
+test('R3: جهش موفق با stock نامعتبر نباید عدد تفسیر شود و نباید جهش دوم بسازد', () => {
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const itemSrc = extractFunctionSource(html, 'applyCoreItemOnto');
+  const resSrc = extractFunctionSource(html, 'invReserveOnItem');
+  const relSrc = extractFunctionSource(html, 'invReleaseReserveOnItem');
+  const got = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + snapSrc + '\n' + recSrc + '\n' + itemSrc + '\n' + resSrc + '\n' + relSrc + `
+    var calls = [];
+    var mutateCount = 0;
+    function getSirmanHostSync(){
+      return { RunBusiness: function(name, json){
+        calls.push(name);
+        if (name === 'inventory.stock') {
+          return JSON.stringify({ok:true, result:{qty:10, reserved:0, available:10, min:0, reorder:0, price:0}});
+        }
+        if (name === 'inventory.reserve') {
+          mutateCount++;
+          return JSON.stringify({ok:true, result:{ok:true, item:{qty:10, reserved:4, reservedByWh:{'WH-A':4}}, stock:{ok:false, reason:'INVENTORY_UNAVAILABLE'}}});
+        }
+        return JSON.stringify({ok:false});
+      }};
+    }
+    var item = {qty:10, reserved:0, reservedByWh:{}, byWh:{'WH-A':10}};
+    var r = invReserveOnItem(item, 4, 'WH-A');
+    var numeric = (function(){
+      if (!r.ok) return {kind:'fail'};
+      if (typeof stockDataAvailable==='function' && !stockDataAvailable(r.stock)) return {kind:'mutated-no-stock', qty:null, available:r.stock && r.stock.available};
+      return {kind:'ok', qty:r.stock.available};
+    })();
+    return {r:r, numeric:numeric, reserved:item.reserved, mutateCount:mutateCount, calls:calls};
+  `)();
+  assertEqual(got.r.ok, true, 'جهش موفق نباید ok:false دروغین شود');
+  assertEqual(got.reserved, 4, 'reserved هسته باید نوشته شده باشد');
+  assertEqual(got.mutateCount, 1, 'نباید جهش دوم reserve رخ دهد');
+  assertEqual(got.numeric.kind, 'mutated-no-stock', 'caller نباید available را عدد بگیرد');
+  assertEqual(got.numeric.qty, null, 'qty عددی نباید از stock نامعتبر خوانده شود');
+  assertEqual(got.r.stock && got.r.stock.reason, 'INVENTORY_UNAVAILABLE', 'stock برگشتی باید قرارداد B17 باشد');
+  const saveSrc = extractFunctionSource(html, 'saveWarehouseDoc');
+  const resCall = saveSrc.indexOf('invReserveOnItem(found.item');
+  const after = saveSrc.slice(resCall, resCall + 800);
+  assertTrue(after.indexOf('r.stock.available') < 0 && after.indexOf('r.stock.qty') < 0, 'حواله رزرو نباید r.stock را عدد تفسیر کند');
+  assertTrue(after.indexOf('it.qty') >= 0, 'حرکت رزرو باید از مقدار سند باشد');
+  const failR = new Function(runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + snapSrc + '\n' + recSrc + '\n' + itemSrc + '\n' + resSrc + `
+    function getSirmanHostSync(){ return { RunBusiness: function(){ return JSON.stringify({ok:false}); } }; }
+    var item = {qty:10, reserved:0, reservedByWh:{}, byWh:{'WH-A':10}};
+    return invReserveOnItem(item, 4, 'WH-A');
+  `)();
+  assertEqual(failR.ok, false, 'شکست جهش باید ok:false باشد');
+});
+
+console.log('');
 console.log('📋 گروه: تکمیل فاز ۲ (C# منبع حقیقت عملیات حساس)');
 
 test('در exe جمع فاکتور و فروش نباید بعد از هسته دوباره با JS بازنویسی شود', () => {
   const calcTSrc = extractFunctionSource(html, 'calcT');
+  const totSrc = extractFunctionSource(html, 'calcInvoiceTotals');
   const saleSrc = extractFunctionSource(html, 'calcSaleTotal');
-  assertContainsString(calcTSrc, 'invoice.totals', 'calcT باید جمع را از هسته بخواهد');
+  assertContainsString(totSrc, 'invoice.totals', 'جمع فاکتور باید از هسته invoice.totals بیاید');
+  assertContainsString(calcTSrc, 'calcInvoiceTotals', 'calcT باید جمع را از calcInvoiceTotals بخواهد');
   assertContainsString(calcTSrc, 'disc>0', 'شرط تخفیف نباید از calcT حذف شود');
   assertTrue(calcTSrc.indexOf('if(coreTot && coreTot.tF!=null)') < 0, 'calcT نباید جمع JS را روی نتیجه هسته بنویسد');
   assertContainsString(saleSrc, 'sale.total', 'جمع فروش باید از هسته بیاید');
@@ -10126,7 +11791,7 @@ function dailyOpsBriefHarness(){
   const names = [
     'faNum','tehranParts','div_','gregorian_to_jalali','fdate',
     'faToEnDigits','_normDate','sameTehranDay','calcSlaStatusFromAgeHours',
-    '_sumByWh','invStockSnapshot','invLowStockFromLists','defStatusOf','defIsInWarehouse',
+    '_sumByWh','stockDataAvailable','invStockSnapshot','invLowStockFromLists','defStatusOf','defIsInWarehouse',
     '_briefStripMarks','_briefJalaliDayKey','_briefIsJalaliToday','_briefIsTsToday',
     '_briefPickArr','_briefPickMap','_briefFlattenTransactions','_briefEsc',
     'getDailyOperationsBriefSnapshot','_briefLines','_briefJoin','renderDailyOperationsBriefHtml',

@@ -1,0 +1,54 @@
+{
+  "id": "SIRMAN_PHASE_3_B13_RULES_SUGGESTPARTS_PARITY",
+  "note": "Frozen JS↔C# vectors for rules.suggestParts: suggestPartsForCase (HTML-only ranking + invStockSnapshot/_sumByWh) vs PartsAdvisor.Suggest (InventoryCore.Stock.Available). Catalog order is the result order. Why-text join is '؛ '. Empty code is skipped. Do not invent parts. Do not migrate ownership. Do not change ranking or inventory semantics. opts.fault is a JS-only alias and is excluded from this lock.",
+  "catalog": [
+    {"code":"P-HEAT","name":"هیتر","prodCode":"402003","cat":"گرمایش","note":"","qty":10,"reserved":4},
+    {"code":"P-OTHER","name":"واشر","prodCode":"999","cat":"متفرقه","note":"","qty":2,"reserved":0},
+    {"code":"P-SEAL","name":"واشر درب","prodCode":"402003","cat":"نشت","note":"نشتی آب","qty":0,"reserved":0},
+    {"code":"P-MODEL","name":"چای‌ساز یدکی","prodCode":"888","cat":"متفرقه","note":"","qty":5,"reserved":0},
+    {"code":"P-CASE","name":"Heater Coil","prodCode":"A1","cat":"Heat","note":"","qty":3,"reserved":0},
+    {"code":"","name":"بدون کد","prodCode":"402003","cat":"گرمایش","qty":1,"reserved":0},
+    {"code":"P-NOMATCH","name":"پیچ","prodCode":"111","cat":"اتصال","note":"","qty":8,"reserved":0},
+    {"code":"P-WH","name":"هیتر انبار","prodCode":"402003","cat":"گرمایش","note":"","qty":1,"reserved":0,"byWh":{"WH-A":7},"reservedByWh":{"WH-A":2}}
+  ],
+  "cases": [
+    {"id":"empty-catalog","axis":"catalog-only","prodCode":"402003","model":"چای‌ساز","problem":"هیتر","parts":[],"expected":[]},
+    {"id":"unknown-product-nonsense-problem","axis":"catalog-only","prodCode":"NO-SUCH","model":"","problem":"xyz","expected":[]},
+    {"id":"unknown-model-only","axis":"catalog-only","prodCode":"","model":"NO-SUCH-MODEL","problem":"","expected":[]},
+    {"id":"nonsense-problem-only","axis":"catalog-only","prodCode":"","model":"","problem":"abcdefgh","expected":[]},
+    {"id":"no-invented-on-empty-inputs","axis":"catalog-integrity","prodCode":"","model":"","problem":"","expected":[]},
+    {"id":"exact-prodcode","axis":"prodcode-order-availability","prodCode":"402003","model":"","problem":"","expected":[
+      {"code":"P-HEAT","name":"هیتر","qty":6,"explain":"چون کالای مرتبط همین مدل است"},
+      {"code":"P-SEAL","name":"واشر درب","qty":0,"explain":"چون کالای مرتبط همین مدل است"},
+      {"code":"P-WH","name":"هیتر انبار","qty":5,"explain":"چون کالای مرتبط همین مدل است"}
+    ]},
+    {"id":"prodcode-plus-model-name","axis":"prodcode-and-model","prodCode":"402003","model":"چای‌ساز","problem":"","expected":[
+      {"code":"P-HEAT","name":"هیتر","qty":6,"explain":"چون کالای مرتبط همین مدل است"},
+      {"code":"P-SEAL","name":"واشر درب","qty":0,"explain":"چون کالای مرتبط همین مدل است"},
+      {"code":"P-MODEL","name":"چای‌ساز یدکی","qty":5,"explain":"چون کالای مرتبط همین مدل است"},
+      {"code":"P-WH","name":"هیتر انبار","qty":5,"explain":"چون کالای مرتبط همین مدل است"}
+    ]},
+    {"id":"model-in-name","axis":"model","prodCode":"","model":"چای‌ساز","problem":"","expected":[
+      {"code":"P-MODEL","name":"چای‌ساز یدکی","qty":5,"explain":"چون کالای مرتبط همین مدل است"}
+    ]},
+    {"id":"model-equals-part-prodcode","axis":"model","prodCode":"","model":"888","problem":"","expected":[
+      {"code":"P-MODEL","name":"چای‌ساز یدکی","qty":5,"explain":"چون کالای مرتبط همین مدل است"}
+    ]},
+    {"id":"problem-exact-persian","axis":"problem","prodCode":"","model":"","problem":"هیتر","expected":[
+      {"code":"P-HEAT","name":"هیتر","qty":6,"explain":"چون شرح مشکل با نام یا دسته قطعه هم‌خوان است"},
+      {"code":"P-WH","name":"هیتر انبار","qty":5,"explain":"چون شرح مشکل با نام یا دسته قطعه هم‌خوان است"}
+    ]},
+    {"id":"problem-mixed-case-latin","axis":"problem","prodCode":"","model":"","problem":"Heater","expected":[
+      {"code":"P-CASE","name":"Heater Coil","qty":3,"explain":"چون شرح مشکل با نام یا دسته قطعه هم‌خوان است"}
+    ]},
+    {"id":"problem-multiple-washer","axis":"order","prodCode":"","model":"","problem":"واشر","expected":[
+      {"code":"P-OTHER","name":"واشر","qty":2,"explain":"چون شرح مشکل با نام یا دسته قطعه هم‌خوان است"},
+      {"code":"P-SEAL","name":"واشر درب","qty":0,"explain":"چون شرح مشکل با نام یا دسته قطعه هم‌خوان است"}
+    ]},
+    {"id":"prodcode-and-problem","axis":"why-text","prodCode":"402003","model":"","problem":"هیتر","expected":[
+      {"code":"P-HEAT","name":"هیتر","qty":6,"explain":"چون کالای مرتبط همین مدل است؛ چون شرح مشکل با نام یا دسته قطعه هم‌خوان است"},
+      {"code":"P-SEAL","name":"واشر درب","qty":0,"explain":"چون کالای مرتبط همین مدل است"},
+      {"code":"P-WH","name":"هیتر انبار","qty":5,"explain":"چون کالای مرتبط همین مدل است؛ چون شرح مشکل با نام یا دسته قطعه هم‌خوان است"}
+    ]}
+  ]
+}

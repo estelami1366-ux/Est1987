@@ -17,6 +17,31 @@
   ],
   "totals": [
     {
+      "id": "zero-lines",
+      "lines": [],
+      "tE": 0,
+      "tD": 0,
+      "tF": 0
+    },
+    {
+      "id": "one-line-disc",
+      "lines": [
+        { "est": 1000, "disc": 10, "finRaw": 9999 }
+      ],
+      "tE": 1000,
+      "tD": 100,
+      "tF": 900
+    },
+    {
+      "id": "one-line-no-disc",
+      "lines": [
+        { "est": 1000, "disc": 0, "finRaw": 800 }
+      ],
+      "tE": 1000,
+      "tD": 0,
+      "tF": 800
+    },
+    {
       "id": "required-mix",
       "lines": [
         { "est": 1000, "disc": 10, "finRaw": 9999 },

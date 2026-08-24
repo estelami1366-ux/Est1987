@@ -12375,20 +12375,25 @@ function calcT(){
     const ee=document.getElementById('d'+i+'_est');
     if(!ee) continue;
     const est=parseFloat(ee.value)||0, disc=parseFloat(document.getElementById('d'+i+'_disc').value)||0;
-    const da=Math.round(est*disc/100), finRaw=parseFloat(document.getElementById('d'+i+'_fin').value)||0;
-    const line = (typeof calcInvoiceLine==='function') ? calcInvoiceLine(est, disc, finRaw) : {da:da, fin: disc>0 ? (est-da) : (finRaw||(est-da))};
+    const finRaw=parseFloat(document.getElementById('d'+i+'_fin').value)||0;
+    // disc>0: fin از (est-da) در calcInvoiceLine / Core invoice.line — اینجا فرمول موازی نیست
+    const line = (typeof calcInvoiceLine==='function') ? calcInvoiceLine(est, disc, finRaw) : null;
+    if(!line || line.fin==null){
+      if(hostOn){ ntf('محاسبه فاکتور انجام نشد','err'); return {tE:0,tD:0,tF:0}; }
+      continue;
+    }
     const fin = line.fin;
     totLines.push({est:est, disc:disc, finRaw:finRaw});
-    if(!hostOn){ tE+=est; tD+=line.da; tF+=fin; }
     document.getElementById('d'+i+'_el').textContent='برآورد: '+fmt(est)+' ریال';
     document.getElementById('d'+i+'_dl').textContent='تخفیف: '+fmt(line.da)+' ریال';
     document.getElementById('d'+i+'_fl').textContent='نهایی: '+fmt(fin)+' ریال';
   }
-  if(hostOn){
-    var coreTot = takeBusinessCore('invoice.totals', {lines:totLines});
-    if(!coreTot){ ntf('محاسبه فاکتور انجام نشد','err'); return {tE:0,tD:0,tF:0}; }
-    tE=coreTot.tE; tD=coreTot.tD; tF=coreTot.tF;
+  var tot = (typeof calcInvoiceTotals==='function') ? calcInvoiceTotals(totLines) : null;
+  if(!tot || tot.tF==null){
+    if(hostOn){ ntf('محاسبه فاکتور انجام نشد','err'); return {tE:0,tD:0,tF:0}; }
+    tot = {tE:0, tD:0, tF:0};
   }
+  tE=tot.tE; tD=tot.tD; tF=tot.tF;
   document.getElementById('t-est').textContent=fmt(tE)+' ریال';
   document.getElementById('t-disc').textContent=fmt(tD)+' ریال';
   document.getElementById('t-fin').textContent=fmt(tF)+' ریال';
@@ -12396,12 +12401,37 @@ function calcT(){
 }
 
 function calcInvoiceLine(est, disc, finRaw){
-  var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('invoice.line', {est:est, disc:disc, finRaw:finRaw}) : null;
-  if(core && typeof core==='object' && core.fin!=null) return core;
+  // مالک EXE: InvoicePricing.Line از RunBusiness("invoice.line"). Fallback JS فقط بدون Host.
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('invoice.line', {est:est, disc:disc, finRaw:finRaw}) : null;
+    if(core && typeof core==='object' && core.fin!=null) return core;
+    return null;
+  }
   est=parseFloat(est)||0; disc=parseFloat(disc)||0; finRaw=parseFloat(finRaw)||0;
   var da=Math.round(est*disc/100);
   var fin = disc>0 ? (est-da) : (finRaw||(est-da));
   return {est:est, disc:disc, da:da, fin:fin};
+}
+function calcInvoiceTotals(lines){
+  // مالک EXE: InvoicePricing.Totals از RunBusiness("invoice.totals"). Fallback JS فقط بدون Host.
+  lines = Array.isArray(lines) ? lines : [];
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('invoice.totals', {lines:lines}) : null;
+    if(core && typeof core==='object' && core.tE!=null && core.tD!=null && core.tF!=null) return core;
+    return null;
+  }
+  var tE=0, tD=0, tF=0;
+  for(var i=0;i<lines.length;i++){
+    var r = lines[i]||{};
+    var est=parseFloat(r.est)||0, disc=parseFloat(r.disc)||0;
+    var finRaw = (r.finRaw!=null && r.finRaw!=='') ? r.finRaw : (r.fin!=null ? r.fin : 0);
+    var line = (typeof calcInvoiceLine==='function') ? calcInvoiceLine(est, disc, finRaw) : null;
+    if(!line || line.fin==null) continue;
+    tE+=est; tD+=line.da; tF+=line.fin;
+  }
+  return {tE:tE, tD:tD, tF:tF};
 }
 function gf(n,k){const e=document.getElementById('d'+n+'_'+k);return e?e.value:'';}
 function getData(){
@@ -12410,10 +12440,13 @@ function getData(){
     if(!document.getElementById('dv-'+i)) continue;
     const est=parseFloat(document.getElementById('d'+i+'_est').value)||0;
     const disc=parseFloat(document.getElementById('d'+i+'_disc').value)||0;
-    const da=Math.round(est*disc/100);
     const finRaw=parseFloat(document.getElementById('d'+i+'_fin').value)||0;
-    // 🔑 رفع باگ تخفیف: اگر درصد تخفیف > 0 است، fin را از (est-da) محاسبه کن
-    const line = (typeof calcInvoiceLine==='function') ? calcInvoiceLine(est, disc, finRaw) : {da:da, fin: disc>0 ? (est-da) : (finRaw||(est-da))};
+    // disc>0: fin از (est-da) در calcInvoiceLine / Core invoice.line — اینجا فرمول موازی نیست
+    const line = (typeof calcInvoiceLine==='function') ? calcInvoiceLine(est, disc, finRaw) : null;
+    if(!line || line.fin==null){
+      if((typeof hasBusinessCore==='function') && hasBusinessCore()){ ntf('محاسبه فاکتور انجام نشد','err'); }
+      continue;
+    }
     const fin = line.fin;
     items.push({num:items.length+1,code:gf(i,'code'),model:gf(i,'model'),date:gf(i,'date'),
       carton:gf(i,'carton'),body:gf(i,'body'),acc:gf(i,'acc'),warranty:gf(i,'warr'),
@@ -12426,13 +12459,10 @@ function getData(){
   }
   var tF=0, tE=0, tD=0;
   var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
-  if(hostOn){
-    var coreTot = takeBusinessCore('invoice.totals', {lines: items.map(function(r){ return {est:r.est, disc:r.disc, finRaw:r.finRaw!=null?r.finRaw:r.fin}; })});
-    if(!coreTot){ ntf('محاسبه فاکتور انجام نشد','err'); }
-    else { tE=coreTot.tE; tD=coreTot.tD; tF=coreTot.tF; }
-  } else {
-    tF=items.reduce((s,r)=>s+r.fin,0); tE=items.reduce((s,r)=>s+r.est,0); tD=items.reduce((s,r)=>s+r.da,0);
-  }
+  var tot = (typeof calcInvoiceTotals==='function') ? calcInvoiceTotals(items.map(function(r){ return {est:r.est, disc:r.disc, finRaw:r.finRaw!=null?r.finRaw:r.fin}; })) : null;
+  if(!tot || tot.tF==null){
+    if(hostOn){ ntf('محاسبه فاکتور انجام نشد','err'); }
+  } else { tE=tot.tE; tD=tot.tD; tF=tot.tF; }
   var rec = {num:document.getElementById('inv-num').textContent, seller:document.getElementById('inv-seller').value,
     date:document.getElementById('inv-date').value, phone:document.getElementById('inv-phone').value,
     notes:document.getElementById('inv-notes').value, status:invStatus, items, tE, tD, tF};
@@ -12996,7 +13026,15 @@ function renderInv(){
   const q=(document.getElementById('inv-q').value||'').toLowerCase();
   const filtered=products.filter(p=>!q||(p.code+p.name+(p.brand||'')).toLowerCase().includes(q));
   const body=document.getElementById('inv-body');
-  body.innerHTML=filtered.map(p=>{const inv=inventory[p.code]||{qty:0,min:0};const snap=typeof invStockSnapshot==='function'?invStockSnapshot(inv):{qty:inv.qty||0,reserved:inv.reserved||0,available:Math.max(0,(inv.qty||0)-(inv.reserved||0)),min:inv.min||0};const low=snap.qty<=snap.min;return`<tr><td><b>${p.code}</b></td><td>${p.name}</td><td>${p.brand||'—'}</td><td style="font-weight:700;color:${low?'var(--red)':'var(--green)'}">${snap.qty}</td><td>${snap.reserved}</td><td>${snap.available}</td><td>${snap.min}</td><td>${low?'<span class="badge" style="background:var(--red-l);color:var(--red)">⚠ کم</span>':'<span class="badge" style="background:var(--green-l);color:var(--green)">✓ موجود</span>'}</td><td><button class="btn btn-sm btn-p" onclick="openInvModal('${p.code}')">ویرایش موجودی</button></td></tr>`;}).join('');
+  body.innerHTML=filtered.map(p=>{
+    const inv=inventory[p.code]||{qty:0,min:0};
+    const snap=typeof invStockSnapshot==='function'?invStockSnapshot(inv):{qty:inv.qty||0,reserved:inv.reserved||0,available:Math.max(0,(inv.qty||0)-(inv.reserved||0)),min:inv.min||0};
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(snap)){
+      return `<tr><td><b>${p.code}</b></td><td>${p.name}</td><td>${p.brand||'—'}</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="badge">محاسبه انجام نشد</span></td><td><button class="btn btn-sm btn-p" onclick="openInvModal('${p.code}')">ویرایش موجودی</button></td></tr>`;
+    }
+    const low=snap.qty<=snap.min;
+    return `<tr><td><b>${p.code}</b></td><td>${p.name}</td><td>${p.brand||'—'}</td><td style="font-weight:700;color:${low?'var(--red)':'var(--green)'}">${snap.qty}</td><td>${snap.reserved}</td><td>${snap.available}</td><td>${snap.min}</td><td>${low?'<span class="badge" style="background:var(--red-l);color:var(--red)">⚠ کم</span>':'<span class="badge" style="background:var(--green-l);color:var(--green)">✓ موجود</span>'}</td><td><button class="btn btn-sm btn-p" onclick="openInvModal('${p.code}')">ویرایش موجودی</button></td></tr>`;
+  }).join('');
   // stats
   const total=products.length, low=products.filter(p=>{const inv=inventory[p.code]||{qty:0,min:0};return inv.qty<=inv.min;}).length;
   document.getElementById('inv-stats-bar').innerHTML=`<div class="inv-stat"><div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">کل کالاها</div></div><div class="stat-card"><div class="stat-val" style="color:var(--red)">${low}</div><div class="stat-lbl">کمبود موجودی</div></div><div class="stat-card"><div class="stat-val" style="color:var(--green)">${total-low}</div><div class="stat-lbl">موجود</div></div></div>`;
@@ -13009,7 +13047,11 @@ function openInvModal(code){
   document.getElementById('im-qty').value=inv.qty;
   document.getElementById('im-min').value=inv.min;
   var imRe=document.getElementById('im-reorder'); if(imRe) imRe.value = (inv.reorder!=null?inv.reorder:inv.min)||0;
-  var imRs=document.getElementById('im-reserved'); if(imRs) imRs.value = invStockSnapshot(inv).reserved;
+  var imRs=document.getElementById('im-reserved');
+  if(imRs){
+    var snapRs = typeof invStockSnapshot==='function' ? invStockSnapshot(inv) : null;
+    imRs.value = (typeof stockDataAvailable==='function' && stockDataAvailable(snapRs)) ? snapRs.reserved : '';
+  }
   document.getElementById('im-note').value=inv.note||'';
   document.getElementById('inv-modal').classList.add('open');
 }
@@ -17602,6 +17644,15 @@ function saveWarehouseDoc(){
       var foundH = (typeof invFindStockItem==='function') ? invFindStockItem(hit.code) : null;
       if(foundH) stockByCode[hit.code] = foundH.item;
     }
+    for(var hp=0; hp<validItems.length; hp++){
+      var pit = validItems[hp];
+      var pwh = (type==='out'||type==='reserve') ? fromWh : toWh;
+      var pitem = stockByCode[pit.code] || {code:pit.code, qty:0};
+      var preWh = (typeof invStockSnapshot==='function') ? invStockSnapshot(pitem, pwh) : null;
+      if(typeof stockDataAvailable==='function' && !stockDataAvailable(preWh)){
+        ntf('محاسبه انجام نشد','err'); return;
+      }
+    }
     var applied = takeBusinessCore('inventory.applyWarehouseDoc', {doc:doc, items:validItems, stockByCode:stockByCode, now:(typeof fdt==='function'?fdt():'')});
     if(!applied){ ntf('ثبت سند انبار انجام نشد','err'); return; }
     if(applied.ok===false){ ntf(applied.error||applied.err||'سند ثبت نشد','err'); return; }
@@ -17618,8 +17669,12 @@ function saveWarehouseDoc(){
       } else if(type==='adjust'){
         var cur = invFindStockItem(jit.code);
         var snap = cur ? invStockSnapshot(cur.item, jwh) : {qty:0};
-        var diff = jit.qty - snap.qty;
-        if(diff!==0) recordStockMove(diff>0?'in':'out', jit.code, jit.name, Math.abs(diff), 'adjust', doc.id, jwh, meta);
+        if(typeof stockDataAvailable==='function' && !stockDataAvailable(snap)){
+          /* جهش حواله قبلاً اعمال شده؛ بدون qty عددی حرکت NaN ثبت نشود */
+        } else {
+          var diff = jit.qty - snap.qty;
+          if(diff!==0) recordStockMove(diff>0?'in':'out', jit.code, jit.name, Math.abs(diff), 'adjust', doc.id, jwh, meta);
+        }
       } else {
         recordStockMove(type==='out'?'out':'in', jit.code, jit.name, jit.qty, type==='return'?'return':'warehouse', doc.id, jwh, meta);
       }
@@ -17646,6 +17701,9 @@ function saveWarehouseDoc(){
       if(!found){ ntf('قلم «'+(it.name||it.code)+'» پیدا نشد','err'); return; }
       var r = invReserveOnItem(found.item, it.qty, whId);
       if(!r.ok){ ntf(r.err,'err'); return; }
+      if(typeof stockDataAvailable==='function' && r.stock && !stockDataAvailable(r.stock)){
+        /* جهش رزرو با r.ok مشخص است؛ stock ناموجود عدد تفسیر نشود — حرکت از it.qty است */
+      }
       if(found.kind==='part' && typeof svParts==='function') svParts();
       if(found.kind==='product' && typeof sv==='function') sv();
       stockMoves.push({
@@ -17660,6 +17718,9 @@ function saveWarehouseDoc(){
       if(type==='adjust'){
         var cur = invFindStockItem(it.code);
         var snap = cur ? invStockSnapshot(cur.item, whId) : {qty:0};
+        if(typeof stockDataAvailable==='function' && !stockDataAvailable(snap)){
+          ntf('محاسبه انجام نشد','err'); return;
+        }
         var diff = it.qty - snap.qty;
         if(diff===0) continue;
         mvType = diff>0 ? 'in' : 'out';
@@ -17928,6 +17989,7 @@ function renderWarehouseReport(){
   if(lowEl){
     var lows = invLowStockFromLists(typeof parts!=='undefined'?parts:[], typeof products!=='undefined'?products:[], typeof inventory!=='undefined'?inventory:{});
     lowEl.innerHTML = lows.length ? lows.map(function(x){
+      if(typeof stockDataAvailable==='function' && !stockDataAvailable(x.stock)) return '';
       return '<div style="padding:6px 0;border-bottom:1px solid var(--border)">'+(x.kind==='part'?'🔩':'📦')+' <b>'+x.code+'</b> '+(x.name||'')+' — موجودی '+x.stock.qty+' / حداقل '+x.stock.min+(x.stock.reorder?' / سفارش '+x.stock.reorder:'')+'</div>';
     }).join('') : '<div style="color:#aaa;padding:8px">کالای کم‌موجودی نیست</div>';
   }
@@ -18245,6 +18307,10 @@ function applyStockByWarehouse(type, code, name, qty, whId, source, refDoc, meta
       item = defectiveStock.find(function(d){return d.id===code;}) || null;
     }
     if(!item) item = {code:code, qty:0};
+    if(type === 'out'){
+      var preOut = (typeof invStockSnapshot==='function') ? invStockSnapshot(item, whId) : null;
+      if(typeof stockDataAvailable==='function' && !stockDataAvailable(preOut)) return {ok:false, err:'محاسبه انجام نشد'};
+    }
     var core = takeBusinessCore('inventory.applyByWarehouse', {item:item, type:type, qty:qty, whId:whId||''});
     if(!core) return {ok:false, err:'محاسبه انجام نشد'};
     if(core.ok===false) return {ok:false, err: core.err||core.error||'موجودی اعمال نشد'};
@@ -18263,11 +18329,13 @@ function applyStockByWarehouse(type, code, name, qty, whId, source, refDoc, meta
     var target = null;
     if(typeof parts !== 'undefined'){
       var pIdx = parts.findIndex(function(p){return p.code === code;});
-      if(pIdx !== -1){ target = parts[pIdx]; avail = invStockSnapshot(target, whId).available; }
+      if(pIdx !== -1){ target = parts[pIdx]; var snapPart = invStockSnapshot(target, whId); if(typeof stockDataAvailable==='function' && !stockDataAvailable(snapPart)) return {ok:false, err:'محاسبه انجام نشد'}; avail = snapPart.available; }
     }
     if(!target && typeof inventory !== 'undefined' && inventory[code]){
       target = inventory[code];
-      avail = invStockSnapshot(target, whId).available;
+      var snapInv = invStockSnapshot(target, whId);
+      if(typeof stockDataAvailable==='function' && !stockDataAvailable(snapInv)) return {ok:false, err:'محاسبه انجام نشد'};
+      avail = snapInv.available;
     }
     if(target && avail < qty){
       return {ok:false, err:'موجودی قابل‌استفاده «'+(name||code)+'» در '+getWhName(whId)+' کافی نیست (قابل استفاده: '+avail+'، درخواست: '+qty+')'};
@@ -18362,9 +18430,17 @@ function invCurrentUser(){
   }catch(_e){}
   return 'کاربر';
 }
+function stockDataAvailable(snap){
+  return !!(snap && typeof snap==='object' && snap.ok !== false && typeof snap.qty === 'number' && isFinite(snap.qty));
+}
 function invStockSnapshot(item, whId){
-  var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('inventory.stock', {item:item||{}, whId:whId||''}) : null;
-  if(core && typeof core==='object' && core.qty!=null) return core;
+  // مالک EXE: InventoryCore.Stock از RunBusiness("inventory.stock"). شکست هسته = INVENTORY_UNAVAILABLE. Fallback JS فقط بدون Host.
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('inventory.stock', {item:item||{}, whId:whId||''}) : null;
+    if(typeof stockDataAvailable==='function' && stockDataAvailable(core)) return core;
+    return {ok:false, reason:'INVENTORY_UNAVAILABLE'};
+  }
   item = item || {};
   var qty = 0, reserved = 0;
   if(whId){
@@ -18392,14 +18468,19 @@ function invReserveOnItem(item, qty, whId){
   qty = parseInt(qty)||0;
   var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
   if(hostOn){
+    var preRes = (typeof invStockSnapshot==='function') ? invStockSnapshot(item, whId) : null;
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(preRes)) return {ok:false, err:'محاسبه انجام نشد'};
     var core = takeBusinessCore('inventory.reserve', {item:item, qty:qty, whId:whId||''});
     if(!core) return {ok:false, err:'محاسبه انجام نشد'};
     if(core.ok===false) return {ok:false, err: core.err||core.error||'رزرو نشد'};
     if(typeof applyCoreItemOnto==='function') applyCoreItemOnto(item, core.item);
-    return {ok:true, stock: core.stock || (typeof invStockSnapshot==='function' ? invStockSnapshot(item, whId) : null)};
+    var stockRes = core.stock;
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(stockRes)) stockRes = {ok:false, reason:'INVENTORY_UNAVAILABLE'};
+    return {ok:true, stock: stockRes};
   }
   if(!item || qty<=0) return {ok:false, err:'مقدار نامعتبر'};
   var snap = invStockSnapshot(item, whId);
+  if(typeof stockDataAvailable==='function' && !stockDataAvailable(snap)) return {ok:false, err:'محاسبه انجام نشد'};
   if(snap.available < qty) return {ok:false, err:'موجودی قابل‌استفاده کافی نیست (قابل استفاده: '+snap.available+')'};
   if(!item.reservedByWh || typeof item.reservedByWh!=='object') item.reservedByWh = {};
   if(whId){
@@ -18414,13 +18495,19 @@ function invReleaseReserveOnItem(item, qty, whId){
   qty = parseInt(qty)||0;
   var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
   if(hostOn){
+    var preRel = (typeof invStockSnapshot==='function') ? invStockSnapshot(item, whId) : null;
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(preRel)) return {ok:false, err:'محاسبه انجام نشد'};
     var core = takeBusinessCore('inventory.release', {item:item, qty:qty, whId:whId||''});
     if(!core) return {ok:false, err:'محاسبه انجام نشد'};
     if(core.ok===false) return {ok:false, err: core.err||core.error||'آزادسازی نشد'};
     if(typeof applyCoreItemOnto==='function') applyCoreItemOnto(item, core.item);
-    return {ok:true, stock: core.stock || (typeof invStockSnapshot==='function' ? invStockSnapshot(item, whId) : null)};
+    var stockRel = core.stock;
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(stockRel)) stockRel = {ok:false, reason:'INVENTORY_UNAVAILABLE'};
+    return {ok:true, stock: stockRel};
   }
   if(!item || qty<=0) return {ok:false, err:'مقدار نامعتبر'};
+  var preRelHtml = (typeof invStockSnapshot==='function') ? invStockSnapshot(item, whId) : null;
+  if(typeof stockDataAvailable==='function' && !stockDataAvailable(preRelHtml)) return {ok:false, err:'محاسبه انجام نشد'};
   if(!item.reservedByWh) item.reservedByWh = {};
   if(whId){
     item.reservedByWh[whId] = Math.max(0, (parseInt(item.reservedByWh[whId])||0) - qty);
@@ -18443,11 +18530,13 @@ function invLowStockFromLists(partsArr, productsArr, inventoryObj){
   var out = [];
   (partsArr||[]).forEach(function(p){
     var s = invStockSnapshot(p);
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(s)) return;
     if(s.qty <= s.min || (s.reorder && s.qty <= s.reorder)) out.push({code:p.code, name:p.name, kind:'part', stock:s});
   });
   (productsArr||[]).forEach(function(p){
     var inv = (inventoryObj && inventoryObj[p.code]) || {qty:0, min:0};
     var s = invStockSnapshot(inv);
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(s)) return;
     if(s.qty <= s.min || (s.reorder && s.qty <= s.reorder)) out.push({code:p.code, name:p.name, kind:'product', stock:s});
   });
   return out;
@@ -18513,6 +18602,7 @@ var InventoryEngine = {
   registerKind: registerWarehouseKind,
   normalizeWarehouse: invNormalizeWarehouse,
   stock: invStockSnapshot,
+  stockDataAvailable: stockDataAvailable,
   reserve: invReserveOnItem,
   release: invReleaseReserveOnItem,
   kardex: invKardexFromMoves,
@@ -18546,7 +18636,12 @@ function renderKardexPreview(){
   var useCode = (hits[0] && hits[0].code) || code;
   var found = invFindStockItem(useCode);
   var snap = found ? invStockSnapshot(found.item, whId||'') : {qty:0,reserved:0,available:0,min:0,reorder:0};
-  if(sumEl) sumEl.textContent = 'کد '+useCode+' — موجودی '+snap.qty+' | رزرو '+snap.reserved+' | قابل استفاده '+snap.available+(snap.min?(' | حداقل '+snap.min):'');
+  if(sumEl){
+    if(found && typeof stockDataAvailable==='function' && !stockDataAvailable(snap))
+      sumEl.textContent = 'کد '+useCode+' — محاسبه انجام نشد';
+    else
+      sumEl.textContent = 'کد '+useCode+' — موجودی '+snap.qty+' | رزرو '+snap.reserved+' | قابل استفاده '+snap.available+(snap.min?(' | حداقل '+snap.min):'');
+  }
   var rows = invKardexFromMoves(typeof stockMoves!=='undefined'?stockMoves:[], useCode, whId||'');
   if(!rows.length){ listEl.innerHTML = '<div style="text-align:center;color:#aaa;padding:16px">گردشی ثبت نشده</div>'; return; }
   var bal = 0;
@@ -19499,7 +19594,7 @@ function applySuggestedWarParts(which){
   var ctx = typeof getWarSuggestContext==='function' ? getWarSuggestContext() : {};
   var catalog = (typeof parts!=='undefined' && Array.isArray(parts)) ? parts : [];
   var hits = (typeof suggestPartsForCase==='function') ? suggestPartsForCase({prodCode:ctx.prodCode, model:ctx.model, problem:ctx.problem, parts:catalog}) : [];
-  if(!hits.length){
+  if(!hits || !hits.length){
     if(typeof ntf==='function') ntf('پیشنهادی از کاتالوگ فعلی پیدا نشد','warn');
     return;
   }
@@ -19620,7 +19715,10 @@ function calcWarrExpFromBuy(n){
   var months = (document.getElementById('wd'+n+'_wmonths')||{}).value||'';
   var expEl = document.getElementById('wd'+n+'_wexp');
   if(!expEl) return;
-  if(buy && months){ expEl.value = (typeof calcWarrantyEndDate==='function') ? calcWarrantyEndDate(buy, months) : addJalaliMonths(buy, months); }
+  if(buy && months){
+    var exp = (typeof calcWarrantyEndDate==='function') ? calcWarrantyEndDate(buy, months) : addJalaliMonths(buy, months);
+    if(exp!=null && typeof exp!=='undefined') expEl.value = exp;
+  }
 }
 
 function addWDev(){
@@ -20169,6 +20267,8 @@ function saveWar(){
         var available=parts[idx].qty||0;
         var qty=parseInt(it.qty)||1;
         if(hostOn){
+          var snapPart = (typeof invStockSnapshot==='function') ? invStockSnapshot(parts[idx]) : null;
+          if(typeof stockDataAvailable==='function' && !stockDataAvailable(snapPart)){ ntf('محاسبه موجودی انجام نشد','err'); return false; }
           var corePart = takeBusinessCore('inventory.consume', {item: parts[idx], qty:qty});
           if(!corePart){ ntf('محاسبه موجودی انجام نشد','err'); return false; }
           if(corePart.wouldGoNegative){
@@ -20411,7 +20511,7 @@ function checkWarrantySlaAlerts(){
     if(ageH<24) return;
     if(cw.slaLastAlertAt && now-Number(cw.slaLastAlertAt)<3600000) return;
     var slaKey = (typeof calcSlaStatusFromAgeHours==='function') ? calcSlaStatusFromAgeHours(ageH) : (ageH>=72?'overdue':(ageH>=48?'critical':'warning'));
-    if(slaKey==='normal') return;
+    if(!slaKey || slaKey==='normal') return;
     var level=slaKey==='overdue'?'🔴':(slaKey==='critical'?'🟠':'🟡');
     var msg=level+' پرونده '+w.id+' («'+(w.name||'بدون نام')+'») '+ageH+' ساعت از ورود دستگاه گذشته است.';
     try{ showLaeghNotification(msg,{body:ageH>=72?'بیش از ۷۲ ساعت: اولتیماتوم نهایی.':(ageH>=48?'بیش از ۴۸ ساعت: پیگیری فوری لازم است.':'بیش از ۲۴ ساعت: وضعیت تعمیر را بررسی کنید.'),tag:'war-sla-'+w.id+'-'+String(Math.floor(Date.now()/3600000))}); }catch(_e){}
@@ -21611,7 +21711,7 @@ function returnToSaleDraft(newPartCode){
 }
 
 function calcSaleTotal(){
-  // به‌روزرسانی از DOM
+  // مالک EXE: InvoicePricing.SaleTotal از RunBusiness("sale.total"). Fallback JS فقط بدون Host — جمع calcSaleLine.
   document.querySelectorAll('.sale-item-row').forEach((row,i) => {
     if(i < saleItems.length){
       const qtyEl = row.querySelector('.sale-item-qty');
@@ -21629,9 +21729,10 @@ function calcSaleTotal(){
     if(coreSale==null || typeof coreSale==='undefined'){ ntf('محاسبه فروش انجام نشد','err'); localTotal = 0; }
     else localTotal = coreSale;
   } else {
-    localTotal = saleItems.reduce((sum,item) => {
-      const discAmt = Math.round(item.price * item.disc / 100);
-      return sum + Math.round((item.qty||1) * ((item.price||0) - discAmt));
+    localTotal = saleItems.reduce(function(sum,item){
+      var cl = (typeof calcSaleLine==='function') ? calcSaleLine(item.qty||1, item.price||0, item.disc||0) : null;
+      if(!cl || cl.total==null) return sum;
+      return sum + cl.total;
     }, 0);
   }
   const lbl = document.getElementById('sale-total-lbl');
@@ -21641,6 +21742,19 @@ function calcSaleTotal(){
   return localTotal;
 }
 
+function calcSaleLine(qty, price, disc){
+  // مالک EXE: InvoicePricing.SaleLine از RunBusiness("sale.line"). Fallback JS فقط بدون Host.
+  qty = qty||1; price = price||0; disc = disc||0;
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('sale.line', {qty:qty, price:price, disc:disc}) : null;
+    if(core && typeof core==='object' && core.discAmt!=null && core.total!=null) return core;
+    return null;
+  }
+  var discAmt = Math.round(price * disc / 100);
+  var total = Math.round(qty * (price - discAmt));
+  return {qty:qty, price:price, disc:disc, discAmt:discAmt, total:total};
+}
 function getSaleData(){
   const grandTotal = calcSaleTotal();
   const shipLabels = {post:'پست پیشتاز',tipax:'تیپاکس',snap:'اسنپ‌باکس',inperson:'حضوری',person:'تحویل از طریق شخص',other:'سایر'};
@@ -21650,15 +21764,18 @@ function getSaleData(){
     id: window._saleEditIdx===-1 ? peekNextSaleId() : sales[window._saleEditIdx].id,
     saleUid: window._saleEditIdx===-1 ? '' : (sales[window._saleEditIdx].saleUid || sales[window._saleEditIdx].SaleUid || ''),
     items: saleItems.map(function(item){
-      var discAmt = Math.round((item.price||0) * (item.disc||0) / 100);
+      var cl = (typeof calcSaleLine==='function') ? calcSaleLine(item.qty||1, item.price||0, item.disc||0) : null;
+      if(!cl || cl.total==null){
+        if((typeof hasBusinessCore==='function') && hasBusinessCore()){ ntf('محاسبه فروش انجام نشد','err'); }
+      }
       return {
         partCode: item.partCode,
         partName: item.partName,
         qty: item.qty||1,
         price: item.price||0,
         disc: item.disc||0,
-        discAmt: (function(){ var cl = (typeof hasBusinessCore==='function' && hasBusinessCore()) ? takeBusinessCore('sale.line', {qty:item.qty||1, price:item.price||0, disc:item.disc||0}) : null; return (cl && cl.discAmt!=null) ? cl.discAmt : Math.round((item.price||0) * (item.disc||0) / 100); })(),
-        total: (function(){ var cl = (typeof hasBusinessCore==='function' && hasBusinessCore()) ? takeBusinessCore('sale.line', {qty:item.qty||1, price:item.price||0, disc:item.disc||0}) : null; return (cl && cl.total!=null) ? cl.total : Math.round((item.qty||1) * ((item.price||0) - Math.round((item.price||0) * (item.disc||0) / 100))); })()
+        discAmt: (cl && cl.discAmt!=null) ? cl.discAmt : null,
+        total: (cl && cl.total!=null) ? cl.total : null
       };
     }),
     total: grandTotal,
@@ -21686,6 +21803,8 @@ function _deductStock(items, refDoc){
     if(idx !== -1){
       var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
       if(hostOn){
+        var snapSale = (typeof invStockSnapshot==='function') ? invStockSnapshot(parts[idx]) : null;
+        if(typeof stockDataAvailable==='function' && !stockDataAvailable(snapSale)){ ntf('محاسبه موجودی انجام نشد','err'); return; }
         var core = takeBusinessCore('inventory.consume', {item: parts[idx], qty: it.qty});
         if(!core){ ntf('محاسبه موجودی انجام نشد','err'); return; }
         if(core.wouldGoNegative){
@@ -21714,13 +21833,16 @@ function _restockFromSale(old){
   var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
   list.forEach(function(it){
     var idx = parts.findIndex(function(p){return p.code === it.partCode;});
-    if(idx !== -1){
-      if(hostOn){
-        var core = takeBusinessCore('inventory.addStock', {item: parts[idx], qty: it.qty||1});
-        if(core && core.ok!==false && core.item) applyCoreRecordOnto(parts[idx], core.item);
-      } else {
-        parts[idx].qty = (parts[idx].qty||0) + (it.qty||1);
+    if(idx === -1) return;
+    if(hostOn){
+      var core = takeBusinessCore('inventory.addStock', {item: parts[idx], qty: it.qty||1});
+      if(!core || core.ok===false || !core.item){
+        if(typeof ntf==='function') ntf('محاسبه موجودی انجام نشد','err');
+        return;
       }
+      applyCoreRecordOnto(parts[idx], core.item);
+    } else {
+      parts[idx].qty = (parts[idx].qty||0) + (it.qty||1);
     }
     if(typeof recordStockMove==='function') recordStockMove('in', it.partCode, it.partName||'', it.qty||1, 'sale', 'برگشت '+(old.id||''));
     else if(typeof _applyStockMovement==='function') _applyStockMovement('in', it.partCode, it.partName||'', it.qty||1, 'sale', 'برگشت '+old.id||'');
@@ -21891,9 +22013,8 @@ function printSaleDoc(saleId){
   var title = isProforma ? 'پیش‌فاکتور فروش قطعات' : 'فاکتور فروش قطعات';
   var docNo = s.id + (isProforma ? ' (پیش‌فاکتور)' : ' (نهایی)');
   var rows = (s.items||[]).map(function(it,idx){
-    var cl = (typeof hasBusinessCore==='function' && hasBusinessCore()) ? takeBusinessCore('sale.line', {qty:it.qty||1, price:it.price||0, disc:it.disc||0}) : null;
-    var discAmt = (it.discAmt!=null)?it.discAmt:(cl&&cl.discAmt!=null?cl.discAmt:Math.round((it.price||0) * (it.disc||0) / 100));
-    var lineNet = (it.total!=null)?it.total:(cl&&cl.total!=null?cl.total:Math.round((it.qty||1) * ((it.price||0) - discAmt)));
+    var cl = (typeof calcSaleLine==='function') ? calcSaleLine(it.qty||1, it.price||0, it.disc||0) : null;
+    var lineNet = (it.total!=null)?it.total:(cl&&cl.total!=null?cl.total:null);
     return '<tr>' +
       '<td style="text-align:center">'+(idx+1)+'</td>' +
       '<td>'+(it.partCode||'—')+'</td>' +
@@ -21901,7 +22022,7 @@ function printSaleDoc(saleId){
       '<td style="text-align:center">'+(it.qty||1)+'</td>' +
       '<td style="text-align:left">'+(it.price||0).toLocaleString('fa-IR')+'</td>' +
       '<td style="text-align:center">'+(it.disc||0)+'</td>' +
-      '<td style="text-align:left;font-weight:700">'+lineNet.toLocaleString('fa-IR')+'</td>' +
+      '<td style="text-align:left;font-weight:700">'+(lineNet!=null?Number(lineNet).toLocaleString('fa-IR'):'—')+'</td>' +
     '</tr>';
   }).join('');
   // اطلاعات حساب گیرنده (اگر موجود)
@@ -26584,8 +26705,13 @@ var ErrorEngine = {
 
 // ─── هسته هوشمند: محاسبه / گردش‌کار / پیشنهاد — روی موتورهای موجود، نه سیستم موازی ───
 function calcWarrantyEndDate(purchaseDate, periodMonths){
-  var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('calc.warrantyEndDate', {purchaseDate:purchaseDate, periodMonths:periodMonths}) : null;
-  if(core!=null && typeof core!=='undefined') return core;
+  // مالک EXE: CalculationEngine.WarrantyEndDate از RunBusiness("calc.warrantyEndDate"). Fallback JS فقط بدون Host.
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('calc.warrantyEndDate', {purchaseDate:purchaseDate, periodMonths:periodMonths}) : null;
+    if(core!=null && typeof core!=='undefined') return core;
+    return null;
+  }
   return (typeof addJalaliMonths==='function') ? addJalaliMonths(purchaseDate, periodMonths) : (purchaseDate||'');
 }
 function calcBalance(totalAmount, paidAmount){
@@ -26621,8 +26747,13 @@ function calcReorderPoint(averageUsage, leadTime, safetyStock){
 }
 function calcSlaStatusFromAgeHours(ageH){
   ageH = parseInt(ageH,10)||0;
-  var core=(typeof takeBusinessCore==='function') ? takeBusinessCore('calc.sla', {ageHours:ageH}) : null;
-  if(core!=null && typeof core!=='undefined') return core;
+  // مالک EXE: CalculationEngine.SlaStatusFromAgeHours از RunBusiness("calc.sla"). Fallback JS فقط بدون Host.
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('calc.sla', {ageHours:ageH}) : null;
+    if(core!=null && typeof core!=='undefined') return core;
+    return null;
+  }
   return (ageH<24)?'normal':(ageH<48)?'warning':(ageH<72)?'critical':'overdue';
 }
 function suggestPartsForCase(opts){
@@ -26631,10 +26762,12 @@ function suggestPartsForCase(opts){
   var prodCode = String(opts.prodCode||'').trim();
   var model = String(opts.model||'').trim();
   var problem = String(opts.problem||opts.fault||'').trim().toLowerCase();
+  // مالک EXE: PartsAdvisor.Suggest از RunBusiness("rules.suggestParts"). Fallback JS ranking فقط بدون Host.
   var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
   if(hostOn){
-    var core = takeBusinessCore('rules.suggestParts', {parts:catalog, prodCode:prodCode, model:model, problem:problem});
+    var core = (typeof takeBusinessCore==='function') ? takeBusinessCore('rules.suggestParts', {parts:catalog, prodCode:prodCode, model:model, problem:problem}) : null;
     if(Array.isArray(core)) return core;
+    return null;
   }
   var out = [];
   catalog.forEach(function(p){
@@ -26648,7 +26781,10 @@ function suggestPartsForCase(opts){
     if(!why.length) return;
     var qty = p.qty;
     if(typeof invStockSnapshot==='function'){
-      try{ qty = invStockSnapshot(p).available; }catch(_e){}
+      try{
+        var s = invStockSnapshot(p);
+        if(typeof stockDataAvailable!=='function' || stockDataAvailable(s)) qty = s.available;
+      }catch(_e){}
     }
     out.push({code:p.code, name:p.name||'', qty:qty, explain: why.join('؛ ')});
   });

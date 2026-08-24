@@ -1,0 +1,24 @@
+{
+  "id": "SIRMAN_PHASE_3_B16_INVENTORY_STOCK_PARITY",
+  "note": "Frozen JS↔C# vectors for inventory.stock: invStockSnapshot (HTML-only, Host stubbed null) vs InventoryCore.Stock. Fields locked: qty, reserved, available, min, reorder, price. available = max(0, qty-reserved). If byWh/reservedByWh objects exist, they win over qty/reserved even when empty. Warehouse id empty/falsy uses the aggregate path. min/reorder/price are not warehouse-scoped. reorder omitted or '' uses min; reorder 0 is kept. Negative qty is stored; available is clamped. Do not invent new stock rules. Do not mutate inventory. Do not migrate EXE ownership in B16.",
+  "cases": [
+    {"id":"empty-item","axis":"item-missing","item":{},"whId":"","expected":{"qty":0,"reserved":0,"available":0,"min":0,"reorder":0,"price":0}},
+    {"id":"null-item","axis":"item-missing","item":null,"whId":"","expected":{"qty":0,"reserved":0,"available":0,"min":0,"reorder":0,"price":0}},
+    {"id":"simple-qty-reserved","axis":"qty-reserved-available","item":{"qty":10,"reserved":4,"min":2,"reorder":3,"price":1000},"whId":"","expected":{"qty":10,"reserved":4,"available":6,"min":2,"reorder":3,"price":1000}},
+    {"id":"zero-stock","axis":"zero-stock","item":{"qty":0,"reserved":0,"min":0,"price":0},"whId":"","expected":{"qty":0,"reserved":0,"available":0,"min":0,"reorder":0,"price":0}},
+    {"id":"warehouse-specific","axis":"warehouse-exists","item":{"qty":99,"reserved":1,"byWh":{"WH-A":10,"WH-B":3},"reservedByWh":{"WH-A":4,"WH-B":0},"min":2,"reorder":3,"price":1000},"whId":"WH-A","expected":{"qty":10,"reserved":4,"available":6,"min":2,"reorder":3,"price":1000}},
+    {"id":"warehouse-missing-key","axis":"warehouse-missing","item":{"qty":10,"byWh":{"WH-A":10},"reservedByWh":{"WH-A":2},"min":1,"reorder":1,"price":5},"whId":"WH-MISSING","expected":{"qty":0,"reserved":0,"available":0,"min":1,"reorder":1,"price":5}},
+    {"id":"unknown-warehouse","axis":"unknown-warehouse","item":{"qty":10,"byWh":{"WH-A":10},"reservedByWh":{"WH-A":1},"min":0,"price":1},"whId":"WH-Z","expected":{"qty":0,"reserved":0,"available":0,"min":0,"reorder":0,"price":1}},
+    {"id":"multi-warehouse-aggregate","axis":"multiple-warehouses","item":{"qty":99,"reserved":99,"byWh":{"WH-A":7,"WH-B":3},"reservedByWh":{"WH-A":2,"WH-B":1},"min":2,"reorder":5,"price":250.5},"whId":"","expected":{"qty":10,"reserved":3,"available":7,"min":2,"reorder":5,"price":250.5}},
+    {"id":"warehouse-b-of-multi","axis":"warehouse-specific-stock","item":{"qty":99,"byWh":{"WH-A":7,"WH-B":3},"reservedByWh":{"WH-A":2,"WH-B":1},"min":2,"reorder":5,"price":250.5},"whId":"WH-B","expected":{"qty":3,"reserved":1,"available":2,"min":2,"reorder":5,"price":250.5}},
+    {"id":"no-bywh-uses-qty","axis":"qty","item":{"qty":8,"reserved":3,"min":1,"reorder":4,"price":12.5},"whId":"","expected":{"qty":8,"reserved":3,"available":5,"min":1,"reorder":4,"price":12.5}},
+    {"id":"reorder-omitted-uses-min","axis":"reorder","item":{"qty":5,"reserved":0,"min":2,"price":10},"whId":"","expected":{"qty":5,"reserved":0,"available":5,"min":2,"reorder":2,"price":10}},
+    {"id":"reorder-empty-string-uses-min","axis":"reorder","item":{"qty":5,"reserved":0,"min":2,"reorder":"","price":10},"whId":"","expected":{"qty":5,"reserved":0,"available":5,"min":2,"reorder":2,"price":10}},
+    {"id":"reorder-zero-kept","axis":"reorder","item":{"qty":5,"reserved":0,"min":2,"reorder":0,"price":10},"whId":"","expected":{"qty":5,"reserved":0,"available":5,"min":2,"reorder":0,"price":10}},
+    {"id":"reserved-exceeds-qty","axis":"available","item":{"qty":3,"reserved":10,"min":0,"price":1},"whId":"","expected":{"qty":3,"reserved":10,"available":0,"min":0,"reorder":0,"price":1}},
+    {"id":"negative-qty","axis":"negative-normalization","item":{"qty":-4,"reserved":0,"min":0,"price":0},"whId":"","expected":{"qty":-4,"reserved":0,"available":0,"min":0,"reorder":0,"price":0}},
+    {"id":"invalid-qty-string","axis":"invalid-normalization","item":{"qty":"nope","reserved":"x","min":"","price":"abc"},"whId":"","expected":{"qty":0,"reserved":0,"available":0,"min":0,"reorder":0,"price":0}},
+    {"id":"empty-bywh-ignores-qty-field","axis":"byWh-present","item":{"qty":50,"reserved":9,"byWh":{},"reservedByWh":{},"min":1,"reorder":1,"price":2},"whId":"","expected":{"qty":0,"reserved":0,"available":0,"min":1,"reorder":1,"price":2}},
+    {"id":"price-and-min","axis":"price-min","item":{"qty":1,"reserved":0,"min":5,"reorder":8,"price":99.5},"whId":"","expected":{"qty":1,"reserved":0,"available":1,"min":5,"reorder":8,"price":99.5}}
+  ]
+}
