@@ -1,0 +1,17 @@
+{
+  "Ok": true,
+  "SourceCount": 4,
+  "DbCount": 4,
+  "IdParity": true,
+  "CodeParity": true,
+  "FieldParity": true,
+  "HashParity": true,
+  "AggregateHashSource": "97c5c95643338d81fa5303b5c600c306ed766ed96bb30241c57a1746fbad1306",
+  "AggregateHashDb": "97c5c95643338d81fa5303b5c600c306ed766ed96bb30241c57a1746fbad1306",
+  "JournalMode": "wal",
+  "ForeignKeys": true,
+  "Integrity": "ok",
+  "SchemaVersion": 1,
+  "generatedIds": [],
+  "extractionSource": "/workspace/Sirman_Final.html"
+}

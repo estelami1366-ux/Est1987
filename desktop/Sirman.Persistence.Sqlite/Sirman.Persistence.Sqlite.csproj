@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Sirman.Persistence.Sqlite</RootNamespace>
+    <AssemblyName>Sirman.Persistence.Sqlite</AssemblyName>
+    <Description>SQLite candidate persistence — not live SoT</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.8" />
+    <ProjectReference Include="..\Sirman.Core\Sirman.Core.csproj" />
+  </ItemGroup>
+</Project>
