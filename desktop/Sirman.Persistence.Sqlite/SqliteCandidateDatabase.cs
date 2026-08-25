@@ -6,7 +6,7 @@ namespace Sirman.Persistence.Sqlite;
 public static class SqliteCandidateDatabase
 {
     public const int SchemaVersion = 1;
-    public const string ApplicationVersion = "1405.6.2α";
+    public const string ApplicationVersion = "1405.6.3α";
 
     public static SqliteConnection OpenInitialized(string dbPath)
     {

@@ -44,7 +44,7 @@ def publish_exe() -> None:
         "-r",
         "win-x64",
         "--self-contained",
-        "false",
+        "true",
         "-p:EnableWindowsTargeting=true",
         "-p:DebugType=none",
         "-p:DebugSymbols=false",
@@ -74,7 +74,7 @@ def pack() -> None:
             continue
         if p.suffix.lower() in {".xml", ".pdb"}:
             continue
-        if p.name in {"createdump", "Sirman_Final.html"}:
+        if p.name.lower() in {"createdump", "createdump.exe", "sirman_final.html"}:
             continue
         rel = p.relative_to(PUBLISH)
         copy_file(p, app_dir / rel)
@@ -122,11 +122,10 @@ def pack() -> None:
         f"فایل آپدیت همین نسخه داخل App\\updates\\Sirman_Update_{APP}.json است\n"
         "(حدود ۱٫۶ مگابایت، کل برنامه). فایل یک‌کیلوبایتی برنامه نیست.\n"
         "اگر روی پوشه نصب قدیمی نصب کنید، همان فایل Pending قدیمی ۱ کیلوبایتی را عوض می‌کند.\n\n"
-        "اگر .NET 8 Desktop Runtime روی ویندوز نباشد، Sirman.exe باز نمی‌شود.\n"
-        "در آن صورت از داخل پوشه نصب Sirman_Start.bat را بزنید،\n"
-        "یا Runtime را از سایت مایکروسافت نصب کنید:\n"
-        "https://dotnet.microsoft.com/download/dotnet/8.0\n"
-        "(همان صفحه: Desktop Runtime 8، ویندوز x64)\n\n"
+        "این کیت خودکفا است: Runtime دات‌نت داخل App است.\n"
+        "فایل JSON یک‌کیلوبایتی برنامه نیست.\n"
+        "اگر صفحه سفید بود WebView2 را نصب کنید:\n"
+        "https://developer.microsoft.com/microsoft-edge/webview2/\n\n"
         "داده (فاکتور/گارانتی) داخل فایل برنامه نیست.\n"
         "قبل از نصب روی سیستم جدید از «ورود/خروج داده» بک‌آپ بگیرید.\n"
     )

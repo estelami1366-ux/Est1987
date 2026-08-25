@@ -16,7 +16,7 @@ ROOT = Path("/workspace")
 VER = json.loads((ROOT / "SIRMAN_VERSION.json").read_text(encoding="utf-8"))
 VERSION = VER["appFa"]
 VERSION_LATIN = VER["app"]
-DATE_FA = "۱۴۰۵/۰۶/۰۲"
+DATE_FA = "۱۴۰۵/۰۶/۰۳"
 DATE_LATIN = VER["date"]
 ZIP_NAME = f"Sirman_Setup_{VERSION_LATIN}.zip"
 
@@ -69,9 +69,8 @@ TXT = f"""راهنمای نصب سیرمان
 روی همان کامپیوتر فروشگاه لازم است:
 
   • ویندوز ۱۰ یا ۱۱، ۶۴ بیتی
-  • .NET 8 Desktop Runtime x64
-    https://dotnet.microsoft.com/download/dotnet/8.0
-    از همان صفحه: Desktop Runtime 8 — Windows x64
+  • این کیت خودکفا است؛ Runtime دات‌نت داخل پوشه App است
+    لازم نیست جداگانه .NET نصب کنید
   • WebView2
     معمولاً با Microsoft Edge هست.
     اگر exe باز شد و صفحه سفید بود، WebView2 را نصب کنید:
@@ -123,9 +122,6 @@ TXT = f"""راهنمای نصب سیرمان
 ════════════════════════════════════
 ۴) اگر Sirman.exe باز نشد
 ════════════════════════════════════
-
-• پیام نبودن .NET:
-  Desktop Runtime 8 ویندوز x64 را نصب کنید، یک‌بار سیستم را Restart کنید، دوباره exe را باز کنید.
 
 • پنجره باز می‌شود ولی صفحه سفید است:
   WebView2 را نصب کنید.
@@ -297,7 +293,7 @@ def build_docx():
         doc,
         [
             "ویندوز ۱۰ یا ۱۱، ۶۴ بیتی",
-            ".NET 8 Desktop Runtime x64 از صفحه دانلود دات‌نت ۸ — همان صفحه: Desktop Runtime 8، Windows x64",
+            "این کیت خودکفا است؛ Runtime دات‌نت داخل پوشه App است و لازم نیست جداگانه نصب شود",
             "WebView2 — معمولاً با Edge هست. اگر exe صفحه سفید داد، Runtime وب‌ویو را نصب کنید.",
         ],
     )
@@ -323,7 +319,6 @@ def build_docx():
     add_bullets(
         doc,
         [
-            "پیام نبودن .NET: Desktop Runtime 8 ویندوز x64 را نصب کنید، Restart، دوباره باز کنید.",
             "صفحه سفید: WebView2 را نصب کنید. HTML باید کنار exe باشد.",
             "بدون exe: داخل پوشه نصب Sirman_Start.bat را بزنید و پنجره مشکی را نبندید.",
         ],

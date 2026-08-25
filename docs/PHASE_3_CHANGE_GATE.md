@@ -3,7 +3,7 @@
 
 **Version:** 1.0  
 **Product:** SIRMAN  
-**Live version:** `1405.6.2α`  
+**Live version:** `1405.6.3α`  
 **Phase:** 3  
 **Mode:** Change Gate / Governance  
 **Authority:** Source code + Phase 3 Capability & Ownership Map  

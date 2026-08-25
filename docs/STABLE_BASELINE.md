@@ -1,16 +1,16 @@
 # STABLE BASELINE — سیرمان
 
-ثبت‌شده: ۱۴۰۵/۰۶/۰۲ (۲۴ اوت ۲۰۲۶).
+ثبت‌شده: ۱۴۰۵/۰۶/۰۳ (۲۵ اوت ۲۰۲۶).
 
 این فایل وضعیت پایدار *فعلی* است. قبل از Feature جدید آن را بخوان. بعد از انتشار تأییدشده به‌روز کن.
 
 ## محصول
 
-- نسخه: `1405.6.2α` / اسمبلی `1405.6.2.1`
+- نسخه: `1405.6.3α` / اسمبلی `1405.6.3.1`
 - منبع نسخه: `SIRMAN_VERSION.json`
 - UI: `Sirman_Final.html` (تک‌فایل) + همگام `Laegh_Final.html`
 - پوسته: .NET 8 WebView2 — `desktop/Sirman.Desktop` + `desktop/Sirman.Core`
-- کیت جاری کد: `Sirman_Setup_1405.6.2α.zip`
+- کیت جاری کد: `Sirman_Setup_1405.6.3α.zip` (خودکفا)
 - قفل فاز ۲ (چاپ منجمد): تگ `phase-2-closed-1405.5.27-alpha` @ `5af08eb`
 
 ## Git
@@ -21,8 +21,8 @@
 
 ## Build / Test (آخرین اجرای عامل)
 
-- HTML: `node test_laegh.js Sirman_Final.html` — ۵۴۳ موفق / ۰ ناموفق
-- C#: `dotnet test desktop/Sirman.Core.Tests` — ۱۲۵ موفق / ۰ ناموفق
+- HTML: `node test_laegh.js Sirman_Final.html` — ۶۴۷ موفق / ۰ ناموفق
+- C#: `dotnet test desktop/Sirman.Core.Tests` — ۲۰۲ موفق / ۰ ناموفق
 - این اعداد Linux/CI هستند، نه تأیید چاپگر فروشگاه
 
 ## قابلیت‌های پایدار (Locked مگر باگ ثابت یا Requirement جدید)
