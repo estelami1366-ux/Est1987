@@ -13,7 +13,7 @@ public interface IPrintService
 
     /// <summary>
     /// ارسال HTML برای خروجی فایل (<paramref name="purpose"/>=pdf) یا اسناد کاغذ هنوز مهاجرت‌نشده.
-    /// مسیر کاغذ تولیدی فاکتور/صفحه آزمایشی از <see cref="EnqueueNative"/> می‌گذرد.
+    /// مسیر کاغذ تولیدی فاکتور/صفحه آزمایشی/برچسب پستی از <see cref="EnqueueNative"/> می‌گذرد.
     /// موفقیت PDF موفقیت چاپ فیزیکی نیست.
     /// </summary>
     string Enqueue(
@@ -28,7 +28,7 @@ public interface IPrintService
         string purpose);
 
     /// <summary>
-    /// چاپ کاغذ بومی: JSON ساخت‌یافته (نه HTML) برای صفحه آزمایشی و فاکتور.
+    /// چاپ کاغذ بومی: JSON ساخت‌یافته (نه HTML) برای صفحه آزمایشی، فاکتور و برچسب پستی.
     /// رندر پشت مرز Desktop با PrintDocument انجام می‌شود.
     /// </summary>
     string EnqueueNative(

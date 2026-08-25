@@ -2648,6 +2648,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
 
 <div class="btn-bar no-print">
   <button class="btn btn-p" onclick="printPostal()">🖨 پرینت برچسب</button>
+  <button class="btn btn-sm" onclick="printPostalNative()" title="مسیر بومی PrintDocument — آزمایشی؛ پیش‌نمایش HTML عوض نمی‌شود">🖨 چاپ بومی برچسب</button>
   <button class="btn btn-sm" onclick="clearPostal()">🗑 پاک</button>
 </div>
 
@@ -13466,24 +13467,40 @@ function fillRcv(idx){
   document.getElementById('rcv-pbq').value='';
   updatePostalPreview(); ntf('اطلاعات گیرنده بارگذاری شد');
 }
-function updatePostalPreview(){ try{ if(document.getElementById("postal-hist-list")) renderPostalHistory(); }catch(_e){}
-  const snd={name:document.getElementById('snd-name').value||senderInfo.name||'',addr:document.getElementById('snd-addr').value||senderInfo.addr||'',zip:document.getElementById('snd-zip').value||senderInfo.zip||'',tel:document.getElementById('snd-tel').value||senderInfo.tel||'',person:document.getElementById('snd-person').value||senderInfo.person||''};
-  const rcv={name:document.getElementById('rcv-name').value,addr:document.getElementById('rcv-addr').value,zip:document.getElementById('rcv-zip').value,tel:document.getElementById('rcv-tel').value,note:document.getElementById('rcv-note').value};
-  const logo=`<div class="postal-logo-box"><img src="${logoSrc}" alt="Laegh"><div style="font-size:8px;color:#555;margin-top:2px">${getBrand().nameEn}</div></div>`;
-  const card1=`<div class="postal-box">
+function readPostalLabelData(){
+  var g=function(id){ var e=document.getElementById(id); return e?e.value||'':''; };
+  var sndName=g('snd-name');
+  var snd={
+    addr:g('snd-addr')||(typeof senderInfo!=='undefined'&&senderInfo.addr)||'',
+    zip:g('snd-zip')||(typeof senderInfo!=='undefined'&&senderInfo.zip)||'',
+    tel:g('snd-tel')||(typeof senderInfo!=='undefined'&&senderInfo.tel)||'',
+    person:g('snd-person')||(typeof senderInfo!=='undefined'&&senderInfo.person)||''
+  };
+  var rcv={name:g('rcv-name'),addr:g('rcv-addr'),zip:g('rcv-zip'),tel:g('rcv-tel'),note:g('rcv-note')};
+  return {sender:snd, recipient:rcv, senderName:sndName};
+}
+function buildPostalPreviewCards(data){
+  data = data || readPostalLabelData();
+  var snd=data.sender||{}, rcv=data.recipient||{};
+  var logo=`<div class="postal-logo-box"><img src="${logoSrc}" alt="Laegh"><div style="font-size:8px;color:#555;margin-top:2px">${getBrand().nameEn}</div></div>`;
+  var card1=`<div class="postal-box">
     ${logo}
-    <div style="margin-bottom:6px;font-size:12px"><b>فرستنده:</b> ${snd.addr}</div>
-    <div style="font-size:12px">کدپستی: <b>${snd.zip}</b></div>
-    <div style="font-size:12px">شماره تماس: ${snd.tel} ${snd.person}</div>
+    <div style="margin-bottom:6px;font-size:12px"><b>فرستنده:</b> ${snd.addr||''}</div>
+    <div style="font-size:12px">کدپستی: <b>${snd.zip||''}</b></div>
+    <div style="font-size:12px">شماره تماس: ${snd.tel||''} ${snd.person||''}</div>
   </div>`;
-  const card2=`<div class="postal-box">
-    <div style="margin-bottom:6px;font-size:12px"><b>آدرس گیرنده:</b> ${rcv.addr}</div>
-    <div style="font-size:12px">کدپستی: <b>${rcv.zip}</b></div>
-    <div style="font-size:12px">شماره تماس: ${rcv.tel}</div>
-    <div style="font-size:13px;font-weight:700;margin-top:4px">${rcv.name}</div>
+  var card2=`<div class="postal-box">
+    <div style="margin-bottom:6px;font-size:12px"><b>آدرس گیرنده:</b> ${rcv.addr||''}</div>
+    <div style="font-size:12px">کدپستی: <b>${rcv.zip||''}</b></div>
+    <div style="font-size:12px">شماره تماس: ${rcv.tel||''}</div>
+    <div style="font-size:13px;font-weight:700;margin-top:4px">${rcv.name||''}</div>
     ${rcv.note?`<div style="margin-top:8px"><span class="postal-fragile">${rcv.note}</span></div>`:''}
   </div>`;
-  document.getElementById('postal-preview').innerHTML=`<div class="postal-wrap">${card2}${card1}</div><div class="postal-wrap" style="margin-top:8px">${card2}${card1}</div>`;
+  return `<div class="postal-wrap">${card2}${card1}</div><div class="postal-wrap" style="margin-top:8px">${card2}${card1}</div>`;
+}
+function updatePostalPreview(){ try{ if(document.getElementById("postal-hist-list")) renderPostalHistory(); }catch(_e){}
+  var el=document.getElementById('postal-preview');
+  if(el) el.innerHTML=buildPostalPreviewCards(readPostalLabelData());
 }
 ['snd-name','snd-addr','snd-zip','snd-tel','snd-person','rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>{document.getElementById(id).addEventListener('input',updatePostalPreview);});
 updatePostalPreview();
@@ -13541,6 +13558,22 @@ function printPostal(){
   openFreshPrintWindow(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
 <meta name="app-version" content="1405.6.2α">
 <style>${printBgCss('postal')}body{font-family:Tahoma,sans-serif;direction:rtl;font-size:11px;}@page{size:${pp.paper||'A4'};margin:10mm;}.postal-wrap{display:flex;gap:10px;margin-bottom:10px;}.postal-box{flex:1;${pp.border!==false?'border:2px solid #333;':''}border-radius:6px;padding:10px 12px;line-height:1.8;}.postal-logo-box{border:1px solid #aaa;border-radius:4px;padding:4px 8px;text-align:center;float:left;margin-right:10px;margin-bottom:6px;}.postal-logo-box img{max-width:90px;max-height:36px;object-fit:contain;}.postal-fragile{font-size:28px;font-weight:900;border:3px solid #333;border-radius:6px;padding:4px 12px;display:inline-block;margin-top:8px;${pp.fragile===false?'display:none;':''}}</style></head><body>${cont}</body></html>`);
+}
+function printPostalNative(){
+  if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
+  var ps=(typeof getPrintSettings==='function')?getPrintSettings():{};
+  var pp=ps.postal||{};
+  var job=(typeof printEngineJob==='function')?printEngineJob('postal'):{};
+  var data=(typeof readPostalLabelData==='function')?readPostalLabelData():{sender:{},recipient:{}};
+  var model=printEngineBuildPostalLabelModel({
+    data:data,
+    paper:job.paper||pp.paper||'A5',
+    copies:job.copies||1,
+    printerName:job.printer||'',
+    widthMm:job.widthMm,
+    heightMm:job.heightMm
+  });
+  return printEnginePrintNative(model, {docId:'postalLabel', title:'برچسب پستی بومی', printer:job.printer||''});
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
 
@@ -24743,6 +24776,37 @@ function printEngineBuildTestPageModel(opt){
     mixedSample: '۱۲۳۴۵۶789'
   };
 }
+function printEngineBuildPostalLabelModel(opt){
+  opt = opt || {};
+  var data = opt.data || (typeof readPostalLabelData==='function' ? readPostalLabelData() : {sender:{}, recipient:{}});
+  var ps = (typeof getPrintSettings==='function') ? getPrintSettings() : {};
+  var pp = ps.postal || {};
+  var split = printEngineSplitPaper(opt.paper || pp.paper || 'A5');
+  if(typeof opt.landscape==='boolean') split = {paper: split.paper, landscape: opt.landscape, orientation: opt.landscape ? 'landscape' : 'portrait'};
+  var brand = (typeof getBrand==='function') ? getBrand() : {};
+  var model = {
+    kind: 'postalLabel',
+    engine: 'native',
+    purpose: 'print',
+    printerName: opt.printerName || opt.printer || '',
+    paper: split.paper,
+    orientation: split.orientation,
+    landscape: split.landscape,
+    copies: opt.copies || 1,
+    documentId: opt.documentId || 'postal-label',
+    documentType: 'postalLabel',
+    sender: data.sender || {},
+    recipient: data.recipient || {},
+    logoSrc: opt.logoSrc || (typeof logoSrc!=='undefined' ? logoSrc : ''),
+    brandEn: opt.brandEn || brand.nameEn || '',
+    border: pp.border!==false,
+    fragile: pp.fragile!==false,
+    margin: '10mm'
+  };
+  if(opt.widthMm) model.widthMm = opt.widthMm;
+  if(opt.heightMm) model.heightMm = opt.heightMm;
+  return model;
+}
 function printEnginePrintNative(model, opt){
   opt = opt || {};
   if(!model){
@@ -24906,6 +24970,7 @@ var PrintEngine = {
   savePdf: printEngineSavePdf,
   buildInvoiceModel: printEngineBuildInvoiceModel,
   buildTestPageModel: printEngineBuildTestPageModel,
+  buildPostalLabelModel: printEngineBuildPostalLabelModel,
   open: openPrintCenter,
   history: printEngineHistory,
   applyProfile: printEngineApplyProfile,
