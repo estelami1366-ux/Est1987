@@ -377,7 +377,7 @@ public class SirmanHostObject
             if (kind.Length == 0) kind = documentType;
             var nativePaper = string.Equals(engine, "native", StringComparison.OrdinalIgnoreCase)
                 && !string.Equals(purpose, "pdf", StringComparison.OrdinalIgnoreCase);
-            if (!nativePaper && html.Length == 0 && (kind is "testPage" or "invoice") && !string.Equals(purpose, "pdf", StringComparison.OrdinalIgnoreCase))
+            if (!nativePaper && html.Length == 0 && (kind is "testPage" or "invoice" or "postalLabel") && !string.Equals(purpose, "pdf", StringComparison.OrdinalIgnoreCase))
                 nativePaper = true;
             if (nativePaper)
                 return _form.EnqueueNativePrint(json ?? "{}", printer, paper, orientation, copies, documentId, documentType, user, purpose);

@@ -72,10 +72,38 @@ public sealed class TestPagePrintModel
     public string MixedSample { get; init; } = "۱۲۳۴۵۶789";
 }
 
+/// <summary>
+/// Postal label card fields actually printed by the HTML preview.
+/// Sender name is collected in UI but is not printed — it is omitted here.
+/// Date, tracking, barcode, and QR are not printed.
+/// </summary>
+public sealed class PostalParty
+{
+    public string Addr { get; init; } = "";
+    public string Zip { get; init; } = "";
+    public string Tel { get; init; } = "";
+    public string Person { get; init; } = "";
+    public string Name { get; init; } = "";
+    public string Note { get; init; } = "";
+}
+
+public sealed class PostalLabelPrintModel
+{
+    public string Kind => NativePrintRequest.KindPostalLabel;
+    public PostalParty Sender { get; init; } = new();
+    public PostalParty Recipient { get; init; } = new();
+    public string LogoSrc { get; init; } = "";
+    public string BrandEn { get; init; } = "";
+    public bool Border { get; init; } = true;
+    public bool Fragile { get; init; } = true;
+    public string Margin { get; init; } = "10mm";
+}
+
 public sealed record NativePrintRequest
 {
     public const string KindTestPage = "testPage";
     public const string KindInvoice = "invoice";
+    public const string KindPostalLabel = "postalLabel";
     public const string EngineNative = "native";
 
     public string Engine { get; init; } = EngineNative;
@@ -90,10 +118,13 @@ public sealed record NativePrintRequest
     public string Purpose { get; init; } = "print";
     public InvoicePrintModel? Invoice { get; init; }
     public TestPagePrintModel? TestPage { get; init; }
+    public PostalLabelPrintModel? PostalLabel { get; init; }
+    public float WidthMm { get; init; }
+    public float HeightMm { get; init; }
 
     public bool IsNativePaper =>
         string.Equals(Engine, EngineNative, StringComparison.OrdinalIgnoreCase)
-        && (Kind is KindTestPage or KindInvoice)
+        && (Kind is KindTestPage or KindInvoice or KindPostalLabel)
         && !string.Equals(Purpose, "pdf", StringComparison.OrdinalIgnoreCase);
 
     public static bool LooksNative(JsonObject o)
@@ -103,7 +134,7 @@ public sealed record NativePrintRequest
         var purpose = o["purpose"]?.GetValue<string>() ?? "";
         if (string.Equals(purpose, "pdf", StringComparison.OrdinalIgnoreCase)) return false;
         if (string.Equals(engine, EngineNative, StringComparison.OrdinalIgnoreCase)) return true;
-        return kind is KindTestPage or KindInvoice && o["html"] is null;
+        return kind is KindTestPage or KindInvoice or KindPostalLabel && o["html"] is null;
     }
 
     public static bool TryParse(string? json, out NativePrintRequest request, out string error)
@@ -157,6 +188,10 @@ public sealed record NativePrintRequest
             if (documentType.Length == 0) documentType = kind;
             var user = Str(node, "user");
             var doc = node["document"] as JsonObject ?? node;
+            var widthMm = Flt(node, "widthMm");
+            if (widthMm <= 0) widthMm = Flt(doc, "widthMm");
+            var heightMm = Flt(node, "heightMm");
+            if (heightMm <= 0) heightMm = Flt(doc, "heightMm");
 
             if (kind == KindTestPage)
             {
@@ -173,7 +208,31 @@ public sealed record NativePrintRequest
                     DocumentType = KindTestPage,
                     User = user,
                     Purpose = purpose,
-                    TestPage = test
+                    TestPage = test,
+                    WidthMm = widthMm,
+                    HeightMm = heightMm
+                };
+                return true;
+            }
+
+            if (kind == KindPostalLabel)
+            {
+                var postal = ParsePostalLabel(doc);
+                request = new NativePrintRequest
+                {
+                    Engine = EngineNative,
+                    Kind = KindPostalLabel,
+                    PrinterName = printer,
+                    Paper = paper,
+                    Orientation = orientation,
+                    Copies = copies,
+                    DocumentId = documentId.Length > 0 ? documentId : "postal-label",
+                    DocumentType = KindPostalLabel,
+                    User = user,
+                    Purpose = purpose,
+                    PostalLabel = postal,
+                    WidthMm = widthMm,
+                    HeightMm = heightMm
                 };
                 return true;
             }
@@ -194,7 +253,9 @@ public sealed record NativePrintRequest
                     DocumentType = KindInvoice,
                     User = user,
                     Purpose = purpose,
-                    Invoice = invoice
+                    Invoice = invoice,
+                    WidthMm = widthMm,
+                    HeightMm = heightMm
                 };
                 return true;
             }
@@ -207,6 +268,37 @@ public sealed record NativePrintRequest
             error = "سندی برای چاپ نیست: " + ex.Message;
             return false;
         }
+    }
+
+    private static PostalLabelPrintModel ParsePostalLabel(JsonObject doc)
+    {
+        var sender = doc["sender"] as JsonObject;
+        var recipient = doc["recipient"] as JsonObject;
+        var margin = Str(doc, "margin");
+        return new PostalLabelPrintModel
+        {
+            Sender = ParsePostalParty(sender),
+            Recipient = ParsePostalParty(recipient),
+            LogoSrc = FirstNonEmpty(Str(doc, "logoSrc"), Str(doc, "logoDataUrl"), Str(doc, "logo")),
+            BrandEn = Str(doc, "brandEn"),
+            Border = doc["border"] is null || Bool(doc, "border"),
+            Fragile = doc["fragile"] is null || Bool(doc, "fragile"),
+            Margin = margin.Length > 0 ? margin : "10mm"
+        };
+    }
+
+    private static PostalParty ParsePostalParty(JsonObject? o)
+    {
+        if (o is null) return new PostalParty();
+        return new PostalParty
+        {
+            Addr = FirstNonEmpty(Str(o, "addr"), Str(o, "address")),
+            Zip = FirstNonEmpty(Str(o, "zip"), Str(o, "postalCode")),
+            Tel = FirstNonEmpty(Str(o, "tel"), Str(o, "phone")),
+            Person = Str(o, "person"),
+            Name = Str(o, "name"),
+            Note = Str(o, "note")
+        };
     }
 
     private static TestPagePrintModel ParseTestPage(JsonObject doc, string printer, string paper, string orientation) =>
@@ -337,6 +429,18 @@ public sealed record NativePrintRequest
         if (v.TryGetValue<string>(out var s)
             && double.TryParse(s, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var ds))
             return ds;
+        return 0;
+    }
+
+    private static float Flt(JsonObject o, string k)
+    {
+        if (o[k] is not JsonValue v) return 0;
+        if (v.TryGetValue<float>(out var f)) return f;
+        if (v.TryGetValue<double>(out var d)) return (float)d;
+        if (v.TryGetValue<int>(out var n)) return n;
+        if (v.TryGetValue<string>(out var s)
+            && float.TryParse(s, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var fs))
+            return fs;
         return 0;
     }
 

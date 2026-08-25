@@ -235,4 +235,97 @@ public class NativePrintTests
         Assert.True(NativePrintLayout.IsIsoA4OrA5("A4"));
         Assert.False(NativePrintLayout.RequiresCustomPaperForm("A4"));
     }
+
+    [Fact]
+    public void PostalLabel_ParseSucceedsWithEmptyOptionals()
+    {
+        var json = """{"kind":"postalLabel","engine":"native","paper":"A5","copies":1}""";
+        Assert.True(NativePrintRequest.TryParse(json, out var req, out var err), err);
+        Assert.Equal(NativePrintRequest.KindPostalLabel, req.Kind);
+        Assert.NotEqual(NativePrintRequest.KindInvoice, req.Kind);
+        Assert.NotEqual(NativePrintRequest.KindTestPage, req.Kind);
+        Assert.NotNull(req.PostalLabel);
+        Assert.Null(req.Invoice);
+        Assert.Null(req.TestPage);
+        Assert.Equal("", req.PostalLabel!.Sender.Addr);
+        Assert.Equal("", req.PostalLabel.Recipient.Name);
+        Assert.True(req.PostalLabel.Border);
+        Assert.True(req.PostalLabel.Fragile);
+        Assert.Equal("10mm", req.PostalLabel.Margin);
+        Assert.Equal(1, req.Copies);
+        Assert.True(req.IsNativePaper);
+    }
+
+    [Fact]
+    public void PostalLabel_ParseKeepsPersianAddressAndLtrPostalCode()
+    {
+        var json = """
+        {
+          "kind":"postalLabel","engine":"native","paper":"A5","copies":3,
+          "sender":{"addr":"تهران، خیابان انقلاب","zip":"2000-35155","tel":"021111","person":"مسئول"},
+          "recipient":{"name":"علی رضایی","addr":"اصفهان، خیابان چهارباغ، پلاک ۱۲","zip":"81400-11111","tel":"031222","note":"شکستنی"}
+        }
+        """;
+        Assert.True(NativePrintRequest.TryParse(json, out var req, out var err), err);
+        Assert.Equal(NativePrintRequest.KindPostalLabel, req.Kind);
+        Assert.Equal(3, req.Copies);
+        var postal = req.PostalLabel!;
+        Assert.Equal("2000-35155", postal.Sender.Zip);
+        Assert.Equal("تهران، خیابان انقلاب", postal.Sender.Addr);
+        Assert.Equal("اصفهان، خیابان چهارباغ، پلاک ۱۲", postal.Recipient.Addr);
+        Assert.Equal("علی رضایی", postal.Recipient.Name);
+        Assert.Equal("شکستنی", postal.Recipient.Note);
+        var presented = NativePrintBidi.AsLeftToRight(postal.Sender.Zip);
+        Assert.Equal("2000-35155", NativePrintBidi.Unwrap(presented));
+        Assert.Contains("2000-35155", presented, StringComparison.Ordinal);
+        Assert.DoesNotContain("35155-2000", presented, StringComparison.Ordinal);
+        Assert.StartsWith("\u202A", presented);
+        Assert.EndsWith("\u202C", presented);
+        Assert.Equal("35155-2000", NativePrintBidi.ReverseHyphenated("2000-35155"));
+        Assert.Equal("اصفهان، خیابان چهارباغ، پلاک ۱۲", postal.Recipient.Addr);
+    }
+
+    [Fact]
+    public void PostalLabel_InvalidKindStillRejectedAndPdfIsNotNative()
+    {
+        Assert.False(NativePrintRequest.TryParse("""{"kind":"warranty"}""", out _, out var kindErr));
+        Assert.Equal("نوع سند بومی پشتیبانی نمی‌شود", kindErr);
+        Assert.False(NativePrintRequest.TryParse("""{"kind":"postalLabel","copies":0}""", out _, out var copyErr));
+        Assert.Contains("کپی", copyErr);
+        Assert.True(NativePrintRequest.LooksNative(JsonNode.Parse("""{"kind":"postalLabel"}""")!.AsObject()));
+        Assert.True(NativePrintRequest.LooksNative(JsonNode.Parse("""{"engine":"native","kind":"postalLabel"}""")!.AsObject()));
+        Assert.False(NativePrintRequest.LooksNative(JsonNode.Parse("""{"kind":"postalLabel","html":"<div/>"}""")!.AsObject()));
+        Assert.False(NativePrintRequest.LooksNative(JsonNode.Parse("""{"engine":"native","purpose":"pdf","kind":"postalLabel"}""")!.AsObject()));
+        var parsed = JsonNode.Parse("""{"engine":"native","kind":"postalLabel","purpose":"pdf"}""")!.AsObject();
+        Assert.True(NativePrintRequest.TryParse(parsed.ToJsonString(), out var req, out _));
+        Assert.False(req.IsNativePaper);
+    }
+
+    [Fact]
+    public void PostalLabel_CustomLabelDimensionsDoNotOverrideA4A5()
+    {
+        Assert.True(NativePrintRequest.TryParse(
+            """{"kind":"postalLabel","paper":"label","copies":2,"widthMm":50,"heightMm":30}""",
+            out var labelReq, out var err), err);
+        Assert.Equal(2, labelReq.Copies);
+        Assert.Equal(50, labelReq.WidthMm);
+        Assert.Equal(30, labelReq.HeightMm);
+        var labelSpec = NativePrintLayout.WithExplicitMillimeters(
+            NativePrintLayout.ParsePaper(labelReq.Paper, labelReq.Orientation),
+            labelReq.WidthMm, labelReq.HeightMm);
+        Assert.Equal("label", labelSpec.Name);
+        Assert.Equal(NativePrintLayout.MillimetersToHundredthsInch(50), labelSpec.WidthHundredthsInch);
+        Assert.Equal(NativePrintLayout.MillimetersToHundredthsInch(30), labelSpec.HeightHundredthsInch);
+
+        Assert.True(NativePrintRequest.TryParse(
+            """{"kind":"postalLabel","paper":"A5","widthMm":50,"heightMm":30}""",
+            out var a5Req, out var a5Err), a5Err);
+        var a5 = NativePrintLayout.ParsePaper(a5Req.Paper, a5Req.Orientation);
+        var a5Kept = NativePrintLayout.WithExplicitMillimeters(a5, a5Req.WidthMm, a5Req.HeightMm);
+        Assert.Equal("A5", a5Kept.Name);
+        Assert.Equal(a5.WidthHundredthsInch, a5Kept.WidthHundredthsInch);
+        Assert.Equal(a5.HeightHundredthsInch, a5Kept.HeightHundredthsInch);
+        Assert.True(NativePrintLayout.IsIsoA4OrA5("A5"));
+        Assert.False(NativePrintLayout.RequiresCustomPaperForm("A5"));
+    }
 }

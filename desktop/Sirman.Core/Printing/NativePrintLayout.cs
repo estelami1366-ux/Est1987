@@ -71,6 +71,27 @@ public static class NativePrintLayout
         return new PaperSpec(name, landscape, w, h, 8f);
     }
 
+    /// <summary>1 inch = 25.4 mm. Used only when the paper token already takes the custom-form path.</summary>
+    public static int MillimetersToHundredthsInch(float mm)
+    {
+        if (mm <= 0) return 1;
+        return Math.Max(1, (int)Math.Round(mm / 25.4f * 100f, MidpointRounding.AwayFromZero));
+    }
+
+    /// <summary>
+    /// Preserve explicit thermal/label millimetres. Does not override ISO A4/A5 (P0.1 installed forms).
+    /// </summary>
+    public static PaperSpec WithExplicitMillimeters(PaperSpec spec, float widthMm, float heightMm)
+    {
+        if (widthMm <= 0 || heightMm <= 0) return spec;
+        if (!RequiresCustomPaperForm(spec.Name)) return spec;
+        return spec with
+        {
+            WidthHundredthsInch = MillimetersToHundredthsInch(widthMm),
+            HeightHundredthsInch = MillimetersToHundredthsInch(heightMm)
+        };
+    }
+
     public static float ParseMarginMm(string? margin, float fallback = 8f)
     {
         var s = (margin ?? "").Trim().ToLowerInvariant().Replace("mm", "", StringComparison.Ordinal);

@@ -5148,6 +5148,35 @@ test('تاریخچه برچسب پستی باید با تاریخ ثبت و در
   assertContainsString(html, 'تاریخچه برچسب', 'عنوان تاریخچه در UI نیست');
 });
 
+test('برچسب پستی: مسیر HTML قدیمی می‌ماند و مسیر بومی صریح و جدا است', () => {
+  const printPostal = extractFunctionSource(html, 'printPostal');
+  assertTrue(!!printPostal, 'printPostal باید بماند');
+  assertContainsString(printPostal, 'openFreshPrintWindow', 'مسیر HTML برچسب باید openFreshPrintWindow بماند');
+  assertTrue(printPostal.indexOf('printEnginePrintNative') < 0, 'printPostal نباید بی‌صدا به native سوییچ شود');
+  const printNative = extractFunctionSource(html, 'printPostalNative');
+  assertTrue(!!printNative, 'printPostalNative برای آزمایش مسیر بومی لازم است');
+  assertContainsString(printNative, 'printEnginePrintNative', 'چاپ بومی برچسب باید printEnginePrintNative باشد');
+  assertContainsString(printNative, "docId:'postalLabel'", 'kind بومی باید postalLabel باشد نه invoice');
+  assertTrue(printNative.indexOf('openFreshPrintWindow') < 0, 'مسیر بومی نباید WebView2/HTML چاپ کند');
+  assertContainsString(html, 'onclick="printPostalNative()"', 'دکمه انتخاب صریح چاپ بومی برچسب لازم است');
+  assertContainsString(html, 'function readPostalLabelData(', 'پیش‌نمایش و چاپ بومی باید منبع داده مشترک داشته باشند');
+  assertContainsString(html, 'function buildPostalPreviewCards(', 'سازنده کارت پیش‌نمایش باید جدا باشد');
+  const builder = extractFunctionSource(html, 'printEngineBuildPostalLabelModel');
+  assertTrue(!!builder, 'printEngineBuildPostalLabelModel پیدا نشد');
+  assertContainsString(builder, "kind: 'postalLabel'", 'مدل بومی باید kind=postalLabel باشد');
+  assertTrue(builder.indexOf("kind: 'invoice'") < 0, 'مدل برچسب نباید invoice باشد');
+  const nativeSvc = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'NativeWindowsPrintService.cs'), 'utf8');
+  assertContainsString(nativeSvc, 'DrawPostalLabel', 'رندر بومی برچسب باید DrawPostalLabel باشد');
+  assertContainsString(nativeSvc, 'DrawInvoicePage', 'رندر فاکتور نباید حذف شود');
+  assertContainsString(nativeSvc, 'DrawTestPage', 'رندر صفحه آزمایش نباید حذف شود');
+  assertContainsString(nativeSvc, 'TrySelectInstalledIsoForm', 'منطق کاغذ P0.1 باید بماند');
+  assertTrue(nativeSvc.indexOf('DrawInvoicePage(g, bounds, request.PostalLabel') < 0, 'برچسب نباید از رندر فاکتور عبور کند');
+  const hostSrc = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs'), 'utf8');
+  assertContainsString(hostSrc, 'postalLabel', 'Host باید kind postalLabel را مسیر بومی بشناسد');
+  const models = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Printing', 'NativePrintModels.cs'), 'utf8');
+  assertContainsString(models, 'KindPostalLabel = "postalLabel"', 'مدل Core باید kind جدا داشته باشد');
+});
+
 test('گارانتی: انقضای خودکار از ماه ضمانت + تحویل به مشتری + چند مدرک', () => {
   assertContainsString(html, 'function calcWarrExpFromBuy(', 'calcWarrExpFromBuy پیدا نشد');
   assertContainsString(html, 'function addJalaliMonths(', 'addJalaliMonths پیدا نشد');
@@ -5858,7 +5887,7 @@ test('مرکز پرینت باید در تنظیمات با سه ستون سند
 });
 
 test('Print Engine مرکزی، پروفایل‌ها و چاپ سریع باید موجود باشند', () => {
-  ['printCenterDefaultState','getPrintCenterState','savePrintCenterState','printDocCatalog','registerPrintDocument','printEngineJob','printEngineApplyProfile','printEnginePrintHtml','printEnginePrintNative','printEngineBuildInvoiceModel','printEngineBuildTestPageModel','printEngineSplitPaper','printEngineQuickPrint','printEngineSavePdf','printEngineRecordHistory','printEngineHistory','printEngineLastJob','printEngineListPrinters','printEngineBuildPreview','openPrintCenter','refreshPrintCenterUI','pcDoPrint','pcDoNativeTestPage','pcDoPdf','pcDoRetry','printEngineFailResult','printEngineIsPdfPrinter'].forEach(fn=>{
+  ['printCenterDefaultState','getPrintCenterState','savePrintCenterState','printDocCatalog','registerPrintDocument','printEngineJob','printEngineApplyProfile','printEnginePrintHtml','printEnginePrintNative','printEngineBuildInvoiceModel','printEngineBuildTestPageModel','printEngineBuildPostalLabelModel','printEngineSplitPaper','printEngineQuickPrint','printEngineSavePdf','printEngineRecordHistory','printEngineHistory','printEngineLastJob','printEngineListPrinters','printEngineBuildPreview','openPrintCenter','refreshPrintCenterUI','pcDoPrint','pcDoNativeTestPage','pcDoPdf','pcDoRetry','printEngineFailResult','printEngineIsPdfPrinter'].forEach(fn=>{
     assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
   });
   assertContainsString(html, "var PrintEngine = {", 'شیء PrintEngine پیدا نشد');
@@ -6082,6 +6111,79 @@ test('شبیه‌سازی: چاپ بومی فاکتور html نمی‌فرستد
   assertTrue(r.testHtml == null, 'صفحه آزمایش نباید html بفرستد');
   assertEqual(r.pdfCode, 'PDF_NOT_PRINT', 'PDF نباید مسیر کاغذ بومی باشد');
   assertEqual(r.afterPdf, 2, 'مسیر PDF نباید PrintDocument کاغذ را صدا بزند');
+});
+
+test('شبیه‌سازی: چاپ بومی برچسب postalLabel است، html ندارد، و PDF را رد می‌کند', () => {
+  const start = html.indexOf("var PC_KEY = 'laegh_printCenter';");
+  const pe = html.indexOf('\nvar PrintEngine = {');
+  const objEnd = html.indexOf('\n};', pe);
+  const src = html.slice(start, objEnd + 3);
+  const store = {};
+  const fakeLS = {
+    getItem(k){ return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },
+    setItem(k,v){ store[k]=String(v); },
+    removeItem(k){ delete store[k]; }
+  };
+  const captured = [];
+  const fakeWindow = {
+    chrome: {
+      webview: {
+        hostObjects: {
+          sync: {
+            sirmanHost: {
+              GetPrinters(){ return JSON.stringify({ok:true, printers:[{name:'HP Laser', isDefault:true, isValid:true, isPhysical:true}], count:1, defaultPrinter:'HP Laser'}); },
+              PrintDocument(json){
+                captured.push(typeof json==='string' ? JSON.parse(json) : json);
+                return JSON.stringify({ok:true, status:'PRINT_SUBMITTED', errorCode:null, message:'queued', printJobId:'PJ-aabbccddeeff', printer:'HP Laser'});
+              },
+              PrintHtml(){ return JSON.stringify({ok:false, status:'PRINT_FAILED', errorCode:'NO_PRINTER'}); },
+              GetPrintJob(){ return JSON.stringify({ok:true, status:'PRINT_SUBMITTED', printJobId:'PJ-aabbccddeeff'}); }
+            }
+          }
+        }
+      }
+    }
+  };
+  const runner = new Function(
+    'window','localStorage','ntf','getPrintSettings','getBrand','logoSrc','fdt','PS_KEY','captured',
+    src + `
+      var model = printEngineBuildPostalLabelModel({
+        data:{
+          sender:{addr:'تهران خیابان انقلاب', zip:'2000-35155', tel:'021111', person:'مسئول'},
+          recipient:{name:'علی', addr:'اصفهان، خیابان چهارباغ', zip:'81400-11111', tel:'031222', note:'شکستنی'}
+        },
+        paper:'A5', copies:2, printerName:'HP Laser', documentId:'postal-label',
+        widthMm:148, heightMm:210
+      });
+      var native = printEnginePrintNative(model, {docId:'postalLabel', documentId:'postal-label', printer:'HP Laser', copies:2, paper:'A5'});
+      var pdfBlocked = printEnginePrintNative(model, {printer:'Microsoft Print to PDF'});
+      return {
+        engine: captured[0] && captured[0].engine,
+        html: captured[0] && captured[0].html,
+        kind: captured[0] && captured[0].kind,
+        documentType: captured[0] && captured[0].documentType,
+        zip: captured[0] && captured[0].sender && captured[0].sender.zip,
+        addr: captured[0] && captured[0].recipient && captured[0].recipient.addr,
+        copies: captured[0] && captured[0].copies,
+        paper: captured[0] && captured[0].paper,
+        nativeStatus: native && native.status,
+        pdfCode: pdfBlocked && pdfBlocked.errorCode,
+        afterPdf: captured.length
+      };
+    `
+  );
+  const r = runner(fakeWindow, fakeLS, function(){}, function(){ return {postal:{paper:'A5', border:true, fragile:true}}; }, function(){ return {nameFa:'سیرمان',nameEn:'Sirman'}; }, 'assets/sirman-logo.png', function(){ return '1405/06/03'; }, 'laegh_printSettings', captured);
+  assertEqual(r.engine, 'native', 'بار برچسب باید engine native باشد');
+  assertTrue(r.html == null, 'بار کاغذ برچسب نباید html داشته باشد');
+  assertEqual(r.kind, 'postalLabel', 'kind باید postalLabel باشد نه invoice');
+  assertEqual(r.documentType, 'postalLabel', 'documentType باید postalLabel باشد');
+  assertEqual(r.zip, '2000-35155', 'کدپستی ذخیره‌شده نباید معکوس شود');
+  assertEqual(r.addr, 'اصفهان، خیابان چهارباغ', 'آدرس فارسی باید بدون تغییر بماند');
+  assertEqual(r.copies, 2, 'تعداد کپی باید به میزبان برسد');
+  assertEqual(r.paper, 'A5', 'کاغذ پیش‌فرض برچسب A5 است');
+  assertEqual(r.nativeStatus, 'PRINT_SUBMITTED', 'ارسال بومی باید PRINT_SUBMITTED باشد نه تأیید کاغذ');
+  assertEqual(r.pdfCode, 'PDF_NOT_PRINT', 'PDF نباید مسیر کاغذ بومی برچسب باشد');
+  assertEqual(r.afterPdf, 1, 'مسیر PDF نباید PrintDocument کاغذ برچسب را صدا بزند');
 });
 
 test('شبیه‌سازی: بدون سند زنده، چاپ ناموفق است و داده را عوض نمی‌کند', () => {

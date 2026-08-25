@@ -11,7 +11,7 @@ using Sirman.Core.Printing;
 namespace Sirman.Desktop;
 
 /// <summary>
-/// کاغذ تولیدی فاکتور/صفحه آزمایشی: NativeWindowsPrintService / PrintDocument.
+/// کاغذ تولیدی فاکتور/صفحه آزمایشی/برچسب پستی: NativeWindowsPrintService / PrintDocument.
 /// PDF و اسناد مهاجرت‌نشده: WebView2.PrintAsync (موفقیت PDF چاپ کاغذ نیست).
 /// Microsoft Print to PDF و XPS چاپ نیستند و در مسیر PRINT انتخاب نمی‌شوند.
 /// </summary>

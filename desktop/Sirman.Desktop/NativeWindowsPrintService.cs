@@ -14,15 +14,19 @@ internal static class NativeWindowsPrintService
     public static void Submit(PrintJobState job, NativePrintRequest request)
     {
         var spec = NativePrintLayout.ParsePaper(request.Paper, request.Orientation);
+        if (request.WidthMm > 0 && request.HeightMm > 0)
+            spec = NativePrintLayout.WithExplicitMillimeters(spec, request.WidthMm, request.HeightMm);
         var copies = NativePrintLayout.ClampCopies(request.Copies);
         using var doc = new PrintDocument();
         doc.PrinterSettings.PrinterName = job.Printer;
         doc.PrinterSettings.Copies = (short)copies;
         doc.DefaultPageSettings.Landscape = spec.Landscape;
         ApplyPaperSize(doc, spec);
-        var marginMm = request.Invoice is null
-            ? spec.MarginMm
-            : NativePrintLayout.ParseMarginMm(request.Invoice.Margin, spec.MarginMm);
+        var marginMm = request.Kind == NativePrintRequest.KindPostalLabel
+            ? NativePrintLayout.ParseMarginMm(request.PostalLabel?.Margin, 10f)
+            : request.Invoice is null
+                ? spec.MarginMm
+                : NativePrintLayout.ParseMarginMm(request.Invoice.Margin, spec.MarginMm);
         var m = Math.Max(20, (int)(marginMm / 25.4f * 100));
         doc.DefaultPageSettings.Margins = new Margins(m, m, m, m);
         doc.PrintController = new StandardPrintController();
@@ -30,7 +34,9 @@ internal static class NativeWindowsPrintService
 
         var page = 0;
         var lineIndex = 0;
-        Image? logo = TryLogo(request.Invoice?.LogoDataUrl);
+        Image? logo = request.Kind == NativePrintRequest.KindPostalLabel
+            ? TryAnyLogo(request.PostalLabel?.LogoSrc)
+            : TryLogo(request.Invoice?.LogoDataUrl);
         try
         {
             doc.PrintPage += (_, e) =>
@@ -45,11 +51,19 @@ internal static class NativeWindowsPrintService
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
                 var bounds = e.MarginBounds;
                 if (request.Kind == NativePrintRequest.KindTestPage)
+                {
                     e.HasMorePages = false;
-                else
-                    e.HasMorePages = DrawInvoicePage(g, bounds, request.Invoice!, spec, page, ref lineIndex, logo);
-                if (request.Kind == NativePrintRequest.KindTestPage)
                     DrawTestPage(g, bounds, request.TestPage ?? new TestPagePrintModel(), spec, job.Printer);
+                }
+                else if (request.Kind == NativePrintRequest.KindPostalLabel)
+                {
+                    e.HasMorePages = false;
+                    DrawPostalLabel(g, bounds, request.PostalLabel ?? new PostalLabelPrintModel(), logo);
+                }
+                else
+                {
+                    e.HasMorePages = DrawInvoicePage(g, bounds, request.Invoice!, spec, page, ref lineIndex, logo);
+                }
             };
             job.Set("PRINTING", null, "در حال ارسال به صف چاپ ویندوز");
             job.Log("NATIVE_PRINT_STARTED", "PrintDocument " + job.Printer, job.Printer);
@@ -263,7 +277,145 @@ internal static class NativeWindowsPrintService
         }
     }
 
+    /// <summary>
+    /// Four cards matching HTML preview: two wraps × (recipient, sender) in RTL flex.
+    /// Physical GDI: sender on the left, recipient on the right, duplicated on two rows.
+    /// Does not call DrawInvoicePage or DrawTestPage.
+    /// </summary>
+    private static void DrawPostalLabel(Graphics g, Rectangle bounds, PostalLabelPrintModel model, Image? logo)
+    {
+        const float gap = 10f;
+        var colW = Math.Max(40f, (bounds.Width - gap) / 2f);
+        var rowH = Math.Max(40f, (bounds.Height - gap) / 2f);
+        DrawPostalSenderCard(g, new RectangleF(bounds.Left, bounds.Top, colW, rowH), model, logo);
+        DrawPostalRecipientCard(g, new RectangleF(bounds.Left + colW + gap, bounds.Top, colW, rowH), model);
+        DrawPostalSenderCard(g, new RectangleF(bounds.Left, bounds.Top + rowH + gap, colW, rowH), model, logo);
+        DrawPostalRecipientCard(g, new RectangleF(bounds.Left + colW + gap, bounds.Top + rowH + gap, colW, rowH), model);
+    }
+
+    private static void DrawPostalSenderCard(Graphics g, RectangleF box, PostalLabelPrintModel model, Image? logo)
+    {
+        using var pen = new Pen(Color.FromArgb(51, 51, 51), model.Border ? 2f : 0.6f);
+        using var brush = new SolidBrush(Color.Black);
+        using var rtl = RtlFormat();
+        rtl.LineAlignment = StringAlignment.Near;
+        using var body = SafeFont("Tahoma", 9, FontStyle.Regular);
+        using var bold = SafeFont("Tahoma", 9, FontStyle.Bold);
+        using var tiny = SafeFont("Tahoma", 6, FontStyle.Regular);
+        DrawRoundRect(g, pen, box, 6f);
+        var inner = RectangleF.Inflate(box, -8f, -8f);
+        float y = inner.Top;
+        float textLeft = inner.Left;
+        if (logo is not null)
+        {
+            var logoW = Math.Min(72f, inner.Width * 0.35f);
+            var logoH = 28f;
+            var logoRect = new RectangleF(inner.Left, inner.Top, logoW, logoH);
+            using var logoPen = new Pen(Color.FromArgb(170, 170, 170), 1f);
+            DrawRoundRect(g, logoPen, logoRect, 3f);
+            try { g.DrawImage(logo, RectangleF.Inflate(logoRect, -2f, -2f)); }
+            catch { /* missing/corrupt logo must not abort the label */ }
+            if (!string.IsNullOrWhiteSpace(model.BrandEn))
+            {
+                using var center = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near };
+                g.DrawString(model.BrandEn, tiny, Brushes.Gray, new RectangleF(logoRect.X, logoRect.Bottom, logoRect.Width, 10), center);
+            }
+            textLeft = logoRect.Right + 8f;
+            y = inner.Top;
+        }
+        var sender = model.Sender ?? new PostalParty();
+        var firstW = Math.Max(20f, inner.Right - textLeft);
+        g.DrawString("فرستنده: " + (sender.Addr ?? ""), bold, brush, new RectangleF(textLeft, y, firstW, 36), rtl);
+        y = Math.Max(y + 38f, inner.Top + (logo is null ? 0 : 42f));
+        DrawPostalIdLine(g, "کدپستی:", sender.Zip, bold, body, brush, rtl, new RectangleF(inner.Left, y, inner.Width, 16));
+        y += 18f;
+        var telLine = string.IsNullOrWhiteSpace(sender.Person)
+            ? (sender.Tel ?? "")
+            : ((sender.Tel ?? "") + " " + sender.Person);
+        DrawPostalIdLine(g, "شماره تماس:", telLine, body, body, brush, rtl, new RectangleF(inner.Left, y, inner.Width, 16));
+    }
+
+    private static void DrawPostalRecipientCard(Graphics g, RectangleF box, PostalLabelPrintModel model)
+    {
+        using var pen = new Pen(Color.FromArgb(51, 51, 51), model.Border ? 2f : 0.6f);
+        using var brush = new SolidBrush(Color.Black);
+        using var rtl = RtlFormat();
+        rtl.LineAlignment = StringAlignment.Near;
+        using var body = SafeFont("Tahoma", 9, FontStyle.Regular);
+        using var bold = SafeFont("Tahoma", 9, FontStyle.Bold);
+        using var nameFont = SafeFont("Tahoma", 10, FontStyle.Bold);
+        using var fragileFont = SafeFont("Tahoma", 16, FontStyle.Bold);
+        DrawRoundRect(g, pen, box, 6f);
+        var inner = RectangleF.Inflate(box, -8f, -8f);
+        var rcv = model.Recipient ?? new PostalParty();
+        float y = inner.Top;
+        g.DrawString("آدرس گیرنده: " + (rcv.Addr ?? ""), bold, brush, new RectangleF(inner.Left, y, inner.Width, 36), rtl);
+        y += 38f;
+        DrawPostalIdLine(g, "کدپستی:", rcv.Zip, bold, body, brush, rtl, new RectangleF(inner.Left, y, inner.Width, 16));
+        y += 18f;
+        DrawPostalIdLine(g, "شماره تماس:", rcv.Tel, body, body, brush, rtl, new RectangleF(inner.Left, y, inner.Width, 16));
+        y += 20f;
+        if (!string.IsNullOrWhiteSpace(rcv.Name))
+        {
+            g.DrawString(rcv.Name, nameFont, brush, new RectangleF(inner.Left, y, inner.Width, 18), rtl);
+            y += 22f;
+        }
+        if (model.Fragile && !string.IsNullOrWhiteSpace(rcv.Note))
+        {
+            var badge = MeasureBadge(g, rcv.Note, fragileFont, inner.Width);
+            var bx = inner.Right - badge.Width;
+            var badgeRect = new RectangleF(bx, y, badge.Width, badge.Height);
+            using var thick = new Pen(Color.FromArgb(51, 51, 51), 3f);
+            DrawRoundRect(g, thick, badgeRect, 4f);
+            using var centerRtl = RtlFormat();
+            centerRtl.Alignment = StringAlignment.Center;
+            centerRtl.LineAlignment = StringAlignment.Center;
+            g.DrawString(rcv.Note, fragileFont, brush, badgeRect, centerRtl);
+        }
+    }
+
+    private static SizeF MeasureBadge(Graphics g, string text, Font font, float maxWidth)
+    {
+        var size = g.MeasureString(text ?? "", font);
+        return new SizeF(Math.Min(maxWidth, Math.Max(36f, size.Width + 16f)), Math.Max(22f, size.Height + 8f));
+    }
+
+    private static void DrawPostalIdLine(Graphics g, string label, string? value, Font labelFont, Font valueFont, Brush brush, StringFormat rtl, RectangleF rect)
+    {
+        var stored = value ?? "";
+        var presented = NativePrintBidi.AsLeftToRight(stored);
+        using var ltr = LtrFormat();
+        ltr.LineAlignment = StringAlignment.Center;
+        var labelText = label + " ";
+        var labelSize = g.MeasureString(labelText, labelFont);
+        var labelWidth = Math.Min(rect.Width * 0.45f, Math.Max(40f, labelSize.Width));
+        var labelRect = new RectangleF(rect.Right - labelWidth, rect.Top, labelWidth, rect.Height);
+        var valueRect = new RectangleF(rect.Left, rect.Top, Math.Max(8f, rect.Width - labelWidth - 4f), rect.Height);
+        g.DrawString(label, labelFont, brush, labelRect, rtl);
+        g.DrawString(presented, valueFont, brush, valueRect, ltr);
+    }
+
+    private static void DrawRoundRect(Graphics g, Pen pen, RectangleF box, float radius)
+    {
+        if (box.Width < 2 || box.Height < 2) return;
+        var r = Math.Max(1f, Math.Min(radius, Math.Min(box.Width, box.Height) / 4f));
+        using var path = new System.Drawing.Drawing2D.GraphicsPath();
+        path.AddArc(box.Left, box.Top, r * 2, r * 2, 180, 90);
+        path.AddArc(box.Right - r * 2, box.Top, r * 2, r * 2, 270, 90);
+        path.AddArc(box.Right - r * 2, box.Bottom - r * 2, r * 2, r * 2, 0, 90);
+        path.AddArc(box.Left, box.Bottom - r * 2, r * 2, r * 2, 90, 90);
+        path.CloseFigure();
+        g.DrawPath(pen, path);
+    }
+
     private static StringFormat RtlFormat() => new(StringFormatFlags.DirectionRightToLeft | StringFormatFlags.LineLimit)
+    {
+        Alignment = StringAlignment.Near,
+        LineAlignment = StringAlignment.Center,
+        Trimming = StringTrimming.EllipsisCharacter
+    };
+
+    private static StringFormat LtrFormat() => new(StringFormatFlags.NoWrap | StringFormatFlags.LineLimit)
     {
         Alignment = StringAlignment.Near,
         LineAlignment = StringAlignment.Center,
@@ -275,6 +427,39 @@ internal static class NativeWindowsPrintService
         var name = string.IsNullOrWhiteSpace(family) ? "Tahoma" : family.Trim();
         try { return new Font(name, size, style, GraphicsUnit.Point); }
         catch { return new Font(FontFamily.GenericSansSerif, size, style, GraphicsUnit.Point); }
+    }
+
+    private static Image? TryAnyLogo(string? src)
+    {
+        if (string.IsNullOrWhiteSpace(src)) return null;
+        var s = src.Trim();
+        if (s.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+            return TryLogo(s);
+        if (s.StartsWith("http:", StringComparison.OrdinalIgnoreCase)
+            || s.StartsWith("https:", StringComparison.OrdinalIgnoreCase)
+            || s.StartsWith("file:", StringComparison.OrdinalIgnoreCase))
+            return null;
+        try
+        {
+            var rel = s.Replace('/', Path.DirectorySeparatorChar);
+            var baseDir = AppContext.BaseDirectory;
+            var candidates = new[]
+            {
+                Path.IsPathRooted(rel) ? rel : Path.Combine(baseDir, rel),
+                Path.Combine(baseDir, Path.GetFileName(rel))
+            };
+            foreach (var path in candidates)
+            {
+                if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) continue;
+                using var tmp = Image.FromFile(path);
+                return new Bitmap(tmp);
+            }
+        }
+        catch
+        {
+            return null;
+        }
+        return null;
     }
 
     private static Image? TryLogo(string? dataUrl)
