@@ -4002,13 +4002,13 @@ test('حاکمیت توسعه باید موجود باشد و قانون ماد�
   assertContainsString(g, 'NEEDS HUMAN VERIFICATION', 'وضعیت صادقانه باید تعریف شده باشد');
 });
 
-test('نسخه ۱۴۰۵.۵.۲۷γ باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۶.۲α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.5.27γ', 'نسخه محصول باید 1405.5.27γ باشد');
-  assertEqual(ver.assembly, '1405.5.27.3', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (γ=3)');
-  assertEqual(ver.appFa, '۱۴۰۵.۵.۲۷γ', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.6.2α', 'نسخه محصول باید 1405.6.2α باشد');
+  assertEqual(ver.assembly, '1405.6.2.1', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (α=1)');
+  assertEqual(ver.appFa, '۱۴۰۵.۶.۲α', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -12110,7 +12110,7 @@ test('وظیفه فوری/سررسیدگذشته باید قاعده renderTasks
     invoices: [], warranties: [], sales: [], accounts: [], parts: [], products: [], inventory: {}, defectiveStock: [],
     tasks: [
       {id:'U', title:'فوری', status:'open', priority:'urgent', deadlineTS: null},
-      {id:'SAME', title:'امروز گذشته', status:'open', priority:'normal', deadlineTS: now-60*60*1000},
+      {id:'SAME', title:'امروز گذشته', status:'open', priority:'normal', deadlineTS: H.sameTehranDay(now-60*60*1000, now) ? now-60*60*1000 : now},
       {id:'OLD', title:'دیروز', status:'open', priority:'normal', deadlineTS: now-48*3600000},
       {id:'DONE', title:'انجام', status:'done', priority:'urgent', deadlineTS: now-48*3600000}
     ]
