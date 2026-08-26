@@ -328,4 +328,121 @@ public class NativePrintTests
         Assert.True(NativePrintLayout.IsIsoA4OrA5("A5"));
         Assert.False(NativePrintLayout.RequiresCustomPaperForm("A5"));
     }
+
+    [Fact]
+    public void PaperResolver_PostalDefaultIsA5_UnsetIsNotImplicitA4()
+    {
+        var spec = new DocumentPrintSpec(
+            Kind: NativePrintRequest.KindPostalLabel,
+            Paper: null,
+            Orientation: null,
+            Margin: null,
+            Copies: 1,
+            Scale: 100,
+            WidthMm: 0,
+            HeightMm: 0,
+            PaperExplicit: false,
+            PrintCenterExplicit: false);
+        var resolved = NativePrintPaper.Resolve(spec);
+        Assert.Equal("A5", resolved.Name);
+        Assert.False(resolved.Landscape);
+        Assert.Equal(10f, resolved.MarginMm);
+        Assert.Equal(1, resolved.Copies);
+        Assert.Equal(NativePrintPaper.SourceDocumentDefault, resolved.Source);
+        Assert.Equal(NativePrintLayout.IsoA5Kind, resolved.PaperKind);
+
+        Assert.True(NativePrintRequest.TryParse("""{"kind":"postalLabel","engine":"native","copies":1}""", out var req, out var err), err);
+        Assert.Equal("", req.Paper);
+        Assert.False(req.PaperExplicit);
+        var fromReq = NativePrintPaper.Resolve(NativePrintPaper.FromRequest(req));
+        Assert.Equal("A5", fromReq.Name);
+        Assert.NotEqual("A4", fromReq.Name);
+    }
+
+    [Fact]
+    public void PaperResolver_PostalExplicitA4_AndProfileA4WithoutExplicitStaysA5()
+    {
+        var explicitA4 = new DocumentPrintSpec(
+            NativePrintRequest.KindPostalLabel, "A4", "portrait", "10mm", 2, 100, 0, 0,
+            PaperExplicit: true, PrintCenterExplicit: false);
+        var got = NativePrintPaper.Resolve(explicitA4);
+        Assert.Equal("A4", got.Name);
+        Assert.False(got.Landscape);
+        Assert.Equal(2, got.Copies);
+        Assert.Equal(10f, got.MarginMm);
+        Assert.Equal(NativePrintPaper.SourceUserDocument, got.Source);
+
+        var profileLeak = new DocumentPrintSpec(
+            NativePrintRequest.KindPostalLabel, "A4", "portrait", null, 1, 100, 0, 0,
+            PaperExplicit: false, PrintCenterExplicit: false);
+        var leaked = NativePrintPaper.Resolve(profileLeak);
+        Assert.Equal("A5", leaked.Name);
+        Assert.Equal(NativePrintPaper.SourceDocumentDefault, leaked.Source);
+
+        Assert.True(NativePrintRequest.TryParse(
+            """{"kind":"postalLabel","engine":"native","paper":"A4","paperExplicit":false,"copies":1}""",
+            out var leakReq, out var err), err);
+        Assert.False(leakReq.PaperExplicit);
+        Assert.Equal("A5", NativePrintPaper.Resolve(NativePrintPaper.FromRequest(leakReq)).Name);
+    }
+
+    [Fact]
+    public void PaperResolver_InvoiceAndTestPageDefaultsUnchanged()
+    {
+        var invoice = NativePrintPaper.Resolve(new DocumentPrintSpec(
+            NativePrintRequest.KindInvoice, null, null, "8mm", 1, 100, 0, 0, false, false));
+        Assert.Equal("A4", invoice.Name);
+        Assert.True(invoice.Landscape);
+        Assert.Equal(8f, invoice.MarginMm);
+        Assert.Equal(NativePrintPaper.SourceDocumentDefault, invoice.Source);
+
+        var test = NativePrintPaper.Resolve(new DocumentPrintSpec(
+            NativePrintRequest.KindTestPage, null, null, null, 1, 100, 0, 0, false, false));
+        Assert.Equal("A4", test.Name);
+        Assert.False(test.Landscape);
+        Assert.Equal(8f, test.MarginMm);
+
+        Assert.True(NativePrintRequest.TryParse(
+            """{"kind":"testPage","engine":"native","paper":"A4","copies":1}""",
+            out var testReq, out _), "test page with paper stays A4");
+        Assert.True(testReq.PaperExplicit);
+        Assert.Equal("A4", NativePrintPaper.Resolve(NativePrintPaper.FromRequest(testReq)).Name);
+    }
+
+    [Fact]
+    public void PaperResolver_InstalledIsoFormsAndCustomMmAndOrientation()
+    {
+        var installed = new NativePrintLayout.PaperFormCandidate[]
+        {
+            new("Letter", 1, 1),
+            new("A4", NativePrintLayout.IsoA4Kind, NativePrintLayout.IsoA4Kind),
+            new("A5", NativePrintLayout.IsoA5Kind, NativePrintLayout.IsoA5Kind)
+        };
+        var a4 = NativePrintPaper.Resolve(new DocumentPrintSpec(
+            NativePrintRequest.KindTestPage, "A4", "portrait", "8mm", 3, 100, 0, 0, true, false), installed);
+        Assert.Equal("A4", a4.Name);
+        Assert.Equal(1, a4.InstalledFormIndex);
+        Assert.Equal(NativePrintLayout.IsoA4Kind, a4.PaperKind);
+        Assert.Equal(NativePrintLayout.IsoA4Kind, a4.RawKind);
+        Assert.Equal(NativePrintPaper.SourceInstalledForm, a4.Source);
+        Assert.Equal(3, a4.Copies);
+        Assert.False(a4.Landscape);
+
+        var a5 = NativePrintPaper.Resolve(new DocumentPrintSpec(
+            NativePrintRequest.KindPostalLabel, "A5", "landscape", "10mm", 1, 100, 0, 0, true, false), installed);
+        Assert.Equal("A5", a5.Name);
+        Assert.True(a5.Landscape);
+        Assert.Equal(2, a5.InstalledFormIndex);
+        Assert.Equal(NativePrintLayout.IsoA5Kind, a5.PaperKind);
+        Assert.Equal(NativePrintPaper.SourceInstalledForm, a5.Source);
+        Assert.Equal(10f, a5.MarginMm);
+
+        var custom = NativePrintPaper.Resolve(new DocumentPrintSpec(
+            NativePrintRequest.KindPostalLabel, "label", "", "10mm", 1, 100, 50, 30, true, false));
+        Assert.Equal("label", custom.Name);
+        Assert.Equal(NativePrintPaper.SourceCustomFallback, custom.Source);
+        Assert.Equal(NativePrintLayout.MillimetersToHundredthsInch(50), custom.WidthHundredthsInch);
+        Assert.Equal(NativePrintLayout.MillimetersToHundredthsInch(30), custom.HeightHundredthsInch);
+        Assert.Equal(-1, custom.InstalledFormIndex);
+    }
 }

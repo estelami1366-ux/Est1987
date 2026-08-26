@@ -164,9 +164,11 @@ internal sealed class WindowsPrintHost
                 return;
             }
 
-            var spec = NativePrintLayout.ParsePaper(request.Paper, request.Orientation);
-            job.SettingsSummary = "engine=native; PrinterName=" + chosen + "; paper=" + spec.Name
-                + "; orientation=" + (spec.Landscape ? "landscape" : "portrait") + "; copies=" + NativePrintLayout.ClampCopies(request.Copies);
+            var resolved = NativePrintPaper.Resolve(NativePrintPaper.FromRequest(request));
+            job.SettingsSummary = "engine=native; PrinterName=" + chosen + "; paper=" + resolved.Name
+                + "; orientation=" + (resolved.Landscape ? "landscape" : "portrait")
+                + "; copies=" + resolved.Copies
+                + "; paperSource=" + resolved.Source;
             job.Log("PRINT_SETTINGS_CREATED", job.SettingsSummary, chosen);
             AppendLog(job);
 
