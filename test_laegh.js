@@ -4002,13 +4002,13 @@ test('حاکمیت توسعه باید موجود باشد و قانون ماد�
   assertContainsString(g, 'NEEDS HUMAN VERIFICATION', 'وضعیت صادقانه باید تعریف شده باشد');
 });
 
-test('نسخه ۱۴۰۵.۶.۲α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۶.۳α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.6.2α', 'نسخه محصول باید 1405.6.2α باشد');
-  assertEqual(ver.assembly, '1405.6.2.1', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (α=1)');
-  assertEqual(ver.appFa, '۱۴۰۵.۶.۲α', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.6.3α', 'نسخه محصول باید 1405.6.3α باشد');
+  assertEqual(ver.assembly, '1405.6.3.1', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (α=1)');
+  assertEqual(ver.appFa, '۱۴۰۵.۶.۳α', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
