@@ -5169,7 +5169,9 @@ test('برچسب پستی: مسیر HTML قدیمی می‌ماند و مسیر 
   assertContainsString(nativeSvc, 'DrawPostalLabel', 'رندر بومی برچسب باید DrawPostalLabel باشد');
   assertContainsString(nativeSvc, 'DrawInvoicePage', 'رندر فاکتور نباید حذف شود');
   assertContainsString(nativeSvc, 'DrawTestPage', 'رندر صفحه آزمایش نباید حذف شود');
-  assertContainsString(nativeSvc, 'TrySelectInstalledIsoForm', 'منطق کاغذ P0.1 باید بماند');
+  assertContainsString(nativeSvc, 'NativePrintPaper.Resolve', 'کاغذ بومی باید از resolver مشترک بگذرد');
+  const paperSrc = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Printing', 'NativePrintPaper.cs'), 'utf8');
+  assertContainsString(paperSrc, 'TrySelectInstalledIsoForm', 'منطق کاغذ P0.1 باید در resolver بماند');
   assertTrue(nativeSvc.indexOf('DrawInvoicePage(g, bounds, request.PostalLabel') < 0, 'برچسب نباید از رندر فاکتور عبور کند');
   const hostSrc = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs'), 'utf8');
   assertContainsString(hostSrc, 'postalLabel', 'Host باید kind postalLabel را مسیر بومی بشناسد');
@@ -6184,6 +6186,86 @@ test('شبیه‌سازی: چاپ بومی برچسب postalLabel است، html 
   assertEqual(r.nativeStatus, 'PRINT_SUBMITTED', 'ارسال بومی باید PRINT_SUBMITTED باشد نه تأیید کاغذ');
   assertEqual(r.pdfCode, 'PDF_NOT_PRINT', 'PDF نباید مسیر کاغذ بومی برچسب باشد');
   assertEqual(r.afterPdf, 1, 'مسیر PDF نباید PrintDocument کاغذ برچسب را صدا بزند');
+});
+
+test('شبیه‌سازی: پروفایل A4 Office بدون انتخاب صریح نباید کاغذ برچسب را A4 کند', () => {
+  const start = html.indexOf("var PC_KEY = 'laegh_printCenter';");
+  const pe = html.indexOf('\nvar PrintEngine = {');
+  const objEnd = html.indexOf('\n};', pe);
+  const src = html.slice(start, objEnd + 3);
+  const store = {
+    laegh_printCenter: JSON.stringify({
+      lastDocId: 'invoice',
+      lastProfileId: 'a4-office',
+      selectedPrinter: 'HP Laser',
+      job: {id:'a4-office', title:'A4 Office', printer:'HP Laser', paper:'A4', orientation:'portrait', margin:'8mm', copies:1, pageRange:'all', color:true, scale:100, duplex:false},
+      templates: {},
+      profiles: {},
+      history: [],
+      lastByDoc: {}
+    })
+  };
+  const fakeLS = {
+    getItem(k){ return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },
+    setItem(k,v){ store[k]=String(v); },
+    removeItem(k){ delete store[k]; }
+  };
+  const captured = [];
+  const fakeWindow = {
+    chrome: {
+      webview: {
+        hostObjects: {
+          sync: {
+            sirmanHost: {
+              GetPrinters(){ return JSON.stringify({ok:true, printers:[{name:'HP Laser', isDefault:true, isValid:true, isPhysical:true}], count:1, defaultPrinter:'HP Laser'}); },
+              PrintDocument(json){
+                captured.push(typeof json==='string' ? JSON.parse(json) : json);
+                return JSON.stringify({ok:true, status:'PRINT_SUBMITTED', errorCode:null, message:'queued', printJobId:'PJ-aabbccddeeff', printer:'HP Laser'});
+              },
+              PrintHtml(){ return JSON.stringify({ok:false, status:'PRINT_FAILED', errorCode:'NO_PRINTER'}); },
+              GetPrintJob(){ return JSON.stringify({ok:true, status:'PRINT_SUBMITTED', printJobId:'PJ-aabbccddeeff'}); }
+            }
+          }
+        }
+      }
+    }
+  };
+  const runner = new Function(
+    'window','localStorage','ntf','getPrintSettings','getBrand','logoSrc','fdt','PS_KEY','captured',
+    src + `
+      var leaked = printEngineJob('postal');
+      var model = printEngineBuildPostalLabelModel({
+        data:{ sender:{addr:'تهران', zip:'11111', tel:'021'}, recipient:{name:'علی', addr:'اصفهان', zip:'22222', tel:'031'} }
+      });
+      printEnginePrintNative(model, {docId:'postalLabel', printer:'HP Laser'});
+      var explicit = printEngineBuildPostalLabelModel({
+        data:{ sender:{addr:'تهران', zip:'11111', tel:'021'}, recipient:{name:'علی', addr:'اصفهان', zip:'22222', tel:'031'} },
+        paper:'A4', paperExplicit:true
+      });
+      printEnginePrintNative(explicit, {docId:'postalLabel', printer:'HP Laser', paper:'A4', paperExplicit:true});
+      return {
+        profilePaper: leaked.paper,
+        defaultKind: captured[0] && captured[0].kind,
+        defaultPaper: captured[0] && captured[0].paper,
+        defaultExplicit: captured[0] && captured[0].paperExplicit,
+        explicitPaper: captured[1] && captured[1].paper,
+        explicitFlag: captured[1] && captured[1].paperExplicit,
+        testDefault: printEngineDocumentDefaultPaper('testPage'),
+        invoiceDefault: printEngineDocumentDefaultPaper('invoice'),
+        postalDefault: printEngineDocumentDefaultPaper('postalLabel')
+      };
+    `
+  );
+  const r = runner(fakeWindow, fakeLS, function(){}, function(){ return {postal:{paper:'A5', border:true, fragile:true}}; }, function(){ return {nameFa:'سیرمان',nameEn:'Sirman'}; }, '', function(){ return '1405/06/03'; }, 'laegh_printSettings', captured);
+  assertEqual(r.profilePaper, 'A4', 'پروفایل ذخیره‌شده باید A4 بماند');
+  assertEqual(r.defaultKind, 'postalLabel', 'kind برچسب باید postalLabel بماند');
+  assertEqual(r.defaultPaper, 'A5', 'بدون override صریح باید A5 باشد نه A4 پروفایل');
+  assertEqual(r.defaultExplicit, false, 'پیش‌فرض سند نباید paperExplicit باشد');
+  assertEqual(r.explicitPaper, 'A4', 'override صریح A4 باید A4 بفرستد');
+  assertEqual(r.explicitFlag, true, 'override صریح باید paperExplicit باشد');
+  assertEqual(r.testDefault, 'A4', 'پیش‌فرض صفحه آزمایش باید A4 بماند');
+  assertEqual(r.invoiceDefault, 'A4 landscape', 'پیش‌فرض فاکتور باید A4 landscape بماند');
+  assertEqual(r.postalDefault, 'A5', 'پیش‌فرض برچسب باید A5 باشد');
 });
 
 test('شبیه‌سازی: بدون سند زنده، چاپ ناموفق است و داده را عوض نمی‌کند', () => {

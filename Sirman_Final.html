@@ -13564,17 +13564,26 @@ function printPostalNative(){
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   var ps=(typeof getPrintSettings==='function')?getPrintSettings():{};
   var pp=ps.postal||{};
-  var job=(typeof printEngineJob==='function')?printEngineJob('postal'):{};
+  var overrideJob=(typeof printEngineOverrideJob==='function')?printEngineOverrideJob('postalLabel'):null;
   var data=(typeof readPostalLabelData==='function')?readPostalLabelData():{sender:{},recipient:{}};
+  var paperExplicit=!!(overrideJob && overrideJob.paper);
+  var paper=paperExplicit ? overrideJob.paper : (pp.paper || 'A5');
   var model=printEngineBuildPostalLabelModel({
     data:data,
-    paper:job.paper||pp.paper||'A5',
-    copies:job.copies||1,
-    printerName:job.printer||'',
-    widthMm:job.widthMm,
-    heightMm:job.heightMm
+    paper:paper,
+    copies:(overrideJob && overrideJob.copies) || 1,
+    printerName:(overrideJob && overrideJob.printer) || '',
+    widthMm:overrideJob && overrideJob.widthMm,
+    heightMm:overrideJob && overrideJob.heightMm,
+    paperExplicit:paperExplicit
   });
-  return printEnginePrintNative(model, {docId:'postalLabel', title:'برچسب پستی بومی', printer:job.printer||''});
+  return printEnginePrintNative(model, {
+    docId:'postalLabel',
+    title:'برچسب پستی بومی',
+    printer:(overrideJob && overrideJob.printer) || '',
+    paper: paperExplicit ? paper : undefined,
+    paperExplicit:paperExplicit
+  });
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
 
@@ -24102,6 +24111,35 @@ function printEngineJob(docId){
   job.pageRange = job.pageRange || 'all';
   return job;
 }
+function printEngineDocumentDefaultPaper(kind){
+  var k = String(kind||'');
+  if(k==='postalLabel' || k==='postal') return 'A5';
+  if(k==='invoice') return 'A4 landscape';
+  return 'A4';
+}
+function printEnginePaperDocIds(kind){
+  var k = String(kind||'');
+  if(k==='postalLabel' || k==='postal') return ['postalLabel','postal'];
+  if(k==='testPage') return ['testPage'];
+  if(k==='invoice') return ['invoice'];
+  return k ? [k] : [];
+}
+function printEngineOverrideJob(kind){
+  if(typeof getPrintCenterState!=='function') return null;
+  var st = getPrintCenterState();
+  if(!st) return null;
+  var ids = printEnginePaperDocIds(kind);
+  var i, id;
+  for(i=0;i<ids.length;i++){
+    id = ids[i];
+    if(st.lastDocId!==id) continue;
+    if(st.lastByDoc && st.lastByDoc[id] && st.lastByDoc[id].paper)
+      return st.lastByDoc[id];
+    if(st.job && st.job.paper)
+      return st.job;
+  }
+  return null;
+}
 function printEngineSaveJob(job, docId){
   var st = getPrintCenterState();
   st.job = Object.assign({}, printEngineJob(docId), job||{});
@@ -24796,6 +24834,8 @@ function printEngineBuildPostalLabelModel(opt){
     copies: opt.copies || 1,
     documentId: opt.documentId || 'postal-label',
     documentType: 'postalLabel',
+    paperExplicit: !!opt.paperExplicit,
+    printCenterExplicit: !!opt.printCenterExplicit,
     sender: data.sender || {},
     recipient: data.recipient || {},
     logoSrc: opt.logoSrc || (typeof logoSrc!=='undefined' ? logoSrc : ''),
@@ -24818,10 +24858,17 @@ function printEnginePrintNative(model, opt){
   var job = Object.assign({}, (typeof printEngineJob==='function' ? printEngineJob(docId) : {}), opt.job||{});
   if(opt.printer) job.printer = opt.printer;
   if(opt.printerName) job.printer = opt.printerName;
-  if(opt.paper) job.paper = opt.paper;
   if(opt.copies) job.copies = opt.copies;
-  var split = printEngineSplitPaper(job.paper || model.paper || 'A4');
-  if(typeof model.landscape==='boolean' && !opt.paper && !job.paper){
+  var overrideJob = (typeof printEngineOverrideJob==='function') ? printEngineOverrideJob(docId) : null;
+  var paperExplicit = !!(opt.paperExplicit || opt.paper || (overrideJob && overrideJob.paper) || model.paperExplicit);
+  var printCenterExplicit = !!(opt.printCenterExplicit || model.printCenterExplicit);
+  if(overrideJob && overrideJob.paper){ paperExplicit = true; printCenterExplicit = true; }
+  var paperToken = opt.paper
+    || (overrideJob && overrideJob.paper)
+    || model.paper
+    || printEngineDocumentDefaultPaper(docId);
+  var split = printEngineSplitPaper(paperToken);
+  if(typeof model.landscape==='boolean' && !opt.paper && !(overrideJob && overrideJob.paper)){
     split = {paper: split.paper, landscape: model.landscape, orientation: model.landscape ? 'landscape' : 'portrait'};
   }
   var printer = job.printer || (typeof getPrintCenterState==='function' ? (getPrintCenterState().selectedPrinter||'') : '');
@@ -24829,7 +24876,8 @@ function printEnginePrintNative(model, opt){
     var failPdf = printEngineFailResult('PDF_NOT_PRINT','این چاپگر فایل/PDF است. چاپ کاغذ فقط با چاپگر واقعی انجام می‌شود.',{printer:printer, documentId:documentId, documentType:docId});
     return printEngineApplyResult(failPdf, {docId:docId, title:opt.title, printer:printer, documentId:documentId});
   }
-  if(typeof printEngineSaveJob==='function') printEngineSaveJob(job, docId);
+  if(typeof printEngineSaveJob==='function' && (paperExplicit || printCenterExplicit || docId==='invoice' || docId==='testPage'))
+    printEngineSaveJob(job, docId);
   var host = printEngineHost();
   if(!host || !host.PrintDocument){
     var fail = printEngineFailResult('NO_HOST','چاپ واقعی فقط در Sirman.exe و چاپگر ویندوز انجام می‌شود.',{printer:printer, documentId:documentId, documentType:docId});
@@ -24845,6 +24893,8 @@ function printEnginePrintNative(model, opt){
     copies: parseInt(job.copies,10)||1,
     documentId: documentId,
     documentType: docId,
+    paperExplicit: paperExplicit,
+    printCenterExplicit: printCenterExplicit,
     user: (typeof getAuditActor==='function' && getAuditActor()) ? (getAuditActor().username||'') : ''
   });
   try{ delete payload.html; }catch(_d){ payload.html = undefined; }
@@ -24885,7 +24935,7 @@ function pcDoNativeTestPage(){
     paper: jobUi.paper || 'A4',
     landscape: jobUi.orientation==='landscape',
     copies: jobUi.copies || 1
-  }), {docId:'testPage', title:'صفحه آزمایش بومی', printer: jobUi.printer});
+  }), {docId:'testPage', title:'صفحه آزمایش بومی', printer: jobUi.printer, printCenterExplicit:true, paperExplicit:true});
 }
 function pcDoPrint(){
   var st = getPrintCenterState();
@@ -24915,7 +24965,7 @@ function pcDoPrint(){
       paper: jobUi.paper || 'A4 landscape',
       copies: jobUi.copies || 1,
       printerName: jobUi.printer || ''
-    }), {docId:'invoice', documentId:documentIdInv, title:printDocById('invoice').title, printer:jobUi.printer});
+    }), {docId:'invoice', documentId:documentIdInv, title:printDocById('invoice').title, printer:jobUi.printer, printCenterExplicit:true, paperExplicit:true});
   }
   var html = '';
   var documentId = '';

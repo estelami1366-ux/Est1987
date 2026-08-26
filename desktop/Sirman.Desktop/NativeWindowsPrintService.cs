@@ -13,21 +13,22 @@ internal static class NativeWindowsPrintService
 {
     public static void Submit(PrintJobState job, NativePrintRequest request)
     {
-        var spec = NativePrintLayout.ParsePaper(request.Paper, request.Orientation);
-        if (request.WidthMm > 0 && request.HeightMm > 0)
-            spec = NativePrintLayout.WithExplicitMillimeters(spec, request.WidthMm, request.HeightMm);
-        var copies = NativePrintLayout.ClampCopies(request.Copies);
         using var doc = new PrintDocument();
         doc.PrinterSettings.PrinterName = job.Printer;
+        var installed = new List<NativePrintLayout.PaperFormCandidate>();
+        var sizes = new List<PaperSize>();
+        foreach (PaperSize ps in doc.PrinterSettings.PaperSizes)
+        {
+            sizes.Add(ps);
+            installed.Add(new NativePrintLayout.PaperFormCandidate(ps.PaperName, (int)ps.Kind, ps.RawKind));
+        }
+        var resolved = NativePrintPaper.Resolve(NativePrintPaper.FromRequest(request), installed);
+        var spec = resolved.Layout;
+        var copies = resolved.Copies;
         doc.PrinterSettings.Copies = (short)copies;
-        doc.DefaultPageSettings.Landscape = spec.Landscape;
-        ApplyPaperSize(doc, spec);
-        var marginMm = request.Kind == NativePrintRequest.KindPostalLabel
-            ? NativePrintLayout.ParseMarginMm(request.PostalLabel?.Margin, 10f)
-            : request.Invoice is null
-                ? spec.MarginMm
-                : NativePrintLayout.ParseMarginMm(request.Invoice.Margin, spec.MarginMm);
-        var m = Math.Max(20, (int)(marginMm / 25.4f * 100));
+        doc.DefaultPageSettings.Landscape = resolved.Landscape;
+        ApplyPaperSize(doc, resolved, sizes);
+        var m = Math.Max(20, (int)(resolved.MarginMm / 25.4f * 100));
         doc.DefaultPageSettings.Margins = new Margins(m, m, m, m);
         doc.PrintController = new StandardPrintController();
         doc.DocumentName = "SIRMAN " + request.Kind + " " + (request.DocumentId ?? "");
@@ -79,31 +80,22 @@ internal static class NativeWindowsPrintService
     }
 
     /// <summary>
-    /// A4/A5: use the driver-installed PaperSize (Kind / RawKind / name).
-    /// 80mm, label, custom, or missing ISO form: keep constructed SIRMAN-* size.
+    /// Applies <see cref="ResolvedPaperSpec"/> only. P0.1 ISO index is chosen by NativePrintPaper.Resolve.
     /// </summary>
-    private static void ApplyPaperSize(PrintDocument doc, NativePrintLayout.PaperSpec spec)
+    private static void ApplyPaperSize(PrintDocument doc, ResolvedPaperSpec resolved, List<PaperSize> sizes)
     {
-        if (NativePrintLayout.IsIsoA4OrA5(spec.Name))
+        if (resolved.InstalledFormIndex >= 0 && resolved.InstalledFormIndex < sizes.Count)
         {
-            var installed = new List<NativePrintLayout.PaperFormCandidate>();
-            var sizes = new List<PaperSize>();
-            foreach (PaperSize ps in doc.PrinterSettings.PaperSizes)
-            {
-                sizes.Add(ps);
-                installed.Add(new NativePrintLayout.PaperFormCandidate(ps.PaperName, (int)ps.Kind, ps.RawKind));
-            }
-            if (NativePrintLayout.TrySelectInstalledIsoForm(spec.Name, installed, out var index)
-                && index >= 0 && index < sizes.Count)
-            {
-                doc.DefaultPageSettings.PaperSize = sizes[index];
-                return;
-            }
+            doc.DefaultPageSettings.PaperSize = sizes[resolved.InstalledFormIndex];
+            return;
         }
 
         try
         {
-            doc.DefaultPageSettings.PaperSize = new PaperSize("SIRMAN-" + spec.Name, spec.WidthHundredthsInch, spec.HeightHundredthsInch);
+            doc.DefaultPageSettings.PaperSize = new PaperSize(
+                "SIRMAN-" + resolved.Name,
+                resolved.WidthHundredthsInch,
+                resolved.HeightHundredthsInch);
         }
         catch
         {

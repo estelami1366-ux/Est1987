@@ -121,6 +121,8 @@ public sealed record NativePrintRequest
     public PostalLabelPrintModel? PostalLabel { get; init; }
     public float WidthMm { get; init; }
     public float HeightMm { get; init; }
+    public bool PaperExplicit { get; init; }
+    public bool PrintCenterExplicit { get; init; }
 
     public bool IsNativePaper =>
         string.Equals(Engine, EngineNative, StringComparison.OrdinalIgnoreCase)
@@ -171,7 +173,10 @@ public sealed record NativePrintRequest
             }
 
             var paper = Str(node, "paper");
-            if (paper.Length == 0) paper = "A4";
+            var paperExplicit = node["paperExplicit"] is null
+                ? paper.Length > 0
+                : Bool(node, "paperExplicit");
+            var printCenterExplicit = Bool(node, "printCenterExplicit");
             var orientation = Str(node, "orientation");
             if (node["landscape"] is JsonValue lv)
             {
@@ -210,7 +215,9 @@ public sealed record NativePrintRequest
                     Purpose = purpose,
                     TestPage = test,
                     WidthMm = widthMm,
-                    HeightMm = heightMm
+                    HeightMm = heightMm,
+                    PaperExplicit = paperExplicit,
+                    PrintCenterExplicit = printCenterExplicit
                 };
                 return true;
             }
@@ -232,7 +239,9 @@ public sealed record NativePrintRequest
                     Purpose = purpose,
                     PostalLabel = postal,
                     WidthMm = widthMm,
-                    HeightMm = heightMm
+                    HeightMm = heightMm,
+                    PaperExplicit = paperExplicit,
+                    PrintCenterExplicit = printCenterExplicit
                 };
                 return true;
             }
@@ -255,7 +264,9 @@ public sealed record NativePrintRequest
                     Purpose = purpose,
                     Invoice = invoice,
                     WidthMm = widthMm,
-                    HeightMm = heightMm
+                    HeightMm = heightMm,
+                    PaperExplicit = paperExplicit,
+                    PrintCenterExplicit = printCenterExplicit
                 };
                 return true;
             }
