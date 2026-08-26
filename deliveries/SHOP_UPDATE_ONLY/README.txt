@@ -1,18 +1,18 @@
-فایل آپدیت سیرمان ۱۴۰۵.۶.۳α — فقط همین پوشه را دانلود کنید
+فایل آپدیت سیرمان ۱۴۰۵.۶.۳α — شامل P0.5R (قرارداد کاغذ سند)
 
 چرا از چت Cursor فایل نمی‌آید؟
 چت Cloud Agent فایل‌منجر نیست. JSON حدود ۲ مگابایت را برای دانلود نشان نمی‌دهد.
 گیت‌هاب هم فایل بالای ۱ مگابایت را در صفحه باز نمی‌کند (Too large to display).
 
 چه کار کنید؟
-1) همین فایل ZIP را از گیت‌هاب دانلود کنید (حدود ۴۵۰ کیلوبایت):
+1) همین فایل ZIP را از گیت‌هاب دانلود کنید (زیر ۵۰۰ کیلوبایت):
    Sirman_Update_1405.6.3a.zip
 2) از حالت فشرده خارج کنید.
 3) فایل JSON داخلش را در برنامه وارد کنید:
    تنظیمات → تب آپدیت → بارگذاری فایل آپدیت
 
-لینک مستقیم ZIP بعد از پوش شدن همین commit:
-https://github.com/estelami1366-ux/Est1987/raw/cursor/shop-complete-setup-fa01/deliveries/SHOP_UPDATE_ONLY/Sirman_Update_1405.6.3a.zip
+این بسته فقط HTML را عوض می‌کند. چاپ بومی کامل P0.5R در Sirman.exe است.
+اگر exe قدیمی باشد، HTML برچسب پستی را با paper=A5 می‌فرستد؛ resolver سی‌شارپ کامل فقط با کیت exe جدید است.
 
-لینک مستقیم JSON کامل (۱٫۸ مگابایت — Save As):
-https://raw.githubusercontent.com/estelami1366-ux/Est1987/cursor/shop-complete-setup-fa01/updates/Sirman_Update_1405.6.3%CE%B1.json
+لینک مستقیم ZIP بعد از پوش شدن همین commit:
+https://github.com/estelami1366-ux/Est1987/raw/cursor/p0-5r-update-build-fa01/deliveries/SHOP_UPDATE_ONLY/Sirman_Update_1405.6.3a.zip
