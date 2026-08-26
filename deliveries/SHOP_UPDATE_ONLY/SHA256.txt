@@ -1,2 +1,2 @@
-afcf804f3c24f869de1d8a48c6ee6eca7b02337b22d885245e492c73fe8a9910  Sirman_Update_1405.6.3a.zip
-5525aad04c0c96c7803fa953ffa22ab4c7f6cae312ff0b9f10c0546d68225105  Sirman_Update_1405.6.3a.sirman-update.json
+898aa72adcf975edf0893662875eb86cee49a706ea9d4d455019567eadb9ba41  Sirman_Update_1405.6.3a.zip
+b082937b8ec1d17bddc30eec2533dc57d1d827b159b16a8e511991d3d719a15a  Sirman_Update_1405.6.3a.sirman-update.json
