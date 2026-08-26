@@ -20,7 +20,8 @@ Branch:
 cursor/final-build-2026-08-26-fa01
 
 HEAD:
-2ef63e9 (approved product source used for this build)
+a10eab8 (packaging)
+Approved product source: 2ef63e9
 
 P0.1 included:
 YES

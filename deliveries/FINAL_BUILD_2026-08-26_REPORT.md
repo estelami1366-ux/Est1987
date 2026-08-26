@@ -8,7 +8,8 @@ Branch:
 cursor/final-build-2026-08-26-fa01
 
 HEAD:
-2ef63e9 (approved product source; packaging commit follows this report)
+a10eab8 (packaging commit)
+Approved product source: 2ef63e9
 
 Worktree:
 Product source: clean
