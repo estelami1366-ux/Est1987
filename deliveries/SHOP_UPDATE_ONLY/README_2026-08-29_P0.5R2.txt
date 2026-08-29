@@ -1,0 +1,10 @@
+SIRMAN update 1405.6.3α — dated 2026-08-29 — P0.5R2 shop test
+
+1) Download this ZIP (smaller than the raw JSON).
+2) Extract it.
+3) In the app: Settings → Update tab → load the JSON file.
+
+This package replaces HTML only.
+P0.5R2 native postal wrap/layout lives in Sirman.exe (C#).
+This JSON does not replace Sirman.exe.
+Physical print is NOT VERIFIED.
