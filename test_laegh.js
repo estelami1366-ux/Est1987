@@ -5192,6 +5192,35 @@ test('برچسب پستی: مسیر HTML قدیمی می‌ماند و مسیر 
   assertContainsString(models, 'KindPostalLabel = "postalLabel"', 'مدل Core باید kind جدا داشته باشد');
 });
 
+test('P0.5R4: پروب runtime چاپ بومی فقط می‌خواند و رندر را عوض نمی‌کند', () => {
+  const root = path.dirname(filePath);
+  const probePath = path.join(root, 'desktop', 'Sirman.Desktop', 'NativePrintRuntimeProbe.cs');
+  assertTrue(fs.existsSync(probePath), 'NativePrintRuntimeProbe.cs باید موجود باشد');
+  const probe = fs.readFileSync(probePath, 'utf8');
+  const svc = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Desktop', 'NativeWindowsPrintService.cs'), 'utf8');
+  assertContainsString(probe, 'P0.5R4_NATIVE_RUNTIME.log', 'لاگ پروب باید نام فایل جدا داشته باشد');
+  assertContainsString(probe, 'g.Transform.Elements', 'پروب باید Transform را بخواند');
+  assertContainsString(probe, 'e.PageBounds', 'پروب باید PageBounds را بخواند');
+  assertContainsString(probe, 'DefaultPageSettings.Landscape', 'پروب باید Landscape سند را بخواند');
+  assertTrue(probe.indexOf('RotateTransform') < 0, 'پروب نباید RotateTransform بزند');
+  assertTrue(probe.indexOf('TranslateTransform') < 0, 'پروب نباید TranslateTransform بزند');
+  assertTrue(probe.indexOf('ScaleTransform') < 0, 'پروب نباید ScaleTransform بزند');
+  assertTrue(probe.indexOf('.Landscape =') < 0, 'پروب نباید Landscape را set کند');
+  assertTrue(probe.indexOf('.PageUnit =') < 0, 'پروب نباید PageUnit را set کند');
+  assertTrue(probe.indexOf('.PageScale =') < 0, 'پروب نباید PageScale را set کند');
+  assertTrue(probe.indexOf('.Transform =') < 0, 'پروب نباید Transform را set کند');
+  assertContainsString(svc, 'NativePrintRuntimeProbe.WriteDocument', 'بعد از تنظیم کاغذ باید پروب سند ثبت شود');
+  assertContainsString(svc, 'NativePrintRuntimeProbe.WritePage', 'PrintPage باید قبل از رندر پروب شود');
+  assertTrue(svc.indexOf('RotateTransform') < 0, 'رندر بومی نباید RotateTransform اضافه کند');
+  const drawTestStart = svc.indexOf('private static void DrawTestPage');
+  const drawInvStart = svc.indexOf('private static bool DrawInvoicePage');
+  assertTrue(drawTestStart >= 0 && drawInvStart > drawTestStart, 'DrawTestPage باید قبل از فاکتور باشد');
+  const drawTest = svc.slice(drawTestStart, drawInvStart);
+  assertTrue(drawTest.indexOf('"TL"') < 0, 'صفحه آزمایش نباید نشانگر TL تشخیصی بگیرد');
+  assertTrue(drawTest.indexOf('FillRectangle') < 0, 'صفحه آزمایش نباید مربع گوشه تشخیصی بگیرد');
+  assertTrue(svc.indexOf('PrintPhase0Observer') < 0, 'پروب P0.5R4 نباید مشاهده‌گر فاز ۰ را داخل موتور چاپ صدا بزند');
+});
+
 test('گارانتی: انقضای خودکار از ماه ضمانت + تحویل به مشتری + چند مدرک', () => {
   assertContainsString(html, 'function calcWarrExpFromBuy(', 'calcWarrExpFromBuy پیدا نشد');
   assertContainsString(html, 'function addJalaliMonths(', 'addJalaliMonths پیدا نشد');
