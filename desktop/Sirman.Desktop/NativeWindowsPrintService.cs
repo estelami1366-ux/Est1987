@@ -32,6 +32,7 @@ internal static class NativeWindowsPrintService
         doc.DefaultPageSettings.Margins = new Margins(m, m, m, m);
         doc.PrintController = new StandardPrintController();
         doc.DocumentName = "SIRMAN " + request.Kind + " " + (request.DocumentId ?? "");
+        NativePrintRuntimeProbe.WriteDocument(job, request, resolved, doc);
 
         var page = 0;
         var lineIndex = 0;
@@ -49,6 +50,7 @@ internal static class NativeWindowsPrintService
                     e.HasMorePages = false;
                     return;
                 }
+                NativePrintRuntimeProbe.WritePage(job, request, e, g);
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
                 var bounds = e.MarginBounds;
                 if (request.Kind == NativePrintRequest.KindTestPage)
