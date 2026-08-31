@@ -25,6 +25,10 @@ internal sealed class PrintHardwareDiagnostic
     private string _selectedPrinter = "";
     private bool _paperVerified;
     private string _paperNote = "";
+    private static readonly JsonSerializerOptions HistoryJsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 
     public PrintHardwareDiagnostic(Control ui) => _ui = ui;
 
@@ -47,6 +51,8 @@ internal sealed class PrintHardwareDiagnostic
                 "queue" or "status" => QueueStatus(printer, Str(root, "jobId")),
                 "confirmpaper" or "paper" => ConfirmPaper(root),
                 "matrix" => MatrixJson(),
+                "history" => HistoryJson(),
+                "historyevent" or "verify" => HistoryEvent(root),
                 _ => Fail("UNKNOWN_PRINT_FAILURE", "عمل تشخیص ناشناخته است: " + action)
             };
         }
@@ -164,6 +170,7 @@ internal sealed class PrintHardwareDiagnostic
         if (_ui.InvokeRequired) _ui.Invoke(Work);
         else Work();
         InspectQueue(job, name);
+        TryRecordJobHistory(job, job.Path == "direct" ? "GDI" : "WebView2");
         return job.ToJson();
     }
 
@@ -225,6 +232,7 @@ internal sealed class PrintHardwareDiagnostic
         if (!_ui.IsHandleCreated)
         {
             job.Fail("WEBVIEW2_PRINT_FAILED", "پنجره برنامه برای WebView2 آماده نیست");
+            TryRecordJobHistory(job, "WebView2");
             return job.ToJson();
         }
         _ui.BeginInvoke(new Action(() => _ = RunWebViewAsync(job, name)));
@@ -300,6 +308,7 @@ internal sealed class PrintHardwareDiagnostic
             job.Fail("WEBVIEW2_PRINT_FAILED", ex.Message);
             Log("WEBVIEW2_PRINT_FAILED", printer, ex.Message);
         }
+        TryRecordJobHistory(job, "WebView2");
     }
 
     private string QueueStatus(string requested, string jobId)
@@ -368,7 +377,101 @@ internal sealed class PrintHardwareDiagnostic
         _paperVerified = came;
         _paperNote = came ? "PHYSICAL PRINT VERIFIED" : "PHYSICAL_PRINT_NOT_VERIFIED";
         Log("PAPER_CONFIRM", _selectedPrinter, _paperNote);
+        DiagJob? last;
+        lock (_gate)
+            last = _jobs.Values.OrderByDescending(j => j.CreatedUtc).FirstOrDefault();
+        var sessionId = Str(root, "sessionId");
+        if (string.IsNullOrWhiteSpace(sessionId))
+            sessionId = last?.SessionId ?? "";
+        if (!string.IsNullOrWhiteSpace(sessionId))
+        {
+            if (!DiagnosticHistoryBridge.TryAppendVerification(sessionId, came, _paperNote, out var histErr)
+                && !string.IsNullOrEmpty(histErr))
+                Log("DIAG_HISTORY_WRITE_FAILED", _selectedPrinter, histErr);
+        }
         return MatrixJson();
+    }
+
+    private void TryRecordJobHistory(DiagJob job, string engine)
+    {
+        try
+        {
+            if (!job.Submitted && string.IsNullOrEmpty(job.ErrorCode))
+                return;
+            var queueId = job.WinJobId > 0 ? job.WinJobId.ToString() : null;
+            var evt = DiagnosticHistoryBridge.HardwareSubmitted(
+                job.SessionId,
+                job.Printer,
+                engine,
+                job.Path,
+                job.Id,
+                queueId,
+                string.IsNullOrEmpty(job.ErrorCode) ? null : job.ErrorCode,
+                string.IsNullOrEmpty(job.Message) ? null : job.Message);
+            if (!DiagnosticHistoryBridge.TryAppend(evt, out var err) && !string.IsNullOrEmpty(err))
+                Log("DIAG_HISTORY_WRITE_FAILED", job.Printer, err);
+        }
+        catch (Exception ex)
+        {
+            Log("DIAG_HISTORY_WRITE_FAILED", job.Printer, ex.Message);
+        }
+    }
+
+    private string HistoryEvent(JsonElement root)
+    {
+        var sessionId = Str(root, "sessionId");
+        var came = false;
+        if (root.TryGetProperty("physicalCameOutCorrectly", out var el))
+        {
+            came = el.ValueKind == JsonValueKind.True
+                || (el.ValueKind == JsonValueKind.String && (el.GetString() == "1" || string.Equals(el.GetString(), "true", StringComparison.OrdinalIgnoreCase)));
+        }
+        else if (root.TryGetProperty("paperCameOut", out var p))
+        {
+            came = p.ValueKind == JsonValueKind.True;
+        }
+        if (string.IsNullOrWhiteSpace(sessionId))
+            return Fail("UNKNOWN_PRINT_FAILURE", "شناسه جلسه تشخیص نیست");
+        if (!DiagnosticHistoryBridge.TryAppendVerification(sessionId, came, came ? "PHYSICAL PRINT VERIFIED" : "PHYSICAL_PRINT_NOT_VERIFIED", out var err)
+            && !string.IsNullOrEmpty(err))
+            Log("DIAG_HISTORY_WRITE_FAILED", _selectedPrinter, err);
+        return HistoryJson();
+    }
+
+    private string HistoryJson()
+    {
+        try
+        {
+            var events = DiagnosticHistoryBridge.CreateStore().ReadAllNewestFirst();
+            return JsonSerializer.Serialize(new Dictionary<string, object?>
+            {
+                ["ok"] = true,
+                ["action"] = "history",
+                ["path"] = DiagnosticHistoryBridge.FilePath,
+                ["count"] = events.Count,
+                ["events"] = events,
+                ["historyWriteFailed"] = DiagnosticHistoryBridge.LastWriteFailed,
+                ["historyWriteError"] = DiagnosticHistoryBridge.LastWriteError,
+                ["historyReadFailed"] = false,
+                ["paperVerified"] = _paperVerified,
+                ["paperNote"] = string.IsNullOrEmpty(_paperNote) ? "PHYSICAL_PRINT_NOT_VERIFIED" : _paperNote
+            }, HistoryJsonOptions);
+        }
+        catch (Exception ex)
+        {
+            Log("DIAG_HISTORY_READ_FAILED", "", ex.Message);
+            return JsonSerializer.Serialize(new Dictionary<string, object?>
+            {
+                ["ok"] = true,
+                ["action"] = "history",
+                ["path"] = DiagnosticHistoryBridge.FilePath,
+                ["count"] = 0,
+                ["events"] = Array.Empty<object>(),
+                ["historyReadFailed"] = true,
+                ["historyWriteError"] = ex.Message,
+                ["paperVerified"] = _paperVerified
+            }, HistoryJsonOptions);
+        }
     }
 
     private string MatrixJson()
@@ -422,6 +525,10 @@ internal sealed class PrintHardwareDiagnostic
             ? "PHYSICAL PRINT VERIFIED"
             : failure;
         dict["logPath"] = LogPath();
+        dict["historyPath"] = DiagnosticHistoryBridge.FilePath;
+        dict["historyWriteFailed"] = DiagnosticHistoryBridge.LastWriteFailed;
+        dict["historyWriteError"] = DiagnosticHistoryBridge.LastWriteError;
+        dict["sessionId"] = direct?.SessionId ?? web?.SessionId;
         return JsonSerializer.Serialize(dict);
     }
 
@@ -719,6 +826,7 @@ internal sealed class PrintHardwareDiagnostic
     private sealed class DiagJob
     {
         public string Id { get; init; } = "";
+        public string SessionId { get; init; } = "";
         public string Path { get; init; } = "";
         public string Printer { get; init; } = "";
         public DateTime CreatedUtc { get; init; }
@@ -735,6 +843,7 @@ internal sealed class PrintHardwareDiagnostic
         public static DiagJob New(string printer, string path) => new()
         {
             Id = "PD-" + Guid.NewGuid().ToString("N")[..12],
+            SessionId = DiagnosticHistoryIds.NewSessionId(),
             Path = path,
             Printer = printer,
             CreatedUtc = DateTime.UtcNow
@@ -758,6 +867,7 @@ internal sealed class PrintHardwareDiagnostic
         {
             ["ok"] = string.IsNullOrEmpty(ErrorCode),
             ["printJobId"] = Id,
+            ["sessionId"] = SessionId,
             ["windowsJobId"] = WinJobId > 0 ? WinJobId.ToString() : "JOB_ID_NOT_AVAILABLE",
             ["jobIdNote"] = WinJobIdNote,
             ["printerName"] = Printer,

@@ -257,6 +257,7 @@ PRINT MODULE ISOLATED. PHASE 3 MUST NOT BREAK PRINT.
 
 جزئیات اسپولر، درایور، پورت و PrintAsync داخل ماژول چاپ می‌ماند.
 تشخیص سخت‌افزار (`RunPrintHardwareDiagnostic`) جدا از این مسیر است و به فاکتور/انبار/حساب/گارانتی وابسته نیست.
+تاریخچه تشخیص روی JSONL جدا (`%LocalAppData%\Sirman\diagnostics\history.jsonl`) است؛ `sirman.sqlite` و کلیدهای کسب‌وکار localStorage را لمس نمی‌کند. اکشن‌های `history` / `historyEvent` روی همان `RunPrintHardwareDiagnostic` هستند نه Host جدید.
 
 خروجی PDF و چاپ فیزیکی دو مسیر جدا هستند. موفقیت PDF موفقیت چاپ کاغذ نیست.
 وضعیت کاغذ تا تأیید انسانی روی چاپگر واقعی: `PHYSICAL_PRINT_NOT_VERIFIED`.

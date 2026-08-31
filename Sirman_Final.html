@@ -4131,6 +4131,14 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
       <div style="font-size:12px;font-weight:800;margin:8px 0 4px">Diagnostic Result</div>
       <div class="phd-log" id="phd-result">هنوز اجرا نشده. فقط در Sirman.exe و چاپگر واقعی ویندوز معنا دارد.</div>
       <table class="phd-matrix" id="phd-matrix"></table>
+      <div style="font-size:12px;font-weight:800;margin:10px 0 4px">Diagnostic History</div>
+      <div class="phd-actions" style="margin-top:0">
+        <button type="button" class="btn" onclick="phdHistory()">📋 تاریخچه تشخیص</button>
+      </div>
+      <div id="phd-history">
+        <div class="phd-log" id="phd-history-status">تاریخچه هنوز بارگذاری نشده. هر اجرا یک شناسه جلسه جدید می‌سازد و رکورد قبلی را پاک نمی‌کند.</div>
+        <table class="phd-matrix" id="phd-history-table"></table>
+      </div>
     </div>
   </div>
 
@@ -5108,7 +5116,8 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <li><b>Direct Windows Print:</b> یک برگه آزمایشی با متن SIRMAN / PRINT HARDWARE TEST می‌فرستد — بدون فاکتور و بدون PDF.</li>
     <li><b>WebView2 Print:</b> همان متن آزمایشی را از مسیر جداگانه PrintAsync می‌فرستد تا با مسیر مستقیم مقایسه شود.</li>
     <li><b>نتیجه:</b> ارسال به صف = PRINT SUBMITTED. چاپ موفق فقط وقتی است که دکمه «برگه آمد» را بزنید. موفقیت PDF چاپ نیست.</li>
-    <li><b>لاگ:</b> فایل PRINT_DIAGNOSTIC.log در پوشه داده برنامه (AppData\Sirman\print).</li>
+    <li><b>تاریخچه:</b> هر اجرای تشخیص یک شناسه جلسه جدید می‌سازد و روی نتیجه قبلی بازنویسی نمی‌شود. دکمه «تاریخچه تشخیص» فهرست را از جدید به قدیم نشان می‌دهد. «برگه آمد» رکورد ارسال را عوض نمی‌کند؛ یک رویداد تأیید جدا می‌نویسد.</li>
+    <li><b>لاگ:</b> فایل PRINT_DIAGNOSTIC.log در پوشه داده برنامه (AppData\Sirman\print). تاریخچه تشخیص جدا در AppData\Sirman\diagnostics\history.jsonl است — نه در sqlite کسب‌وکار.</li>
   </ul>
 </div>
 <div class="help-cat-header">🧾 فاکتور</div>
@@ -25069,13 +25078,13 @@ function phdPick(name){
 function phdDirectPrint(){
   var res = phdCall('directPrint', {printerName:_phdSelected});
   phdShowJob('Direct Windows Print', res);
-  setTimeout(function(){ phdQueue(); }, 800);
+  setTimeout(function(){ phdQueue(); phdHistory(); }, 800);
   return res;
 }
 function phdWebViewPrint(){
   var res = phdCall('webviewPrint', {printerName:_phdSelected});
   phdShowJob('WebView2 PrintAsync', res);
-  setTimeout(function(){ phdQueue(); }, 1200);
+  setTimeout(function(){ phdQueue(); phdHistory(); }, 1200);
   return res;
 }
 function phdQueue(){
@@ -25090,7 +25099,56 @@ function phdConfirmPaper(came){
   var res = phdCall('confirmPaper', {paperCameOut:!!came});
   _phdLast = res;
   phdRender(res);
+  phdHistory();
   return res;
+}
+function phdHistory(){
+  var r = phdCall('history');
+  phdRenderHistory(r);
+  return r;
+}
+function phdVerifySession(sessionId, came){
+  var r = phdCall('historyEvent', {sessionId:sessionId||'', physicalCameOutCorrectly:!!came});
+  phdRenderHistory(r);
+  return r;
+}
+function phdEsc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
+  });
+}
+function phdRenderHistory(res){
+  var status = document.getElementById('phd-history-status');
+  var table = document.getElementById('phd-history-table');
+  if(!status && !table) return;
+  if(res && res.errorCode==='NO_HOST'){
+    if(status) status.textContent = 'تاریخچه تشخیص فقط در Sirman.exe ذخیره می‌شود. مرورگر یا HTML-only رکوردی نمی‌نویسد.';
+    if(table) table.innerHTML = '';
+    return;
+  }
+  if(res && res.historyReadFailed){
+    if(status) status.textContent = 'خواندن تاریخچه شکست خورد — نتیجه جاری حفظ شد. '+(res.historyWriteError||'');
+    return;
+  }
+  var events = (res && res.events) || [];
+  if(res && res.historyWriteFailed){
+    if(status) status.textContent = 'نوشتن تاریخچه شکست خورد — چاپ و نتیجه جاری ادامه یافت. '+(res.historyWriteError||'');
+  } else if(!events.length){
+    if(status) status.textContent = 'تاریخچه‌ای ثبت نشده. هر اجرا یک جلسه جدید می‌سازد.';
+  } else {
+    if(status) status.textContent = events.length+' رویداد (جدیدترین بالا). PRINT SUBMITTED یعنی کاغذ هنوز تأیید نشده.'+(res.path? '\n'+res.path:'');
+  }
+  if(!table) return;
+  if(!events.length){ table.innerHTML = ''; return; }
+  table.innerHTML = '<tr><th>زمان</th><th>جلسه</th><th>نوع</th><th>چاپگر</th><th>کاغذ</th><th>وضعیت</th></tr>'+events.map(function(ev){
+    var ts = phdEsc(ev.timestampLocal||ev.timestampUtc||'');
+    var sid = phdEsc(ev.sessionId||'');
+    var typ = phdEsc(ev.testType||ev.documentKind||'');
+    var prn = phdEsc(ev.printerName||'');
+    var paper = phdEsc(ev.resolvedPaper||ev.requestedPaper||'');
+    var st = phdEsc(ev.eventType||ev.physicalVerification||ev.submissionStatus||'UNKNOWN');
+    return '<tr><td>'+ts+'</td><td>'+sid+'</td><td>'+typ+'</td><td>'+prn+'</td><td>'+paper+'</td><td>'+st+'</td></tr>';
+  }).join('');
 }
 function phdShowJob(title, res){
   var box = document.getElementById('phd-result');
@@ -25146,7 +25204,7 @@ function phdRender(res){
   }
   var box = document.getElementById('phd-result');
   if(box && (res.failureCode||res.status||res.message)){
-    box.textContent = 'Diagnostic Result: '+(res.failureCode||res.status||'')+'\n'+(res.message||res.resolveMessage||'')+'\nlog: '+(res.logPath||'')+'\nکاغذ: '+(res.paperNote||'PHYSICAL_PRINT_NOT_VERIFIED');
+    box.textContent = 'Diagnostic Result: '+(res.failureCode||res.status||'')+'\n'+(res.message||res.resolveMessage||'')+'\nlog: '+(res.logPath||'')+'\nکاغذ: '+(res.paperNote||'PHYSICAL_PRINT_NOT_VERIFIED')+(res.historyWriteFailed?'\nتاریخچه: نوشتن شکست خورد — '+ (res.historyWriteError||''):'');
   }
   var noHost = res.errorCode==='NO_HOST';
   ['phd-btn-direct','phd-btn-webview'].forEach(function(id){

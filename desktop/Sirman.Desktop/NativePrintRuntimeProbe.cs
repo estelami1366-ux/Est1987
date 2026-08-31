@@ -19,7 +19,7 @@ internal static class NativePrintRuntimeProbe
     public static string LogPath() =>
         Path.Combine(AppPaths.AppDataRoot, "print", FileName);
 
-    public static void WriteDocument(PrintJobState job, NativePrintRequest request, ResolvedPaperSpec resolved, PrintDocument doc)
+    public static void WriteDocument(PrintJobState job, NativePrintRequest request, ResolvedPaperSpec resolved, PrintDocument doc, NativePrintRuntimeSnapshot? snapshot = null)
     {
         try
         {
@@ -30,6 +30,11 @@ internal static class NativePrintRuntimeProbe
             var profile = request.PrintCenterExplicit
                 ? "print-center-explicit"
                 : (request.PaperExplicit ? "user-document" : "document-default");
+            var paperKind = ((int)paper.Kind).ToString(CultureInfo.InvariantCulture);
+            var paperRawKind = paper.RawKind.ToString(CultureInfo.InvariantCulture);
+            var paperWidth = paper.Width.ToString(CultureInfo.InvariantCulture);
+            var paperHeight = paper.Height.ToString(CultureInfo.InvariantCulture);
+            var copies = (int)doc.PrinterSettings.Copies;
             var line = Join(
                 "stage=DOCUMENT",
                 "jobId=" + job.PrintJobId,
@@ -57,12 +62,12 @@ internal static class NativePrintRuntimeProbe
                 "resolved.RawKind=" + resolved.RawKind.ToString(CultureInfo.InvariantCulture),
                 "resolved.InstalledFormIndex=" + resolved.InstalledFormIndex.ToString(CultureInfo.InvariantCulture),
                 "PrinterSettings.PrinterName=" + doc.PrinterSettings.PrinterName,
-                "PrinterSettings.Copies=" + doc.PrinterSettings.Copies.ToString(CultureInfo.InvariantCulture),
+                "PrinterSettings.Copies=" + copies.ToString(CultureInfo.InvariantCulture),
                 "DefaultPageSettings.PaperSize.PaperName=" + paper.PaperName,
-                "DefaultPageSettings.PaperSize.Kind=" + ((int)paper.Kind).ToString(CultureInfo.InvariantCulture),
-                "DefaultPageSettings.PaperSize.RawKind=" + paper.RawKind.ToString(CultureInfo.InvariantCulture),
-                "DefaultPageSettings.PaperSize.Width=" + paper.Width.ToString(CultureInfo.InvariantCulture),
-                "DefaultPageSettings.PaperSize.Height=" + paper.Height.ToString(CultureInfo.InvariantCulture),
+                "DefaultPageSettings.PaperSize.Kind=" + paperKind,
+                "DefaultPageSettings.PaperSize.RawKind=" + paperRawKind,
+                "DefaultPageSettings.PaperSize.Width=" + paperWidth,
+                "DefaultPageSettings.PaperSize.Height=" + paperHeight,
                 "DefaultPageSettings.Landscape=" + ps.Landscape.ToString(CultureInfo.InvariantCulture),
                 "DefaultPageSettings.Margins.Left=" + margins.Left.ToString(CultureInfo.InvariantCulture),
                 "DefaultPageSettings.Margins.Right=" + margins.Right.ToString(CultureInfo.InvariantCulture),
@@ -70,6 +75,24 @@ internal static class NativePrintRuntimeProbe
                 "DefaultPageSettings.Margins.Bottom=" + margins.Bottom.ToString(CultureInfo.InvariantCulture));
             Append(line);
             job.Log("P05R4_DOCUMENT", Id + " " + FileName + " landscape=" + ps.Landscape + " paper=" + paper.PaperName, job.Printer);
+            if (snapshot != null)
+            {
+                snapshot.HasDocument = true;
+                snapshot.Profile = profile;
+                snapshot.RequestedPaper = request.Paper;
+                snapshot.RequestedOrientation = request.Orientation;
+                snapshot.RequestedLandscape = requestLandscape;
+                snapshot.ResolvedPaper = resolved.Name;
+                snapshot.ResolvedWidthMm = F(resolved.WidthMm);
+                snapshot.ResolvedHeightMm = F(resolved.HeightMm);
+                snapshot.ResolvedLandscape = resolved.Landscape;
+                snapshot.ResolvedMarginMm = F(resolved.MarginMm);
+                snapshot.Copies = copies;
+                snapshot.PaperKind = paperKind;
+                snapshot.PaperRawKind = paperRawKind;
+                snapshot.PaperWidth = paperWidth;
+                snapshot.PaperHeight = paperHeight;
+            }
         }
         catch
         {
@@ -81,7 +104,7 @@ internal static class NativePrintRuntimeProbe
     /// P0.5R6: postal logo load only. Does not set Landscape, PaperSize, or transforms.
     /// Does not log data-URL payloads or unrelated user fields.
     /// </summary>
-    public static void WriteLogo(PrintJobState job, NativePrintRequest request, NativeLogoResolveResult? diag, bool imageLoadSucceeded)
+    public static void WriteLogo(PrintJobState job, NativePrintRequest request, NativeLogoResolveResult? diag, bool imageLoadSucceeded, NativePrintRuntimeSnapshot? snapshot = null)
     {
         try
         {
@@ -101,6 +124,14 @@ internal static class NativePrintRuntimeProbe
                 "failureReason=" + (diag.FailureReason ?? ""));
             Append(line);
             job.Log("P05R6_LOGO", Id + " " + FileName + " kind=" + diag.SourceKind + " null=" + logoNull + " reason=" + (diag.FailureReason ?? ""), job.Printer);
+            if (snapshot != null)
+            {
+                snapshot.HasLogo = true;
+                snapshot.LogoSourceKind = diag.SourceKind;
+                snapshot.LogoResolved = !logoNull;
+                snapshot.LogoLoadSuccess = imageLoadSucceeded;
+                snapshot.LogoFailureReason = diag.FailureReason;
+            }
         }
         catch
         {
@@ -108,7 +139,7 @@ internal static class NativePrintRuntimeProbe
         }
     }
 
-    public static void WritePage(PrintJobState job, NativePrintRequest request, PrintPageEventArgs e, Graphics g)
+    public static void WritePage(PrintJobState job, NativePrintRequest request, PrintPageEventArgs e, Graphics g, NativePrintRuntimeSnapshot? snapshot = null)
     {
         try
         {
@@ -117,6 +148,11 @@ internal static class NativePrintRuntimeProbe
             var margins = page.Margins;
             var pb = e.PageBounds;
             var mb = e.MarginBounds;
+            var paperKind = ((int)paper.Kind).ToString(CultureInfo.InvariantCulture);
+            var paperRawKind = paper.RawKind.ToString(CultureInfo.InvariantCulture);
+            var paperWidth = paper.Width.ToString(CultureInfo.InvariantCulture);
+            var paperHeight = paper.Height.ToString(CultureInfo.InvariantCulture);
+            var graphics = ReadGraphics(g, snapshot);
             var line = Join(
                 "stage=PRINTPAGE",
                 "jobId=" + job.PrintJobId,
@@ -126,10 +162,10 @@ internal static class NativePrintRuntimeProbe
                 "printer=" + job.Printer,
                 "purpose=" + job.Purpose,
                 "e.PageSettings.PaperSize.PaperName=" + paper.PaperName,
-                "e.PageSettings.PaperSize.Kind=" + ((int)paper.Kind).ToString(CultureInfo.InvariantCulture),
-                "e.PageSettings.PaperSize.RawKind=" + paper.RawKind.ToString(CultureInfo.InvariantCulture),
-                "e.PageSettings.PaperSize.Width=" + paper.Width.ToString(CultureInfo.InvariantCulture),
-                "e.PageSettings.PaperSize.Height=" + paper.Height.ToString(CultureInfo.InvariantCulture),
+                "e.PageSettings.PaperSize.Kind=" + paperKind,
+                "e.PageSettings.PaperSize.RawKind=" + paperRawKind,
+                "e.PageSettings.PaperSize.Width=" + paperWidth,
+                "e.PageSettings.PaperSize.Height=" + paperHeight,
                 "e.PageSettings.Landscape=" + page.Landscape.ToString(CultureInfo.InvariantCulture),
                 "e.PageSettings.Margins.Left=" + margins.Left.ToString(CultureInfo.InvariantCulture),
                 "e.PageSettings.Margins.Right=" + margins.Right.ToString(CultureInfo.InvariantCulture),
@@ -143,9 +179,19 @@ internal static class NativePrintRuntimeProbe
                 "e.MarginBounds.Y=" + mb.Y.ToString(CultureInfo.InvariantCulture),
                 "e.MarginBounds.Width=" + mb.Width.ToString(CultureInfo.InvariantCulture),
                 "e.MarginBounds.Height=" + mb.Height.ToString(CultureInfo.InvariantCulture),
-                ReadGraphics(g));
+                graphics);
             Append(line);
             job.Log("P05R4_PRINTPAGE", Id + " " + FileName + " PageBounds=" + Rect(pb) + " MarginBounds=" + Rect(mb) + " Landscape=" + page.Landscape, job.Printer);
+            if (snapshot != null)
+            {
+                snapshot.HasPage = true;
+                snapshot.PaperKind = paperKind;
+                snapshot.PaperRawKind = paperRawKind;
+                snapshot.PaperWidth = paperWidth;
+                snapshot.PaperHeight = paperHeight;
+                snapshot.PageBounds = Rect(pb);
+                snapshot.MarginBounds = Rect(mb);
+            }
         }
         catch
         {
@@ -153,7 +199,7 @@ internal static class NativePrintRuntimeProbe
         }
     }
 
-    private static string ReadGraphics(Graphics g)
+    private static string ReadGraphics(Graphics g, NativePrintRuntimeSnapshot? snapshot)
     {
         var transform = "g.Transform.Elements=UNAVAILABLE";
         try
@@ -167,14 +213,33 @@ internal static class NativePrintRuntimeProbe
             /* some HDCs refuse Transform get */
         }
 
+        var pageUnit = g.PageUnit.ToString();
+        var pageScale = F(g.PageScale);
+        var visible = RectF(g.VisibleClipBounds);
+        var clip = RectF(g.ClipBounds);
+        var dpiX = F(g.DpiX);
+        var dpiY = F(g.DpiY);
+        if (snapshot != null)
+        {
+            snapshot.GraphicsPageUnit = pageUnit;
+            snapshot.GraphicsPageScale = pageScale;
+            snapshot.GraphicsTransform = transform.StartsWith("g.Transform.Elements=", StringComparison.Ordinal)
+                ? transform["g.Transform.Elements=".Length..]
+                : transform;
+            snapshot.VisibleClipBounds = visible;
+            snapshot.ClipBounds = clip;
+            snapshot.DpiX = dpiX;
+            snapshot.DpiY = dpiY;
+        }
+
         return Join(
             "g.PageUnit=" + g.PageUnit,
-            "g.PageScale=" + F(g.PageScale),
+            "g.PageScale=" + pageScale,
             transform,
-            "g.VisibleClipBounds=" + RectF(g.VisibleClipBounds),
-            "g.ClipBounds=" + RectF(g.ClipBounds),
-            "g.DpiX=" + F(g.DpiX),
-            "g.DpiY=" + F(g.DpiY));
+            "g.VisibleClipBounds=" + visible,
+            "g.ClipBounds=" + clip,
+            "g.DpiX=" + dpiX,
+            "g.DpiY=" + dpiY);
     }
 
     private static bool IsLandscapeToken(string? orientation)
