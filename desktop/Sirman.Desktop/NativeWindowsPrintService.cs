@@ -32,7 +32,14 @@ internal static class NativeWindowsPrintService
         doc.DefaultPageSettings.Margins = new Margins(m, m, m, m);
         doc.PrintController = new StandardPrintController();
         doc.DocumentName = "SIRMAN " + request.Kind + " " + (request.DocumentId ?? "");
-        NativePrintRuntimeProbe.WriteDocument(job, request, resolved, doc);
+        NativePrintRuntimeSnapshot? snap = null;
+        string? diagSessionId = null;
+        if (request.Kind is NativePrintRequest.KindTestPage or NativePrintRequest.KindPostalLabel)
+        {
+            snap = new NativePrintRuntimeSnapshot();
+            diagSessionId = DiagnosticHistoryIds.NewSessionId();
+        }
+        NativePrintRuntimeProbe.WriteDocument(job, request, resolved, doc, snap);
 
         var page = 0;
         var lineIndex = 0;
@@ -41,7 +48,7 @@ internal static class NativeWindowsPrintService
         if (request.Kind == NativePrintRequest.KindPostalLabel)
         {
             logo = TryAnyLogo(request.PostalLabel?.LogoSrc, out logoDiag);
-            NativePrintRuntimeProbe.WriteLogo(job, request, logoDiag, logo is not null);
+            NativePrintRuntimeProbe.WriteLogo(job, request, logoDiag, logo is not null, snap);
         }
         else
             logo = TryLogo(request.Invoice?.LogoDataUrl);
@@ -56,7 +63,7 @@ internal static class NativeWindowsPrintService
                     e.HasMorePages = false;
                     return;
                 }
-                NativePrintRuntimeProbe.WritePage(job, request, e, g);
+                NativePrintRuntimeProbe.WritePage(job, request, e, g, snap);
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
                 var bounds = e.MarginBounds;
                 if (request.Kind == NativePrintRequest.KindTestPage)
@@ -80,6 +87,7 @@ internal static class NativeWindowsPrintService
             job.Ok = true;
             job.Set("PRINT_SUBMITTED", null, "سند به صف چاپ ویندوز ارسال شد — " + job.Printer);
             job.Log("PRINT_SUBMITTED", "native spooler accepted", job.Printer);
+            TryAppendDiagnosticHistory(job, request, resolved, snap, diagSessionId);
         }
         finally
         {
@@ -108,6 +116,29 @@ internal static class NativeWindowsPrintService
         catch
         {
             /* keep printer default paper if custom size is rejected */
+        }
+    }
+
+    private static void TryAppendDiagnosticHistory(
+        PrintJobState job,
+        NativePrintRequest request,
+        ResolvedPaperSpec resolved,
+        NativePrintRuntimeSnapshot? snap,
+        string? sessionId)
+    {
+        if (string.IsNullOrWhiteSpace(sessionId))
+            return;
+        if (request.Kind is not (NativePrintRequest.KindTestPage or NativePrintRequest.KindPostalLabel))
+            return;
+        try
+        {
+            var evt = DiagnosticHistoryBridge.NativeSubmitted(sessionId, job, request, resolved, snap, queueJobId: null);
+            if (!DiagnosticHistoryBridge.TryAppend(evt, out var error) && !string.IsNullOrEmpty(error))
+                job.Log("DIAG_HISTORY_WRITE_FAILED", error, job.Printer);
+        }
+        catch (Exception ex)
+        {
+            job.Log("DIAG_HISTORY_WRITE_FAILED", ex.Message, job.Printer);
         }
     }
 

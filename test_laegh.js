@@ -6501,7 +6501,7 @@ console.log('📋 گروه: تشخیص سخت‌افزار چاپ (جدا از �
 test('هارنس تشخیص چاپگر باید جدا از مرکز پرینت و بدون داده کسب‌وکار باشد', () => {
   assertContainsString(html, 'id="print-hardware-diagnostic"', 'صفحه تشخیص چاپگر لازم است');
   assertContainsString(html, "showStgTab('print-diag'", 'تب تشخیص چاپگر لازم است');
-  ['phdHost','phdCall','phdRefresh','phdDirectPrint','phdWebViewPrint','phdQueue','phdConfirmPaper','phdRender'].forEach(fn => {
+  ['phdHost','phdCall','phdRefresh','phdDirectPrint','phdWebViewPrint','phdQueue','phdConfirmPaper','phdRender','phdHistory','phdRenderHistory','phdVerifySession'].forEach(fn => {
     assertTrue(!!extractFunctionSource(html, fn), 'تابع '+fn+' لازم است');
   });
   const callSrc = extractFunctionSource(html, 'phdCall');
@@ -6542,6 +6542,47 @@ test('تشخیص باید PDF را مجازی بشمارد و بدون Host چا
     return fn();
   })();
   assertEqual(htmlOnly.errorCode, 'NO_HOST', 'HTML-only باید تشخیص را مسدود کند');
+});
+
+test('P0.5R7: تاریخچه تشخیص append-only است و به Storage کسب‌وکار نمی‌رود', () => {
+  const root = path.dirname(filePath);
+  assertContainsString(html, 'id="phd-history"', 'نمایشگر تاریخچه تشخیص لازم است');
+  assertContainsString(html, 'data-help-id="print-hardware-diagnostic"', 'راهنمای تشخیص باید بماند');
+  assertContainsString(html, 'history.jsonl', 'راهنما باید مسیر JSONL را بگوید');
+  const histSrc = extractFunctionSource(html, 'phdHistory');
+  const renderSrc = extractFunctionSource(html, 'phdRenderHistory');
+  const verifySrc = extractFunctionSource(html, 'phdVerifySession');
+  const confirmSrc = extractFunctionSource(html, 'phdConfirmPaper');
+  assertContainsString(histSrc, "phdCall('history')", 'بارگذاری تاریخچه باید اکشن history هارنس باشد');
+  assertTrue(histSrc.indexOf('localStorage') < 0, 'تاریخچه تشخیص نباید localStorage کسب‌وکار را بنویسد');
+  assertTrue(renderSrc.indexOf('invoices') < 0, 'نمایشگر تاریخچه نباید فاکتور بخواند');
+  assertContainsString(verifySrc, 'historyEvent', 'تأیید جلسه باید اکشن جدا باشد نه بازنویسی');
+  assertContainsString(confirmSrc, 'phdHistory', 'برگه آمد باید تاریخچه را تازه کند');
+  const callSrc = extractFunctionSource(html, 'phdCall');
+  const htmlOnlyHist = (function(){
+    const hostFn = extractFunctionSource(html, 'phdHost');
+    const fn = new Function(hostFn + '\n' + callSrc + '\n var window = {}; var _phdSelected=""; return phdCall("history");');
+    return fn();
+  })();
+  assertEqual(htmlOnlyHist.errorCode, 'NO_HOST', 'HTML-only نباید تاریخچه جعلی بسازد');
+  const diag = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Desktop', 'PrintHardwareDiagnostic.cs'), 'utf8');
+  assertContainsString(diag, '"history"', 'هارنس باید اکشن history داشته باشد');
+  assertContainsString(diag, '"historyevent"', 'هارنس باید اکشن historyEvent داشته باشد');
+  assertContainsString(diag, 'TryAppendVerification', 'تأیید کاغذ باید رویداد جدا بنویسد');
+  assertContainsString(diag, 'physicalPrintVerified"] = false', 'کار تشخیص نباید PRINT_SUBMITTED را PHYSICAL بگذارد');
+  const store = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Core', 'Printing', 'DiagnosticHistory.cs'), 'utf8');
+  assertContainsString(store, 'history.jsonl', 'مسیر JSONL تشخیص لازم است');
+  assertContainsString(store, 'diagnostics', 'پوشه diagnostics جدا لازم است');
+  assertTrue(store.indexOf('sirman.sqlite') < 0, 'تاریخچه تشخیص نباید sqlite کسب‌وکار را لمس کند');
+  assertTrue(store.indexOf('localStorage') < 0, 'Core تاریخچه نباید localStorage داشته باشد');
+  const svc = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Desktop', 'NativeWindowsPrintService.cs'), 'utf8');
+  assertContainsString(svc, 'TryAppendDiagnosticHistory', 'چاپ بومی تست/پستی باید تاریخچه بنویسد');
+  assertContainsString(svc, 'KindTestPage or NativePrintRequest.KindPostalLabel', 'فاکتور تولیدی نباید به تاریخچه تشخیص برود');
+  assertTrue(svc.indexOf('RotateTransform') < 0, 'تاریخچه نباید RotateTransform اضافه کند');
+  const probe = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Desktop', 'NativePrintRuntimeProbe.cs'), 'utf8');
+  assertContainsString(probe, 'stage=DOCUMENT', 'پروب P0.5R4 باید بماند');
+  assertContainsString(probe, 'stage=LOGO', 'پروب P0.5R6 باید بماند');
+  assertContainsString(probe, 'NativePrintRuntimeSnapshot? snapshot = null', 'پروب باید snapshot اختیاری بگیرد نه اندازه‌گیری جدید');
 });
 
 test('طبقه‌بندی تشخیص: PDF مجازی است و PRINT_SUBMITTED چاپ کاغذ نیست', () => {
