@@ -5221,6 +5221,41 @@ test('P0.5R4: پروب runtime چاپ بومی فقط می‌خواند و رن�
   assertTrue(svc.indexOf('PrintPhase0Observer') < 0, 'پروب P0.5R4 نباید مشاهده‌گر فاز ۰ را داخل موتور چاپ صدا بزند');
 });
 
+test('P0.5R6: لوگوی پستی بومی disk:// را با resolver مشترک حل می‌کند و جهت را عوض نمی‌کند', () => {
+  const root = path.dirname(filePath);
+  const src = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Core', 'Printing', 'NativeLogoSource.cs'), 'utf8');
+  const svc = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Desktop', 'NativeWindowsPrintService.cs'), 'utf8');
+  const probe = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Desktop', 'NativePrintRuntimeProbe.cs'), 'utf8');
+  const paper = fs.readFileSync(path.join(root, 'desktop', 'Sirman.Core', 'Printing', 'NativePrintPaper.cs'), 'utf8');
+  assertContainsString(src, 'disk://', 'resolver باید پیشوند HTML disk:// را بشناسد');
+  assertContainsString(src, 'sirman_media', 'resolver باید پوشه رسانه HTML را بشناسد');
+  assertContainsString(src, 'DiskRefPath', 'باید همان diskRefPath اچ‌تی‌ام‌ال را پیاده کند');
+  assertContainsString(svc, 'NativeLogoSource.Resolve', 'TryAnyLogo باید resolver مشترک Core را صدا بزند');
+  assertContainsString(svc, 'ExistingBackupMediaRoots', 'ریشه رسانه باید پوشه بک‌آپ موجود باشد نه مسیر جدید');
+  assertTrue(svc.indexOf('private static Image? TryLogo(') >= 0, 'TryLogo فاکتور باید بماند');
+  const tryLogoStart = svc.indexOf('private static Image? TryLogo(');
+  const tryAnyStart = svc.indexOf('private static Image? TryAnyLogo(');
+  assertTrue(tryAnyStart >= 0 && tryLogoStart > tryAnyStart, 'TryAnyLogo پستی جدا از TryLogo فاکتور است');
+  const invStart = svc.indexOf('private static bool DrawInvoicePage');
+  const postalStart = svc.indexOf('private static void DrawPostalLabel');
+  assertTrue(invStart >= 0 && postalStart > invStart, 'رندر فاکتور و پستی باید جدا بمانند');
+  const invoiceDraw = svc.slice(invStart, postalStart);
+  assertTrue(invoiceDraw.indexOf('NativeLogoSource') < 0, 'رندر فاکتور نباید NativeLogoSource را صدا بزند');
+  assertContainsString(probe, 'stage=LOGO', 'پروب باید مرحله LOGO بنویسد');
+  assertContainsString(probe, 'logoSourceKind=', 'پروب باید نوع منبع لوگو را بنویسد');
+  assertContainsString(probe, 'logoNull=', 'پروب باید تهی بودن Image را بنویسد');
+  assertContainsString(probe, 'g.Transform.Elements', 'پروب جهت باید بماند');
+  assertContainsString(probe, 'e.MarginBounds', 'پروب MarginBounds باید بماند');
+  assertTrue(probe.indexOf('RotateTransform') < 0, 'نباید RotateTransform اضافه شود');
+  assertTrue(svc.indexOf('RotateTransform') < 0, 'رندر نباید RotateTransform بگیرد');
+  assertTrue(svc.indexOf('.Landscape =') < 0 || svc.indexOf('doc.DefaultPageSettings.Landscape = resolved.Landscape') >= 0, 'Landscape حدسی نباید اضافه شود');
+  assertContainsString(paper, 'TrySelectInstalledIsoForm', 'NativePrintPaper باید دست‌نخورده بماند');
+  const printPostal = extractFunctionSource(html, 'printPostal');
+  assertContainsString(printPostal, 'openFreshPrintWindow', 'مسیر HTML پستی نباید عوض شود');
+  const printNative = extractFunctionSource(html, 'printPostalNative');
+  assertTrue(printNative.indexOf('resolveDiskRef') < 0, 'مسیر HTML پستی بومی نباید logoSrc را عوض کند');
+});
+
 test('گارانتی: انقضای خودکار از ماه ضمانت + تحویل به مشتری + چند مدرک', () => {
   assertContainsString(html, 'function calcWarrExpFromBuy(', 'calcWarrExpFromBuy پیدا نشد');
   assertContainsString(html, 'function addJalaliMonths(', 'addJalaliMonths پیدا نشد');

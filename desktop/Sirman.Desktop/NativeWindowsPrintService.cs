@@ -36,9 +36,15 @@ internal static class NativeWindowsPrintService
 
         var page = 0;
         var lineIndex = 0;
-        Image? logo = request.Kind == NativePrintRequest.KindPostalLabel
-            ? TryAnyLogo(request.PostalLabel?.LogoSrc)
-            : TryLogo(request.Invoice?.LogoDataUrl);
+        NativeLogoResolveResult? logoDiag = null;
+        Image? logo;
+        if (request.Kind == NativePrintRequest.KindPostalLabel)
+        {
+            logo = TryAnyLogo(request.PostalLabel?.LogoSrc, out logoDiag);
+            NativePrintRuntimeProbe.WriteLogo(job, request, logoDiag, logo is not null);
+        }
+        else
+            logo = TryLogo(request.Invoice?.LogoDataUrl);
         try
         {
             doc.PrintPage += (_, e) =>
@@ -549,37 +555,60 @@ internal static class NativeWindowsPrintService
         catch { return new Font(FontFamily.GenericSansSerif, size, style, GraphicsUnit.Point); }
     }
 
-    private static Image? TryAnyLogo(string? src)
+    /// <summary>
+    /// Postal-only. Resolves data:, disk://sirman_media/... (HTML diskRefPath + existing backup roots),
+    /// and local file names. Does not change stored logoSrc. Invoice still uses TryLogo.
+    /// </summary>
+    private static Image? TryAnyLogo(string? src, out NativeLogoResolveResult diag)
     {
-        if (string.IsNullOrWhiteSpace(src)) return null;
-        var s = src.Trim();
-        if (s.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
-            return TryLogo(s);
-        if (s.StartsWith("http:", StringComparison.OrdinalIgnoreCase)
-            || s.StartsWith("https:", StringComparison.OrdinalIgnoreCase)
-            || s.StartsWith("file:", StringComparison.OrdinalIgnoreCase))
+        diag = NativeLogoSource.Resolve(src, ExistingBackupMediaRoots(), new[] { AppContext.BaseDirectory });
+        if (!diag.HasLoadableBytes)
             return null;
         try
         {
-            var rel = s.Replace('/', Path.DirectorySeparatorChar);
-            var baseDir = AppContext.BaseDirectory;
-            var candidates = new[]
-            {
-                Path.IsPathRooted(rel) ? rel : Path.Combine(baseDir, rel),
-                Path.Combine(baseDir, Path.GetFileName(rel))
-            };
-            foreach (var path in candidates)
-            {
-                if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) continue;
-                using var tmp = Image.FromFile(path);
-                return new Bitmap(tmp);
-            }
+            using var ms = new MemoryStream(diag.DataBytes!, writable: false);
+            using var tmp = Image.FromStream(ms);
+            diag = diag with { FailureReason = null };
+            return new Bitmap(tmp);
         }
         catch
         {
+            diag = diag with { FailureReason = "image-decode-failed" };
             return null;
         }
-        return null;
+    }
+
+    /// <summary>
+    /// Existing backup locations only. Does not create folders or invent machine-specific paths.
+    /// Same relative file HTML writes: sirman_media/... under the configured backup root.
+    /// </summary>
+    private static IReadOnlyList<string> ExistingBackupMediaRoots()
+    {
+        var roots = new List<string>();
+        void add(string? path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return;
+            try
+            {
+                if (!Directory.Exists(path)) return;
+                var full = Path.GetFullPath(path);
+                if (roots.Exists(r => string.Equals(r, full, StringComparison.OrdinalIgnoreCase))) return;
+                roots.Add(full);
+            }
+            catch { /* skip unreadable root */ }
+        }
+
+        try
+        {
+            var settings = AppPaths.LoadSettings();
+            add(settings.BackupFolder);
+        }
+        catch { /* settings optional */ }
+
+        add(Path.Combine(AppPaths.AppDataRoot, "Backups"));
+        add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Sirman", "backup"));
+        add(AppPaths.AppDataRoot);
+        return roots;
     }
 
     private static Image? TryLogo(string? dataUrl)

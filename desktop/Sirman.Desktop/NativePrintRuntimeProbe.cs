@@ -77,6 +77,37 @@ internal static class NativePrintRuntimeProbe
         }
     }
 
+    /// <summary>
+    /// P0.5R6: postal logo load only. Does not set Landscape, PaperSize, or transforms.
+    /// Does not log data-URL payloads or unrelated user fields.
+    /// </summary>
+    public static void WriteLogo(PrintJobState job, NativePrintRequest request, NativeLogoResolveResult? diag, bool imageLoadSucceeded)
+    {
+        try
+        {
+            diag ??= new NativeLogoResolveResult { SourceKind = "empty", FailureReason = "empty" };
+            var logoNull = !imageLoadSucceeded;
+            var line = Join(
+                "stage=LOGO",
+                "jobId=" + job.PrintJobId,
+                "kind=" + request.Kind,
+                "logoSrc=" + (diag.LogoSrcPreview ?? ""),
+                "logoSourceKind=" + (diag.SourceKind ?? ""),
+                "resolvedPath=" + (diag.ResolvedPath ?? ""),
+                "fileExists=" + diag.FileExists.ToString(CultureInfo.InvariantCulture),
+                "imageLoadSucceeded=" + imageLoadSucceeded.ToString(CultureInfo.InvariantCulture),
+                "logoNull=" + logoNull.ToString(CultureInfo.InvariantCulture),
+                "recognizedImageHeader=" + diag.RecognizedImageHeader.ToString(CultureInfo.InvariantCulture),
+                "failureReason=" + (diag.FailureReason ?? ""));
+            Append(line);
+            job.Log("P05R6_LOGO", Id + " " + FileName + " kind=" + diag.SourceKind + " null=" + logoNull + " reason=" + (diag.FailureReason ?? ""), job.Printer);
+        }
+        catch
+        {
+            /* probe must not break print */
+        }
+    }
+
     public static void WritePage(PrintJobState job, NativePrintRequest request, PrintPageEventArgs e, Graphics g)
     {
         try
