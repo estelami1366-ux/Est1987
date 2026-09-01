@@ -25,8 +25,15 @@ New-Item -ItemType Directory -Force -Path $Dest | Out-Null
 Write-Host ('Copying to: ' + $Dest)
 Copy-Item -Path (Join-Path $publish '*') -Destination $Dest -Recurse -Force
 
-foreach ($name in @('Sirman_Final.html', 'Sirman_Pending_Update.json', 'Uninstall-Sirman.bat')) {
+foreach ($name in @('Sirman_Final.html', 'Sirman_Pending_Update.json', 'Uninstall-Sirman.bat', 'Uninstall-Sirman.ps1', 'Sirman-Full-Cleanup.bat', 'Sirman-InstallLifecycle.ps1', 'sirman-install-contract.json')) {
   $src = Join-Path $SourceRoot $name
+  if (Test-Path -LiteralPath $src) {
+    Copy-Item -LiteralPath $src -Destination (Join-Path $Dest $name) -Force
+  }
+}
+$kit = Join-Path (Split-Path $SourceRoot -Parent) 'scripts\setup-kit'
+foreach ($name in @('Sirman-InstallLifecycle.ps1', 'sirman-install-contract.json')) {
+  $src = Join-Path $kit $name
   if (Test-Path -LiteralPath $src) {
     Copy-Item -LiteralPath $src -Destination (Join-Path $Dest $name) -Force
   }
@@ -70,18 +77,27 @@ $shell = New-Object -ComObject WScript.Shell
 $startDir = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Sirman'
 New-Item -ItemType Directory -Force -Path $startDir | Out-Null
 
-$l = $shell.CreateShortcut((Join-Path $startDir 'Sirman.lnk'))
+$l = $shell.CreateShortcut((Join-Path $startDir 'SIRMAN.lnk'))
 $l.TargetPath = $exe
 $l.WorkingDirectory = $Dest
-$l.Description = 'Sirman'
+$l.Description = 'سیرمان — خدمات پس از فروش'
 $l.Save()
 
 if (Test-Path -LiteralPath $unBat) {
-  $u = $shell.CreateShortcut((Join-Path $startDir 'Uninstall Sirman.lnk'))
+  $u = $shell.CreateShortcut((Join-Path $startDir 'Uninstall SIRMAN.lnk'))
   $u.TargetPath = $unBat
   $u.WorkingDirectory = $Dest
-  $u.Description = 'Uninstall Sirman'
+  $u.Description = 'حذف سالم سیرمان (سطح ۱ — برنامه، نه داده کسب‌وکار)'
   $u.Save()
+}
+
+$fcBat = Join-Path $Dest 'Sirman-Full-Cleanup.bat'
+if (Test-Path -LiteralPath $fcBat) {
+  $fc = $shell.CreateShortcut((Join-Path $startDir 'SIRMAN Full Cleanup.lnk'))
+  $fc.TargetPath = $fcBat
+  $fc.WorkingDirectory = $Dest
+  $fc.Description = 'پاک‌سازی کامل داده سیرمان (سطح ۲ — نیاز به تایید)'
+  $fc.Save()
 }
 
 if ($DesktopShortcut -eq '1') {

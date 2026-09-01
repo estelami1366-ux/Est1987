@@ -99,6 +99,12 @@ def pack() -> None:
     copy_file(upd, app_dir / "updates" / f"Sirman_Update_{APP}.json")
     copy_file(upd, OUT_DIR / "updates" / f"Sirman_Update_{APP}.json")
     copy_file(ROOT / "desktop" / "Uninstall-Sirman.bat", app_dir / "Uninstall-Sirman.bat")
+    copy_file(ROOT / "desktop" / "Uninstall-Sirman.ps1", app_dir / "Uninstall-Sirman.ps1")
+    copy_file(ROOT / "desktop" / "Sirman-Full-Cleanup.bat", app_dir / "Sirman-Full-Cleanup.bat")
+    copy_file(TEMPLATES / "Sirman-InstallLifecycle.ps1", app_dir / "Sirman-InstallLifecycle.ps1")
+    copy_file(TEMPLATES / "sirman-install-contract.json", app_dir / "sirman-install-contract.json")
+    copy_file(TEMPLATES / "Sirman-InstallLifecycle.ps1", OUT_DIR / "Sirman-InstallLifecycle.ps1")
+    copy_file(TEMPLATES / "sirman-install-contract.json", OUT_DIR / "sirman-install-contract.json")
     if (ROOT / "نصب_میانبر_سیرمان.bat").is_file():
         copy_file(ROOT / "نصب_میانبر_سیرمان.bat", app_dir / "نصب_میانبر_سیرمان.bat")
     if (ROOT / "Sirman_Install_Shortcuts.ps1").is_file():

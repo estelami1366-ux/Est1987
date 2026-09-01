@@ -12863,6 +12863,15 @@ test('موفقیت HTTP 2xx پل باید notifiedAt را ست کند', () => {
   });
 });
 
+require('./test_installer_lifecycle').register({
+  test,
+  html,
+  filePath,
+  assertTrue,
+  assertEqual,
+  assertContainsString
+});
+
 // نتیجه نهایی
 // ===================================================================
 Promise.all(pendingAsync).then(() => {
