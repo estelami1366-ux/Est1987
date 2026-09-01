@@ -22,6 +22,7 @@ Version changed:                 NO
 Branch:            cursor/p0-install-uninstall-hardening-fa01
 HEAD at build:     774e0d352a5b3973cc3ac2f089f1e26f136393a5
 Short HEAD:        774e0d3
+Packaging commit:  a5fe3cc  pack: P0 installer/uninstaller Windows test ZIP from HEAD 774e0d3
 P0 product commit: 24c9133  fix: unify Sirman Start Menu shortcuts and safe Level 1 uninstall
 P0 ancestor of HEAD: YES
 Worktree dirt left: generic packer kit/zip (deliveries/Sirman_Setup_1405.6.3α/ and root zip);
