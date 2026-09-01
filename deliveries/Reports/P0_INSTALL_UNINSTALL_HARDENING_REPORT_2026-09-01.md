@@ -11,6 +11,7 @@
 |---|---|
 | Branch | `cursor/p0-install-uninstall-hardening-fa01` |
 | Parent HEAD | `64590e2` (`docs: installer/uninstaller/version/icon master audit`) |
+| Implementation HEAD | `24c9133` (`fix: unify Sirman Start Menu shortcuts and safe Level 1 uninstall`) |
 | Worktree | `/workspace` |
 | Base | current HEAD at packet start (no reset / rebase / merge / cherry-pick) |
 
