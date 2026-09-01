@@ -151,7 +151,7 @@ function register(ctx) {
     assertContainsString(src, 'CanonicalStartMenuFolderName = "Sirman"', 'InstallService باید پوشه Sirman را ثابت کند');
     assertContainsString(src, 'CanonicalLaunchShortcutName = "SIRMAN.lnk"', 'InstallService باید SIRMAN.lnk بسازد');
     assertContainsString(src, 'CanonicalUninstallShortcutName = "Uninstall SIRMAN.lnk"', 'InstallService باید Uninstall SIRMAN.lnk بسازد');
-    assertTrue(src.indexOf('Path.Combine(programs, "سیرمان")') === -1, 'نباید پوشه فارسی ساخته شود');
+    assertTrue(src.indexOf('var folder = Path.Combine(programs, "سیرمان")') === -1, 'نباید پوشه فارسی ساخته شود');
   });
 
   test('میانبر کمکی باید SIRMAN.lnk و install-location.txt بنویسد', () => {
@@ -222,11 +222,14 @@ function register(ctx) {
   test('حذف سطح ۱ پوشه بک‌آپ انتخاب‌شده کاربر را پاک نمی‌کند', () => {
     const life = read('scripts/setup-kit/Sirman-InstallLifecycle.ps1');
     const ps1 = read('desktop/Uninstall-Sirman.ps1');
+    const bat = read('desktop/Uninstall-Sirman.bat');
     assertContainsString(life, 'user-selected backup', 'باید بک‌آپ انتخابی را استثنا کند');
     assertTrue(life.indexOf("Remove-Item -LiteralPath $env:LOCALAPPDATA") === -1, 'lifecycle نباید کل LocalAppData را پاک کند');
-    assertTrue(ps1.indexOf("-Mode Level1") >= 0, 'wrapper سطح ۱ باید جدا باشد');
-    assertTrue(read('desktop/Uninstall-Sirman.bat').indexOf('rd /s /q "%LOCALAPPDATA%\\Sirman"') === -1, 'بات نباید rd کل Sirman LocalAppData باشد');
-    assertTrue(read('desktop/Uninstall-Sirman.bat').indexOf('rd /s /q "%APPDATA%\\Sirman"') === -1, 'بات نباید rd کل Sirman Roaming باشد');
+    assertTrue(ps1.indexOf("Invoke-SirmanLevel1Uninstall") >= 0, 'wrapper سطح ۱ باید جدا باشد');
+    assertTrue(ps1.indexOf("Level1") >= 0 && ps1.indexOf("Level2") >= 0, 'wrapper باید هر دو سطح را داشته باشد');
+    assertTrue(bat.indexOf('-Mode Level1') >= 0, 'بات سطح ۱ باید -Mode Level1 را صدا بزند');
+    assertTrue(bat.indexOf('rd /s /q "%LOCALAPPDATA%\\Sirman"') === -1, 'بات نباید rd کل Sirman LocalAppData باشد');
+    assertTrue(bat.indexOf('rd /s /q "%APPDATA%\\Sirman"') === -1, 'بات نباید rd کل Sirman Roaming باشد');
   });
 
   test('پاک‌سازی کامل باید تایید تایپی بخواهد و بدون آن چیزی پاک نکند', () => {

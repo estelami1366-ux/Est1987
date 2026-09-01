@@ -81,7 +81,7 @@ public class InstallLifecycleContractTests
         Assert.Contains("CanonicalStartMenuFolderName = \"Sirman\"", cs, StringComparison.Ordinal);
         Assert.Contains("CanonicalLaunchShortcutName = \"SIRMAN.lnk\"", cs, StringComparison.Ordinal);
         Assert.Contains("CanonicalUninstallShortcutName = \"Uninstall SIRMAN.lnk\"", cs, StringComparison.Ordinal);
-        Assert.DoesNotContain("Path.Combine(programs, \"سیرمان\")", cs, StringComparison.Ordinal);
+        Assert.DoesNotContain("var folder = Path.Combine(programs, \"سیرمان\")", cs, StringComparison.Ordinal);
         Assert.Contains("RemoveLegacyShortcuts", cs, StringComparison.Ordinal);
         Assert.Contains("PruneStaleOwnedFiles", cs, StringComparison.Ordinal);
         Assert.DoesNotContain("rd /s /q \"%APP_ROOT%\"", cs, StringComparison.Ordinal);

@@ -122,6 +122,7 @@ function Get-SirmanDesktopCandidates {
 function Remove-SirmanLegacyShortcuts {
   param($Contract = $null)
   if (-not $Contract) { $Contract = Get-SirmanInstallContract }
+  # Exact legacy names only: سیرمان.lnk , حذف سیرمان.lnk (never a wildcard).
   $programs = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs'
   $canonDir = Join-Path $programs $Contract.canonical.startMenuFolderName
 

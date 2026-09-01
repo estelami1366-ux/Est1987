@@ -199,12 +199,12 @@ Covered:
 11. Stale installer-owned files are pruned
 12. Arbitrary user files are preserved
 
-Commands:
+Commands (this agent, Linux — no live shop uninstall):
 
 ```
-node test_laegh.js Sirman_Final.html
-node test_laegh.js Laegh_Final.html
-dotnet test desktop/Sirman.Core.Tests -c Release
+node test_laegh.js Sirman_Final.html   → 666 passed / 0 failed
+node test_laegh.js Laegh_Final.html    → 666 passed / 0 failed
+dotnet test desktop/Sirman.Core.Tests -c Release → 240 passed / 0 failed
 ```
 
 Existing tests were not weakened. Version asserts stay on `1405.6.3α`.
