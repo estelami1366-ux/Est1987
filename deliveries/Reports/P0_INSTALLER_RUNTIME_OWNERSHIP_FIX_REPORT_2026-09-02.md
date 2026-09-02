@@ -29,7 +29,7 @@ This agent is Linux. Shop path `D:\Laegh.3A` was not mounted. No shop file was d
 | Created from | current HEAD at start of packet (no reset/rebase/merge/cherry-pick) |
 | HEAD before | `af389d9` — `docs: forensic why Level 1 leaves self-contained runtime DLLs` |
 | Implementation commit | `eb6a387` — `fix: Level 1 uninstall owns self-contained .NET runtime files` |
-| HEAD after | see git log on this branch after the report commit |
+| HEAD after |  — this report |
 
 Product version **unchanged:** `1405.6.3α` / assembly `1405.6.3.1`.
 
