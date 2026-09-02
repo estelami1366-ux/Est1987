@@ -23,6 +23,7 @@ Branch:              cursor/p0-uninstall-fix-build-fa01
 Created from:        cursor/p0-runtime-ownership-uninstall-fa01 @ 8173949
 HEAD at build:       81739495a85727100513dd511278465703a33536
 Short HEAD:          8173949
+Packaging commit:    7e1bf70  pack: P0 uninstall runtime-ownership Windows test ZIP from HEAD 8173949
 Implementation:      eb6a387  fix: Level 1 uninstall owns self-contained .NET runtime files
 eb6a387 ancestor:    YES
 No reset/rebase/merge/cherry-pick
@@ -167,6 +168,7 @@ Product version: 1405.6.3α
 Assembly:        1405.6.3.1
 Implementation:  eb6a387
 HEAD at build:   8173949
+Packaging:       7e1bf70
 Source changed during packaging: NO
 Print changed: NO
 Storage changed: NO
