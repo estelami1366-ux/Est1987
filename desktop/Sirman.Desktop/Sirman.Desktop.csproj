@@ -28,6 +28,26 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>Sirman_Final.html</Link>
     </None>
+    <None Include="..\Uninstall-Sirman.bat" Condition="Exists('..\Uninstall-Sirman.bat')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Uninstall-Sirman.bat</Link>
+    </None>
+    <None Include="..\Uninstall-Sirman.ps1" Condition="Exists('..\Uninstall-Sirman.ps1')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Uninstall-Sirman.ps1</Link>
+    </None>
+    <None Include="..\Sirman-Full-Cleanup.bat" Condition="Exists('..\Sirman-Full-Cleanup.bat')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Sirman-Full-Cleanup.bat</Link>
+    </None>
+    <None Include="..\..\scripts\setup-kit\Sirman-InstallLifecycle.ps1" Condition="Exists('..\..\scripts\setup-kit\Sirman-InstallLifecycle.ps1')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Sirman-InstallLifecycle.ps1</Link>
+    </None>
+    <None Include="..\..\scripts\setup-kit\sirman-install-contract.json" Condition="Exists('..\..\scripts\setup-kit\sirman-install-contract.json')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>sirman-install-contract.json</Link>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -394,6 +394,7 @@ public sealed class MainForm : Form
         install.DropDownItems.Add(new ToolStripMenuItem("فقط ساخت میانبر Start و دسکتاپ", null, (_, _) => DoShortcutsOnly(true)));
         install.DropDownItems.Add(new ToolStripSeparator());
         install.DropDownItems.Add(new ToolStripMenuItem("حذف سالم برنامه (Uninstall)…", null, (_, _) => DoUninstall()));
+        install.DropDownItems.Add(new ToolStripMenuItem("پاک‌سازی کامل داده (Full Cleanup)…", null, (_, _) => DoFullCleanup()));
         install.DropDownItems.Add(new ToolStripMenuItem("باز کردن پوشه نصب", null, (_, _) =>
         {
             Directory.CreateDirectory(InstallService.InstallDir);
@@ -437,7 +438,8 @@ public sealed class MainForm : Form
                 "• آپدیت خودکار از Sirman_Pending_Update.json\n" +
                 "• پوشه بک‌آپ قابل انتخاب\n" +
                 "• نصب محلی + میانبر منوی Start\n" +
-                "• حذف سالم (Uninstall-Sirman.bat + میانبر Start)\n" +
+                "• حذف سالم سطح ۱ (Uninstall-Sirman.bat — برنامه، نه داده)\n" +
+                "• پاک‌سازی کامل سطح ۲ (SIRMAN Full Cleanup — با تایپ تایید)\n" +
                 "• پل اعلان مرکز اعلان ویندوز (پورت ۸۷۶۶)\n\n" +
                 "HTML:\n" + (_htmlPath ?? "—") + "\n\n" +
                 "بک‌آپ:\n" + AppPaths.ResolveBackupFolder(_settings) + "\n\n" +
@@ -755,6 +757,27 @@ public sealed class MainForm : Form
         }
         // اجازه بده uninstall بات taskkill کند
         RequestForceClose();
+    }
+
+    private void DoFullCleanup()
+    {
+        var ask = MessageBox.Show(
+            this,
+            "پنجره پاک‌سازی کامل (سطح ۲) باز شود؟\n\n" +
+            "این حذف عادی نیست. داده کسب‌وکار فقط بعد از تایپ «تایید» پاک می‌شود.\n" +
+            "اگر انصراف بدهید هیچ فایلی حذف نمی‌شود.",
+            "پاک‌سازی کامل سیرمان",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning,
+            MessageBoxDefaultButton.Button2);
+        if (ask != DialogResult.Yes) return;
+
+        try { InstallService.WriteUninstallArtifacts(AppPaths.ExeDir); } catch { /* ignore */ }
+        var res = InstallService.LaunchFullCleanup();
+        if (!res.Ok)
+        {
+            MessageBox.Show(res.Message, "پاک‌سازی کامل", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private async Task RunHtmlBackupBeforeExitAsync()

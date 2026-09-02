@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "packet": "P0-install-uninstall-hardening-2026-09-01",
+  "canonical": {
+    "startMenuFolderName": "Sirman",
+    "startMenuLaunchShortcut": "SIRMAN.lnk",
+    "startMenuUninstallShortcut": "Uninstall SIRMAN.lnk",
+    "startMenuFullCleanupShortcut": "SIRMAN Full Cleanup.lnk",
+    "desktopShortcut": "Sirman.lnk",
+    "installLocationFileName": "install-location.txt",
+    "legacyInstallPathFileName": "install_path.txt",
+    "manifestFileName": "sirman-install-manifest.json",
+    "level2ConfirmationWord": "تایید",
+    "launchDescription": "سیرمان — خدمات پس از فروش",
+    "uninstallDescription": "حذف سالم سیرمان (سطح ۱ — برنامه، نه داده کسب‌وکار)",
+    "fullCleanupDescription": "پاک‌سازی کامل داده سیرمان (سطح ۲ — نیاز به تایید)"
+  },
+  "legacyStartMenuFolderNames": ["سیرمان"],
+  "legacyStartMenuLaunchNames": ["سیرمان.lnk"],
+  "legacyStartMenuUninstallNames": ["حذف سیرمان.lnk", "Uninstall Sirman.lnk"],
+  "legacyDesktopNames": ["سیرمان.lnk"],
+  "preserveDirNames": ["sirman_media"],
+  "ownedExactFiles": [
+    "Sirman.exe",
+    "Sirman.dll",
+    "Sirman.deps.json",
+    "Sirman.runtimeconfig.json",
+    "Sirman.Core.dll",
+    "createdump.exe",
+    "Sirman_Final.html",
+    "Uninstall-Sirman.bat",
+    "Uninstall-Sirman.ps1",
+    "Sirman-Full-Cleanup.bat",
+    "Sirman-InstallLifecycle.ps1",
+    "sirman-install-contract.json",
+    "sirman-install-manifest.json",
+    "Sirman_Start.bat",
+    "OPEN_SIRMAN.bat",
+    "sirman_run.ps1",
+    "apply_sirman_update.ps1",
+    "Sirman_Pending_Update.json",
+    "SIRMAN_VERSION.json",
+    "Sirman_Install_Shortcuts.ps1",
+    "نصب_میانبر_سیرمان.bat",
+    "WebView2Loader.dll"
+  ],
+  "ownedNamePrefixes": [
+    "Sirman_Final_",
+    "Sirman_Update_",
+    "System.",
+    "Microsoft.",
+    "runtime"
+  ],
+  "ownedExactDirs": ["runtimes"],
+  "ownedPruneFilePatterns": [
+    { "dir": ".", "match": "Sirman_Final_*.html", "keepIfCopiedFromSource": true },
+    { "dir": ".", "match": "Sirman_Pending_Update.json", "maxBytes": 100000, "alwaysOwned": true },
+    { "dir": ".", "match": "*.pdb", "alwaysOwned": true },
+    { "dir": ".", "match": "createdump.exe", "alwaysOwned": true },
+    { "dir": "updates", "match": "Sirman_Update_*.json", "maxBytes": 100000, "alwaysOwned": true }
+  ],
+  "level1NeverDelete": {
+    "localAppDataSirmanChildren": ["WebView2"],
+    "roamingSirmanChildren": ["backup"],
+    "wholesaleForbidden": [
+      "%LOCALAPPDATA%\\Sirman",
+      "%APPDATA%\\Sirman"
+    ]
+  },
+  "level2Categories": [
+    {
+      "id": "A",
+      "name": "WebView2 business data",
+      "paths": ["%LOCALAPPDATA%\\Sirman\\WebView2"]
+    },
+    {
+      "id": "B",
+      "name": "backup data",
+      "paths": [
+        "%APPDATA%\\Sirman\\backup",
+        "%LOCALAPPDATA%\\Sirman\\Backups",
+        "<user-selected BackupFolder from desktop-settings.json>"
+      ]
+    },
+    {
+      "id": "C",
+      "name": "media",
+      "paths": [
+        "<BackupFolder>\\sirman_media",
+        "%APPDATA%\\Sirman\\backup\\sirman_media",
+        "%LOCALAPPDATA%\\Sirman\\Backups\\sirman_media"
+      ]
+    },
+    {
+      "id": "D",
+      "name": "prefs/config",
+      "paths": [
+        "%APPDATA%\\Sirman\\prefs.json",
+        "%LOCALAPPDATA%\\Sirman\\desktop-settings.json",
+        "%APPDATA%\\Sirman\\secrets"
+      ]
+    },
+    {
+      "id": "E",
+      "name": "diagnostic history",
+      "paths": ["%LOCALAPPDATA%\\Sirman\\diagnostics\\history.jsonl"]
+    },
+    {
+      "id": "F",
+      "name": "candidate SQLite",
+      "paths": ["%APPDATA%\\Sirman\\data\\sirman.sqlite"]
+    },
+    {
+      "id": "G",
+      "name": "update state/cache",
+      "paths": [
+        "%LOCALAPPDATA%\\Sirman\\WebView2-print",
+        "%LOCALAPPDATA%\\Sirman\\WebView2-print-diag"
+      ]
+    }
+  ]
+}

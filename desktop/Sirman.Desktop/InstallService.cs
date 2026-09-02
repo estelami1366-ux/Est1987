@@ -35,27 +35,41 @@ static class InstallService
         }
     }
 
+    public const string CanonicalStartMenuFolderName = "Sirman";
+    public const string CanonicalLaunchShortcutName = "SIRMAN.lnk";
+    public const string CanonicalUninstallShortcutName = "Uninstall SIRMAN.lnk";
+    public const string CanonicalFullCleanupShortcutName = "SIRMAN Full Cleanup.lnk";
+    public const string CanonicalDesktopShortcutName = "Sirman.lnk";
+
     public static string StartMenuFolder
     {
         get
         {
             var programs = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
-            var folder = Path.Combine(programs, "سیرمان");
+            var folder = Path.Combine(programs, CanonicalStartMenuFolderName);
             Directory.CreateDirectory(folder);
             return folder;
         }
     }
 
     public static string StartMenuShortcutPath =>
-        Path.Combine(StartMenuFolder, "سیرمان.lnk");
+        Path.Combine(StartMenuFolder, CanonicalLaunchShortcutName);
 
     public static string StartMenuUninstallShortcutPath =>
-        Path.Combine(StartMenuFolder, "حذف سیرمان.lnk");
+        Path.Combine(StartMenuFolder, CanonicalUninstallShortcutName);
+
+    public static string StartMenuFullCleanupShortcutPath =>
+        Path.Combine(StartMenuFolder, CanonicalFullCleanupShortcutName);
 
     public static string DesktopShortcutPath =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "سیرمان.lnk");
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), CanonicalDesktopShortcutName);
 
     public static string UninstallBatName => "Uninstall-Sirman.bat";
+    public static string FullCleanupBatName => "Sirman-Full-Cleanup.bat";
+    public static string UninstallPs1Name => "Uninstall-Sirman.ps1";
+    public static string LifecyclePs1Name => "Sirman-InstallLifecycle.ps1";
+    public static string ContractJsonName => "sirman-install-contract.json";
+    public static string ManifestJsonName => "sirman-install-manifest.json";
 
     public sealed class InstallResult
     {
@@ -112,6 +126,10 @@ static class InstallService
             }
 
             EnsureHtmlInDir(srcDir, dstDir);
+            CopyLifecycleFiles(srcDir, dstDir);
+            WriteInstallManifest(srcDir, dstDir);
+            PruneStaleOwnedFiles(dstDir, srcDir);
+            RemoveLegacyShortcuts();
 
             var exe = Path.Combine(dstDir, "Sirman.exe");
             if (!File.Exists(exe))
@@ -126,6 +144,7 @@ static class InstallService
 
             CreateShortcut(StartMenuShortcutPath, exe, dstDir, "سیرمان — خدمات پس از فروش");
             CreateUninstallShortcut(dstDir);
+            CreateFullCleanupShortcut(dstDir);
             if (createDesktopShortcut)
                 CreateShortcut(DesktopShortcutPath, exe, dstDir, "سیرمان — خدمات پس از فروش");
 
@@ -212,8 +231,10 @@ static class InstallService
             var work = Path.GetDirectoryName(exe)!;
             RememberInstallFolder(work);
             WriteUninstallArtifacts(work);
+            RemoveLegacyShortcuts();
             CreateShortcut(StartMenuShortcutPath, exe, work, "سیرمان — خدمات پس از فروش");
             CreateUninstallShortcut(work);
+            CreateFullCleanupShortcut(work);
             if (desktop)
                 CreateShortcut(DesktopShortcutPath, exe, work, "سیرمان — خدمات پس از فروش");
 
@@ -236,9 +257,14 @@ static class InstallService
     public static void WriteUninstallArtifacts(string targetDir)
     {
         Directory.CreateDirectory(targetDir);
-        var batPath = Path.Combine(targetDir, UninstallBatName);
-        File.WriteAllText(batPath, BuildUninstallBatContent(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+        CopyLifecycleFiles(AppPaths.ExeDir, targetDir);
+        File.WriteAllText(Path.Combine(targetDir, UninstallBatName), BuildUninstallBatContent(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+        File.WriteAllText(Path.Combine(targetDir, FullCleanupBatName), BuildFullCleanupBatContent(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+        if (!File.Exists(Path.Combine(targetDir, UninstallPs1Name)))
+            File.WriteAllText(Path.Combine(targetDir, UninstallPs1Name), BuildUninstallPs1Fallback(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+        RemoveLegacyShortcuts();
         CreateUninstallShortcut(targetDir);
+        CreateFullCleanupShortcut(targetDir);
     }
 
     public static void CreateUninstallShortcut(string uninstallBatDir)
@@ -251,23 +277,39 @@ static class InstallService
             StartMenuUninstallShortcutPath,
             bat,
             uninstallBatDir,
-            "حذف سالم سیرمان (Uninstall)");
+            "حذف سالم سیرمان (سطح ۱ — برنامه، نه داده کسب‌وکار)");
     }
 
-    public static InstallResult LaunchUninstall()
+    public static void CreateFullCleanupShortcut(string dir)
+    {
+        var bat = Path.Combine(dir, FullCleanupBatName);
+        if (!File.Exists(bat))
+            File.WriteAllText(bat, BuildFullCleanupBatContent(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+        CreateShortcut(
+            StartMenuFullCleanupShortcutPath,
+            bat,
+            dir,
+            "پاک‌سازی کامل داده سیرمان (سطح ۲ — نیاز به تایید)");
+    }
+
+    public static InstallResult LaunchUninstall() => LaunchBat(UninstallBatName);
+
+    public static InstallResult LaunchFullCleanup() => LaunchBat(FullCleanupBatName);
+
+    private static InstallResult LaunchBat(string fileName)
     {
         try
         {
             var candidates = new[]
             {
-                Path.Combine(AppPaths.ExeDir, UninstallBatName),
-                Path.Combine(InstallDir, UninstallBatName),
+                Path.Combine(AppPaths.ExeDir, fileName),
+                Path.Combine(InstallDir, fileName),
             };
             string? bat = candidates.FirstOrDefault(File.Exists);
             if (bat == null)
             {
                 WriteUninstallArtifacts(AppPaths.ExeDir);
-                bat = Path.Combine(AppPaths.ExeDir, UninstallBatName);
+                bat = Path.Combine(AppPaths.ExeDir, fileName);
             }
 
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
@@ -276,11 +318,169 @@ static class InstallService
                 WorkingDirectory = Path.GetDirectoryName(bat)!,
                 UseShellExecute = true
             });
-            return new InstallResult { Ok = true, Message = "پنجره حذف باز شد:\n" + bat };
+            return new InstallResult { Ok = true, Message = "پنجره باز شد:\n" + bat };
         }
         catch (Exception ex)
         {
-            return new InstallResult { Ok = false, Message = "باز کردن حذف ناموفق:\n" + ex.Message };
+            return new InstallResult { Ok = false, Message = "باز کردن ناموفق:\n" + ex.Message };
+        }
+    }
+
+    public static void RemoveLegacyShortcuts()
+    {
+        var programs = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
+        var canon = Path.Combine(programs, CanonicalStartMenuFolderName);
+        var persianFolder = Path.Combine(programs, "سیرمان");
+        if (!string.Equals(persianFolder, canon, StringComparison.OrdinalIgnoreCase) && Directory.Exists(persianFolder))
+        {
+            foreach (var name in new[] { "سیرمان.lnk", "حذف سیرمان.lnk", CanonicalLaunchShortcutName, CanonicalUninstallShortcutName, CanonicalFullCleanupShortcutName, "Uninstall Sirman.lnk" })
+                TryDeleteFile(Path.Combine(persianFolder, name));
+            TryDeleteEmptyDir(persianFolder);
+        }
+
+        if (Directory.Exists(canon))
+        {
+            TryDeleteFile(Path.Combine(canon, "سیرمان.lnk"));
+            TryDeleteFile(Path.Combine(canon, "حذف سیرمان.lnk"));
+        }
+
+        foreach (var desk in DesktopCandidateDirs())
+        {
+            TryDeleteFile(Path.Combine(desk, "سیرمان.lnk"));
+        }
+    }
+
+    private static IEnumerable<string> DesktopCandidateDirs()
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        void add(string? p)
+        {
+            if (string.IsNullOrWhiteSpace(p)) return;
+            seen.Add(p);
+        }
+        add(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
+        add(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+        add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Desktop"));
+        add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "OneDrive", "Desktop"));
+        return seen;
+    }
+
+    private static void TryDeleteFile(string path)
+    {
+        try { if (File.Exists(path)) File.Delete(path); } catch { /* ignore */ }
+    }
+
+    private static void TryDeleteEmptyDir(string path)
+    {
+        try
+        {
+            if (Directory.Exists(path) && Directory.GetFileSystemEntries(path).Length == 0)
+                Directory.Delete(path);
+        }
+        catch { /* ignore */ }
+    }
+
+    private static void CopyLifecycleFiles(string srcDir, string dstDir)
+    {
+        Directory.CreateDirectory(dstDir);
+        var names = new[] { UninstallPs1Name, LifecyclePs1Name, ContractJsonName, UninstallBatName, FullCleanupBatName };
+        var search = new[] { srcDir, AppPaths.ExeDir, AppContext.BaseDirectory };
+        foreach (var name in names)
+        {
+            var dest = Path.Combine(dstDir, name);
+            foreach (var root in search)
+            {
+                var src = Path.Combine(root, name);
+                if (!File.Exists(src)) continue;
+                if (string.Equals(Path.GetFullPath(src), Path.GetFullPath(dest), StringComparison.OrdinalIgnoreCase))
+                    break;
+                File.Copy(src, dest, overwrite: true);
+                break;
+            }
+        }
+    }
+
+    private static readonly string[] OwnedExactFiles =
+    {
+        "Sirman.exe", "Sirman.dll", "Sirman.deps.json", "Sirman.runtimeconfig.json",
+        "Sirman.Core.dll", "createdump.exe", "Sirman_Final.html",
+        "Uninstall-Sirman.bat", "Uninstall-Sirman.ps1", "Sirman-Full-Cleanup.bat",
+        "Sirman-InstallLifecycle.ps1", "sirman-install-contract.json", "sirman-install-manifest.json",
+        "Sirman_Start.bat", "OPEN_SIRMAN.bat", "sirman_run.ps1", "apply_sirman_update.ps1",
+        "Sirman_Pending_Update.json", "SIRMAN_VERSION.json", "Sirman_Install_Shortcuts.ps1",
+        "نصب_میانبر_سیرمان.bat", "WebView2Loader.dll"
+    };
+
+    private static readonly string[] OwnedPrefixes =
+    {
+        "Sirman_Final_", "Sirman_Update_", "System.", "Microsoft.", "runtime"
+    };
+
+    private static bool IsPreserveDir(string fullPath)
+    {
+        var parts = fullPath.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        return parts.Any(p => p.Equals("sirman_media", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool IsOwnedName(string name)
+    {
+        if (OwnedExactFiles.Any(x => x.Equals(name, StringComparison.OrdinalIgnoreCase))) return true;
+        if (OwnedPrefixes.Any(p => name.StartsWith(p, StringComparison.OrdinalIgnoreCase))) return true;
+        return name.EndsWith(".pdb", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string RelPath(string root, string full)
+    {
+        var r = Path.GetFullPath(root).TrimEnd('\\', '/') + Path.DirectorySeparatorChar;
+        var f = Path.GetFullPath(full);
+        if (f.StartsWith(r, StringComparison.OrdinalIgnoreCase))
+            return f.Substring(r.Length).Replace('\\', '/');
+        return Path.GetFileName(full);
+    }
+
+    private static void WriteInstallManifest(string sourceDir, string destDir)
+    {
+        try
+        {
+            var files = Directory.Exists(sourceDir)
+                ? Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories)
+                    .Select(f => RelPath(sourceDir, f))
+                    .ToArray()
+                : Array.Empty<string>();
+            var json = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                schemaVersion = 1,
+                writtenAtUtc = DateTime.UtcNow.ToString("o"),
+                sourceDir = Path.GetFullPath(sourceDir),
+                destDir = Path.GetFullPath(destDir),
+                files
+            });
+            File.WriteAllText(Path.Combine(destDir, ManifestJsonName), json, Encoding.UTF8);
+        }
+        catch { /* install continues */ }
+    }
+
+    private static void PruneStaleOwnedFiles(string destDir, string sourceDir)
+    {
+        if (!Directory.Exists(destDir)) return;
+        var sourceRel = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (Directory.Exists(sourceDir))
+        {
+            foreach (var f in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
+                sourceRel.Add(RelPath(sourceDir, f));
+        }
+
+        foreach (var file in Directory.GetFiles(destDir, "*", SearchOption.AllDirectories))
+        {
+            if (IsPreserveDir(file)) continue;
+            var rel = RelPath(destDir, file);
+            var name = Path.GetFileName(file);
+            var owned = IsOwnedName(name)
+                || rel.StartsWith("runtimes/", StringComparison.OrdinalIgnoreCase)
+                || rel.StartsWith("updates/Sirman_Update_", StringComparison.OrdinalIgnoreCase);
+            if (!owned) continue;
+            if (sourceRel.Contains(rel)) continue;
+            TryDeleteFile(file);
         }
     }
 
@@ -289,97 +489,51 @@ static class InstallService
 chcp 65001 >nul
 setlocal EnableExtensions
 cd /d "%~dp0"
-
-title حذف سیرمان
-color 0C
-
-rem مسیر نصب = همین پوشه‌ای که Uninstall از آن اجرا شده (مسیر انتخاب‌شده هنگام نصب)
-set "INSTALL_DIR=%~dp0"
-if "%INSTALL_DIR:~-1%"=="\" set "INSTALL_DIR=%INSTALL_DIR:~0,-1%"
-set "APP_ROOT=%LOCALAPPDATA%\Sirman"
-set "LOC_FILE=%APP_ROOT%\install-location.txt"
-set "START_DIR=%APPDATA%\Microsoft\Windows\Start Menu\Programs\سیرمان"
-set "DESKTOP_LNK=%USERPROFILE%\Desktop\سیرمان.lnk"
-set "DESKTOP_LNK2=%USERPROFILE%\OneDrive\Desktop\سیرمان.lnk"
-
+title SIRMAN Uninstall (Level 1)
 echo.
-echo ===============================================
-echo   حذف سالم سیرمان (Uninstall)
-echo ===============================================
+echo SIRMAN Level 1 uninstall
+echo Removes THIS program copy and installer shortcuts.
+echo Does NOT delete WebView2 business data or backups.
 echo.
-echo مسیر نصب:
-echo   %INSTALL_DIR%
-echo.
-echo این کار انجام می‌شود:
-echo   - بستن Sirman.exe در صورت اجرا
-echo   - حذف میانبر Start و دسکتاپ
-echo   - حذف پوشه نصب بالا
-echo.
-echo داده بک‌آپ و تنظیمات AppData در صورت تمایل جداگانه پرسیده می‌شود.
-echo.
-
-choice /C YN /M "حذف سیرمان انجام شود؟"
-if errorlevel 2 (
-  echo انصراف.
+set "PS1=%~dp0Uninstall-Sirman.ps1"
+if not exist "%PS1%" (
+  echo [ERROR] Uninstall-Sirman.ps1 missing.
+  echo Level 1 will not guess another install folder.
   pause
-  exit /b 0
+  exit /b 1
 )
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%PS1%" -Mode Level1
+endlocal
+""";
 
+    private static string BuildFullCleanupBatContent() => """
+@echo off
+chcp 65001 >nul
+setlocal EnableExtensions
+cd /d "%~dp0"
+title SIRMAN Full Cleanup (Level 2)
 echo.
-echo [1/4] بستن برنامه در صورت اجرا...
-taskkill /F /IM Sirman.exe >nul 2>&1
-timeout /t 1 /nobreak >nul
-
-echo [2/4] حذف میانبرها...
-if exist "%START_DIR%" rd /s /q "%START_DIR%" 2>nul
-if exist "%DESKTOP_LNK%" del /f /q "%DESKTOP_LNK%" 2>nul
-if exist "%DESKTOP_LNK2%" del /f /q "%DESKTOP_LNK2%" 2>nul
-
-echo [3/4] حذف ثبت مسیر نصب...
-if exist "%LOC_FILE%" del /f /q "%LOC_FILE%" 2>nul
-
-echo [4/4] حذف پوشه نصب...
-cd /d "%TEMP%"
-if exist "%INSTALL_DIR%" (
-  rd /s /q "%INSTALL_DIR%" 2>nul
-  if exist "%INSTALL_DIR%" (
-    echo هشدار: بخشی از پوشه نصب حذف نشد — شاید فایل قفل باشد.
-    echo مسیر: %INSTALL_DIR%
-  ) else (
-    echo پوشه نصب حذف شد.
-  )
-) else (
-  echo پوشه نصب از قبل نبود.
+echo SIRMAN Full Cleanup is NOT normal uninstall.
+echo Business data will be listed. Deletion requires typing the confirmation word.
+echo.
+set "PS1=%~dp0Uninstall-Sirman.ps1"
+if not exist "%PS1%" (
+  echo [ERROR] Uninstall-Sirman.ps1 missing.
+  echo Full Cleanup will not run.
+  pause
+  exit /b 1
 )
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%PS1%" -Mode Level2
+endlocal
+""";
 
-echo.
-choice /C YN /M "تنظیمات/کش WebView2 در LocalAppData\Sirman هم پاک شود؟ (بک‌آپ‌های پیش‌فرض هم می‌روند)"
-if errorlevel 2 goto :skip_data
-
-if exist "%APP_ROOT%" (
-  rd /s /q "%APP_ROOT%" 2>nul
-  if exist "%APP_ROOT%" (
-    echo هشدار: بخشی از داده کاربر حذف نشد.
-  ) else (
-    echo داده کاربر حذف شد.
-  )
-) else (
-  echo داده کاربر از قبل نبود.
-)
-goto :done
-
-:skip_data
-echo داده کاربر نگه داشته شد.
-
-:done
-echo.
-echo ===============================================
-echo   حذف تمام شد
-echo ===============================================
-echo.
-echo اگر بک‌آپ جداگانه دارید، دست نخورده است.
-pause
-exit /b 0
+    private static string BuildUninstallPs1Fallback() => """
+param([ValidateSet('Level1','Level2')][string]$Mode='Level1',[string]$Confirmation='',[switch]$NonInteractive)
+$ErrorActionPreference='Stop'
+Write-Host '[ERROR] Sirman-InstallLifecycle.ps1 was not shipped with this copy.'
+Write-Host 'Refusing to delete files without the lifecycle engine.'
+if (-not $NonInteractive) { Read-Host 'Enter' }
+exit 1
 """;
 
     private static void EnsureHtmlInDir(string srcDir, string dstDir)
