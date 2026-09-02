@@ -71,7 +71,37 @@ public class InstallLifecycleContractTests
         Assert.Contains("Aborted. Nothing deleted.", life, StringComparison.Ordinal);
         Assert.Contains("Test-SirmanLevel2Confirmation", life, StringComparison.Ordinal);
         Assert.Contains("WebView2", life, StringComparison.Ordinal);
+        Assert.Contains("Read-SirmanSourcePackageManifest", life, StringComparison.Ordinal);
+        Assert.Contains("Remove-SirmanPathWithRetry", life, StringComparison.Ordinal);
+        Assert.Contains("Stop-SirmanKnownProcesses", life, StringComparison.Ordinal);
+        Assert.Contains("Could not remove:", life, StringComparison.Ordinal);
+        Assert.Contains("Preserved user files:", life, StringComparison.Ordinal);
         Assert.DoesNotContain("rd /s /q", life, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Contract_OwnsSelfContainedRuntimeFallbackNames()
+    {
+        var json = Read("scripts", "setup-kit", "sirman-install-contract.json");
+        Assert.Contains("coreclr.dll", json, StringComparison.Ordinal);
+        Assert.Contains("hostfxr.dll", json, StringComparison.Ordinal);
+        Assert.Contains("hostpolicy.dll", json, StringComparison.Ordinal);
+        Assert.Contains("Presentation", json, StringComparison.Ordinal);
+        Assert.Contains("\"System.\"", json, StringComparison.Ordinal);
+        Assert.Contains("\"Microsoft.\"", json, StringComparison.Ordinal);
+        Assert.Contains("runtimes", json, StringComparison.Ordinal);
+        Assert.Contains("level1RemovalRetries", json, StringComparison.Ordinal);
+        Assert.DoesNotContain("*.dll", json, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void InstallService_OwnsRuntimePrefixesForPrune()
+    {
+        var cs = Read("desktop", "Sirman.Desktop", "InstallService.cs");
+        Assert.Contains("coreclr", cs, StringComparison.Ordinal);
+        Assert.Contains("hostfxr", cs, StringComparison.Ordinal);
+        Assert.Contains("Presentation", cs, StringComparison.Ordinal);
+        Assert.Contains(".resources.dll", cs, StringComparison.Ordinal);
     }
 
     [Fact]
