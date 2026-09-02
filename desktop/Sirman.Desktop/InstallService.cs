@@ -408,12 +408,29 @@ static class InstallService
         "Sirman-InstallLifecycle.ps1", "sirman-install-contract.json", "sirman-install-manifest.json",
         "Sirman_Start.bat", "OPEN_SIRMAN.bat", "sirman_run.ps1", "apply_sirman_update.ps1",
         "Sirman_Pending_Update.json", "SIRMAN_VERSION.json", "Sirman_Install_Shortcuts.ps1",
-        "نصب_میانبر_سیرمان.bat", "WebView2Loader.dll"
+        "نصب_میانبر_سیرمان.bat", "WebView2Loader.dll", "Laegh_Final.html",
+        "coreclr.dll", "clrjit.dll", "clrgc.dll", "clretwrc.dll",
+        "hostfxr.dll", "hostpolicy.dll", "PresentationCore.dll", "PresentationUI.dll",
+        "PresentationNative_cor3.dll", "Accessibility.dll", "PenImc_cor3.dll",
+        "DirectWriteForwarder.dll", "D3DCompiler_47_cor3.dll", "wpfgfx_cor3.dll",
+        "WindowsBase.dll", "WindowsFormsIntegration.dll", "ReachFramework.dll",
+        "mscorlib.dll", "mscordaccore.dll", "mscordbi.dll", "mscorrc.dll",
+        "msquic.dll", "netstandard.dll", "vcruntime140_cor3.dll",
+        "راهنمای_نصب_از_صفر.txt", "راهنمای_نصب_و_آپدیت.docx"
     };
 
     private static readonly string[] OwnedPrefixes =
     {
-        "Sirman_Final_", "Sirman_Update_", "System.", "Microsoft.", "runtime"
+        "Sirman_Final_", "Laegh_Final_", "Sirman_Update_", "System.", "Microsoft.", "runtime",
+        "coreclr", "clrjit", "clrgc", "clretw", "hostfxr", "hostpolicy",
+        "Presentation", "Accessibility", "PenImc", "DirectWrite",
+        "WindowsBase", "WindowsForms", "UIAutomation", "ReachFramework",
+        "wpfgfx", "D3DCompiler", "mscor", "netstandard", "msquic", "vcruntime", "msvcp"
+    };
+
+    private static readonly string[] OwnedSuffixes =
+    {
+        ".pdb", ".resources.dll"
     };
 
     private static bool IsPreserveDir(string fullPath)
@@ -426,7 +443,8 @@ static class InstallService
     {
         if (OwnedExactFiles.Any(x => x.Equals(name, StringComparison.OrdinalIgnoreCase))) return true;
         if (OwnedPrefixes.Any(p => name.StartsWith(p, StringComparison.OrdinalIgnoreCase))) return true;
-        return name.EndsWith(".pdb", StringComparison.OrdinalIgnoreCase);
+        if (OwnedSuffixes.Any(s => name.EndsWith(s, StringComparison.OrdinalIgnoreCase))) return true;
+        return false;
     }
 
     private static string RelPath(string root, string full)

@@ -256,17 +256,172 @@ function Test-SirmanPreserveDir {
   return $false
 }
 
+function Get-SirmanContractInt {
+  param($Contract, [string]$Name, [int]$Default)
+  try {
+    $v = $Contract.$Name
+    if ($null -ne $v -and "$v" -ne '') { return [int]$v }
+  } catch {}
+  return $Default
+}
+
 function Test-SirmanOwnedName {
-  param([string]$Name, $Contract)
-  foreach ($exact in $Contract.ownedExactFiles) {
-    if ([string]::Equals($Name, $exact, [StringComparison]::OrdinalIgnoreCase)) { return $true }
+  param(
+    [string]$Name,
+    $Contract,
+    [string]$RelativePath = ''
+  )
+  if (-not $Contract -or [string]::IsNullOrWhiteSpace($Name)) { return $false }
+  foreach ($exact in @($Contract.ownedExactFiles)) {
+    if ($exact -and [string]::Equals($Name, [string]$exact, [StringComparison]::OrdinalIgnoreCase)) { return $true }
   }
-  foreach ($prefix in $Contract.ownedNamePrefixes) {
-    if ($Name.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) { return $true }
+  foreach ($prefix in @($Contract.ownedNamePrefixes)) {
+    if ($prefix -and $Name.StartsWith([string]$prefix, [StringComparison]::OrdinalIgnoreCase)) { return $true }
   }
   $lower = $Name.ToLowerInvariant()
-  if ($lower.EndsWith('.pdb')) { return $true }
+  foreach ($suf in @($Contract.ownedNameSuffixes)) {
+    if ($suf -and $lower.EndsWith(([string]$suf).ToLowerInvariant())) { return $true }
+  }
+  if ($RelativePath) {
+    $rel = $RelativePath.Replace('\', '/')
+    $top = $rel.Split('/')[0]
+    foreach ($d in @($Contract.ownedExactDirs)) {
+      if ($d -and [string]::Equals($top, [string]$d, [StringComparison]::OrdinalIgnoreCase)) { return $true }
+    }
+    if ($rel.StartsWith('updates/Sirman_Update_', [StringComparison]::OrdinalIgnoreCase)) { return $true }
+  }
   return $false
+}
+
+function Read-SirmanSourcePackageManifest {
+  param(
+    [Parameter(Mandatory = $true)][string]$DestDir,
+    $Contract
+  )
+  $empty = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+  $manName = [string]$Contract.canonical.manifestFileName
+  $manPath = Join-Path $DestDir $manName
+  if (-not (Test-Path -LiteralPath $manPath)) {
+    return [pscustomobject]@{ Ok = $false; Reason = 'absent'; Path = $manPath; Files = $empty }
+  }
+  try {
+    $raw = Get-Content -LiteralPath $manPath -Raw -Encoding UTF8
+    if ([string]::IsNullOrWhiteSpace($raw)) {
+      return [pscustomobject]@{ Ok = $false; Reason = 'empty'; Path = $manPath; Files = $empty }
+    }
+    $man = $raw | ConvertFrom-Json
+    $set = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    foreach ($f in @($man.files)) {
+      if ($f) { [void]$set.Add(([string]$f).Replace('\', '/')) }
+    }
+    if ($set.Count -eq 0) {
+      return [pscustomobject]@{ Ok = $false; Reason = 'empty'; Path = $manPath; Files = $empty }
+    }
+    return [pscustomobject]@{ Ok = $true; Reason = 'ok'; Path = $manPath; Files = $set }
+  } catch {
+    return [pscustomobject]@{ Ok = $false; Reason = 'corrupt'; Path = $manPath; Files = $empty }
+  }
+}
+
+function Remove-SirmanPathWithRetry {
+  param(
+    [Parameter(Mandatory = $true)][string]$PathValue,
+    [int]$Retries = 5,
+    [int]$DelayMs = 400
+  )
+  if ([string]::IsNullOrWhiteSpace($PathValue)) {
+    return [pscustomobject]@{ Ok = $true; Skipped = $true; Path = $PathValue; Retries = 0; Error = $null }
+  }
+  if (-not (Test-Path -LiteralPath $PathValue)) {
+    return [pscustomobject]@{ Ok = $true; Skipped = $true; Path = $PathValue; Retries = 0; Error = $null }
+  }
+  $isDir = Test-Path -LiteralPath $PathValue -PathType Container
+  $last = 'unknown'
+  $used = 0
+  for ($i = 0; $i -le $Retries; $i++) {
+    $used = $i
+    try {
+      if (-not (Test-Path -LiteralPath $PathValue)) {
+        return [pscustomobject]@{ Ok = $true; Skipped = $false; Path = $PathValue; Retries = $i; Error = $null }
+      }
+      if ($isDir) {
+        Remove-Item -LiteralPath $PathValue -Force -Recurse -ErrorAction Stop
+      } else {
+        Remove-Item -LiteralPath $PathValue -Force -ErrorAction Stop
+      }
+      return [pscustomobject]@{ Ok = $true; Skipped = $false; Path = $PathValue; Retries = $i; Error = $null }
+    } catch {
+      $last = [string]$_.Exception.Message
+      if ($i -lt $Retries) { Start-Sleep -Milliseconds $DelayMs }
+    }
+  }
+  return [pscustomobject]@{ Ok = $false; Skipped = $false; Path = $PathValue; Retries = $used; Error = $last }
+}
+
+function Stop-SirmanKnownProcesses {
+  param($Contract = $null)
+  $waitSeconds = 8
+  if ($Contract) {
+    try {
+      if ($Contract.processStop -and $null -ne $Contract.processStop.waitExitSeconds) {
+        $waitSeconds = [int]$Contract.processStop.waitExitSeconds
+      }
+    } catch {}
+  }
+
+  $names = @('Sirman')
+  if ($Contract -and $Contract.processStop -and $Contract.processStop.processNames) {
+    $names = @($Contract.processStop.processNames | ForEach-Object { [string]$_ })
+  }
+  foreach ($n in $names) {
+    if ([string]::IsNullOrWhiteSpace($n)) { continue }
+    try { Get-Process -Name $n -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue } catch {}
+  }
+
+  $patterns = @('Sirman-Server-', 'sirman_run.ps1')
+  if ($Contract -and $Contract.processStop -and $Contract.processStop.childCommandLinePatterns) {
+    $patterns = @($Contract.processStop.childCommandLinePatterns | ForEach-Object { [string]$_ })
+  }
+  try {
+    Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
+      Where-Object {
+        $_.Name -and
+        ($_.Name -match '^(powershell|pwsh|Sirman)\.exe$') -and
+        $_.CommandLine
+      } |
+      ForEach-Object {
+        $cmd = [string]$_.CommandLine
+        $hit = $false
+        foreach ($pat in $patterns) {
+          if ($pat -and $cmd.IndexOf($pat, [StringComparison]::OrdinalIgnoreCase) -ge 0) { $hit = $true; break }
+        }
+        if ($hit -and $_.ProcessId) {
+          try { Stop-Process -Id ([int]$_.ProcessId) -Force -ErrorAction SilentlyContinue } catch {}
+        }
+      }
+  } catch {}
+
+  try {
+    Get-Process -ErrorAction SilentlyContinue |
+      Where-Object { $_.MainWindowTitle -and $_.MainWindowTitle -like 'Sirman-Server-*' } |
+      ForEach-Object { try { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue } catch {} }
+  } catch {}
+
+  $deadline = (Get-Date).AddSeconds($waitSeconds)
+  do {
+    $left = @()
+    foreach ($n in $names) {
+      try { $left += @(Get-Process -Name $n -ErrorAction SilentlyContinue) } catch {}
+    }
+    if ($left.Count -eq 0) { break }
+    Start-Sleep -Milliseconds 250
+  } while ((Get-Date) -lt $deadline)
+
+  $still = 0
+  foreach ($n in $names) {
+    try { $still += @(Get-Process -Name $n -ErrorAction SilentlyContinue).Count } catch {}
+  }
+  return [pscustomobject]@{ SirmanStillRunning = ($still -gt 0); WaitedSeconds = $waitSeconds }
 }
 
 function Write-SirmanInstallManifest {
@@ -322,12 +477,7 @@ function Remove-SirmanStaleOwnedFiles {
     if (Test-SirmanPreserveDir -FullPath $full -Contract $Contract) { return }
     $rel = Get-SirmanRelativePath -Root $dest -Full $full
     $inSource = $sourceRel.Contains($rel)
-    $owned = (Test-SirmanOwnedName -Name $_.Name -Contract $Contract)
-    $topDir = $rel.Split('/')[0]
-    foreach ($d in $Contract.ownedExactDirs) {
-      if ([string]::Equals($topDir, $d, [StringComparison]::OrdinalIgnoreCase)) { $owned = $true }
-    }
-    if ($rel -match '^updates/Sirman_Update_') { $owned = $true }
+    $owned = (Test-SirmanOwnedName -Name $_.Name -Contract $Contract -RelativePath $rel)
     if (-not $owned) { return }
     if ($inSource) { return }
     if ($sourceRel.Count -eq 0 -and $manifestRel.Contains($rel)) { return }
@@ -381,36 +531,58 @@ function Remove-SirmanInstallerOwnedInDir {
   )
   if (-not $Contract) { $Contract = Get-SirmanInstallContract }
   $dest = Convert-SirmanFullPath $DestDir
-  if (-not (Test-Path -LiteralPath $dest)) { return }
-
-  $manifestRel = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
-  $manPath = Join-Path $dest $Contract.canonical.manifestFileName
-  if (Test-Path -LiteralPath $manPath) {
-    try {
-      $man = Get-Content -LiteralPath $manPath -Raw -Encoding UTF8 | ConvertFrom-Json
-      foreach ($f in @($man.files)) { if ($f) { [void]$manifestRel.Add([string]$f) } }
-    } catch {}
+  $removed = New-Object 'System.Collections.Generic.List[string]'
+  $failed = New-Object 'System.Collections.Generic.List[object]'
+  $preserved = New-Object 'System.Collections.Generic.List[string]'
+  if (-not $dest -or -not (Test-Path -LiteralPath $dest)) {
+    return [pscustomobject]@{
+      OwnershipMode = 'none'
+      RemovedCount = 0
+      FailedCount = 0
+      PreservedCount = 0
+      Removed = @()
+      Failed = @()
+      Preserved = @()
+    }
   }
 
+  $retries = Get-SirmanContractInt -Contract $Contract -Name 'level1RemovalRetries' -Default 5
+  $delay = Get-SirmanContractInt -Contract $Contract -Name 'level1RetryDelayMs' -Default 400
+  $manifest = Read-SirmanSourcePackageManifest -DestDir $dest -Contract $Contract
+  $mode = $(if ($manifest.Ok) { 'manifest' } else { 'fallback:' + $manifest.Reason })
+
+  $toDelete = @()
   Get-ChildItem -LiteralPath $dest -Recurse -File -Force -ErrorAction SilentlyContinue | ForEach-Object {
     $full = $_.FullName
     if (Test-SirmanPreserveDir -FullPath $full -Contract $Contract) { return }
-    $rel = Get-SirmanRelativePath -Root $dest -Full $full
-    $owned = $manifestRel.Contains($rel) -or (Test-SirmanOwnedName -Name $_.Name -Contract $Contract)
-    $topDir = $rel.Split('/')[0]
-    foreach ($d in $Contract.ownedExactDirs) {
-      if ([string]::Equals($topDir, $d, [StringComparison]::OrdinalIgnoreCase)) { $owned = $true }
-    }
-    if ($rel -match '^updates/Sirman_Update_') { $owned = $true }
-    if ($owned) {
-      Remove-Item -LiteralPath $full -Force -ErrorAction SilentlyContinue
+    $rel = (Get-SirmanRelativePath -Root $dest -Full $full).Replace('\', '/')
+    $owned = $false
+    if ($manifest.Ok -and $manifest.Files.Contains($rel)) { $owned = $true }
+    if (Test-SirmanOwnedName -Name $_.Name -Contract $Contract -RelativePath $rel) { $owned = $true }
+    if ($owned) { $toDelete += $_ }
+  }
+
+  foreach ($item in $toDelete) {
+    $rel = Get-SirmanRelativePath -Root $dest -Full $item.FullName
+    $r = Remove-SirmanPathWithRetry -PathValue $item.FullName -Retries $retries -DelayMs $delay
+    if ($r.Ok) {
+      if (-not $r.Skipped) { $removed.Add($rel) }
+    } else {
+      $failed.Add([pscustomobject]@{ Path = $rel; Error = $r.Error; Retries = $r.Retries })
     }
   }
 
-  foreach ($d in $Contract.ownedExactDirs) {
-    $p = Join-Path $dest $d
+  foreach ($d in @($Contract.ownedExactDirs)) {
+    if (-not $d) { continue }
+    $p = Join-Path $dest ([string]$d)
     if (Test-Path -LiteralPath $p) {
-      Remove-Item -LiteralPath $p -Recurse -Force -ErrorAction SilentlyContinue
+      $left = @(Get-ChildItem -LiteralPath $p -Recurse -Force -ErrorAction SilentlyContinue | Where-Object { -not $_.PSIsContainer })
+      if ($left.Count -eq 0) {
+        $r = Remove-SirmanPathWithRetry -PathValue $p -Retries $retries -DelayMs $delay
+        if (-not $r.Ok) {
+          $failed.Add([pscustomobject]@{ Path = [string]$d; Error = $r.Error; Retries = $r.Retries })
+        }
+      }
     }
   }
 
@@ -418,7 +590,7 @@ function Remove-SirmanInstallerOwnedInDir {
   if (Test-Path -LiteralPath $updates) {
     $leftU = @(Get-ChildItem -LiteralPath $updates -Force -ErrorAction SilentlyContinue)
     if ($leftU.Count -eq 0) {
-      Remove-Item -LiteralPath $updates -Force -ErrorAction SilentlyContinue
+      [void](Remove-SirmanPathWithRetry -PathValue $updates -Retries $retries -DelayMs $delay)
     }
   }
 
@@ -428,13 +600,31 @@ function Remove-SirmanInstallerOwnedInDir {
       if (Test-SirmanPreserveDir -FullPath $_.FullName -Contract $Contract) { return }
       $left = @(Get-ChildItem -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue)
       if ($left.Count -eq 0) {
-        Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue
+        [void](Remove-SirmanPathWithRetry -PathValue $_.FullName -Retries $retries -DelayMs $delay)
       }
     }
 
-  $leftRoot = @(Get-ChildItem -LiteralPath $dest -Force -ErrorAction SilentlyContinue)
-  if ($leftRoot.Count -eq 0) {
-    Remove-Item -LiteralPath $dest -Force -ErrorAction SilentlyContinue
+  if (Test-Path -LiteralPath $dest) {
+    Get-ChildItem -LiteralPath $dest -Recurse -File -Force -ErrorAction SilentlyContinue | ForEach-Object {
+      $preserved.Add((Get-SirmanRelativePath -Root $dest -Full $_.FullName))
+    }
+    $leftRoot = @(Get-ChildItem -LiteralPath $dest -Force -ErrorAction SilentlyContinue)
+    if ($leftRoot.Count -eq 0) {
+      $r = Remove-SirmanPathWithRetry -PathValue $dest -Retries $retries -DelayMs $delay
+      if (-not $r.Ok) {
+        $failed.Add([pscustomobject]@{ Path = $dest; Error = $r.Error; Retries = $r.Retries })
+      }
+    }
+  }
+
+  return [pscustomobject]@{
+    OwnershipMode = $mode
+    RemovedCount = $removed.Count
+    FailedCount = $failed.Count
+    PreservedCount = $preserved.Count
+    Removed = $removed.ToArray()
+    Failed = $failed.ToArray()
+    Preserved = $preserved.ToArray()
   }
 }
 
@@ -553,11 +743,19 @@ function Invoke-SirmanLevel1Uninstall {
     return [pscustomobject]@{ Ok = $true; DryRun = $true; TargetDir = $resolved.TargetDir; OtherDetectedDir = $resolved.OtherDetectedDir; SilentRedirect = $false }
   }
 
-  try { Stop-Process -Name 'Sirman' -Force -ErrorAction SilentlyContinue } catch {}
-  Start-Sleep -Seconds 1
+  try {
+    $temp = $env:TEMP
+    if ([string]::IsNullOrWhiteSpace($temp)) { $temp = [IO.Path]::GetTempPath() }
+    if ($temp) { Set-Location -LiteralPath $temp }
+  } catch {}
+
+  $stopped = Stop-SirmanKnownProcesses -Contract $Contract
+  if ($stopped.SirmanStillRunning) {
+    Write-Host 'WARNING: Sirman process still running after wait. File removal may fail on locked DLLs.'
+  }
 
   Remove-SirmanCanonicalShortcuts -Contract $Contract
-  Remove-SirmanInstallerOwnedInDir -DestDir $resolved.TargetDir -Contract $Contract
+  $del = Remove-SirmanInstallerOwnedInDir -DestDir $resolved.TargetDir -Contract $Contract
 
   if ($resolved.LocationFile -and (Test-Path -LiteralPath $resolved.LocationFile)) {
     $cur = Read-SirmanTextPathFile $resolved.LocationFile
@@ -574,6 +772,25 @@ function Invoke-SirmanLevel1Uninstall {
 
   Write-Host 'Level 1 uninstall finished.'
   Write-Host 'Business data was preserved.'
+  Write-Host ''
+  Write-Host 'Removed:'
+  Write-Host ([string]$del.RemovedCount)
+  Write-Host ''
+  Write-Host 'Could not remove:'
+  Write-Host ([string]$del.FailedCount)
+  foreach ($f in @($del.Failed)) {
+    Write-Host ('  ' + $f.Path + ' | ' + $f.Error + ' | retries=' + $f.Retries)
+  }
+  Write-Host ''
+  Write-Host 'Preserved user files:'
+  Write-Host ([string]$del.PreservedCount)
+  foreach ($p in @($del.Preserved)) {
+    Write-Host ('  ' + $p)
+  }
+  if ($del.OwnershipMode) {
+    Write-Host ''
+    Write-Host ('Ownership source: ' + $del.OwnershipMode)
+  }
   return [pscustomobject]@{
     Ok = $true
     Aborted = $false
@@ -581,6 +798,12 @@ function Invoke-SirmanLevel1Uninstall {
     OtherDetectedDir = $resolved.OtherDetectedDir
     DeletedOther = $false
     SilentRedirect = $false
+    OwnershipMode = $del.OwnershipMode
+    RemovedCount = $del.RemovedCount
+    FailedCount = $del.FailedCount
+    PreservedCount = $del.PreservedCount
+    Failed = $del.Failed
+    Preserved = $del.Preserved
   }
 }
 
@@ -628,8 +851,7 @@ function Invoke-SirmanLevel2FullCleanup {
     return [pscustomobject]@{ Ok = $true; DryRun = $true; Aborted = $false; Categories = $cats }
   }
 
-  try { Stop-Process -Name 'Sirman' -Force -ErrorAction SilentlyContinue } catch {}
-  Start-Sleep -Seconds 1
+  [void](Stop-SirmanKnownProcesses -Contract $Contract)
 
   foreach ($c in $cats) {
     foreach ($p in $c.Paths) { Remove-SirmanPathIfExists $p }
