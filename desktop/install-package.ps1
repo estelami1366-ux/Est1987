@@ -96,7 +96,7 @@ if (Test-Path -LiteralPath $fcBat) {
   $fc = $shell.CreateShortcut((Join-Path $startDir 'SIRMAN Full Cleanup.lnk'))
   $fc.TargetPath = $fcBat
   $fc.WorkingDirectory = $Dest
-  $fc.Description = 'پاک‌سازی کامل داده سیرمان (سطح ۲ — نیاز به تایید)'
+  $fc.Description = 'پاک‌سازی کامل داده سیرمان (سطح ۲ — type CONFIRM)'
   $fc.Save()
 }
 

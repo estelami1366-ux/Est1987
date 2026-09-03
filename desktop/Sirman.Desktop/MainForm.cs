@@ -439,7 +439,7 @@ public sealed class MainForm : Form
                 "• پوشه بک‌آپ قابل انتخاب\n" +
                 "• نصب محلی + میانبر منوی Start\n" +
                 "• حذف سالم سطح ۱ (Uninstall-Sirman.bat — برنامه، نه داده)\n" +
-                "• پاک‌سازی کامل سطح ۲ (SIRMAN Full Cleanup — با تایپ تایید)\n" +
+                "• پاک‌سازی کامل سطح ۲ (SIRMAN Full Cleanup — type CONFIRM)\n" +
                 "• پل اعلان مرکز اعلان ویندوز (پورت ۸۷۶۶)\n\n" +
                 "HTML:\n" + (_htmlPath ?? "—") + "\n\n" +
                 "بک‌آپ:\n" + AppPaths.ResolveBackupFolder(_settings) + "\n\n" +
@@ -764,7 +764,7 @@ public sealed class MainForm : Form
         var ask = MessageBox.Show(
             this,
             "پنجره پاک‌سازی کامل (سطح ۲) باز شود؟\n\n" +
-            "این حذف عادی نیست. داده کسب‌وکار فقط بعد از تایپ «تایید» پاک می‌شود.\n" +
+            "این حذف عادی نیست. داده کسب‌وکار فقط بعد از تایپ CONFIRM پاک می‌شود.\n" +
             "اگر انصراف بدهید هیچ فایلی حذف نمی‌شود.",
             "پاک‌سازی کامل سیرمان",
             MessageBoxButtons.YesNo,
