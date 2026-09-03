@@ -289,9 +289,9 @@ function register(ctx) {
     assertTrue(bat.indexOf('rd /s /q "%APPDATA%\\Sirman"') === -1, 'بات نباید rd کل Sirman Roaming باشد');
   });
 
-  test('پاک‌سازی کامل باید تایید تایپی بخواهد و بدون آن چیزی پاک نکند', () => {
+  test('پاک‌سازی کامل باید CONFIRM دقیق بخواهد و بدون آن چیزی پاک نکند', () => {
     const contractWord = contract.canonical.level2ConfirmationWord;
-    assertEqual(contractWord, 'تایید', 'کلمه تایید فارسی');
+    assertEqual(contractWord, 'CONFIRM', 'کلمه تایید سطح ۲ باید CONFIRM باشد');
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sirman-l2-'));
     try {
       const local = path.join(tmp, 'LocalAppData', 'Sirman');
@@ -302,10 +302,12 @@ function register(ctx) {
       fs.mkdirSync(bak, { recursive: true });
       fs.writeFileSync(path.join(wv, 'x'), 'data');
       fs.writeFileSync(path.join(bak, 'y'), 'bak');
-      assertTrue(confirmLevel2('', contract) === false, 'خالی باید رد شود');
+      assertTrue(confirmLevel2('CONFIRM', contract) === true, 'CONFIRM دقیق باید قبول شود');
+      assertTrue(confirmLevel2('confirm', contract) === false, 'confirm باید رد شود');
+      assertTrue(confirmLevel2('Confirm', contract) === false, 'Confirm باید رد شود');
       assertTrue(confirmLevel2('yes', contract) === false, 'yes باید رد شود');
-      assertTrue(confirmLevel2('تاييد', contract) === false, 'حرف عربی ی اشتباه باید رد شود');
-      assertTrue(confirmLevel2('تایید', contract) === true, 'تایید باید قبول شود');
+      assertTrue(confirmLevel2('تایید', contract) === false, 'تایید فارسی باید رد شود');
+      assertTrue(confirmLevel2('', contract) === false, 'خالی باید رد شود');
       if (!confirmLevel2('wrong', contract)) {
         assertTrue(fs.existsSync(path.join(wv, 'x')), 'رد تایید نباید WebView2 را پاک کند');
         assertTrue(fs.existsSync(path.join(bak, 'y')), 'رد تایید نباید بک‌آپ را پاک کند');
@@ -316,7 +318,10 @@ function register(ctx) {
     const life = read('scripts/setup-kit/Sirman-InstallLifecycle.ps1');
     assertContainsString(life, 'Invoke-SirmanLevel2FullCleanup', 'موتور سطح ۲');
     assertContainsString(life, 'Aborted. Nothing deleted.', 'بدون تایید هیچ حذفی');
+    assertContainsString(life, '[StringComparison]::Ordinal)', 'مقایسه باید دقیق/Ordinal باشد نه IgnoreCase');
     assertContainsString(read('desktop/Sirman-Full-Cleanup.bat'), '-Mode Level2', 'بات سطح ۲ جداست');
+    assertContainsString(read('desktop/Sirman-Full-Cleanup.bat'), 'CONFIRM', 'بات باید CONFIRM را نشان دهد');
+    assertTrue(read('desktop/Sirman-Full-Cleanup.bat').indexOf('تایید') === -1, 'بات سطح ۲ نباید تایید فارسی بخواهد');
     assertTrue(read('desktop/Uninstall-Sirman.bat').indexOf('-Mode Level2') === -1, 'بات سطح ۱ نباید سطح ۲ را اجرا کند');
   });
 
@@ -488,8 +493,9 @@ function register(ctx) {
       assertTrue(!fs.existsSync(path.join(a, 'coreclr.dll')), 'هدف جاری باید runtime را حذف کند');
       assertTrue(fs.existsSync(path.join(b, 'coreclr.dll')), 'نصب دوم نباید حذف شود');
       assertTrue(fs.existsSync(path.join(local, 'install-location.txt')), 'رکورد نصب دیگر باید بماند');
-      assertTrue(confirmLevel2('تایید', contract) === true, 'سطح ۲ با تایید کار می‌کند');
-      assertTrue(confirmLevel2('yes', contract) === false, 'سطح ۲ بدون تایید کار نمی‌کند');
+      assertTrue(confirmLevel2('CONFIRM', contract) === true, 'سطح ۲ با CONFIRM کار می‌کند');
+      assertTrue(confirmLevel2('yes', contract) === false, 'سطح ۲ بدون CONFIRM کار نمی‌کند');
+      assertTrue(confirmLevel2('تایید', contract) === false, 'تایید فارسی دیگر قبول نیست');
     } finally {
       rmrf(tmp);
     }
@@ -520,6 +526,7 @@ function register(ctx) {
     assertContainsString(html, 'data-help-id="uninstall-cleanup-guide"', 'کارت راهنما');
     assertContainsString(html, 'پاک‌سازی کامل', 'متن سطح ۲');
     assertContainsString(html, 'سطح ۱', 'متن سطح ۱');
+    assertContainsString(html, 'CONFIRM', 'راهنمای سطح ۲ باید CONFIRM باشد');
   });
 }
 

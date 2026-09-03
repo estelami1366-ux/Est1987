@@ -179,7 +179,7 @@ if (Get-Command Write-SirmanInstallLocation -ErrorAction SilentlyContinue) {
     $fc = $shell.CreateShortcut((Join-Path $startDir 'SIRMAN Full Cleanup.lnk'))
     $fc.TargetPath = $destFc
     $fc.WorkingDirectory = $work
-    $fc.Description = 'پاک‌سازی کامل داده سیرمان (سطح ۲ — نیاز به تایید)'
+    $fc.Description = 'پاک‌سازی کامل داده سیرمان (سطح ۲ — type CONFIRM)'
     $fc.Save()
   }
   if ($makeDesktop) {

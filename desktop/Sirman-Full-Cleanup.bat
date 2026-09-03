@@ -6,7 +6,7 @@ title SIRMAN Full Cleanup (Level 2)
 color 0C
 echo.
 echo SIRMAN Full Cleanup is NOT normal uninstall.
-echo Business data will be listed. Deletion requires typing: تایید
+echo Business data will be listed. Deletion requires typing: CONFIRM
 echo.
 set "PS1=%~dp0Uninstall-Sirman.ps1"
 if not exist "%PS1%" (

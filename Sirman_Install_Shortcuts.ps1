@@ -113,7 +113,7 @@ switch ($Mode) {
     }
     $fcBat = Join-Path $Root 'Sirman-Full-Cleanup.bat'
     if (Test-Path -LiteralPath $fcBat) {
-      New-SirmanShortcut (Join-Path $Programs 'SIRMAN Full Cleanup.lnk') $fcBat $Root 'پاک‌سازی کامل داده سیرمان (سطح ۲ — نیاز به تایید)'
+      New-SirmanShortcut (Join-Path $Programs 'SIRMAN Full Cleanup.lnk') $fcBat $Root 'پاک‌سازی کامل داده سیرمان (سطح ۲ — type CONFIRM)'
     }
     Set-Content -LiteralPath (Join-Path $InstallNoteDir 'install-location.txt') -Value $Root -Encoding UTF8
     Write-Host "[OK] Start Menu + Desktop shortcuts created:"

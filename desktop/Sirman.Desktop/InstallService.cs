@@ -289,7 +289,7 @@ static class InstallService
             StartMenuFullCleanupShortcutPath,
             bat,
             dir,
-            "پاک‌سازی کامل داده سیرمان (سطح ۲ — نیاز به تایید)");
+            "پاک‌سازی کامل داده سیرمان (سطح ۲ — type CONFIRM)");
     }
 
     public static InstallResult LaunchUninstall() => LaunchBat(UninstallBatName);
@@ -532,7 +532,7 @@ cd /d "%~dp0"
 title SIRMAN Full Cleanup (Level 2)
 echo.
 echo SIRMAN Full Cleanup is NOT normal uninstall.
-echo Business data will be listed. Deletion requires typing the confirmation word.
+echo Business data will be listed. Deletion requires typing: CONFIRM
 echo.
 set "PS1=%~dp0Uninstall-Sirman.ps1"
 if not exist "%PS1%" (

@@ -10,10 +10,10 @@
     "installLocationFileName": "install-location.txt",
     "legacyInstallPathFileName": "install_path.txt",
     "manifestFileName": "sirman-install-manifest.json",
-    "level2ConfirmationWord": "تایید",
+    "level2ConfirmationWord": "CONFIRM",
     "launchDescription": "سیرمان — خدمات پس از فروش",
     "uninstallDescription": "حذف سالم سیرمان (سطح ۱ — برنامه، نه داده کسب‌وکار)",
-    "fullCleanupDescription": "پاک‌سازی کامل داده سیرمان (سطح ۲ — نیاز به تایید)"
+    "fullCleanupDescription": "پاک‌سازی کامل داده سیرمان (سطح ۲ — type CONFIRM)"
   },
   "legacyStartMenuFolderNames": ["سیرمان"],
   "legacyStartMenuLaunchNames": ["سیرمان.lnk"],

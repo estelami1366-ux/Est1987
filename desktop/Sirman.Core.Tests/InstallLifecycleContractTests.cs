@@ -36,7 +36,7 @@ public class InstallLifecycleContractTests
         Assert.Equal("SIRMAN Full Cleanup.lnk", c.GetProperty("startMenuFullCleanupShortcut").GetString());
         Assert.Equal("Sirman.lnk", c.GetProperty("desktopShortcut").GetString());
         Assert.Equal("install-location.txt", c.GetProperty("installLocationFileName").GetString());
-        Assert.Equal("تایید", c.GetProperty("level2ConfirmationWord").GetString());
+        Assert.Equal("CONFIRM", c.GetProperty("level2ConfirmationWord").GetString());
     }
 
     [Fact]
@@ -57,7 +57,8 @@ public class InstallLifecycleContractTests
     {
         var bat = Read("desktop", "Sirman-Full-Cleanup.bat");
         Assert.Contains("-Mode Level2", bat, StringComparison.Ordinal);
-        Assert.Contains("تایید", bat, StringComparison.Ordinal);
+        Assert.Contains("CONFIRM", bat, StringComparison.Ordinal);
+        Assert.DoesNotContain("تایید", bat, StringComparison.Ordinal);
         Assert.Contains("NOT normal uninstall", bat, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -70,6 +71,7 @@ public class InstallLifecycleContractTests
         Assert.Contains("SilentRedirect = $false", life, StringComparison.Ordinal);
         Assert.Contains("Aborted. Nothing deleted.", life, StringComparison.Ordinal);
         Assert.Contains("Test-SirmanLevel2Confirmation", life, StringComparison.Ordinal);
+        Assert.Contains("[StringComparison]::Ordinal)", life, StringComparison.Ordinal);
         Assert.Contains("WebView2", life, StringComparison.Ordinal);
         Assert.Contains("Read-SirmanSourcePackageManifest", life, StringComparison.Ordinal);
         Assert.Contains("Remove-SirmanPathWithRetry", life, StringComparison.Ordinal);
