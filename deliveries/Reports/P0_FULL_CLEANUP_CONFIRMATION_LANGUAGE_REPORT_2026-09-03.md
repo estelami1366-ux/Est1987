@@ -28,7 +28,7 @@ HEAD before:    0e83464
 No reset/rebase/merge/cherry-pick
 ```
 
-HEAD after is the commit that adds this report on the same branch.
+HEAD after: `3b27299`
 
 ---
 
