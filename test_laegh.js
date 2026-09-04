@@ -9027,6 +9027,31 @@ test('ARCH-8 G2: Merge/Replace/Phonebook/SQLite در این استخراج دس�
 
 
 console.log('');
+console.log('📋 گروه: ARCH-9B قرارداد BackupSnapshot (بدون اسمبل زنده)');
+
+test('ARCH-9B G1: HTML اسمبل به BackupSnapshot وصل نشده', () => {
+  const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
+  assertTrue(buildSrc !== null, '_buildFullBackupData باید باقی بماند');
+  assertTrue(buildSrc.indexOf('BackupSnapshot') < 0, 'اسمبل HTML نباید BackupSnapshot را صدا بزند');
+  assertTrue(html.indexOf('BackupSnapshotCatalog') < 0, 'HTML نباید کاتالوگ Core را ارجاع دهد');
+  assertTrue(extractFunctionSource(html, 'exportData').indexOf('_buildFullBackupData') >= 0, 'exportData باید همان اسمبل HTML باشد');
+});
+
+test('ARCH-9B G2: Restore/Phonebook/SQLite در این قرارداد دست نخورده‌اند', () => {
+  assertTrue(extractFunctionSource(html, 'applyBackupMergeSections') !== null, 'merge باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'applyBackupReplaceSections') !== null, 'replace باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'savePBContact') !== null, 'savePBContact باید باقی بماند');
+  const snap = path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Backup', 'BackupSnapshot.cs');
+  assertTrue(fs.existsSync(snap), 'BackupSnapshot باید موجود باشد');
+  const src = fs.readFileSync(snap, 'utf8');
+  assertTrue(src.indexOf('localStorage') < 0, 'قرارداد نباید localStorage داشته باشد');
+  assertTrue(src.indexOf('_buildFullBackupData') < 0, 'قرارداد نباید اسمبل زنده را صدا بزند');
+  const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
+  assertContainsString(repo, 'html-backup-engine', 'JsonBackupRepository باید TBD بماند');
+});
+
+
+console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
 
 function loadErrorEngine(srcHtml){
