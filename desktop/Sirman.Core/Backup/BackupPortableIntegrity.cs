@@ -4,9 +4,10 @@ namespace Sirman.Core.Backup;
 
 /// <summary>
 /// Extraction of HTML <c>classifyBackupChecksumClaim</c>, <c>validateBackupSectionChecksums</c>,
-/// and <c>validateBackupPortableIntegrity</c>. Does not compare SHA-256 digest (that is
-/// <see cref="BackupCanonicalChecksum.Sha256Hex"/>). Unknown claimed algorithm is INVALID.
+/// and <c>validateBackupPortableIntegrity</c>. Unknown claimed algorithm is INVALID.
 /// Missing checksum / algo none remain compatible. Does not mutate input.
+/// Stored SHA-256 hex vs canonical digest is <see cref="BackupStoredChecksum"/>,
+/// applied by <see cref="BackupValidator"/> (HTML portable slice does not compare the digest).
 /// </summary>
 public static class BackupPortableIntegrity
 {

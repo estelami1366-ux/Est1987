@@ -27,7 +27,7 @@ public static class BackupDryRunService
         var integrityEval = EvaluateIntegrity(validationClone);
         var warnings = validation.Warnings.ToList();
         var errors = validation.Errors.ToList();
-        if (integrityEval.DigestError is { Length: > 0 })
+        if (integrityEval.DigestError is { Length: > 0 } && !errors.Contains(integrityEval.DigestError))
             errors.Add(integrityEval.DigestError);
 
         var gatesOk = validation.Ok && integrityEval.DigestOk;
@@ -148,7 +148,6 @@ public static class BackupDryRunService
     {
         var portable = BackupPortableIntegrity.Validate(data);
         var claim = BackupPortableIntegrity.ClassifyClaim(data);
-        var compute = BackupCanonicalChecksum.Compute(data);
 
         if (!portable.Ok)
         {
@@ -172,7 +171,7 @@ public static class BackupDryRunService
                 DigestError: null);
         }
 
-        if (claim.Algo != "SHA-256")
+        if (claim.Algo != BackupStoredChecksum.RecognizedSha256Algo)
         {
             return new IntegrityEval(
                 BackupIntegrityStatus.INVALID,
@@ -183,16 +182,13 @@ public static class BackupDryRunService
                 DigestError: null);
         }
 
-        var stored = "";
-        if (data is JsonObject obj)
-            stored = BackupJsonUtil.Str(obj["checksum"]);
-        var matched = stored == compute.Sha256Hex;
+        var stored = BackupStoredChecksum.Compare(data);
         return new IntegrityEval(
-            matched ? BackupIntegrityStatus.VALID : BackupIntegrityStatus.INVALID,
+            stored.Matched ? BackupIntegrityStatus.VALID : BackupIntegrityStatus.INVALID,
             portable,
-            DigestOk: matched,
-            DigestCompared: true,
-            DigestMatched: matched,
-            DigestError: matched ? null : "checksum مطابقت ندارد — فایل ممکن است خراب باشد!");
+            DigestOk: stored.Matched,
+            DigestCompared: stored.Compared,
+            DigestMatched: stored.Matched,
+            DigestError: stored.Error);
     }
 }

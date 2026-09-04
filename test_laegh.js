@@ -9725,7 +9725,40 @@ test('ARCH-11 T18 T20: Restore و SQLite و resetAll در این بسته دست
 
 
 console.log('');
+console.log('📋 گروه: ARCH-12 تأیید سختگیرانه checksum ذخیره‌شده (قفل HTML)');
+
+test('ARCH-12: verifyChecksum همان مقایسه exact است و ورودی کانونیکال عوض نشده', () => {
+  const verify = extractFunctionSource(html, 'verifyChecksum');
+  assertTrue(verify !== null, 'verifyChecksum باید بماند');
+  assertContainsString(verify, 'computed === stored', 'HTML verifyChecksum باید digest را با مقدار ذخیره‌شده مقایسه کند');
+  assertTrue(verify.indexOf('toLowerCase') < 0 && verify.indexOf('toUpperCase') < 0, 'نباید case-fold بی‌صدا باشد');
+  const portable = extractFunctionSource(html, 'validateBackupPortableIntegrity');
+  assertTrue(portable.indexOf('computed === stored') < 0, 'portable HTML نباید digest را مقایسه کند — آن کار verifyChecksum است');
+  const excl = extractFunctionSource(html, 'backupChecksumExcludedKey');
+  assertContainsString(excl, "k === 'exportedAt'", 'exportedAt باید خارج از payload بماند');
+  assertContainsString(excl, "k === 'checksum'", 'checksum باید خارج از payload بماند');
+  assertContainsString(excl, "k === 'checksumAlgo'", 'checksumAlgo باید خارج از payload بماند');
+  const canon = extractFunctionSource(html, 'backupChecksumCanonicalString');
+  assertContainsString(canon, 'JSON.stringify(backupChecksumPayload(data))', 'stringify فشرده باید بماند');
+});
+
+test('ARCH-12: Restore زنده هنوز verifyChecksum را قبل از migrate صدا می‌زند', () => {
+  const src = extractFunctionSource(html, 'importData');
+  const verifyAt = src.indexOf('verifyChecksum');
+  const migAt = src.indexOf('applySchemaMigrations');
+  assertTrue(verifyAt >= 0 && migAt > verifyAt, 'verifyChecksum باید قبل از applySchemaMigrations باشد');
+  assertContainsString(src, "reason:'checksum'", 'mismatch checksum باید audit خطا بدهد نه موفقیت');
+  assertEqual(arch9cSha256(extractFunctionSource(html, '_buildFullBackupData')), ARCH9D_BUILD_SHA256, '_buildFullBackupData نباید عوض شود');
+  ['savePBContact', 'renderPB', 'applyBackupMergeSections', 'applyBackupReplaceSections', 'resetAll'].forEach(function(name){
+    assertTrue(extractFunctionSource(html, name) !== null, name + ' باید بماند');
+  });
+  assertTrue(html.indexOf('.sirmanbak') < 0, 'پسوند .sirmanbak نباید معرفی شود');
+});
+
+
+console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
+
 
 
 function loadErrorEngine(srcHtml){

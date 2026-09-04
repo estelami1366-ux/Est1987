@@ -171,16 +171,15 @@ public class BackupDiskRoundTripTests : IDisposable
     }
 
     [Fact]
-    public void T10_ChecksumFieldTamper_MayRemainValidByCurrentContract()
+    public void T10_ChecksumFieldTamper_MustFailUnderArch12()
     {
         var session = WriteFinalizedToTemp("t10-checksum.json");
         var mutated = CloneObj(session.PostRead);
         mutated["checksum"] = "0000000000000000000000000000000000000000000000000000000000000000";
         Assert.Equal(session.Finalizer.Sha256Hex, BackupCanonicalChecksum.Sha256Hex(mutated));
         var result = ValidateDiskCopy("t10-checksum-tamper.json", mutated);
-        Assert.True(result.Validation.Ok, "stored checksum hex is excluded from the hashed payload and is not compared to the digest");
-        Assert.True(result.Validation.ChecksumClaimed);
-        Assert.Equal("SHA-256", result.Validation.ChecksumAlgo);
+        Assert.False(result.Validation.Ok);
+        Assert.Contains(BackupStoredChecksum.MismatchMessage, result.Validation.Errors);
         Assert.Empty(result.Validation.SectionChecksumMismatches);
     }
 
@@ -235,12 +234,13 @@ public class BackupDiskRoundTripTests : IDisposable
     }
 
     [Fact]
-    public void T14b_TopLevelKeyOrder_MayRemainValidByCurrentContract()
+    public void T14b_TopLevelKeyOrder_FailsStoredChecksumWhileCanonicalChanges()
     {
         var session = WriteFinalizedToTemp("t14b-toplevel.json");
         var reordered = ReorderObject(CloneObj(session.PostRead), "sections", "itemCounts", "magic");
         var result = ValidateDiskCopy("t14b-toplevel-tamper.json", reordered);
-        Assert.True(result.Validation.Ok, "top-level key order is not covered by sectionChecksums; stored SHA-256 is not compared");
+        Assert.False(result.Validation.Ok, "top-level key order changes canonical digest; stored SHA-256 must fail");
+        Assert.Contains(BackupStoredChecksum.MismatchMessage, result.Validation.Errors);
         Assert.NotEqual(session.Finalizer.Sha256Hex, BackupCanonicalChecksum.Sha256Hex(reordered));
         Assert.NotEqual(BackupJsJson.Stringify(session.PreWrite), BackupJsJson.Stringify(reordered));
     }

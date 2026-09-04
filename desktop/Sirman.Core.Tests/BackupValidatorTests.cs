@@ -60,7 +60,7 @@ public class BackupValidatorTests
         AssertSlice("required", id, html.GetProperty("required"), required, requiredOnly: true);
         AssertSlice("structural", id, html.GetProperty("structural"), structural, structural: true);
         AssertSlice("portable", id, html.GetProperty("portable"), portable, portable: true);
-        AssertCombined(id, html.GetProperty("combined"), combined);
+        AssertCombined(id, html.GetProperty("combined"), combined, input);
 
         var htmlInt = html.GetProperty("integrity");
         Assert.True(htmlInt.GetProperty("canonicalString").GetString() == integrity.CanonicalString,
@@ -233,8 +233,18 @@ public class BackupValidatorTests
         }
     }
 
-    private static void AssertCombined(string id, JsonElement html, BackupValidationResult core)
+    private static void AssertCombined(string id, JsonElement html, BackupValidationResult core, JsonNode? input)
     {
+        var stored = BackupStoredChecksum.Compare(input);
+        if (stored.Compared && !stored.Matched)
+        {
+            Assert.False(core.Ok, id + " ARCH-12 Core-strict stored checksum must be INVALID");
+            Assert.Equal(BackupValidationStatus.INVALID, core.Status);
+            Assert.Contains(BackupStoredChecksum.MismatchMessage, core.Errors);
+            Assert.True(html.GetProperty("ok").GetBoolean(), id + " HTML combined remains portable-only (verifyChecksum is separate)");
+            return;
+        }
+
         Assert.True(html.GetProperty("ok").GetBoolean() == core.Ok, id + " combined.ok");
         Assert.True(html.GetProperty("status").GetString() == core.StatusName, id + " combined.status");
         Assert.Equal(StrList(html, "errors"), core.Errors.ToList());
