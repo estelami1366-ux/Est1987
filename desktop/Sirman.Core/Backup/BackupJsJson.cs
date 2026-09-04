@@ -7,8 +7,8 @@ namespace Sirman.Core.Backup;
 
 /// <summary>
 /// Compact JSON matching HTML <c>JSON.stringify</c> for JSON-compatible values.
-/// Insertion order is preserved. Keys are not sorted. Non-ASCII is not escaped
-/// except U+2028/U+2029 (V8). This is the HTML canonical serializer, not STJ defaults.
+/// Insertion order is preserved. Keys are not sorted. Non-ASCII including U+2028/U+2029
+/// is not escaped (modern JSON.stringify / ES2019). This is the HTML canonical serializer, not STJ defaults.
 /// </summary>
 internal static class BackupJsJson
 {
@@ -137,10 +137,6 @@ internal static class BackupJsJson
                 default:
                     if (ch < 0x20)
                         sb.Append("\\u").Append(((int)ch).ToString("x4", CultureInfo.InvariantCulture));
-                    else if (ch == '\u2028')
-                        sb.Append("\\u2028");
-                    else if (ch == '\u2029')
-                        sb.Append("\\u2029");
                     else
                         sb.Append(ch);
                     break;
