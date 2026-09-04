@@ -6,7 +6,8 @@ namespace Sirman.Core.Backup;
 /// ARCH-4 read-only dry-run façade. Composes ARCH-2 <see cref="BackupValidator"/>,
 /// P1C-7 digest compare via <see cref="BackupCanonicalChecksum"/>, and ARCH-3
 /// <see cref="BackupMigrator"/>. Does not persist, restore, merge, replace, or call Host.
-/// Not wired to live HTML <c>importData</c>.
+/// Host <c>TestRestoreBackup</c> may call this for preview only.
+/// Not wired to live HTML <c>importData</c> apply / merge / replace.
 /// </summary>
 public static class BackupDryRunService
 {

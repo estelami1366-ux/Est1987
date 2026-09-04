@@ -129,7 +129,7 @@ public class BackupFinalizeBridgeTests
         var host = File.ReadAllText(HostSourcePath());
         Assert.Contains("public string FinalizeBackup(string json)", host);
         Assert.Contains("BackupFinalizeBridge.Execute", host);
-        var method = Slice(host, "public string FinalizeBackup", "public string GetWarrantyBrowseCatalog");
+        var method = Slice(host, "public string FinalizeBackup", "public string TestRestoreBackup");
         Assert.DoesNotContain("File.WriteAllText", method);
         Assert.DoesNotContain("WriteBackupText", method);
         Assert.Contains("public string WriteBackupText", host);

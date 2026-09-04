@@ -8549,14 +8549,19 @@ test('ARCH-4 G1: جدول طلایی باید قرارداد دروازه را �
   assertEqual(v.validateRequiredBackupCollections(t3.input).ok, true, 'validator HTML هنوز T3 را قبول می‌کند');
 });
 
-test('ARCH-4 G2: HTML restore به DryRun وصل نشده', () => {
+test('ARCH-4 G2: HTML restore اعمال زنده به DryRun وصل نشده', () => {
   const importSrc = extractFunctionSource(html, 'importData');
-  const testSrc = extractFunctionSource(html, 'testRestoreBackup');
+  const mergeSrc = extractFunctionSource(html, 'applyBackupMergeSections');
+  const replaceSrc = extractFunctionSource(html, 'applyBackupReplaceSections');
+  const confirmSrc = extractFunctionSource(html, 'confirmRestorePreview');
   assertTrue(importSrc.indexOf('validateRequiredBackupCollections') >= 0, 'importData باید validator HTML را صدا بزند');
   assertTrue(importSrc.indexOf('applySchemaMigrations') >= 0, 'importData باید migration HTML را صدا بزند');
   assertTrue(importSrc.indexOf('BackupDryRun') < 0, 'importData نباید BackupDryRun را صدا بزند');
-  assertTrue(testSrc.indexOf('BackupDryRun') < 0, 'testRestoreBackup نباید BackupDryRun را صدا بزند');
-  assertTrue(html.indexOf('BackupDryRunService') < 0, 'HTML نباید به سرویس Core DryRun ارجاع دهد');
+  assertTrue(importSrc.indexOf('TestRestoreBackup') < 0, 'importData نباید TestRestoreBackup را صدا بزند');
+  assertTrue(mergeSrc.indexOf('TestRestoreBackup') < 0, 'merge نباید TestRestoreBackup را صدا بزند');
+  assertTrue(replaceSrc.indexOf('TestRestoreBackup') < 0, 'replace نباید TestRestoreBackup را صدا بزند');
+  assertTrue(confirmSrc.indexOf('TestRestoreBackup') < 0, 'confirmRestorePreview نباید TestRestoreBackup را صدا بزند');
+  assertTrue(html.indexOf('BackupDryRunService') < 0, 'HTML نباید مستقیماً به سرویس Core DryRun ارجاع دهد');
 });
 
 test('ARCH-4 G3: Phonebook و resetAll و merge در این بسته دست نخورده‌اند', () => {
@@ -8807,6 +8812,182 @@ test('ARCH-6 G5: جدول طلایی T1–T10 باید با خروجی HTML fina
     const attached = arch5AttachChecksum(api, got, row.checksumMode || 'leave');
     assertEqual(JSON.stringify(attached), row.html.compactJson, id + ' compactJson');
     assertEqual(api.backupChecksumCanonicalString(attached), row.html.canonicalString, id + ' canonical');
+  });
+});
+
+
+console.log('');
+console.log('📋 گروه: ARCH-7 پیش‌نمایش فقط‌خواندنی DryRun (بدون اعمال Restore)');
+
+function loadArch7DryRunHelpers(srcHtml) {
+  return [
+    extractFunctionSource(srcHtml, 'restoreDryRunMode'),
+    extractFunctionSource(srcHtml, 'mapCoreDryRunToPreview'),
+    extractFunctionSource(srcHtml, 'applyCoreRestoreDryRun'),
+    extractFunctionSource(srcHtml, 'testRestoreBackup')
+  ].join('\n');
+}
+
+test('ARCH-7 G1: HTML-only باید تست HTML باشد و exe باید فقط Core DryRun را صدا بزند', () => {
+  const fnSrc = loadArch7DryRunHelpers(html);
+  const htmlBody = extractFunctionSource(html, 'testRestoreBackup');
+  assertTrue(htmlBody.indexOf('restoreDryRunMode') >= 0, 'testRestoreBackup باید دروازه داشته باشد');
+  assertTrue(htmlBody.indexOf('applyCoreRestoreDryRun') >= 0, 'مسیر Core باید جدا باشد');
+
+  const htmlOnly = new Function(fnSrc + `
+    function getSirmanHostSync(){ return null; }
+    function cloneBackupData(d){ return JSON.parse(JSON.stringify(d||{})); }
+    function unwrapBackupEnvelope(d){ return d; }
+    function inferBackupSchemaVersion(){ return 1; }
+    function validateRequiredBackupCollections(){ return {ok:true, errors:[], warnings:[]}; }
+    function validateBackupStructuralIntegrity(){ return {ok:true, errors:[], warnings:[]}; }
+    function validateBackupPortableIntegrity(){ return {ok:true, errors:[], warnings:[]}; }
+    function canRestoreSchema(){ return {ok:true}; }
+    function applySchemaMigrations(d){ return {ok:true, data:d, log:['html-mig']}; }
+    function migrateBackup(d){ return {ok:true, data:d, log:['html-field']}; }
+    function validateBackupPackage(){ return {ok:true, errors:[], warnings:[]}; }
+    var SIRMAN_SCHEMA_VERSION = 1;
+    var r = testRestoreBackup({ schemaVersion:1, warranties:[], invoices:[] });
+    return { engine:r.engine||'html', applied:r.applied, ok:r.ok, log:r.log };
+  `)();
+  assertEqual(htmlOnly.applied, false, 'HTML-only هرگز applied نکند');
+  assertEqual(htmlOnly.ok, true, 'فیکسچر معتبر HTML-only باید ok باشد');
+
+  var coreCalls = { n:0, payload:null, htmlMig:0 };
+  const exe = new Function('coreCalls', fnSrc + `
+    var _html = (typeof applySchemaMigrations==='function') ? applySchemaMigrations : null;
+    function applySchemaMigrations(d){ coreCalls.htmlMig++; return {ok:true, data:d, log:[]}; }
+    function getSirmanHostSync(){
+      return { TestRestoreBackup: function(json){
+        coreCalls.n++;
+        coreCalls.payload = JSON.parse(json);
+        return JSON.stringify({ok:true, engine:'core', mode:'DRY_RUN_ONLY', applied:false, wrote:false, status:'VALID', sourceSchema:1, targetSchema:1, errors:[], warnings:[], log:['core-preview'], validation:{ok:true, errors:[], warnings:[]}, data:{fromCore:true}});
+      }};
+    }
+    var r = testRestoreBackup({ schemaVersion:1, warranties:[], invoices:[] });
+    return { ok:r.ok, applied:r.applied, mode:r.mode, engine:r.engine, fromCore:!!(r.data&&r.data.fromCore), hostCalls:coreCalls.n, htmlMig:coreCalls.htmlMig, hasLive: !!(coreCalls.payload && (coreCalls.payload.localStorage || coreCalls.payload.invoices)), hasData: !!(coreCalls.payload && coreCalls.payload.data) };
+  `)(coreCalls);
+  assertEqual(exe.ok, true, 'با Host باید Core را صدا بزند');
+  assertEqual(exe.applied, false, 'Core preview باید applied=false باشد');
+  assertEqual(exe.mode, 'DRY_RUN_ONLY', 'نتیجه باید DRY_RUN_ONLY باشد');
+  assertEqual(exe.fromCore, true, 'باید data پیش‌نمایش Core را برگرداند');
+  assertEqual(exe.hostCalls, 1, 'باید دقیقاً یک بار Host صدا شود');
+  assertEqual(exe.htmlMig, 0, 'مسیر Core نباید migration HTML را اجرا کند');
+  assertEqual(exe.hasLive, false, 'قرارداد نباید آرایه زنده در ریشه بفرستد');
+  assertEqual(exe.hasData, true, 'قرارداد باید data سریال داشته باشد');
+});
+
+test('ARCH-7 G2: INVALID باید fail-closed بماند و Merge/Replace صدا نشود', () => {
+  const fnSrc = loadArch7DryRunHelpers(html);
+  const r = new Function(fnSrc + `
+    var calls = {sv:0, svWarr:0, setItem:0, idb:0, merge:0, replace:0, render:0, resetAll:0};
+    function sv(){ calls.sv++; }
+    function svWarr(){ calls.svWarr++; }
+    var localStorage = { setItem: function(){ calls.setItem++; }, getItem: function(){ return null; } };
+    var indexedDB = { open: function(){ calls.idb++; return {}; } };
+    function applyBackupMergeSections(){ calls.merge++; }
+    function applyBackupReplaceSections(){ calls.replace++; }
+    function renderPB(){ calls.render++; }
+    function resetAll(){ calls.resetAll++; }
+    function getSirmanHostSync(){
+      return { TestRestoreBackup: function(){ return JSON.stringify({ok:false, engine:'core', mode:'DRY_RUN_ONLY', applied:false, status:'INVALID', errors:['missing'], validation:{ok:false, errors:['missing'], warnings:[]}}); } };
+    }
+    var out = testRestoreBackup({ schemaVersion:1 });
+    return { ok:out.ok, applied:out.applied, mode:out.mode, status:out.status, calls:calls };
+  `)();
+  assertEqual(r.ok, false, 'INVALID نباید PASS شود');
+  assertEqual(r.applied, false, 'INVALID هم applied=false است');
+  assertEqual(r.mode, 'DRY_RUN_ONLY', 'حتی شکست باید DRY_RUN_ONLY باشد');
+  assertEqual(r.status, 'INVALID', 'وضعیت INVALID باید حفظ شود');
+  assertEqual(r.calls.sv, 0, 'sv نباید صدا شود');
+  assertEqual(r.calls.svWarr, 0, 'svWarr نباید صدا شود');
+  assertEqual(r.calls.setItem, 0, 'localStorage.setItem نباید صدا شود');
+  assertEqual(r.calls.idb, 0, 'IndexedDB نباید باز شود');
+  assertEqual(r.calls.merge, 0, 'Merge نباید صدا شود');
+  assertEqual(r.calls.replace, 0, 'Replace نباید صدا شود');
+  assertEqual(r.calls.render, 0, 'render نباید صدا شود');
+  assertEqual(r.calls.resetAll, 0, 'resetAll نباید صدا شود');
+});
+
+test('ARCH-7 G3: سوئیچ صریح html باید Host را دور بزند', () => {
+  const fnSrc = loadArch7DryRunHelpers(html);
+  const r = new Function(fnSrc + `
+    var hostCalls = 0;
+    function getSirmanHostSync(){
+      return { TestRestoreBackup: function(){ hostCalls++; return JSON.stringify({ok:true, data:{fromCore:true}}); } };
+    }
+    function cloneBackupData(d){ return JSON.parse(JSON.stringify(d||{})); }
+    function unwrapBackupEnvelope(d){ return d; }
+    function inferBackupSchemaVersion(){ return 1; }
+    function validateRequiredBackupCollections(){ return {ok:true, errors:[], warnings:[]}; }
+    function validateBackupStructuralIntegrity(){ return {ok:true, errors:[], warnings:[]}; }
+    function validateBackupPortableIntegrity(){ return {ok:true, errors:[], warnings:[]}; }
+    function canRestoreSchema(){ return {ok:true}; }
+    function applySchemaMigrations(d){ return {ok:true, data:d, log:['html']}; }
+    function migrateBackup(d){ return {ok:true, data:d, log:[]}; }
+    function validateBackupPackage(){ return {ok:true, errors:[], warnings:[]}; }
+    var SIRMAN_SCHEMA_VERSION = 1;
+    var window = { SIRMAN_RESTORE_DRYRUN_MODE: 'html' };
+    var mode = restoreDryRunMode();
+    var out = testRestoreBackup({ schemaVersion:1, warranties:[], invoices:[] });
+    return { mode:mode, hostCalls:hostCalls, applied:out.applied, ok:out.ok, fromCore:!!(out.data&&out.data.fromCore) };
+  `)();
+  assertEqual(r.mode, 'html', 'سوئیچ html باید اجباری باشد');
+  assertEqual(r.hostCalls, 0, 'rollback صریح نباید Host را صدا بزند');
+  assertEqual(r.applied, false, 'مسیر HTML هم applied=false است');
+  assertEqual(r.fromCore, false, 'rollback نباید data Core را برگرداند');
+});
+
+test('ARCH-7 G4: Restore زنده / Merge / Phonebook / SQLite / resetAll دست نخورده‌اند', () => {
+  const importSrc = extractFunctionSource(html, 'importData');
+  const mergeSrc = extractFunctionSource(html, 'applyBackupMergeSections');
+  const replaceSrc = extractFunctionSource(html, 'applyBackupReplaceSections');
+  const confirmSrc = extractFunctionSource(html, 'confirmRestorePreview');
+  assertTrue(extractFunctionSource(html, 'savePBContact') !== null, 'savePBContact باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'resetAll') !== null, 'resetAll باید باقی بماند');
+  assertTrue(importSrc.indexOf('TestRestoreBackup') < 0, 'importData نباید TestRestoreBackup را صدا بزند');
+  assertTrue(mergeSrc.indexOf('TestRestoreBackup') < 0, 'merge نباید TestRestoreBackup را صدا بزند');
+  assertTrue(replaceSrc.indexOf('TestRestoreBackup') < 0, 'replace نباید TestRestoreBackup را صدا بزند');
+  assertTrue(confirmSrc.indexOf('applyBackupSelective') >= 0, 'اعمال واقعی باید همان confirmRestorePreview باشد');
+  const previewSrc = extractFunctionSource(html, 'runPendingTestRestore');
+  assertTrue(previewSrc.indexOf('testRestoreBackup') >= 0, 'دکمه تست باید فقط preview را صدا بزند');
+  assertTrue(previewSrc.indexOf('applyBackupMergeSections') < 0, 'دکمه تست نباید Merge کند');
+  assertTrue(previewSrc.indexOf('applyBackupReplaceSections') < 0, 'دکمه تست نباید Replace کند');
+  assertTrue(previewSrc.indexOf('DRY_RUN_ONLY') >= 0, 'UI تست باید DRY_RUN_ONLY باشد');
+  assertTrue(previewSrc.indexOf('بازگردانی موفق') < 0, 'نباید پیام بازگردانی موفق بدهد');
+  const host = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs'), 'utf8');
+  assertContainsString(host, 'TestRestoreBackup', 'Host باید TestRestoreBackup داشته باشد');
+  assertContainsString(host, 'BackupDryRunBridge.Execute', 'Host باید فقط پل DryRun را صدا بزند');
+  const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
+  assertContainsString(repo, 'html-backup-engine', 'JsonBackupRepository باید TBD بماند');
+});
+
+test('ARCH-7 G5: مسیر Core نباید ذخیره‌سازی زنده را صدا بزند (T18–T20)', () => {
+  const fnSrc = loadArch7DryRunHelpers(html);
+  const r = new Function(fnSrc + `
+    var calls = {sv:0, svWarr:0, setItem:0, idb:0, merge:0, replace:0, render:0, resetAll:0};
+    function sv(){ calls.sv++; }
+    function svWarr(){ calls.svWarr++; }
+    var localStorage = { setItem: function(){ calls.setItem++; store[arguments[0]]=arguments[1]; }, getItem: function(){ return null; } };
+    var store = {};
+    var indexedDB = { open: function(){ calls.idb++; return { result:{} }; } };
+    function applyBackupMergeSections(){ calls.merge++; }
+    function applyBackupReplaceSections(){ calls.replace++; }
+    function render(){ calls.render++; }
+    function renderPB(){ calls.render++; }
+    function resetAll(){ calls.resetAll++; }
+    function getSirmanHostSync(){
+      return { TestRestoreBackup: function(){ return JSON.stringify({ok:true, engine:'core', mode:'DRY_RUN_ONLY', applied:false, wrote:false, status:'VALID', sourceSchema:1, targetSchema:1, errors:[], warnings:[], log:[], validation:{ok:true, errors:[], warnings:[]}, data:{warranties:[]}}); } };
+    }
+    var out = testRestoreBackup({ schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[], accounts:[] });
+    return { ok:out.ok, applied:out.applied, wrote:out.wrote, mode:out.mode, calls:calls };
+  `)();
+  assertEqual(r.ok, true, 'پیش‌نمایش معتبر باید ok باشد');
+  assertEqual(r.applied, false, 'applied همیشه false');
+  assertEqual(r.wrote, false, 'wrote باید false باشد');
+  assertEqual(r.mode, 'DRY_RUN_ONLY');
+  ['sv','svWarr','setItem','idb','merge','replace','render','resetAll'].forEach(function(k){
+    assertEqual(r.calls[k], 0, k + ' نباید از TestRestoreBackup صدا شود');
   });
 });
 
