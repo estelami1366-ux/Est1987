@@ -289,14 +289,13 @@ internal static class NativeWindowsPrintService
     {
         using var pen = new Pen(Color.FromArgb(51, 51, 51), model.Border ? 2f : 0.6f);
         using var brush = new SolidBrush(Color.Black);
-        using var rtl = RtlFormat();
-        rtl.LineAlignment = StringAlignment.Near;
+        using var rtl = PostalRtlWrapFormat();
         using var body = SafeFont("Tahoma", 9, FontStyle.Regular);
         using var bold = SafeFont("Tahoma", 9, FontStyle.Bold);
         using var tiny = SafeFont("Tahoma", 6, FontStyle.Regular);
         DrawRoundRect(g, pen, box, 6f);
         var inner = RectangleF.Inflate(box, -8f, -8f);
-        float y = inner.Top;
+        float logoBottom = inner.Top;
         float textLeft = inner.Left;
         if (logo is not null)
         {
@@ -311,80 +310,189 @@ internal static class NativeWindowsPrintService
             {
                 using var center = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near };
                 g.DrawString(model.BrandEn, tiny, Brushes.Gray, new RectangleF(logoRect.X, logoRect.Bottom, logoRect.Width, 10), center);
+                logoBottom = logoRect.Bottom + 10f;
             }
+            else
+                logoBottom = logoRect.Bottom;
             textLeft = logoRect.Right + 8f;
-            y = inner.Top;
         }
-        var sender = model.Sender ?? new PostalParty();
         var firstW = Math.Max(20f, inner.Right - textLeft);
-        g.DrawString("فرستنده: " + (sender.Addr ?? ""), bold, brush, new RectangleF(textLeft, y, firstW, 36), rtl);
-        y = Math.Max(y + 38f, inner.Top + (logo is null ? 0 : 42f));
-        DrawPostalIdLine(g, "کدپستی:", sender.Zip, bold, body, brush, rtl, new RectangleF(inner.Left, y, inner.Width, 16));
-        y += 18f;
-        var telLine = string.IsNullOrWhiteSpace(sender.Person)
-            ? (sender.Tel ?? "")
-            : ((sender.Tel ?? "") + " " + sender.Person);
-        DrawPostalIdLine(g, "شماره تماس:", telLine, body, body, brush, rtl, new RectangleF(inner.Left, y, inner.Width, 16));
+        DrawPostalFieldStack(g, inner, PostalLabelFieldPlan.Sender(model.Sender), bold, body, body, brush, rtl,
+            addressLeft: textLeft, addressWidth: firstW, clearBelow: logoBottom);
     }
 
     private static void DrawPostalRecipientCard(Graphics g, RectangleF box, PostalLabelPrintModel model)
     {
         using var pen = new Pen(Color.FromArgb(51, 51, 51), model.Border ? 2f : 0.6f);
         using var brush = new SolidBrush(Color.Black);
-        using var rtl = RtlFormat();
-        rtl.LineAlignment = StringAlignment.Near;
+        using var rtl = PostalRtlWrapFormat();
         using var body = SafeFont("Tahoma", 9, FontStyle.Regular);
         using var bold = SafeFont("Tahoma", 9, FontStyle.Bold);
         using var nameFont = SafeFont("Tahoma", 10, FontStyle.Bold);
         using var fragileFont = SafeFont("Tahoma", 16, FontStyle.Bold);
         DrawRoundRect(g, pen, box, 6f);
         var inner = RectangleF.Inflate(box, -8f, -8f);
-        var rcv = model.Recipient ?? new PostalParty();
+        DrawPostalFieldStack(g, inner, PostalLabelFieldPlan.Recipient(model.Recipient, model.Fragile),
+            bold, body, nameFont, brush, rtl,
+            addressLeft: inner.Left, addressWidth: inner.Width, clearBelow: inner.Top,
+            fragileFont: fragileFont);
+    }
+
+    /// <summary>
+    /// Wraps postal fields inside the card. Recalculates Y after each block.
+    /// Does not use invoice/test RtlFormat/LtrFormat (those keep EllipsisCharacter).
+    /// Overflow clips without inserting "...".
+    /// </summary>
+    private static void DrawPostalFieldStack(
+        Graphics g,
+        RectangleF inner,
+        IReadOnlyList<PostalLabelPlannedField> fields,
+        Font addressFont,
+        Font bodyFont,
+        Font nameFont,
+        Brush brush,
+        StringFormat rtl,
+        float addressLeft,
+        float addressWidth,
+        float clearBelow,
+        Font? fragileFont = null)
+    {
+        const float gap = 4f;
+        var tail = MeasurePostalTail(g, fields, addressFont, bodyFont, nameFont, fragileFont, inner.Width, rtl);
         float y = inner.Top;
-        g.DrawString("آدرس گیرنده: " + (rcv.Addr ?? ""), bold, brush, new RectangleF(inner.Left, y, inner.Width, 36), rtl);
-        y += 38f;
-        DrawPostalIdLine(g, "کدپستی:", rcv.Zip, bold, body, brush, rtl, new RectangleF(inner.Left, y, inner.Width, 16));
-        y += 18f;
-        DrawPostalIdLine(g, "شماره تماس:", rcv.Tel, body, body, brush, rtl, new RectangleF(inner.Left, y, inner.Width, 16));
-        y += 20f;
-        if (!string.IsNullOrWhiteSpace(rcv.Name))
+        foreach (var field in fields)
         {
-            g.DrawString(rcv.Name, nameFont, brush, new RectangleF(inner.Left, y, inner.Width, 18), rtl);
-            y += 22f;
-        }
-        if (model.Fragile && !string.IsNullOrWhiteSpace(rcv.Note))
-        {
-            var badge = MeasureBadge(g, rcv.Note, fragileFont, inner.Width);
-            var bx = inner.Right - badge.Width;
-            var badgeRect = new RectangleF(bx, y, badge.Width, badge.Height);
-            using var thick = new Pen(Color.FromArgb(51, 51, 51), 3f);
-            DrawRoundRect(g, thick, badgeRect, 4f);
-            using var centerRtl = RtlFormat();
-            centerRtl.Alignment = StringAlignment.Center;
-            centerRtl.LineAlignment = StringAlignment.Center;
-            g.DrawString(rcv.Note, fragileFont, brush, badgeRect, centerRtl);
+            if (y >= inner.Bottom - 6f) break;
+            if (field.Kind == PostalLabelDrawnField.Address)
+            {
+                var text = PostalLabelFieldPlan.AddressDrawText(field);
+                var width = Math.Max(20f, addressWidth);
+                var needed = MeasurePostalWrapped(g, text, addressFont, width, rtl).Height;
+                var maxAddr = Math.Max(12f, inner.Bottom - tail - y);
+                var height = Math.Min(needed, maxAddr);
+                g.DrawString(text, addressFont, brush, new RectangleF(addressLeft, y, width, height), rtl);
+                y = Math.Max(y + height + gap, clearBelow + gap);
+                if (y > inner.Bottom - tail)
+                    y = Math.Max(inner.Top, inner.Bottom - tail);
+                continue;
+            }
+            var remaining = inner.Bottom - y;
+            if (remaining < 8f) break;
+            if (field.Kind == PostalLabelDrawnField.Zip || field.Kind == PostalLabelDrawnField.Phone)
+            {
+                var font = field.Kind == PostalLabelDrawnField.Zip ? addressFont : bodyFont;
+                y += DrawPostalIdBlock(g, field.Label, field.StoredValue, addressFont, font, brush,
+                    new RectangleF(inner.Left, y, inner.Width, remaining)) + gap;
+                continue;
+            }
+            if (field.Kind == PostalLabelDrawnField.Person || field.Kind == PostalLabelDrawnField.Name)
+            {
+                var font = field.Kind == PostalLabelDrawnField.Name ? nameFont : bodyFont;
+                var needed = MeasurePostalWrapped(g, field.StoredValue, font, inner.Width, rtl).Height;
+                var height = Math.Min(needed, remaining);
+                g.DrawString(field.StoredValue, font, brush, new RectangleF(inner.Left, y, inner.Width, height), rtl);
+                y += height + gap;
+                continue;
+            }
+            if (field.Kind == PostalLabelDrawnField.Note && fragileFont is not null)
+                DrawPostalFragileBadge(g, field.StoredValue, fragileFont, brush, inner, y);
         }
     }
 
-    private static SizeF MeasureBadge(Graphics g, string text, Font font, float maxWidth)
+    private static float MeasurePostalTail(
+        Graphics g,
+        IReadOnlyList<PostalLabelPlannedField> fields,
+        Font addressFont,
+        Font bodyFont,
+        Font nameFont,
+        Font? fragileFont,
+        float innerWidth,
+        StringFormat rtl)
     {
-        var size = g.MeasureString(text ?? "", font);
-        return new SizeF(Math.Min(maxWidth, Math.Max(36f, size.Width + 16f)), Math.Max(22f, size.Height + 8f));
+        const float gap = 4f;
+        float tail = 0f;
+        var afterAddress = false;
+        foreach (var field in fields)
+        {
+            if (field.Kind == PostalLabelDrawnField.Address)
+            {
+                afterAddress = true;
+                continue;
+            }
+            if (!afterAddress) continue;
+            if (field.Kind == PostalLabelDrawnField.Zip || field.Kind == PostalLabelDrawnField.Phone)
+            {
+                var font = field.Kind == PostalLabelDrawnField.Zip ? addressFont : bodyFont;
+                tail += MeasurePostalIdBlock(g, field.Label, field.StoredValue, addressFont, font, innerWidth) + gap;
+                continue;
+            }
+            if (field.Kind == PostalLabelDrawnField.Person || field.Kind == PostalLabelDrawnField.Name)
+            {
+                var font = field.Kind == PostalLabelDrawnField.Name ? nameFont : bodyFont;
+                tail += MeasurePostalWrapped(g, field.StoredValue, font, innerWidth, rtl).Height + gap;
+                continue;
+            }
+            if (field.Kind == PostalLabelDrawnField.Note && fragileFont is not null)
+            {
+                using var noteFmt = PostalRtlWrapFormat();
+                tail += Math.Max(22f, MeasurePostalWrapped(g, field.StoredValue, fragileFont, innerWidth, noteFmt).Height + 8f) + gap;
+            }
+        }
+        return tail;
     }
 
-    private static void DrawPostalIdLine(Graphics g, string label, string? value, Font labelFont, Font valueFont, Brush brush, StringFormat rtl, RectangleF rect)
+    private static float MeasurePostalIdBlock(Graphics g, string label, string? value, Font labelFont, Font valueFont, float width)
     {
-        var stored = value ?? "";
-        var presented = NativePrintBidi.AsLeftToRight(stored);
-        using var ltr = LtrFormat();
-        ltr.LineAlignment = StringAlignment.Center;
-        var labelText = label + " ";
-        var labelSize = g.MeasureString(labelText, labelFont);
-        var labelWidth = Math.Min(rect.Width * 0.45f, Math.Max(40f, labelSize.Width));
-        var labelRect = new RectangleF(rect.Right - labelWidth, rect.Top, labelWidth, rect.Height);
-        var valueRect = new RectangleF(rect.Left, rect.Top, Math.Max(8f, rect.Width - labelWidth - 4f), rect.Height);
-        g.DrawString(label, labelFont, brush, labelRect, rtl);
-        g.DrawString(presented, valueFont, brush, valueRect, ltr);
+        using var rtl = PostalRtlWrapFormat();
+        using var ltr = PostalLtrWrapFormat();
+        var presented = PostalLabelFieldPlan.NumericPresentation(value);
+        var labelSize = MeasurePostalWrapped(g, label, labelFont, Math.Max(40f, width * 0.45f), rtl);
+        var labelWidth = Math.Min(width * 0.45f, Math.Max(40f, labelSize.Width));
+        var valueWidth = Math.Max(8f, width - labelWidth - 4f);
+        var valueSize = MeasurePostalWrapped(g, presented, valueFont, valueWidth, ltr);
+        return Math.Max(labelSize.Height, valueSize.Height);
+    }
+
+    private static void DrawPostalFragileBadge(Graphics g, string note, Font font, Brush brush, RectangleF inner, float y)
+    {
+        var remaining = inner.Bottom - y;
+        if (remaining < 14f) return;
+        using var rtl = PostalRtlWrapFormat();
+        rtl.Alignment = StringAlignment.Center;
+        rtl.LineAlignment = StringAlignment.Center;
+        var measured = MeasurePostalWrapped(g, note, font, Math.Max(36f, inner.Width - 8f), rtl);
+        var width = Math.Min(inner.Width, Math.Max(36f, measured.Width + 16f));
+        var height = Math.Min(remaining, Math.Max(22f, measured.Height + 8f));
+        var badgeRect = new RectangleF(inner.Right - width, y, width, height);
+        if (badgeRect.Left < inner.Left)
+            badgeRect = new RectangleF(inner.Left, y, inner.Width, height);
+        using var thick = new Pen(Color.FromArgb(51, 51, 51), 3f);
+        DrawRoundRect(g, thick, badgeRect, 4f);
+        g.DrawString(note, font, brush, RectangleF.Inflate(badgeRect, -4f, -2f), rtl);
+    }
+
+    private static SizeF MeasurePostalWrapped(Graphics g, string? text, Font font, float width, StringFormat format)
+    {
+        var line = Math.Max(10f, font.GetHeight(g));
+        if (string.IsNullOrEmpty(text) || width < 8f) return new SizeF(Math.Max(8f, width), line);
+        var size = g.MeasureString(text, font, new SizeF(width, 10000f), format);
+        return new SizeF(Math.Min(width, Math.Max(8f, size.Width)), Math.Max(line, size.Height));
+    }
+
+    private static float DrawPostalIdBlock(Graphics g, string label, string? value, Font labelFont, Font valueFont, Brush brush, RectangleF bounds)
+    {
+        if (bounds.Width < 8f || bounds.Height < 8f) return 0f;
+        using var rtl = PostalRtlWrapFormat();
+        using var ltr = PostalLtrWrapFormat();
+        var presented = PostalLabelFieldPlan.NumericPresentation(value);
+        var labelSize = MeasurePostalWrapped(g, label, labelFont, Math.Max(40f, bounds.Width * 0.45f), rtl);
+        var labelWidth = Math.Min(bounds.Width * 0.45f, Math.Max(40f, labelSize.Width));
+        var valueWidth = Math.Max(8f, bounds.Width - labelWidth - 4f);
+        var valueSize = MeasurePostalWrapped(g, presented, valueFont, valueWidth, ltr);
+        var height = Math.Min(bounds.Height, Math.Max(labelSize.Height, valueSize.Height));
+        g.DrawString(label, labelFont, brush, new RectangleF(bounds.Right - labelWidth, bounds.Top, labelWidth, height), rtl);
+        g.DrawString(presented, valueFont, brush, new RectangleF(bounds.Left, bounds.Top, valueWidth, height), ltr);
+        return height;
     }
 
     private static void DrawRoundRect(Graphics g, Pen pen, RectangleF box, float radius)
@@ -399,6 +507,24 @@ internal static class NativeWindowsPrintService
         path.CloseFigure();
         g.DrawPath(pen, path);
     }
+
+    /// <summary>
+    /// Postal-only wrap. Invoice/TestPage keep RtlFormat/LtrFormat with EllipsisCharacter.
+    /// Overflow clips; it does not insert "...".
+    /// </summary>
+    private static StringFormat PostalRtlWrapFormat() => new(StringFormatFlags.DirectionRightToLeft)
+    {
+        Alignment = StringAlignment.Near,
+        LineAlignment = StringAlignment.Near,
+        Trimming = StringTrimming.None
+    };
+
+    private static StringFormat PostalLtrWrapFormat() => new()
+    {
+        Alignment = StringAlignment.Near,
+        LineAlignment = StringAlignment.Near,
+        Trimming = StringTrimming.None
+    };
 
     private static StringFormat RtlFormat() => new(StringFormatFlags.DirectionRightToLeft | StringFormatFlags.LineLimit)
     {
