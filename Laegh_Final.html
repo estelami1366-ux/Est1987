@@ -7872,6 +7872,12 @@ function assertRequiredBackupCollections(d, opLabel){
       throw new Error((opLabel ? (opLabel + ': ') : '') + a.errors.join('؛ '));
     }
   }
+  if(typeof validateBackupPortableIntegrity==='function'){
+    var p = validateBackupPortableIntegrity(d);
+    if(!p.ok){
+      throw new Error((opLabel ? (opLabel + ': ') : '') + p.errors.join('؛ '));
+    }
+  }
   return v;
 }
 function backupValidationStatus(v){
@@ -8003,6 +8009,96 @@ function validateBackupStructuralIntegrity(d){
     duplicateIdentities: dups.duplicateIdentities || []
   };
   result.status = backupValidationStatus(result);
+  return result;
+}
+// P1C-7: portable integrity. SHA-256 is over canonical JSON.stringify of parsed object keys
+// except exportedAt/checksum/checksumAlgo — NOT over pretty-printed disk bytes.
+// sectionChecksums (djb2 of JSON.stringify(section)) FAIL when present and mismatched.
+// Missing checksum / checksumAlgo none remain compatible. backupId is not in this format.
+function backupChecksumExcludedKey(k){
+  return k === 'exportedAt' || k === 'checksum' || k === 'checksumAlgo';
+}
+function backupChecksumPayload(data){
+  var payload = {};
+  if(!data || typeof data !== 'object' || Array.isArray(data)) return payload;
+  Object.keys(data).forEach(function(k){
+    if(backupChecksumExcludedKey(k)) return;
+    payload[k] = data[k];
+  });
+  return payload;
+}
+function backupChecksumCanonicalString(data){
+  return JSON.stringify(backupChecksumPayload(data));
+}
+function backupCryptoSubtle(){
+  try {
+    if(typeof crypto !== 'undefined' && crypto && crypto.subtle) return crypto.subtle;
+  } catch(_c){}
+  try {
+    if(typeof window !== 'undefined' && window.crypto && window.crypto.subtle) return window.crypto.subtle;
+  } catch(_w){}
+  try {
+    if(typeof globalThis !== 'undefined' && globalThis.crypto && globalThis.crypto.subtle) return globalThis.crypto.subtle;
+  } catch(_g){}
+  return null;
+}
+function classifyBackupChecksumClaim(d){
+  if(!d || typeof d !== 'object') return { claimed:false, algo:'', skipped:true };
+  var algo = String(d.checksumAlgo || '');
+  var sum = String(d.checksum || '');
+  if(!sum || !algo || algo === 'none') return { claimed:false, algo: algo || 'none', skipped:true };
+  return { claimed:true, algo:algo, skipped:false };
+}
+function validateBackupSectionChecksums(d){
+  var errors = [];
+  var warnings = [];
+  var sectionChecksumMismatches = [];
+  if(!d || typeof d !== 'object' || Array.isArray(d)){
+    return { ok:true, errors:errors, warnings:warnings, sectionChecksumMismatches:sectionChecksumMismatches };
+  }
+  if(!Object.prototype.hasOwnProperty.call(d, 'sectionChecksums')){
+    return { ok:true, errors:errors, warnings:warnings, sectionChecksumMismatches:sectionChecksumMismatches };
+  }
+  var sc = d.sectionChecksums;
+  if(sc === null || typeof sc !== 'object' || Array.isArray(sc)){
+    errors.push('sectionChecksums باید شیء باشد، نه '+(sc===null?'null':(Array.isArray(sc)?'array':typeof sc)));
+    return { ok:false, errors:errors, warnings:warnings, sectionChecksumMismatches:sectionChecksumMismatches };
+  }
+  if(typeof backupSectionHash !== 'function'){
+    return { ok:true, errors:errors, warnings:warnings, sectionChecksumMismatches:sectionChecksumMismatches };
+  }
+  Object.keys(sc).forEach(function(k){
+    if(d[k] === undefined) return;
+    if(backupSectionHash(d[k]) !== sc[k]){
+      sectionChecksumMismatches.push(k);
+      errors.push('هش بخش '+k+' مطابقت ندارد');
+    }
+  });
+  return { ok: errors.length===0, errors:errors, warnings:warnings, sectionChecksumMismatches:sectionChecksumMismatches };
+}
+function validateBackupPortableIntegrity(d){
+  var sections = (typeof validateBackupSectionChecksums==='function')
+    ? validateBackupSectionChecksums(d)
+    : { ok:true, errors:[], warnings:[], sectionChecksumMismatches:[] };
+  var claim = (typeof classifyBackupChecksumClaim==='function')
+    ? classifyBackupChecksumClaim(d)
+    : { claimed:false, algo:'', skipped:true };
+  var errors = [].concat(sections.errors || []);
+  var warnings = [].concat(sections.warnings || []);
+  if(claim.claimed && claim.algo !== 'SHA-256'){
+    errors.push('الگوریتم checksum پشتیبانی نمی‌شود: '+claim.algo);
+  }
+  var result = {
+    ok: errors.length===0,
+    errors: errors,
+    warnings: warnings,
+    sectionChecksumMismatches: sections.sectionChecksumMismatches || [],
+    checksumClaimed: !!claim.claimed,
+    checksumAlgo: claim.algo,
+    checksumSkipped: !!claim.skipped,
+    hasBackupId: !!(d && (d.backupId || (d.manifest && d.manifest.backupId)))
+  };
+  result.status = (typeof backupValidationStatus==='function') ? backupValidationStatus(result) : (result.ok ? 'VALID' : 'INVALID');
   return result;
 }
 var SCHEMA_MIGRATIONS = [
@@ -8172,6 +8268,12 @@ function testRestoreBackup(d){
       return { ok:false, applied:false, log: struct.errors.slice(), validation: struct, schemaFrom:fileVer, schemaTo:SIRMAN_SCHEMA_VERSION };
     }
   }
+  if(typeof validateBackupPortableIntegrity==='function'){
+    var port = validateBackupPortableIntegrity(cloned);
+    if(!port.ok){
+      return { ok:false, applied:false, log: port.errors.slice(), validation: port, schemaFrom:fileVer, schemaTo:SIRMAN_SCHEMA_VERSION };
+    }
+  }
   var gate = canRestoreSchema(fileVer, SIRMAN_SCHEMA_VERSION);
   if(!gate.ok) return { ok:false, applied:false, log:[gate.reason], validation:{ok:false, errors:[gate.reason], warnings:[]}, schemaFrom:fileVer, schemaTo:SIRMAN_SCHEMA_VERSION };
   var mig = applySchemaMigrations(cloned);
@@ -8212,17 +8314,24 @@ var BackupEngine = {
       ? validateBackupStructuralIntegrity(d)
       : validateRequiredBackupCollections(d);
     if(!struct.ok) return struct;
+    var port = (typeof validateBackupPortableIntegrity==='function')
+      ? validateBackupPortableIntegrity(d)
+      : { ok:true, errors:[], warnings:[] };
+    if(!port.ok) return port;
     var wrap = validateBackupPackage(d);
     return {
       ok: wrap.ok,
-      status: (typeof backupValidationStatus==='function') ? backupValidationStatus({ ok: wrap.ok, warnings: [].concat(struct.warnings||[], wrap.warnings||[]) }) : undefined,
+      status: (typeof backupValidationStatus==='function') ? backupValidationStatus({ ok: wrap.ok, warnings: [].concat(struct.warnings||[], port.warnings||[], wrap.warnings||[]) }) : undefined,
       errors: wrap.errors,
-      warnings: [].concat(struct.warnings||[], wrap.warnings||[]),
+      warnings: [].concat(struct.warnings||[], port.warnings||[], wrap.warnings||[]),
       missingRequiredCollections: struct.missingRequiredCollections,
       invalidCollections: struct.invalidCollections,
       countMismatches: struct.countMismatches,
       brokenAttachmentRefs: struct.brokenAttachmentRefs,
-      duplicateIdentities: struct.duplicateIdentities
+      duplicateIdentities: struct.duplicateIdentities,
+      sectionChecksumMismatches: port.sectionChecksumMismatches,
+      checksumClaimed: port.checksumClaimed,
+      checksumAlgo: port.checksumAlgo
     };
   },
   migrateSchema: applySchemaMigrations,
@@ -8370,19 +8479,28 @@ function buildBackupObject(){
 // در file://، checksum خالی می‌ماند و checksumAlgo='none' — برنامه همچنان کار می‌کند.
 async function attachChecksum(data){
   try {
-    if(!window.crypto || !crypto.subtle){
+    if(typeof window !== 'undefined' && !window.crypto){
       data.checksum = '';
       data.checksumAlgo = 'none';
       return;
     }
-    // payload برای checksum: همه چیز به‌جز exportedAt و خود checksum (که هنوز set نشده)
-    var payload = {};
-    Object.keys(data).forEach(function(k){
-      if(k === 'exportedAt' || k === 'checksum' || k === 'checksumAlgo') return;
-      payload[k] = data[k];
-    });
-    var jsonStr = JSON.stringify(payload);
-    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(jsonStr));
+    var subtle = (typeof backupCryptoSubtle==='function') ? backupCryptoSubtle() : ((typeof crypto!=='undefined' && crypto.subtle) || (typeof window!=='undefined' && window.crypto && window.crypto.subtle) || null);
+    if(!subtle){
+      data.checksum = '';
+      data.checksumAlgo = 'none';
+      return;
+    }
+    var jsonStr = (typeof backupChecksumCanonicalString==='function')
+      ? backupChecksumCanonicalString(data)
+      : (function(){
+          var payload = {};
+          Object.keys(data||{}).forEach(function(k){
+            if(k === 'exportedAt' || k === 'checksum' || k === 'checksumAlgo') return;
+            payload[k] = data[k];
+          });
+          return JSON.stringify(payload);
+        })();
+    var buf = await subtle.digest('SHA-256', new TextEncoder().encode(jsonStr));
     data.checksum = Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
     data.checksumAlgo = 'SHA-256';
   } catch(e){
@@ -8391,30 +8509,39 @@ async function attachChecksum(data){
     if(typeof addDbgEntry==='function') addDbgEntry('warn','checksum','خطا در محاسبه checksum', e.message, '');
   }
 }
-// تأیید checksum یک فایل بک‌آپ (برای import)
+// P1C-7: verify from parsed JSON after disk read. Hash is canonical stringify, not raw file bytes.
 async function verifyChecksum(data){
-  if(!data.checksum || !data.checksumAlgo || data.checksumAlgo === 'none'){
-    return { ok: true, msg: 'بدون checksum (نسخه قدیمی یا file://)' };
+  var claim = (typeof classifyBackupChecksumClaim==='function')
+    ? classifyBackupChecksumClaim(data)
+    : { claimed:!!(data && data.checksum && data.checksumAlgo && data.checksumAlgo !== 'none'), algo: data && data.checksumAlgo, skipped:!(data && data.checksum) };
+  if(!claim.claimed){
+    return { ok: true, skipped: true, msg: 'بدون checksum (نسخه قدیمی یا file://)' };
   }
-  if(data.checksumAlgo !== 'SHA-256'){
-    return { ok: true, msg: 'الگوریتم checksum ناشناخته: ' + data.checksumAlgo };
+  if(claim.algo !== 'SHA-256'){
+    return { ok: false, skipped: false, msg: 'الگوریتم checksum پشتیبانی نمی‌شود: ' + claim.algo };
   }
-  if(!window.crypto || !crypto.subtle){
-    return { ok: true, msg: 'crypto.subtle موجود نیست — تأیید checksum نادیده گرفته شد' };
+  var subtle = (typeof backupCryptoSubtle==='function') ? backupCryptoSubtle() : ((typeof crypto!=='undefined' && crypto.subtle) || (typeof window!=='undefined' && window.crypto && window.crypto.subtle) || null);
+  if(!subtle){
+    return { ok: true, skipped: true, unverifiable: true, msg: 'crypto.subtle موجود نیست — تأیید checksum نادیده گرفته شد' };
   }
   try {
-    var stored = data.checksum;
-    var payload = {};
-    Object.keys(data).forEach(function(k){
-      if(k === 'exportedAt' || k === 'checksum' || k === 'checksumAlgo') return;
-      payload[k] = data[k];
-    });
-    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(payload)));
+    var stored = String(data.checksum);
+    var jsonStr = (typeof backupChecksumCanonicalString==='function')
+      ? backupChecksumCanonicalString(data)
+      : (function(){
+          var payload = {};
+          Object.keys(data||{}).forEach(function(k){
+            if(k === 'exportedAt' || k === 'checksum' || k === 'checksumAlgo') return;
+            payload[k] = data[k];
+          });
+          return JSON.stringify(payload);
+        })();
+    var buf = await subtle.digest('SHA-256', new TextEncoder().encode(jsonStr));
     var computed = Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
-    if(computed === stored){ return { ok: true, msg: 'checksum ✓ تأیید شد' }; }
-    return { ok: false, msg: 'checksum مطابقت ندارد — فایل ممکن است خراب باشد!' };
+    if(computed === stored){ return { ok: true, skipped: false, msg: 'checksum ✓ تأیید شد' }; }
+    return { ok: false, skipped: false, msg: 'checksum مطابقت ندارد — فایل ممکن است خراب باشد!' };
   } catch(e){
-    return { ok: true, msg: 'خطا در تأیید checksum: ' + e.message };
+    return { ok: false, skipped: false, msg: 'خطا در تأیید checksum: ' + e.message };
   }
 }
 
@@ -14080,6 +14207,7 @@ async function exportData(selectedKeys, opts){
   }
   if(encPw && typeof encryptBackupPackage==='function'){
     try{
+      if(typeof attachChecksum==='function'){ await attachChecksum(data); }
       var env = await encryptBackupPackage(data, encPw);
       var blobEnc = new Blob([JSON.stringify(env,null,2)],{type:'application/json'});
       var aEnc = document.createElement('a');
@@ -14925,6 +15053,15 @@ async function importData(inp) {
         inp.value=''; return;
       }
     }
+    if(typeof validateBackupPortableIntegrity==='function'){
+      var portCol = validateBackupPortableIntegrity(d);
+      if(!portCol.ok){
+        addDbgEntry('err','بازگردانی','portable_integrity', (portCol.errors||[]).join('; '), 'بازگردانی قبل از migrate/preview متوقف شد');
+        if(typeof logBackupAudit==='function') logBackupAudit('restore', 'err', {reason:'portable_integrity', errors:portCol.errors, sections:portCol.sectionChecksumMismatches});
+        alert('❌ بازگردانی انجام نشد — یکپارچگی قابل‌حمل نامعتبر\n\n'+(portCol.errors||[]).join('\n'));
+        inp.value=''; return;
+      }
+    }
     var hasData = d.invoices||d.products||d.pb||d.phonebook||d.parts||d.warranties||d.sales||d.accounts||d.tasks||d.services||d.svcs||d.daqi||d.company||d.appearance||d.database;
     if (!hasData) {
       addDbgEntry('err','بازگردانی','no known keys','این فایل بک‌اپ لایق نیست — کلیدهای موجود: '+Object.keys(d).join(', '),'فایل بک‌اپ باید با نرم‌افزار سیرمان ساخته شده باشد');
@@ -14942,13 +15079,15 @@ async function importData(inp) {
       }
     }
 
-    // مرحله ۲.۵: تأیید checksum (تشخیص خرابی فایل)
+    // مرحله ۲.۵: تأیید checksum از JSON پارس‌شده پس از خواندن فایل — mismatch مسدود است، confirm ندارد
     var chkInfo = { ok:true, msg:'بدون checksum' };
     if(typeof verifyChecksum==='function'){
       chkInfo = await verifyChecksum(d);
       if(!chkInfo.ok){
         addDbgEntry('err','بازگردانی','checksum mismatch', chkInfo.msg, 'فایل ممکن است خراب یا دستکاری شده باشد');
-        if(!confirm('⚠️ هشدار سلامت فایل:\n'+chkInfo.msg+'\n\nبازگردانی ادامه یابد؟')){ inp.value=''; return; }
+        if(typeof logBackupAudit==='function') logBackupAudit('restore', 'err', {reason:'checksum', msg:chkInfo.msg});
+        alert('❌ بازگردانی انجام نشد — یکپارچگی checksum نامعتبر\n\n'+chkInfo.msg);
+        inp.value=''; return;
       }
     }
 
@@ -28138,6 +28277,12 @@ function prepareNetworkWorkspacePull(raw){
     var structCol = validateBackupStructuralIntegrity(data);
     if(!structCol.ok){
       return {ok:false, error:(structCol.errors||[]).join('؛ '), validation:structCol};
+    }
+  }
+  if(typeof validateBackupPortableIntegrity==='function'){
+    var portCol = validateBackupPortableIntegrity(data);
+    if(!portCol.ok){
+      return {ok:false, error:(portCol.errors||[]).join('؛ '), validation:portCol};
     }
   }
   var migLog = ['network-workspace'];
