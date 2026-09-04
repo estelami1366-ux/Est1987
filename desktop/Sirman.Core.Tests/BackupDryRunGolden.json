@@ -1,0 +1,1036 @@
+{
+  "generatedAt": "2026-09-04",
+  "packet": "ARCH-4",
+  "htmlFile": "Sirman_Final.html",
+  "frozenNowMs": 1700000000000,
+  "targetSchema": 1,
+  "notes": [
+    "Pipeline: ARCH-2 structural+portable → SHA-256 digest compare (HTML verifyChecksum) → ARCH-3 migrate → post required+itemCounts.",
+    "validateBackupPackage is NOT used post-migrate (it would weaken sectionChecksums to warnings).",
+    "Overall status is VALID / VALID_WITH_WARNINGS / INVALID. Integrity slice may be NOT_VERIFIABLE when checksum is skipped.",
+    "HTML importData/testRestoreBackup remain the live engines. This golden is the Core dry-run composition baseline."
+  ],
+  "fixtures": [
+    {
+      "id": "T1-schema1-current-valid",
+      "tags": [
+        "T1",
+        "T16"
+      ],
+      "notes": "current valid schema>=1",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": []
+      },
+      "inputCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": true,
+        "applied": false,
+        "status": "VALID",
+        "sourceSchema": 1,
+        "targetSchema": 1,
+        "migrationRequired": false,
+        "migrationPerformed": true,
+        "migrationStatus": "Performed",
+        "validationStatus": "VALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [],
+        "warnings": [],
+        "log": [
+          "📦 نسخه بک‌اپ: قدیمی",
+          "🔧 خدمات: 0 مورد",
+          "🔩 قطعات: 0 مورد",
+          "🛡 گارانتی: 0 مورد",
+          "🛒 فروش: 0 مورد",
+          "🗓 وظایف: خالی (نسخه قدیمی)",
+          "💰 حساب‌ها: 0 مورد",
+          "⚠️ انبار معیوب: خالی (نسخه قدیمی)",
+          "📋 داغی: خالی (نسخه قدیمی)",
+          "🏭 انبار داغی: خالی (نسخه قدیمی)",
+          "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
+          "✅ آماده برای بارگذاری"
+        ],
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "hasSales": true,
+        "postOk": true
+      }
+    },
+    {
+      "id": "T2-schema0-legacy",
+      "tags": [
+        "T2",
+        "T15"
+      ],
+      "notes": "schema0 legacy with required arrays",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "warranties": [],
+        "invoices": []
+      },
+      "inputCanonical": "{\"warranties\":[],\"invoices\":[]}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": true,
+        "applied": false,
+        "status": "VALID",
+        "sourceSchema": 0,
+        "targetSchema": 1,
+        "migrationRequired": true,
+        "migrationPerformed": true,
+        "migrationStatus": "Performed",
+        "validationStatus": "VALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [],
+        "warnings": [],
+        "log": [
+          "Schema ۰→۱: فروش غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)",
+          "Schema ۰→۱: قطعات غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)",
+          "Schema ۰→۱: حساب‌ها غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)",
+          "Schema ۰→۱: Manifest و فهرست پیوست اضافه شد",
+          "📦 نسخه بک‌اپ: قدیمی",
+          "🔧 خدمات: 0 مورد",
+          "🔩 قطعات: 0 مورد",
+          "🛡 گارانتی: 0 مورد",
+          "🛒 فروش: 0 مورد",
+          "🗓 وظایف: خالی (نسخه قدیمی)",
+          "💰 حساب‌ها: 0 مورد",
+          "⚠️ انبار معیوب: خالی (نسخه قدیمی)",
+          "📋 داغی: خالی (نسخه قدیمی)",
+          "🏭 انبار داغی: خالی (نسخه قدیمی)",
+          "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
+          "✅ آماده برای بارگذاری"
+        ],
+        "dataCanonical": "{\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "hasSales": true,
+        "postOk": true
+      }
+    },
+    {
+      "id": "T3-schema0-missing-sales-parts-accounts",
+      "tags": [
+        "T3",
+        "T15"
+      ],
+      "notes": "schema0 omit sales/parts/accounts then 0→1 fills",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "warranties": [],
+        "invoices": []
+      },
+      "inputCanonical": "{\"warranties\":[],\"invoices\":[]}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": true,
+        "applied": false,
+        "status": "VALID",
+        "sourceSchema": 0,
+        "targetSchema": 1,
+        "migrationRequired": true,
+        "migrationPerformed": true,
+        "migrationStatus": "Performed",
+        "validationStatus": "VALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [],
+        "warnings": [],
+        "log": [
+          "Schema ۰→۱: فروش غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)",
+          "Schema ۰→۱: قطعات غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)",
+          "Schema ۰→۱: حساب‌ها غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)",
+          "Schema ۰→۱: Manifest و فهرست پیوست اضافه شد",
+          "📦 نسخه بک‌اپ: قدیمی",
+          "🔧 خدمات: 0 مورد",
+          "🔩 قطعات: 0 مورد",
+          "🛡 گارانتی: 0 مورد",
+          "🛒 فروش: 0 مورد",
+          "🗓 وظایف: خالی (نسخه قدیمی)",
+          "💰 حساب‌ها: 0 مورد",
+          "⚠️ انبار معیوب: خالی (نسخه قدیمی)",
+          "📋 داغی: خالی (نسخه قدیمی)",
+          "🏭 انبار داغی: خالی (نسخه قدیمی)",
+          "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
+          "✅ آماده برای بارگذاری"
+        ],
+        "dataCanonical": "{\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "hasSales": true,
+        "postOk": true
+      }
+    },
+    {
+      "id": "T4-schema1-missing-sales",
+      "tags": [
+        "T4"
+      ],
+      "notes": "schema>=1 missing sales must not migrate to []",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "parts": [],
+        "accounts": []
+      },
+      "inputCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"parts\":[],\"accounts\":[]}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": false,
+        "applied": false,
+        "status": "INVALID",
+        "sourceSchema": 1,
+        "targetSchema": 1,
+        "migrationRequired": false,
+        "migrationPerformed": false,
+        "migrationStatus": "NotAttempted",
+        "validationStatus": "INVALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [
+          "مجموعهٔ الزامی «sales» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+        ],
+        "warnings": [],
+        "log": [],
+        "dataCanonical": null,
+        "hasSales": false
+      }
+    },
+    {
+      "id": "T5-schema1-missing-parts",
+      "tags": [
+        "T5"
+      ],
+      "notes": "schema>=1 missing parts",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "accounts": []
+      },
+      "inputCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"accounts\":[]}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": false,
+        "applied": false,
+        "status": "INVALID",
+        "sourceSchema": 1,
+        "targetSchema": 1,
+        "migrationRequired": false,
+        "migrationPerformed": false,
+        "migrationStatus": "NotAttempted",
+        "validationStatus": "INVALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [
+          "مجموعهٔ الزامی «parts» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+        ],
+        "warnings": [],
+        "log": [],
+        "dataCanonical": null,
+        "hasSales": true
+      }
+    },
+    {
+      "id": "T6-schema1-missing-accounts",
+      "tags": [
+        "T6"
+      ],
+      "notes": "schema>=1 missing accounts",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": []
+      },
+      "inputCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[]}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": false,
+        "applied": false,
+        "status": "INVALID",
+        "sourceSchema": 1,
+        "targetSchema": 1,
+        "migrationRequired": false,
+        "migrationPerformed": false,
+        "migrationStatus": "NotAttempted",
+        "validationStatus": "INVALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [
+          "مجموعهٔ الزامی «accounts» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+        ],
+        "warnings": [],
+        "log": [],
+        "dataCanonical": null,
+        "hasSales": true
+      }
+    },
+    {
+      "id": "T7-missing-warranties",
+      "tags": [
+        "T7"
+      ],
+      "notes": "warranties always required",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "invoices": []
+      },
+      "inputCanonical": "{\"invoices\":[]}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": false,
+        "applied": false,
+        "status": "INVALID",
+        "sourceSchema": 0,
+        "targetSchema": 1,
+        "migrationRequired": true,
+        "migrationPerformed": false,
+        "migrationStatus": "NotAttempted",
+        "validationStatus": "INVALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [
+          "مجموعهٔ الزامی «warranties» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+        ],
+        "warnings": [],
+        "log": [],
+        "dataCanonical": null,
+        "hasSales": false
+      }
+    },
+    {
+      "id": "T8-missing-invoices",
+      "tags": [
+        "T8"
+      ],
+      "notes": "invoices always required",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "warranties": []
+      },
+      "inputCanonical": "{\"warranties\":[]}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": false,
+        "applied": false,
+        "status": "INVALID",
+        "sourceSchema": 0,
+        "targetSchema": 1,
+        "migrationRequired": true,
+        "migrationPerformed": false,
+        "migrationStatus": "NotAttempted",
+        "validationStatus": "INVALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [
+          "مجموعهٔ الزامی «invoices» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+        ],
+        "warnings": [],
+        "log": [],
+        "dataCanonical": null,
+        "hasSales": false
+      }
+    },
+    {
+      "id": "T9-itemcounts-mismatch",
+      "tags": [
+        "T9"
+      ],
+      "notes": "itemCounts mismatch fail-closed",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [
+          {
+            "id": "W1"
+          }
+        ],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "itemCounts": {
+          "warranties": 2
+        }
+      },
+      "inputCanonical": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W1\"}],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"itemCounts\":{\"warranties\":2}}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": false,
+        "applied": false,
+        "status": "INVALID",
+        "sourceSchema": 1,
+        "targetSchema": 1,
+        "migrationRequired": false,
+        "migrationPerformed": false,
+        "migrationStatus": "NotAttempted",
+        "validationStatus": "INVALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [
+          "شمارش warranties ناهماهنگ است: اعلام 2 ولی واقعیت 1"
+        ],
+        "warnings": [],
+        "log": [],
+        "dataCanonical": null,
+        "hasSales": true
+      }
+    },
+    {
+      "id": "T10-attachment-broken",
+      "tags": [
+        "T10"
+      ],
+      "notes": "broken attachment ref",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [
+          {
+            "id": "W1"
+          }
+        ],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "attachmentsIndex": [
+          {
+            "id": "d1",
+            "kind": "warranty",
+            "parentId": "MISSING",
+            "name": "a.pdf"
+          }
+        ]
+      },
+      "inputCanonical": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W1\"}],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[{\"id\":\"d1\",\"kind\":\"warranty\",\"parentId\":\"MISSING\",\"name\":\"a.pdf\"}]}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": false,
+        "applied": false,
+        "status": "INVALID",
+        "sourceSchema": 1,
+        "targetSchema": 1,
+        "migrationRequired": false,
+        "migrationPerformed": false,
+        "migrationStatus": "NotAttempted",
+        "validationStatus": "INVALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [
+          "پیوست به والد ناموجود: warranty MISSING"
+        ],
+        "warnings": [],
+        "log": [],
+        "dataCanonical": null,
+        "hasSales": true
+      }
+    },
+    {
+      "id": "T11-duplicate-identity-warning",
+      "tags": [
+        "T11"
+      ],
+      "notes": "duplicate invoiceId warning; migrate still allowed",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [
+          {
+            "id": "a",
+            "invoiceId": "INVUID-1"
+          },
+          {
+            "id": "b",
+            "invoiceId": "INVUID-1"
+          }
+        ],
+        "sales": [],
+        "parts": [],
+        "accounts": []
+      },
+      "inputCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[{\"id\":\"a\",\"invoiceId\":\"INVUID-1\"},{\"id\":\"b\",\"invoiceId\":\"INVUID-1\"}],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": true,
+        "applied": false,
+        "status": "VALID_WITH_WARNINGS",
+        "sourceSchema": 1,
+        "targetSchema": 1,
+        "migrationRequired": false,
+        "migrationPerformed": true,
+        "migrationStatus": "Performed",
+        "validationStatus": "VALID_WITH_WARNINGS",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [],
+        "warnings": [
+          "شناسه تکراری اعلام‌شده: 1 مورد (بدون تغییر داده)"
+        ],
+        "log": [
+          "📦 نسخه بک‌اپ: قدیمی",
+          "🔧 خدمات: 0 مورد",
+          "🔩 قطعات: 0 مورد",
+          "🛡 گارانتی: 0 مورد",
+          "🛒 فروش: 0 مورد",
+          "🗓 وظایف: خالی (نسخه قدیمی)",
+          "💰 حساب‌ها: 0 مورد",
+          "⚠️ انبار معیوب: خالی (نسخه قدیمی)",
+          "📋 داغی: خالی (نسخه قدیمی)",
+          "🏭 انبار داغی: خالی (نسخه قدیمی)",
+          "📋 شماره فاکتور بعدی: 1 (حدس زده شد)",
+          "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
+          "✅ آماده برای بارگذاری"
+        ],
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[{\"id\":\"a\",\"invoiceId\":\"INVUID-1\"},{\"id\":\"b\",\"invoiceId\":\"INVUID-1\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":1,\"saleCtr\":1,\"invoiceUidCtr\":1,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "hasSales": true,
+        "postOk": true
+      }
+    },
+    {
+      "id": "T12-valid-checksum",
+      "tags": [
+        "T12"
+      ],
+      "notes": "claimed SHA-256 matches canonical digest",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "checksumAlgo": "SHA-256",
+        "checksum": "437ab3c37db5447ac06109899f5dca30f5c3132cfa7b1740d89f715e7613621a"
+      },
+      "inputCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"checksumAlgo\":\"SHA-256\",\"checksum\":\"437ab3c37db5447ac06109899f5dca30f5c3132cfa7b1740d89f715e7613621a\"}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": true,
+        "applied": false,
+        "status": "VALID",
+        "sourceSchema": 1,
+        "targetSchema": 1,
+        "migrationRequired": false,
+        "migrationPerformed": true,
+        "migrationStatus": "Performed",
+        "validationStatus": "VALID",
+        "integrityStatus": "VALID",
+        "digestCompared": true,
+        "digestMatched": true,
+        "errors": [],
+        "warnings": [],
+        "log": [
+          "📦 نسخه بک‌اپ: قدیمی",
+          "🔧 خدمات: 0 مورد",
+          "🔩 قطعات: 0 مورد",
+          "🛡 گارانتی: 0 مورد",
+          "🛒 فروش: 0 مورد",
+          "🗓 وظایف: خالی (نسخه قدیمی)",
+          "💰 حساب‌ها: 0 مورد",
+          "⚠️ انبار معیوب: خالی (نسخه قدیمی)",
+          "📋 داغی: خالی (نسخه قدیمی)",
+          "🏭 انبار داغی: خالی (نسخه قدیمی)",
+          "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
+          "✅ آماده برای بارگذاری"
+        ],
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"checksumAlgo\":\"SHA-256\",\"checksum\":\"437ab3c37db5447ac06109899f5dca30f5c3132cfa7b1740d89f715e7613621a\",\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "hasSales": true,
+        "postOk": true
+      }
+    },
+    {
+      "id": "T13-invalid-checksum",
+      "tags": [
+        "T13"
+      ],
+      "notes": "claimed SHA-256 mismatch fail-closed",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "checksumAlgo": "SHA-256",
+        "checksum": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "inputCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"checksumAlgo\":\"SHA-256\",\"checksum\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": false,
+        "applied": false,
+        "status": "INVALID",
+        "sourceSchema": 1,
+        "targetSchema": 1,
+        "migrationRequired": false,
+        "migrationPerformed": false,
+        "migrationStatus": "NotAttempted",
+        "validationStatus": "VALID",
+        "integrityStatus": "INVALID",
+        "digestCompared": true,
+        "digestMatched": false,
+        "errors": [
+          "checksum مطابقت ندارد — فایل ممکن است خراب باشد!"
+        ],
+        "warnings": [],
+        "log": [],
+        "dataCanonical": null,
+        "hasSales": true
+      }
+    },
+    {
+      "id": "T14-checksum-absent",
+      "tags": [
+        "T14"
+      ],
+      "notes": "absent checksum NOT_VERIFIABLE compatible",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": []
+      },
+      "inputCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": true,
+        "applied": false,
+        "status": "VALID",
+        "sourceSchema": 1,
+        "targetSchema": 1,
+        "migrationRequired": false,
+        "migrationPerformed": true,
+        "migrationStatus": "Performed",
+        "validationStatus": "VALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [],
+        "warnings": [],
+        "log": [
+          "📦 نسخه بک‌اپ: قدیمی",
+          "🔧 خدمات: 0 مورد",
+          "🔩 قطعات: 0 مورد",
+          "🛡 گارانتی: 0 مورد",
+          "🛒 فروش: 0 مورد",
+          "🗓 وظایف: خالی (نسخه قدیمی)",
+          "💰 حساب‌ها: 0 مورد",
+          "⚠️ انبار معیوب: خالی (نسخه قدیمی)",
+          "📋 داغی: خالی (نسخه قدیمی)",
+          "🏭 انبار داغی: خالی (نسخه قدیمی)",
+          "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
+          "✅ آماده برای بارگذاری"
+        ],
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "hasSales": true,
+        "postOk": true
+      }
+    },
+    {
+      "id": "T14b-checksum-none",
+      "tags": [
+        "T14"
+      ],
+      "notes": "algo none compatible skipped",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "checksum": "",
+        "checksumAlgo": "none"
+      },
+      "inputCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"checksum\":\"\",\"checksumAlgo\":\"none\"}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": true,
+        "applied": false,
+        "status": "VALID",
+        "sourceSchema": 1,
+        "targetSchema": 1,
+        "migrationRequired": false,
+        "migrationPerformed": true,
+        "migrationStatus": "Performed",
+        "validationStatus": "VALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [],
+        "warnings": [],
+        "log": [
+          "📦 نسخه بک‌اپ: قدیمی",
+          "🔧 خدمات: 0 مورد",
+          "🔩 قطعات: 0 مورد",
+          "🛡 گارانتی: 0 مورد",
+          "🛒 فروش: 0 مورد",
+          "🗓 وظایف: خالی (نسخه قدیمی)",
+          "💰 حساب‌ها: 0 مورد",
+          "⚠️ انبار معیوب: خالی (نسخه قدیمی)",
+          "📋 داغی: خالی (نسخه قدیمی)",
+          "🏭 انبار داغی: خالی (نسخه قدیمی)",
+          "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
+          "✅ آماده برای بارگذاری"
+        ],
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"checksum\":\"\",\"checksumAlgo\":\"none\",\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "hasSales": true,
+        "postOk": true
+      }
+    },
+    {
+      "id": "T15-v2-legacy-migration-required",
+      "tags": [
+        "T15",
+        "T2"
+      ],
+      "notes": "v2.0 schema 0 migration required",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "version": "2.0",
+        "warranties": [],
+        "invoices": []
+      },
+      "inputCanonical": "{\"version\":\"2.0\",\"warranties\":[],\"invoices\":[]}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": true,
+        "applied": false,
+        "status": "VALID",
+        "sourceSchema": 0,
+        "targetSchema": 1,
+        "migrationRequired": true,
+        "migrationPerformed": true,
+        "migrationStatus": "Performed",
+        "validationStatus": "VALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [],
+        "warnings": [],
+        "log": [
+          "Schema ۰→۱: فروش غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)",
+          "Schema ۰→۱: قطعات غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)",
+          "Schema ۰→۱: حساب‌ها غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)",
+          "Schema ۰→۱: Manifest و فهرست پیوست اضافه شد",
+          "📦 نسخه بک‌اپ: 2.0",
+          "🔧 خدمات: 0 مورد",
+          "🔩 قطعات: 0 مورد",
+          "🛡 گارانتی: 0 مورد",
+          "🛒 فروش: 0 مورد",
+          "🗓 وظایف: خالی (نسخه قدیمی)",
+          "💰 حساب‌ها: 0 مورد",
+          "⚠️ انبار معیوب: خالی (نسخه قدیمی)",
+          "📋 داغی: خالی (نسخه قدیمی)",
+          "🏭 انبار داغی: خالی (نسخه قدیمی)",
+          "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
+          "✅ آماده برای بارگذاری"
+        ],
+        "dataCanonical": "{\"version\":\"2.0\",\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"2.0\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "hasSales": true,
+        "postOk": true
+      }
+    },
+    {
+      "id": "T16-already-current",
+      "tags": [
+        "T16"
+      ],
+      "notes": "already-current still runs field migrate",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "tasks": [],
+        "services": [],
+        "products": [],
+        "inventory": {},
+        "saleCtr": 1,
+        "invoiceUidCtr": 0,
+        "saleUidCtr": 0,
+        "magic": "SIRMAN_BACKUP"
+      },
+      "inputCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[],\"services\":[],\"products\":[],\"inventory\":{},\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": true,
+        "applied": false,
+        "status": "VALID",
+        "sourceSchema": 1,
+        "targetSchema": 1,
+        "migrationRequired": false,
+        "migrationPerformed": true,
+        "migrationStatus": "Performed",
+        "validationStatus": "VALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [],
+        "warnings": [],
+        "log": [
+          "📦 نسخه بک‌اپ: قدیمی",
+          "🔧 خدمات: 0 مورد",
+          "🔩 قطعات: 0 مورد",
+          "🛡 گارانتی: 0 مورد",
+          "🛒 فروش: 0 مورد",
+          "🗓 وظایف: 0 مورد",
+          "💰 حساب‌ها: 0 مورد",
+          "⚠️ انبار معیوب: خالی (نسخه قدیمی)",
+          "📋 داغی: خالی (نسخه قدیمی)",
+          "🏭 انبار داغی: خالی (نسخه قدیمی)",
+          "✅ آماده برای بارگذاری"
+        ],
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[],\"services\":[],\"products\":[],\"inventory\":{},\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\",\"phonebook\":[],\"pb\":[],\"svcs\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[]}",
+        "hasSales": true,
+        "postOk": true
+      }
+    },
+    {
+      "id": "T17-malformed-null",
+      "tags": [
+        "T17"
+      ],
+      "notes": "null package",
+      "frozenNowMs": 1700000000000,
+      "input": null,
+      "inputCanonical": "null",
+      "inputUnchanged": true,
+      "html": {
+        "ok": false,
+        "applied": false,
+        "status": "INVALID",
+        "sourceSchema": 0,
+        "targetSchema": 1,
+        "migrationRequired": true,
+        "migrationPerformed": false,
+        "migrationStatus": "NotAttempted",
+        "validationStatus": "INVALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [
+          "بستهٔ پشتیبان نامعتبر است"
+        ],
+        "warnings": [],
+        "log": [],
+        "dataCanonical": null,
+        "hasSales": false
+      }
+    },
+    {
+      "id": "T17b-malformed-array",
+      "tags": [
+        "T17"
+      ],
+      "notes": "array is not a package",
+      "frozenNowMs": 1700000000000,
+      "input": [],
+      "inputCanonical": "[]",
+      "inputUnchanged": true,
+      "html": {
+        "ok": false,
+        "applied": false,
+        "status": "INVALID",
+        "sourceSchema": 0,
+        "targetSchema": 1,
+        "migrationRequired": true,
+        "migrationPerformed": false,
+        "migrationStatus": "NotAttempted",
+        "validationStatus": "INVALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [
+          "بستهٔ پشتیبان نامعتبر است"
+        ],
+        "warnings": [],
+        "log": [],
+        "dataCanonical": null,
+        "hasSales": false
+      }
+    },
+    {
+      "id": "T17c-unknown-algo",
+      "tags": [
+        "T17"
+      ],
+      "notes": "unknown checksum algo",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "checksum": "abcd",
+        "checksumAlgo": "MD5"
+      },
+      "inputCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"checksum\":\"abcd\",\"checksumAlgo\":\"MD5\"}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": false,
+        "applied": false,
+        "status": "INVALID",
+        "sourceSchema": 1,
+        "targetSchema": 1,
+        "migrationRequired": false,
+        "migrationPerformed": false,
+        "migrationStatus": "NotAttempted",
+        "validationStatus": "INVALID",
+        "integrityStatus": "INVALID",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [
+          "الگوریتم checksum پشتیبانی نمی‌شود: MD5"
+        ],
+        "warnings": [],
+        "log": [],
+        "dataCanonical": null,
+        "hasSales": true
+      }
+    },
+    {
+      "id": "T18-persian-unicode",
+      "tags": [
+        "T18"
+      ],
+      "notes": "Persian text",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [
+          {
+            "id": "W-۱",
+            "name": "علی",
+            "problem": "صفحهٔ نمایش"
+          }
+        ],
+        "invoices": [
+          {
+            "id": "I1",
+            "num": 1,
+            "buyer": "فروشگاه نمونه"
+          }
+        ],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "company": {
+          "name": "لایق الکترونیک پارسیان",
+          "city": "تهران"
+        }
+      },
+      "inputCanonical": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W-۱\",\"name\":\"علی\",\"problem\":\"صفحهٔ نمایش\"}],\"invoices\":[{\"id\":\"I1\",\"num\":1,\"buyer\":\"فروشگاه نمونه\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"company\":{\"name\":\"لایق الکترونیک پارسیان\",\"city\":\"تهران\"}}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": true,
+        "applied": false,
+        "status": "VALID",
+        "sourceSchema": 1,
+        "targetSchema": 1,
+        "migrationRequired": false,
+        "migrationPerformed": true,
+        "migrationStatus": "Performed",
+        "validationStatus": "VALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [],
+        "warnings": [],
+        "log": [
+          "📦 نسخه بک‌اپ: قدیمی",
+          "🔧 خدمات: 0 مورد",
+          "🔩 قطعات: 0 مورد",
+          "🛡 گارانتی: 1 مورد",
+          "🛒 فروش: 0 مورد",
+          "🗓 وظایف: خالی (نسخه قدیمی)",
+          "💰 حساب‌ها: 0 مورد",
+          "⚠️ انبار معیوب: خالی (نسخه قدیمی)",
+          "📋 داغی: خالی (نسخه قدیمی)",
+          "🏭 انبار داغی: خالی (نسخه قدیمی)",
+          "📋 شماره فاکتور بعدی: 2 (حدس زده شد)",
+          "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
+          "📋 1 فاکتور شناسه داخلی یکتا گرفت (شماره فاکتور عوض نشد)",
+          "🏢 اطلاعات شرکت: موجود",
+          "✅ آماده برای بارگذاری"
+        ],
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W-۱\",\"name\":\"علی\",\"phone\":\"\",\"date\":\"\",\"addr\":\"\",\"socialContacts\":[],\"devices\":[],\"initialService\":\"\",\"model\":\"\",\"color\":\"\",\"buydate\":\"\",\"serial\":\"\",\"warrStatus\":\"no\",\"warrExp\":\"\",\"condition\":\"سالم\",\"problem\":\"صفحهٔ نمایش\",\"expert\":\"\",\"refTo\":\"pending\",\"refName\":\"\",\"refDate\":\"\",\"refNote\":\"\",\"docs\":[],\"companyReport\":null,\"accRef\":\"\",\"status\":\"open\",\"savedAt\":\"\",\"createdAt\":\"\"}],\"invoices\":[{\"id\":\"I1\",\"num\":1,\"buyer\":\"فروشگاه نمونه\",\"invoiceId\":\"INVUID-000001\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"company\":{\"name\":\"لایق الکترونیک پارسیان\",\"city\":\"تهران\"},\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":2,\"saleCtr\":1,\"invoiceUidCtr\":1,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "hasSales": true,
+        "postOk": true
+      }
+    },
+    {
+      "id": "T-schema-too-new",
+      "tags": [
+        "T17"
+      ],
+      "notes": "schema 2 too-new; no reverse migrate",
+      "frozenNowMs": 1700000000000,
+      "input": {
+        "schemaVersion": 2,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": []
+      },
+      "inputCanonical": "{\"schemaVersion\":2,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+      "inputUnchanged": true,
+      "html": {
+        "ok": false,
+        "applied": false,
+        "status": "INVALID",
+        "sourceSchema": 2,
+        "targetSchema": 1,
+        "migrationRequired": true,
+        "migrationPerformed": false,
+        "migrationStatus": "Failed",
+        "validationStatus": "VALID",
+        "integrityStatus": "NOT_VERIFIABLE",
+        "digestCompared": false,
+        "digestMatched": false,
+        "errors": [
+          "این بک‌آپ با Schema جدیدتر از این نسخه ساخته شده و بدون Migration معکوس باز نمی‌شود"
+        ],
+        "warnings": [],
+        "log": [],
+        "dataCanonical": null,
+        "hasSales": true
+      }
+    }
+  ]
+}
