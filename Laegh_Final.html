@@ -7778,7 +7778,7 @@ function validateBackupPackage(d){
 }
 // P1C fail-closed: required collections. MISSING ≠ EMPTY. Do not coerce absent keys to [].
 var REQUIRED_BACKUP_COLLECTIONS = ['warranties', 'invoices'];
-var REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA = { 1: ['sales', 'parts'] };
+var REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA = { 1: ['sales', 'parts', 'accounts'] };
 function backupHasOwnCollection(d, key){
   return !!(d && typeof d === 'object' && !Array.isArray(d) && Object.prototype.hasOwnProperty.call(d, key));
 }
@@ -7799,7 +7799,7 @@ function requiredBackupCollectionsFor(d){
   var keys = (typeof REQUIRED_BACKUP_COLLECTIONS !== 'undefined' && REQUIRED_BACKUP_COLLECTIONS && REQUIRED_BACKUP_COLLECTIONS.length)
     ? REQUIRED_BACKUP_COLLECTIONS.slice() : ['warranties','invoices'];
   var ver = inferRequiredBackupSchemaVersion(d);
-  var fromSchema = (typeof REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA !== 'undefined') ? REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA : { 1: ['sales', 'parts'] };
+  var fromSchema = (typeof REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA !== 'undefined') ? REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA : { 1: ['sales', 'parts', 'accounts'] };
   Object.keys(fromSchema).forEach(function(sv){
     if(ver >= parseInt(sv, 10)){
       (fromSchema[sv]||[]).forEach(function(k){ if(keys.indexOf(k) < 0) keys.push(k); });
@@ -7868,6 +7868,12 @@ var SCHEMA_MIGRATIONS = [
       if (!d.parts) {
         d.parts = [];
         log.push('Schema ۰→۱: قطعات غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)');
+      }
+      // P1C-5 Decision B: Schema 0 / v2.0 may omit accounts (explicit test: missing → []).
+      // This conversion runs ONLY on 0→1. Schema ≥1 files never enter this step.
+      if (!d.accounts) {
+        d.accounts = [];
+        log.push('Schema ۰→۱: حساب‌ها غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)');
       }
       if(!d.attachmentsIndex) d.attachmentsIndex = collectAttachmentIndex(d);
       if(!d.manifest) d.manifest = buildBackupManifest(d, d.origin||'unknown', d.partial?'partial':'full');
@@ -14127,8 +14133,23 @@ function migrateBackup(d) {
   if (!d.tasks)      { d.tasks = [];      log.push('🗓 وظایف: خالی (نسخه قدیمی)'); }
   else log.push('🗓 وظایف: '+d.tasks.length+' مورد');
 
-  if (!d.accounts)   { d.accounts = [];   log.push('💰 حساب‌ها: خالی (نسخه قدیمی)'); }
-  else log.push('💰 حساب‌ها: '+d.accounts.length+' مورد');
+  // P1C-5: accounts is required from schemaVersion >= 1.
+  // Schema 0 / v2.0 may omit it; migrateBackup must still produce accounts=[] (existing compatibility test).
+  var accountsSchemaVer = (typeof inferRequiredBackupSchemaVersion==='function') ? inferRequiredBackupSchemaVersion(d) : (parseInt(d && d.schemaVersion,10)||0);
+  if (accountsSchemaVer >= 1) {
+    if (!Object.prototype.hasOwnProperty.call(d, 'accounts')) {
+      log.push('💰 حساب‌ها: غایب — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else if (d.accounts === null) {
+      log.push('💰 حساب‌ها: null — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else if (!Array.isArray(d.accounts)) {
+      log.push('💰 حساب‌ها: نوع نامعتبر ('+(typeof d.accounts)+') — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else {
+      log.push('💰 حساب‌ها: '+d.accounts.length+' مورد');
+    }
+  } else {
+    if (!d.accounts)   { d.accounts = [];   log.push('💰 حساب‌ها: خالی (نسخه قدیمی)'); }
+    else log.push('💰 حساب‌ها: '+d.accounts.length+' مورد');
+  }
 
   if (!d.defectiveStock) { d.defectiveStock = []; log.push('⚠️ انبار معیوب: خالی (نسخه قدیمی)'); }
   else log.push('⚠️ انبار معیوب: '+d.defectiveStock.length+' مورد');

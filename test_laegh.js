@@ -108,7 +108,7 @@ function p1cValidatorSrc(srcHtml) {
     extractFunctionSource(htmlSrc, 'inferBackupSchemaVersion') ||
       'function inferBackupSchemaVersion(d){ if(!d||typeof d!=="object") return 0; if(d.schemaVersion!=null&&d.schemaVersion!==""){ var n=parseInt(d.schemaVersion,10); if(!isNaN(n)) return n; } if(d.manifest&&d.manifest.schemaVersion!=null){ var m=parseInt(d.manifest.schemaVersion,10); if(!isNaN(m)) return m; } return 0; }',
     reg ? reg[0] : "var REQUIRED_BACKUP_COLLECTIONS = ['warranties','invoices'];",
-    fromSchema ? fromSchema[0] : "var REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA = { 1: ['sales', 'parts'] };",
+    fromSchema ? fromSchema[0] : "var REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA = { 1: ['sales', 'parts', 'accounts'] };",
     extractFunctionSource(htmlSrc, 'backupHasOwnCollection'),
     extractFunctionSource(htmlSrc, 'inferRequiredBackupSchemaVersion'),
     extractFunctionSource(htmlSrc, 'requiredBackupCollectionsFor'),
@@ -7315,7 +7315,7 @@ test('P1C-3 T3: Schema 1 + sales غیرآرایه باید FAIL شود', () => {
 });
 
 test('P1C-3 T4: Schema 1 + sales=[] باید PASS شود', () => {
-  const input = {schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[]};
+  const input = {schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[], accounts:[]};
   const v = loadP1CValidator().validateRequiredBackupCollections(input);
   assertEqual(v.ok, true, 'آرایه خالی صریح باید معتبر باشد');
   assertEqual(v.missingRequiredCollections.length, 0, '[] نباید missing باشد');
@@ -7324,7 +7324,7 @@ test('P1C-3 T4: Schema 1 + sales=[] باید PASS شود', () => {
 
 test('P1C-3 T5: Schema 1 + sales با رکورد مصنوعی معتبر باید PASS شود', () => {
   const v = loadP1CValidator().validateRequiredBackupCollections({
-    schemaVersion:1, warranties:[], invoices:[], sales:[p1c3SyntheticSale()], parts:[]
+    schemaVersion:1, warranties:[], invoices:[], sales:[p1c3SyntheticSale()], parts:[], accounts:[]
   });
   assertEqual(v.ok, true, 'آرایه دارای رکورد باید معتبر باشد');
   assertEqual(v.invalidCollections.length, 0, 'رکورد مصنوعی نباید invalid باشد');
@@ -7417,14 +7417,14 @@ test('P1C-3 T13: فاکتور غایب همچنان FAIL است', () => {
 test('P1C-3 T14: warranties=[] همچنان PASS است', () => {
   const v0 = loadP1CValidator().validateRequiredBackupCollections({warranties:[], invoices:[]});
   assertEqual(v0.ok, true, 'Schema 0 با warranties=[] باید PASS شود');
-  const v1 = loadP1CValidator().validateRequiredBackupCollections({schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[]});
+  const v1 = loadP1CValidator().validateRequiredBackupCollections({schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[], accounts:[]});
   assertEqual(v1.ok, true, 'Schema 1 با warranties=[] و sales=[] باید PASS شود');
 });
 
 test('P1C-3 T15: invoices=[] همچنان PASS است', () => {
   const v0 = loadP1CValidator().validateRequiredBackupCollections({warranties:[], invoices:[]});
   assertEqual(v0.ok, true, 'Schema 0 با invoices=[] باید PASS شود');
-  const v1 = loadP1CValidator().validateRequiredBackupCollections({schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[]});
+  const v1 = loadP1CValidator().validateRequiredBackupCollections({schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[], accounts:[]});
   assertEqual(v1.ok, true, 'Schema 1 با invoices=[] و sales=[] باید PASS شود');
 });
 
@@ -7523,7 +7523,7 @@ test('P1C-4 T3: Schema 1 + parts غیرآرایه باید FAIL شود', () => {
 });
 
 test('P1C-4 T4: Schema 1 + parts=[] باید PASS شود', () => {
-  const input = {schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[]};
+  const input = {schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[], accounts:[]};
   const v = loadP1CValidator().validateRequiredBackupCollections(input);
   assertEqual(v.ok, true, 'آرایه خالی صریح باید معتبر باشد');
   assertEqual(v.missingRequiredCollections.length, 0, '[] نباید missing باشد');
@@ -7532,7 +7532,7 @@ test('P1C-4 T4: Schema 1 + parts=[] باید PASS شود', () => {
 
 test('P1C-4 T5: Schema 1 + parts با رکورد مصنوعی معتبر باید PASS شود', () => {
   const v = loadP1CValidator().validateRequiredBackupCollections({
-    schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[p1c4SyntheticPart()]
+    schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[p1c4SyntheticPart()], accounts:[]
   });
   assertEqual(v.ok, true, 'آرایه دارای رکورد باید معتبر باشد');
   assertEqual(v.invalidCollections.length, 0, 'رکورد مصنوعی نباید invalid باشد');
@@ -7634,6 +7634,217 @@ test('P1C-4 T15: Schema 1 بدون sales همچنان FAIL است', () => {
   const v = loadP1CValidator().validateRequiredBackupCollections({schemaVersion:1, warranties:[], invoices:[], parts:[]});
   assertEqual(v.ok, false, 'حفاظت Schema ≥۱ فروش باید بماند');
   assertTrue(v.missingRequiredCollections.indexOf('sales')>=0, 'sales باید missing بماند');
+});
+
+
+console.log('');
+console.log('📋 گروه: P1C-5 اعتبارسنج fail-closed حساب‌ها (accounts, Schema ≥۱)');
+
+function p1c5SyntheticAccount(){
+  return { id:'ACC-TEST', number:'1', name:'حساب آزمایشی', desc:'', balance:0, transactions:[], createdAt:'' };
+}
+
+function p1c5RunRestoreGate(mode, backup, liveAccounts){
+  const valSrc = p1cValidatorSrc(html);
+  const wantsSrc = extractFunctionSource(html, '_restoreWants');
+  const replaceSrc = extractFunctionSource(html, 'applyBackupReplaceSections');
+  const mergeSrc = extractFunctionSource(html, 'applyBackupMergeSections');
+  const selectiveSrc = extractFunctionSource(html, 'applyBackupSelective');
+  const fns = valSrc + '\n' + wantsSrc + '\n' + replaceSrc + '\n' + mergeSrc + '\n' + selectiveSrc;
+  const runner = new Function('backup','mode','liveAccounts', fns + `
+    var mutations = { sv:0, svWarr:0, svSales:0, svParts:0, svAccounts:0, snapshot:0, auditOk:0, auditErr:0, ls:0 };
+    var accounts = (liveAccounts||[]).map(function(x){ return JSON.parse(JSON.stringify(x)); });
+    var invoices = []; var warranties = []; var products = []; var inventory = {}; var phonebook = []; var pb = [];
+    var parts = []; var services = []; var svcs = []; var sales = []; var tasks = [];
+    var defectiveStock = []; var warehouseDocs = []; var stockMoves = [];
+    var warehouses = []; var daqi = []; var daqiWarehouse = []; var daqiVouchers = []; var postalHistory = [];
+    var userRoles = []; var saleCtr = 1; var saleUidCtr = 0; var invCtr = 1; var invoiceUidCtr = 0;
+    var logoSrc = ''; var senderInfo = {}; var acH = {};
+    var localStorage = { setItem:function(){ mutations.ls++; }, getItem:function(){ return null; } };
+    function sv(){ mutations.sv++; }
+    function svParts(){ mutations.svParts++; }
+    function svSvcs(){}
+    function svSales(){ mutations.svSales++; }
+    function svWarr(){ mutations.svWarr++; }
+    function svAccounts(){ mutations.svAccounts++; }
+    function svTasks(){} function svDefective(){} function svWarehouses(){}
+    function _buildFullBackupData(){ mutations.snapshot++; return { warranties: warranties, invoices: invoices, sales: sales, parts: parts, accounts: accounts }; }
+    function saveSafetySnapshot(){ mutations.snapshot++; }
+    function logBackupAudit(op, result){ if(result==='ok') mutations.auditOk++; else mutations.auditErr++; }
+    function addDbgEntry(){} function ntf(){} function auditUser(){} function alert(){}
+    function emit(){} function getNum(){} function renderSaved(){} function renderProds(){} function renderInv(){}
+    function renderPB(){} function renderParts(){} function renderSvcs(){} function renderSales(){}
+    function renderWarList(){} function renderDataStats(){} function renderTasks(){} function renderSidebarBadges(){}
+    function renderAccounts(){}
+    var threw = null;
+    var before = JSON.stringify(accounts);
+    var beforeWar = JSON.stringify(warranties);
+    var beforeInv = JSON.stringify(invoices);
+    var beforeSales = JSON.stringify(sales);
+    var beforeParts = JSON.stringify(parts);
+    try {
+      if(mode==='replace') applyBackupReplaceSections(backup, ['accounts']);
+      else if(mode==='merge') applyBackupMergeSections(backup, ['accounts']);
+      else applyBackupSelective(backup, ['accounts'], (mode==='selective-replace' ? 'replace' : 'merge'));
+    } catch(e){ threw = String(e && e.message || e); }
+    return {
+      threw: threw,
+      live: JSON.parse(JSON.stringify(accounts)),
+      liveUnchanged: JSON.stringify(accounts) === before,
+      warUnchanged: JSON.stringify(warranties) === beforeWar,
+      invUnchanged: JSON.stringify(invoices) === beforeInv,
+      salesUnchanged: JSON.stringify(sales) === beforeSales,
+      partsUnchanged: JSON.stringify(parts) === beforeParts,
+      mutations: mutations
+    };
+  `);
+  return runner(backup, mode, liveAccounts || [{id:'LIVE-ACC', name:'صندوق زنده', balance:10}]);
+}
+
+test('P1C-5 T1: Schema 1 + accounts غایب باید FAIL شود', () => {
+  const v = loadP1CValidator().validateRequiredBackupCollections({schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[]});
+  assertEqual(v.ok, false, 'Schema ≥۱ بدون accounts باید نامعتبر باشد');
+  assertTrue(v.missingRequiredCollections.indexOf('accounts')>=0, 'دلیل باید missing accounts باشد');
+  assertTrue(v.missingRequiredCollections.indexOf('warranties')<0, 'warranties=[] نباید missing شود');
+  assertTrue(v.missingRequiredCollections.indexOf('invoices')<0, 'invoices=[] نباید missing شود');
+  assertTrue(v.missingRequiredCollections.indexOf('sales')<0, 'sales=[] نباید missing شود');
+  assertTrue(v.missingRequiredCollections.indexOf('parts')<0, 'parts=[] نباید missing شود');
+});
+
+test('P1C-5 T2: Schema 1 + accounts=null باید FAIL شود', () => {
+  const v = loadP1CValidator().validateRequiredBackupCollections({schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[], accounts:null});
+  assertEqual(v.ok, false, 'null باید نامعتبر باشد');
+  assertTrue(v.invalidCollections.indexOf('accounts')>=0, 'null باید invalidCollections باشد نه missing تفسیرشده به []');
+});
+
+test('P1C-5 T3: Schema 1 + accounts غیرآرایه باید FAIL شود', () => {
+  const v = loadP1CValidator().validateRequiredBackupCollections({schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[], accounts:'invalid'});
+  assertEqual(v.ok, false, 'رشته باید نامعتبر باشد');
+  assertTrue(v.invalidCollections.indexOf('accounts')>=0, 'نوع نامعتبر باید در invalidCollections باشد');
+});
+
+test('P1C-5 T4: Schema 1 + accounts=[] باید PASS شود', () => {
+  const input = {schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[], accounts:[]};
+  const v = loadP1CValidator().validateRequiredBackupCollections(input);
+  assertEqual(v.ok, true, 'آرایه خالی صریح باید معتبر باشد');
+  assertEqual(v.missingRequiredCollections.length, 0, '[] نباید missing باشد');
+  assertTrue(Array.isArray(input.accounts) && input.accounts.length===0, '[] باید [] بماند');
+});
+
+test('P1C-5 T5: Schema 1 + accounts با رکورد مصنوعی معتبر باید PASS شود', () => {
+  const v = loadP1CValidator().validateRequiredBackupCollections({
+    schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[], accounts:[p1c5SyntheticAccount()]
+  });
+  assertEqual(v.ok, true, 'آرایه دارای رکورد باید معتبر باشد');
+  assertEqual(v.invalidCollections.length, 0, 'رکورد مصنوعی نباید invalid باشد');
+});
+
+test('P1C-5 T6: Schema 0 + accounts غایب باید سازگار PASS شود', () => {
+  const input = { version:'2.0', warranties:[], invoices:[] };
+  const v = loadP1CValidator().validateRequiredBackupCollections(input);
+  assertEqual(v.ok, true, 'Schema 0 بدون accounts باید معتبر بماند');
+  assertTrue(v.missingRequiredCollections.indexOf('accounts')<0, 'accounts نباید برای Schema 0 الزامی شود');
+  assertEqual(Object.prototype.hasOwnProperty.call(input,'accounts'), false, 'validator نباید کلید accounts بسازد');
+});
+
+test('P1C-5 T7: Schema 1 + accounts غایب باید MERGE را مسدود کند', () => {
+  const backup = { schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[], products:[{code:'A'}], phonebook:[] };
+  const r = p1c5RunRestoreGate('merge', backup);
+  assertTrue(!!r.threw && /accounts/.test(r.threw), 'merge باید به‌خاطر accounts غایب throw کند');
+  assertEqual(r.liveUnchanged, true, 'حساب زنده نباید عوض شود');
+  assertEqual(r.mutations.sv, 0, 'sv نباید صدا شود');
+  assertEqual(r.mutations.svAccounts, 0, 'svAccounts نباید صدا شود');
+});
+
+test('P1C-5 T8: Schema 1 + accounts غایب باید REPLACE را مسدود کند', () => {
+  const backup = { schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[], products:[], phonebook:[] };
+  const r = p1c5RunRestoreGate('replace', backup);
+  assertTrue(!!r.threw && /accounts/.test(r.threw), 'replace باید به‌خاطر accounts غایب throw کند');
+  assertEqual(r.liveUnchanged, true, 'حساب زنده نباید عوض شود');
+  assertEqual(r.mutations.snapshot, 0, 'replace مستقیم نباید به snapshot برسد');
+});
+
+test('P1C-5 T9: شکست اعتبارسنجی Schema 1 نباید هیچ mutation زنده ایجاد کند', () => {
+  const rSel = p1c5RunRestoreGate('selective-replace', {schemaVersion:1, warranties:[{id:'W1'}], invoices:[{num:'1'}], sales:[], parts:[]});
+  assertTrue(!!rSel.threw, 'selective باید متوقف شود');
+  assertEqual(rSel.liveUnchanged, true, 'آرایه زنده accounts نباید عوض شود');
+  assertEqual(rSel.warUnchanged, true, 'warranties زنده نباید عوض شود');
+  assertEqual(rSel.invUnchanged, true, 'invoices زنده نباید عوض شود');
+  assertEqual(rSel.salesUnchanged, true, 'sales زنده نباید عوض شود');
+  assertEqual(rSel.partsUnchanged, true, 'parts زنده نباید عوض شود');
+  assertEqual(rSel.mutations.sv, 0, 'sv نباید صدا شود');
+  assertEqual(rSel.mutations.svWarr, 0, 'svWarr نباید صدا شود');
+  assertEqual(rSel.mutations.svSales, 0, 'svSales نباید صدا شود');
+  assertEqual(rSel.mutations.svParts, 0, 'svParts نباید صدا شود');
+  assertEqual(rSel.mutations.svAccounts, 0, 'svAccounts نباید صدا شود');
+  assertEqual(rSel.mutations.snapshot, 0, 'snapshot ایمنی نباید نوشته شود');
+  assertEqual(rSel.mutations.auditOk, 0, 'audit موفقیت نباید ثبت شود');
+  assertEqual(rSel.mutations.ls, 0, 'localStorage نباید نوشته شود');
+});
+
+test('P1C-5 T10: migrateBackup نباید accounts غایب Schema ≥۱ را به [] تبدیل کند', () => {
+  const migrateBackup = loadMigrateBackupFn();
+  const src = extractFunctionSource(html, 'migrateBackup');
+  assertTrue(src.indexOf('accountsSchemaVer') >= 0 && src.indexOf('fail-closed, Schema ≥۱') >= 0, 'مسیر fail-closed حساب Schema ≥۱ باید موجود باشد');
+  const d = { schemaVersion:1, version:'1405.6.3α', warranties:[], invoices:[], sales:[], parts:[], products:[], inventory:{}, phonebook:[] };
+  assertEqual(Object.prototype.hasOwnProperty.call(d,'accounts'), false, 'ورودی نباید accounts داشته باشد');
+  const result = migrateBackup(d);
+  assertEqual(Object.prototype.hasOwnProperty.call(result.data,'accounts'), false, 'migrateBackup نباید کلید accounts بسازد');
+  assertEqual(result.data.accounts, undefined, 'مقدار accounts باید undefined بماند نه []');
+  assertTrue((result.log||[]).some(function(x){ return /حساب/.test(x) && /غایب/.test(x) && /fail-closed/.test(x); }), 'لاگ باید غایب بودن حساب را بدون جایگزینی ثبت کند');
+});
+
+test('P1C-5 T11: مسیر v2.0 بدون accounts باید همچنان accounts=[] بسازد', () => {
+  const oldBackup = { version:'2.0', invoices:[], products:[], inventory:{}, phonebook:[], invCtr:2, warranties:[] };
+  const v = loadP1CValidator().validateRequiredBackupCollections(oldBackup);
+  assertEqual(v.ok, true, 'validator Schema 0 بدون accounts باید PASS شود');
+  assertTrue(v.missingRequiredCollections.indexOf('accounts')<0, 'accounts نباید در Schema 0 الزامی شود');
+  const migrateBackup = loadMigrateBackupFn();
+  const result = migrateBackup(JSON.parse(JSON.stringify(oldBackup)));
+  assertArrayLength(result.data.accounts, 0, 'بک‌اپ قدیمی بدون accounts باید آرایه خالی accounts بگیرد، نه کرش کند');
+  assertTrue((result.log||[]).some(function(x){ return /حساب/.test(x) && /نسخه قدیمی/.test(x); }), 'لاگ باید سازگاری نسخه قدیمی حساب را ثبت کند');
+  const eng = loadBackupEngine(html);
+  const originalJson = JSON.stringify({ version:'10.3.29', invoices:[{num:'1'}], phonebook:[], warranties:[{id:'W1'}] });
+  const legacy = { version:'10.3.29', invoices:[{num:'1'}], phonebook:[], warranties:[{id:'W1'}] };
+  const mig = eng.BackupEngine.migrateSchema(legacy, 1);
+  assertTrue(mig.ok, 'Migration ۰→۱ باید موفق باشد');
+  assertTrue(Array.isArray(mig.data.accounts) && mig.data.accounts.length===0, '۰→۱ باید accounts غایب Schema 0 را به [] تبدیل کند');
+  assertEqual(JSON.parse(originalJson).accounts, undefined, 'فیکسچر اصلی نباید mutate شود');
+  const r = p1c5RunRestoreGate('merge', { version:'2.0', warranties:[], invoices:[] }, [{id:'LIVE-ACC'}]);
+  assertEqual(r.threw, null, 'merge Schema 0 بدون accounts نباید throw کند');
+  assertEqual(r.liveUnchanged, true, 'ادغام بدون accounts نباید حساب زنده را پاک کند');
+});
+
+test('P1C-5 T12: گارانتی غایب همچنان FAIL است', () => {
+  const v = loadP1CValidator().validateRequiredBackupCollections({schemaVersion:1, invoices:[], sales:[], parts:[], accounts:[]});
+  assertEqual(v.ok, false, 'بدون warranties باید FAIL شود');
+  assertTrue(v.missingRequiredCollections.indexOf('warranties')>=0, 'warranties باید missing بماند');
+});
+
+test('P1C-5 T13: فاکتور غایب همچنان FAIL است', () => {
+  const v = loadP1CValidator().validateRequiredBackupCollections({schemaVersion:1, warranties:[], sales:[], parts:[], accounts:[]});
+  assertEqual(v.ok, false, 'بدون invoices باید FAIL شود');
+  assertTrue(v.missingRequiredCollections.indexOf('invoices')>=0, 'invoices باید missing بماند');
+});
+
+test('P1C-5 T14: حفاظت Schema فروش و قطعات باید بماند', () => {
+  const v0 = loadP1CValidator().validateRequiredBackupCollections({version:'2.0', warranties:[], invoices:[]});
+  assertEqual(v0.ok, true, 'Schema 0 بدون sales/parts/accounts باید PASS بماند');
+  const missSales = loadP1CValidator().validateRequiredBackupCollections({schemaVersion:1, warranties:[], invoices:[], parts:[], accounts:[]});
+  assertEqual(missSales.ok, false, 'Schema ≥۱ بدون sales باید FAIL بماند');
+  assertTrue(missSales.missingRequiredCollections.indexOf('sales')>=0, 'sales باید missing بماند');
+  const missParts = loadP1CValidator().validateRequiredBackupCollections({schemaVersion:1, warranties:[], invoices:[], sales:[], accounts:[]});
+  assertEqual(missParts.ok, false, 'Schema ≥۱ بدون parts باید FAIL بماند');
+  assertTrue(missParts.missingRequiredCollections.indexOf('parts')>=0, 'parts باید missing بماند');
+});
+
+test('P1C-5 T15: tasks در این بسته الزامی نشده است', () => {
+  const v = loadP1CValidator().validateRequiredBackupCollections({schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[], accounts:[]});
+  assertEqual(v.ok, true, 'بدون tasks باید PASS شود');
+  assertTrue(v.missingRequiredCollections.indexOf('tasks')<0, 'tasks نباید به رجیستری اضافه شده باشد');
+  const migrateBackup = loadMigrateBackupFn();
+  const old = migrateBackup({ version:'2.0', invoices:[], products:[], inventory:{}, phonebook:[], invCtr:2, warranties:[] });
+  assertArrayLength(old.data.tasks, 0, 'مسیر سازگاری tasks=[] برای v2.0 باید دست‌نخورده بماند');
 });
 
 
@@ -9711,7 +9922,7 @@ test('آماده‌سازی و انصراف نباید دادهٔ کسب‌وک�
     var document = {getElementById:function(){ return {classList:{add:function(){}, remove:function(){}}}; }};
     var _pendingNetworkPull = null;
     var snap = JSON.stringify({invoices:invoices, products:products, warranties:warranties, accounts:accounts, inventory:inventory});
-    var pkg = {schemaVersion:1, origin:'network-workspace', invoices:[{invoiceId:'INV-2', customer:'تازه'}], products:[{code:'P2'}], warranties:[], sales:[], parts:[]};
+    var pkg = {schemaVersion:1, origin:'network-workspace', invoices:[{invoiceId:'INV-2', customer:'تازه'}], products:[{code:'P2'}], warranties:[], sales:[], parts:[], accounts:[]};
     var prepared = prepareNetworkWorkspacePull(JSON.stringify(pkg));
     _pendingNetworkPull = prepared;
     cancelNetworkPullPreview();
