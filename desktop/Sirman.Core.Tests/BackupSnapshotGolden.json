@@ -1,0 +1,68 @@
+{
+  "packet": "ARCH-9B",
+  "generatedAt": "2026-09-04",
+  "notes": [
+    "BackupSnapshot is a transport document. Business records stay JSON-shaped.",
+    "49 base payload keys from _buildFullBackupData. origin is a caller stamp, not one of the 49.",
+    "sections catalog is 32 names. itemCounts declares 15 keys. Do not expand either list.",
+    "printCenter and attachmentsIndex are optional assembly keys (typical 51 = 49 + 2).",
+    "checksum, checksumAlgo, manifest, sectionChecksums belong to the finalized package, not raw assembly.",
+    "Phonebook is payload only. No Core identity rule. No live adapter."
+  ],
+  "counts": {
+    "basePayloadKeys": 49,
+    "typicalSnapshotKeys": 51,
+    "sectionsCatalog": 32,
+    "itemCountKeys": 15,
+    "optionalAssemblyKeys": 2,
+    "finalizedMetadataKeys": 4
+  },
+  "basePayloadKeys": [
+    "magic", "schemaVersion", "version", "applicationVersion", "exportedAt",
+    "invoices", "products", "inventory", "invCtr", "invoiceUidCtr", "saleCtr", "saleUidCtr",
+    "phonebook", "parts", "services", "svcs", "warranties", "sales", "tasks", "accounts",
+    "defectiveStock", "warehouseDocs", "stockMoves", "warehouses",
+    "daqi", "daqiWarehouse", "daqiVouchers", "postalHistory",
+    "appliedUpdates", "updatePackages",
+    "userAuditLog", "bgAuditLog", "userRoles", "loginPw",
+    "printSettings", "company", "serviceCenter", "starredAlarms", "senderInfo", "logoSrc", "acH",
+    "appearance", "sms", "tz", "networkSettings", "prefs", "aiKeys",
+    "itemCounts", "sections"
+  ],
+  "sectionsCatalog": [
+    "invoices", "products", "inventory", "phonebook", "parts", "services", "warranties", "sales",
+    "tasks", "accounts", "defectiveStock", "userAuditLog", "bgAuditLog", "userRoles", "loginPw",
+    "printSettings", "company", "serviceCenter", "starredAlarms", "senderInfo", "logoSrc", "acH",
+    "appearance", "sms", "tz", "networkSettings", "aiKeys", "warehouses", "daqi", "daqiWarehouse",
+    "daqiVouchers", "postalHistory"
+  ],
+  "itemCountKeys": [
+    "invoices", "products", "phonebook", "parts", "services", "warranties", "sales", "tasks",
+    "accounts", "defectiveStock", "warehouses", "daqi", "daqiWarehouse", "daqiVouchers", "postalHistory"
+  ],
+  "optionalAssemblyKeys": ["printCenter", "attachmentsIndex"],
+  "finalizedMetadataKeys": ["checksum", "checksumAlgo", "manifest", "sectionChecksums"],
+  "callerStampKeys": ["origin"],
+  "schema1RequiredCollections": ["warranties", "invoices", "sales", "parts", "accounts"],
+  "phonebookPayloadOnly": true,
+  "fixtures": [
+    { "id": "T1-minimal-full", "expectOk": true },
+    { "id": "T2-empty-required", "expectOk": true },
+    { "id": "T3-populated-required", "expectOk": true },
+    { "id": "T4-missing-warranties", "expectOk": false },
+    { "id": "T5-missing-invoices", "expectOk": false },
+    { "id": "T6-missing-sales-schema1", "expectOk": false },
+    { "id": "T7-missing-parts-schema1", "expectOk": false },
+    { "id": "T8-missing-accounts-schema1", "expectOk": false },
+    { "id": "T9-schema0", "expectOk": true },
+    { "id": "T10-valid-itemCounts", "expectOk": true },
+    { "id": "T11-itemCounts-mismatch", "expectOk": false },
+    { "id": "T12-valid-sections", "expectOk": true },
+    { "id": "T13-printCenter-absent", "expectOk": true },
+    { "id": "T14-attachmentsIndex-absent", "expectOk": true },
+    { "id": "T15-all-49-base-keys", "expectOk": true },
+    { "id": "T16-typical-51", "expectOk": true },
+    { "id": "T17-persian-unicode", "expectOk": true },
+    { "id": "T18-phonebook-payload-only", "expectOk": true }
+  ]
+}
