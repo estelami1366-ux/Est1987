@@ -8566,6 +8566,111 @@ test('ARCH-4 G3: Phonebook و resetAll و merge در این بسته دست نخ
 
 
 console.log('');
+console.log('📋 گروه: ARCH-5 نهایی‌سازی/سریالایز پشتیبان Core (بدون cutover)');
+
+function loadArch5BackupFinalizeGolden() {
+  const name = 'BackupFinalizeGolden.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول طلایی ARCH-5 پیدا نشد: ' + name);
+}
+
+function loadArch5FinalizeOracle(srcHtml) {
+  const fnSrc = [
+    'var SIRMAN_SCHEMA_VERSION = 1;',
+    'var SIRMAN_BACKUP_MAGIC = "SIRMAN_BACKUP";',
+    'var window = { DISK_REF_PREFIX: "disk://" };',
+    'function isDiskRef(s){ return typeof s === "string" && s.indexOf("disk://") === 0; }',
+    extractFunctionSource(srcHtml, 'buildBackupManifest'),
+    extractFunctionSource(srcHtml, 'backupSectionHash'),
+    extractFunctionSource(srcHtml, 'attachSectionChecksums'),
+    extractFunctionSource(srcHtml, 'collectAttachmentIndex'),
+    extractFunctionSource(srcHtml, 'finalizeBackupPackage'),
+    extractFunctionSource(srcHtml, 'backupChecksumExcludedKey'),
+    extractFunctionSource(srcHtml, 'backupChecksumPayload'),
+    extractFunctionSource(srcHtml, 'backupChecksumCanonicalString')
+  ].join('\n');
+  return new Function(fnSrc + '\nreturn {finalizeBackupPackage:finalizeBackupPackage,backupChecksumCanonicalString:backupChecksumCanonicalString};')();
+}
+
+function arch5AttachChecksum(api, data, mode) {
+  if (!data || typeof data !== 'object') return data;
+  if (mode === 'leave') return data;
+  if (mode === 'none') {
+    data.checksum = '';
+    data.checksumAlgo = 'none';
+    return data;
+  }
+  const jsonStr = api.backupChecksumCanonicalString(data);
+  data.checksum = require('crypto').createHash('sha256').update(jsonStr, 'utf8').digest('hex');
+  data.checksumAlgo = 'SHA-256';
+  return data;
+}
+
+test('ARCH-5 G1: جدول طلایی باید هنوز با finalize فعلی HTML یکی باشد', () => {
+  const pack = loadArch5BackupFinalizeGolden();
+  assertTrue(Array.isArray(pack.fixtures) && pack.fixtures.length >= 19, 'باید فیکسچرهای ARCH-5 موجود باشند');
+  const api = loadArch5FinalizeOracle(html);
+  pack.fixtures.forEach(function (row) {
+    let data = row.input === null || row.input === undefined ? row.input : JSON.parse(JSON.stringify(row.input));
+    if (row.stampExportedAt && row.nowMs != null) {
+      if (data == null || typeof data !== 'object' || Array.isArray(data)) data = {};
+      data.exportedAt = new Date(row.nowMs).toISOString();
+    }
+    const origin = row.origin == null ? undefined : row.origin;
+    const kind = row.kind == null ? undefined : row.kind;
+    let threw = false;
+    let got = null;
+    try { got = api.finalizeBackupPackage(data, origin, kind); }
+    catch (_e) { threw = true; }
+    assertEqual(threw, !!row.html.threw, row.id + ' threw');
+    if (threw) return;
+    got = arch5AttachChecksum(api, got, row.checksumMode || 'leave');
+    assertEqual(JSON.stringify(got), row.html.compactJson, row.id + ' compactJson');
+    assertEqual(api.backupChecksumCanonicalString(got), row.html.canonicalString, row.id + ' canonical');
+    const sha = require('crypto').createHash('sha256').update(row.html.canonicalString, 'utf8').digest('hex');
+    assertEqual(sha, row.html.sha256Hex, row.id + ' sha256 of canonical');
+    assertEqual(got.checksumAlgo || '', row.html.checksumAlgo, row.id + ' checksumAlgo');
+  });
+  const t6 = pack.fixtures.filter(function (f) { return f.id === 'T6-exportedAt-variation'; })[0];
+  assertEqual(t6.html.sha256Hex, t6.html.sha256AfterMutateExportedAt, 'T6 جهش exportedAt نباید SHA-256 را عوض کند');
+  assertTrue(pack.spec.notDiskByteHash === true, 'هش روی بایت دیسک نیست');
+  assertTrue(pack.spec.prettyPrintIsNotHashed === true, 'pretty-print هش نمی‌شود');
+  assertTrue(pack.spec.notExtracted.indexOf('_buildFullBackupData') >= 0, '_buildFullBackupData نباید در ARCH-5 استخراج شده باشد');
+});
+
+test('ARCH-5 G2: exportData هنوز finalize HTML است نه Core', () => {
+  const exportSrc = extractFunctionSource(html, 'exportData');
+  const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
+  const autoSrc = extractFunctionSource(html, 'buildBackupObject');
+  assertTrue(buildSrc !== null, '_buildFullBackupData باید باقی بماند');
+  assertTrue(exportSrc.indexOf('_buildFullBackupData') >= 0, 'exportData باید از _buildFullBackupData اسمبل کند');
+  assertTrue(exportSrc.indexOf('finalizeBackupPackage') >= 0, 'exportData باید finalizeBackupPackage HTML را صدا بزند');
+  assertTrue(exportSrc.indexOf('attachChecksum') >= 0, 'exportData باید attachChecksum HTML را صدا بزند');
+  assertTrue(exportSrc.indexOf('BackupFinalizer') < 0, 'exportData نباید BackupFinalizer را صدا بزند');
+  assertTrue(autoSrc.indexOf('finalizeBackupPackage') >= 0, 'autosave باید finalize HTML را صدا بزند');
+  assertTrue(html.indexOf('BackupFinalizer') < 0, 'HTML نباید به BackupFinalizer ارجاع دهد');
+  assertTrue(html.indexOf('function finalizeBackupPackage') >= 0, 'تابع HTML finalizeBackupPackage باید باقی بماند');
+  assertTrue(html.indexOf('function attachChecksum') >= 0, 'تابع HTML attachChecksum باید باقی بماند');
+});
+
+test('ARCH-5 G3: Phonebook و restore زنده و SQLite در این استخراج دست نخورده‌اند', () => {
+  assertTrue(extractFunctionSource(html, 'savePBContact') !== null, 'savePBContact باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'importData') !== null, 'importData باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'applyBackupMergeSections') !== null, 'merge باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'applyBackupReplaceSections') !== null, 'replace باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'resetAll') !== null, 'resetAll باید باقی بماند');
+  const importSrc = extractFunctionSource(html, 'importData');
+  assertTrue(importSrc.indexOf('BackupFinalizer') < 0, 'importData نباید BackupFinalizer را صدا بزند');
+});
+
+
+console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
 
 function loadErrorEngine(srcHtml){

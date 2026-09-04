@@ -1,0 +1,3459 @@
+{
+  "id": "SIRMAN_ARCH5_BACKUP_FINALIZE_GOLDEN",
+  "packet": "ARCH-5",
+  "capturedFrom": "Sirman_Final.html finalizeBackupPackage + attachChecksum + backupChecksumCanonicalString",
+  "frozenNowMs": 1700000000000,
+  "frozenNowIso": "2023-11-14T22:13:20.000Z",
+  "note": "HTML is the production baseline. Core must match these results. Do not change HTML to make Core pass. SHA-256 input is UTF-8 bytes of compact JSON.stringify(payload) excluding top-level exportedAt/checksum/checksumAlgo. Pretty-printed disk JSON is NOT hashed. _buildFullBackupData is NOT extracted. backupId is not invented.",
+  "spec": {
+    "extractedHtmlFunctions": [
+      "finalizeBackupPackage",
+      "attachSectionChecksums",
+      "backupSectionHash",
+      "collectAttachmentIndex",
+      "buildBackupManifest",
+      "backupChecksumPayload",
+      "backupChecksumCanonicalString",
+      "attachChecksum"
+    ],
+    "notExtracted": [
+      "_buildFullBackupData",
+      "exportData",
+      "importData",
+      "migrateBackup"
+    ],
+    "canonicalExclusions": [
+      "exportedAt",
+      "checksum",
+      "checksumAlgo"
+    ],
+    "canonicalSerialization": "JSON.stringify compact, key insertion order, UTF-8 then SHA-256",
+    "notDiskByteHash": true,
+    "prettyPrintIsNotHashed": true,
+    "checksumAlgo": {
+      "leave": "preserve existing fields",
+      "none": "checksum='', checksumAlgo='none' (file://)",
+      "sha256": "always overwrite with SHA-256 of canonical payload"
+    },
+    "sectionChecksums": "always rebuilt; skip metadata keys; djb2 of JSON.stringify over UTF-16 code units",
+    "attachmentsIndex": "always rebuilt by finalize (unlike schema 0→1 which fills only if falsy)",
+    "exportedAt": "not set by finalize; optional Core stamp via injected nowMs only",
+    "inputImmutability": "HTML mutates; Core clones",
+    "backupId": "not-in-format"
+  },
+  "fixtures": [
+    {
+      "id": "T1-valid-ordinary",
+      "notes": "ordinary schema-1 backup; finalize + SHA-256 attach (exe/subtle path)",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [
+          {
+            "id": "w1",
+            "customer": "Ali"
+          }
+        ],
+        "invoices": [
+          {
+            "id": "i1",
+            "total": 1000
+          }
+        ],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 1,
+          "invoices": 1,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ]
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[{\"id\":\"w1\",\"customer\":\"Ali\"}],\"invoices\":[{\"id\":\"i1\",\"total\":1000}],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":1,\"invoices\":1,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"b8434d82\",\"invoices\":\"8a2ebdad\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":1,\"invoices\":1,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"58be7be32705c952147d1322d67578bd4a0ae84e95787e44bb5e9f0e455f3889\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[{\"id\":\"w1\",\"customer\":\"Ali\"}],\"invoices\":[{\"id\":\"i1\",\"total\":1000}],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":1,\"invoices\":1,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"b8434d82\",\"invoices\":\"8a2ebdad\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":1,\"invoices\":1,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "58be7be32705c952147d1322d67578bd4a0ae84e95787e44bb5e9f0e455f3889",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "58be7be32705c952147d1322d67578bd4a0ae84e95787e44bb5e9f0e455f3889",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "b8434d82",
+          "invoices": "8a2ebdad",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 1,
+            "invoices": 1,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 1,
+          "invoices": 1,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [
+            {
+              "id": "w1",
+              "customer": "Ali"
+            }
+          ],
+          "invoices": [
+            {
+              "id": "i1",
+              "total": 1000
+            }
+          ],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 1,
+            "invoices": 1,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "b8434d82",
+            "invoices": "8a2ebdad",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 1,
+              "invoices": 1,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "58be7be32705c952147d1322d67578bd4a0ae84e95787e44bb5e9f0e455f3889",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T2-empty-collections",
+      "notes": "empty arrays still get package metadata and section hashes of []",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ]
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "59765d",
+          "invoices": "59765d",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [],
+          "invoices": [],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "59765d",
+            "invoices": "59765d",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 0,
+              "invoices": 0,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T3-persian-text",
+      "notes": "Persian customer/product text must keep Unicode in compact JSON and SHA-256",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [
+          {
+            "id": "w-fa",
+            "customer": "علی رضایی",
+            "note": "گارانتی ۱۲ ماه"
+          }
+        ],
+        "invoices": [
+          {
+            "id": "i-fa",
+            "desc": "فاکتور تعمیر"
+          }
+        ],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 1,
+          "invoices": 1,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ],
+        "company": {
+          "name": "لایق الکترونیک پارسیان",
+          "city": "تهران"
+        }
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[{\"id\":\"w-fa\",\"customer\":\"علی رضایی\",\"note\":\"گارانتی ۱۲ ماه\"}],\"invoices\":[{\"id\":\"i-fa\",\"desc\":\"فاکتور تعمیر\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":1,\"invoices\":1,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"company\":{\"name\":\"لایق الکترونیک پارسیان\",\"city\":\"تهران\"},\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"2843c942\",\"invoices\":\"81ca5207\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":1,\"invoices\":1,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"6fdbaf30e3d765e2d2e9b71bf77d36ebe66a047d3aee25f95a66eb45bac5848e\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[{\"id\":\"w-fa\",\"customer\":\"علی رضایی\",\"note\":\"گارانتی ۱۲ ماه\"}],\"invoices\":[{\"id\":\"i-fa\",\"desc\":\"فاکتور تعمیر\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":1,\"invoices\":1,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"company\":{\"name\":\"لایق الکترونیک پارسیان\",\"city\":\"تهران\"},\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"2843c942\",\"invoices\":\"81ca5207\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":1,\"invoices\":1,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "6fdbaf30e3d765e2d2e9b71bf77d36ebe66a047d3aee25f95a66eb45bac5848e",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "6fdbaf30e3d765e2d2e9b71bf77d36ebe66a047d3aee25f95a66eb45bac5848e",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "2843c942",
+          "invoices": "81ca5207",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 1,
+            "invoices": 1,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 1,
+          "invoices": 1,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [
+            {
+              "id": "w-fa",
+              "customer": "علی رضایی",
+              "note": "گارانتی ۱۲ ماه"
+            }
+          ],
+          "invoices": [
+            {
+              "id": "i-fa",
+              "desc": "فاکتور تعمیر"
+            }
+          ],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 1,
+            "invoices": 1,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "company": {
+            "name": "لایق الکترونیک پارسیان",
+            "city": "تهران"
+          },
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "2843c942",
+            "invoices": "81ca5207",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 1,
+              "invoices": 1,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "6fdbaf30e3d765e2d2e9b71bf77d36ebe66a047d3aee25f95a66eb45bac5848e",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T4-nested-object",
+      "notes": "nested appearance/company objects hashed via JSON.stringify insertion order",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ],
+        "company": {
+          "name": "Sirman",
+          "address": {
+            "city": "Tehran",
+            "line": "Enghelab"
+          }
+        },
+        "appearance": {
+          "theme": "dark",
+          "sizes": {
+            "ui": 14,
+            "print": 12
+          }
+        }
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"company\":{\"name\":\"Sirman\",\"address\":{\"city\":\"Tehran\",\"line\":\"Enghelab\"}},\"appearance\":{\"theme\":\"dark\",\"sizes\":{\"ui\":14,\"print\":12}},\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"b1f43ba063329eab90003bd0c1dcbe446ce940bc8a23966c818a2932857e2b0e\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"company\":{\"name\":\"Sirman\",\"address\":{\"city\":\"Tehran\",\"line\":\"Enghelab\"}},\"appearance\":{\"theme\":\"dark\",\"sizes\":{\"ui\":14,\"print\":12}},\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "b1f43ba063329eab90003bd0c1dcbe446ce940bc8a23966c818a2932857e2b0e",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "b1f43ba063329eab90003bd0c1dcbe446ce940bc8a23966c818a2932857e2b0e",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "59765d",
+          "invoices": "59765d",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [],
+          "invoices": [],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "company": {
+            "name": "Sirman",
+            "address": {
+              "city": "Tehran",
+              "line": "Enghelab"
+            }
+          },
+          "appearance": {
+            "theme": "dark",
+            "sizes": {
+              "ui": 14,
+              "print": 12
+            }
+          },
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "59765d",
+            "invoices": "59765d",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 0,
+              "invoices": 0,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "b1f43ba063329eab90003bd0c1dcbe446ce940bc8a23966c818a2932857e2b0e",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T5-null-field",
+      "notes": "JSON null is hashed (not skipped); undefined cannot appear in JSON fixtures",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ],
+        "company": {
+          "name": null,
+          "city": "تهران"
+        },
+        "notes": null
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"company\":{\"name\":null,\"city\":\"تهران\"},\"notes\":null,\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"c5cb28b9e3e47b1b9250156f89ba3b9247f38acaed57abbc1c0691b745013d4b\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"company\":{\"name\":null,\"city\":\"تهران\"},\"notes\":null,\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "c5cb28b9e3e47b1b9250156f89ba3b9247f38acaed57abbc1c0691b745013d4b",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "c5cb28b9e3e47b1b9250156f89ba3b9247f38acaed57abbc1c0691b745013d4b",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "59765d",
+          "invoices": "59765d",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [],
+          "invoices": [],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "company": {
+            "name": null,
+            "city": "تهران"
+          },
+          "notes": null,
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "59765d",
+            "invoices": "59765d",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 0,
+              "invoices": 0,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "c5cb28b9e3e47b1b9250156f89ba3b9247f38acaed57abbc1c0691b745013d4b",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T6-exportedAt-variation",
+      "notes": "P1C-7: mutating top-level exportedAt after finalize must not change SHA-256. manifest.exportedAt stays in hash domain.",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ]
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+        "sha256AfterMutateExportedAt": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+        "checksum": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "59765d",
+          "invoices": "59765d",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [],
+          "invoices": [],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "59765d",
+            "invoices": "59765d",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 0,
+              "invoices": 0,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T7-existing-checksum",
+      "notes": "finalize leaves existing checksum; sha256 attach always overwrites (HTML attachChecksum)",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ],
+        "checksum": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "checksumAlgo": "SHA-256"
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"checksum\":\"0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062\",\"checksumAlgo\":\"SHA-256\",\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "59765d",
+          "invoices": "59765d",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [],
+          "invoices": [],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "checksum": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+          "checksumAlgo": "SHA-256",
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "59765d",
+            "invoices": "59765d",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 0,
+              "invoices": 0,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          }
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T8-checksumAlgo-none",
+      "notes": "file:// / no-subtle path: stored checksum empty, algo none; computed SHA-256 still recorded",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "none",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ]
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"\",\"checksumAlgo\":\"none\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "",
+        "checksumAlgo": "none",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "59765d",
+          "invoices": "59765d",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [],
+          "invoices": [],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "59765d",
+            "invoices": "59765d",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 0,
+              "invoices": 0,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "",
+          "checksumAlgo": "none"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T9-sha256",
+      "notes": "explicit SHA-256 attach; stored checksum equals computed hex of canonical compact JSON",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [],
+        "invoices": [
+          {
+            "id": "I1",
+            "num": "1"
+          }
+        ],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 1,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ]
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[{\"id\":\"I1\",\"num\":\"1\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":1,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"738774cd\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":1,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"7e771d37f479663838667e9e40e9183452f517d2ff5cda20663b0b289386f3de\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[{\"id\":\"I1\",\"num\":\"1\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":1,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"738774cd\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":1,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "7e771d37f479663838667e9e40e9183452f517d2ff5cda20663b0b289386f3de",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "7e771d37f479663838667e9e40e9183452f517d2ff5cda20663b0b289386f3de",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "59765d",
+          "invoices": "738774cd",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 1,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 1,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [],
+          "invoices": [
+            {
+              "id": "I1",
+              "num": "1"
+            }
+          ],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 1,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "59765d",
+            "invoices": "738774cd",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 0,
+              "invoices": 1,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "7e771d37f479663838667e9e40e9183452f517d2ff5cda20663b0b289386f3de",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T10-unknown-algorithm",
+      "notes": "unknown algo is a verify concern; finalize-only (leave) preserves MD5 fields. ARCH-5 does not strengthen.",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "leave",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ],
+        "checksum": "deadbeef",
+        "checksumAlgo": "MD5"
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"checksum\":\"deadbeef\",\"checksumAlgo\":\"MD5\",\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "deadbeef",
+        "checksumAlgo": "MD5",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "59765d",
+          "invoices": "59765d",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [],
+          "invoices": [],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "checksum": "deadbeef",
+          "checksumAlgo": "MD5",
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "59765d",
+            "invoices": "59765d",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 0,
+              "invoices": 0,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          }
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T11-sectionChecksums",
+      "notes": "pre-existing wrong sectionChecksums are always rebuilt by finalize (unlike 0→1 which only fills if falsy)",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ],
+        "sectionChecksums": {
+          "warranties": "dead",
+          "invoices": "beef"
+        }
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"19c2fe4fac37c821fadb85a38ff243fb8f5a477de2d4555a74aa599a1d32d2c7\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "19c2fe4fac37c821fadb85a38ff243fb8f5a477de2d4555a74aa599a1d32d2c7",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "19c2fe4fac37c821fadb85a38ff243fb8f5a477de2d4555a74aa599a1d32d2c7",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "59765d",
+          "invoices": "59765d",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [],
+          "invoices": [],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "sectionChecksums": {
+            "warranties": "59765d",
+            "invoices": "59765d",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 0,
+              "invoices": 0,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "19c2fe4fac37c821fadb85a38ff243fb8f5a477de2d4555a74aa599a1d32d2c7",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T12-attachmentsIndex",
+      "notes": "finalize always rebuilds attachmentsIndex from warranties/sales/invoices docs",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [
+          {
+            "id": "w1",
+            "docs": [
+              {
+                "id": "d1",
+                "name": "a.pdf",
+                "data": "data:hello"
+              },
+              {
+                "name": "disk-file",
+                "data": "disk://path/x"
+              }
+            ]
+          }
+        ],
+        "invoices": [
+          {
+            "id": "i1",
+            "docs": {
+              "extra": [
+                {
+                  "name": "n",
+                  "ref": "inline-ref"
+                }
+              ]
+            }
+          }
+        ],
+        "sales": [
+          {
+            "id": "s1",
+            "attachments": [
+              {
+                "name": "s.doc",
+                "src": "idb:abc"
+              }
+            ]
+          }
+        ],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 1,
+          "invoices": 1,
+          "sales": 1,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ],
+        "attachmentsIndex": [
+          {
+            "id": "stale",
+            "name": "should-be-rebuilt"
+          }
+        ]
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[{\"id\":\"w1\",\"docs\":[{\"id\":\"d1\",\"name\":\"a.pdf\",\"data\":\"data:hello\"},{\"name\":\"disk-file\",\"data\":\"disk://path/x\"}]}],\"invoices\":[{\"id\":\"i1\",\"docs\":{\"extra\":[{\"name\":\"n\",\"ref\":\"inline-ref\"}]}}],\"sales\":[{\"id\":\"s1\",\"attachments\":[{\"name\":\"s.doc\",\"src\":\"idb:abc\"}]}],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":1,\"invoices\":1,\"sales\":1,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"attachmentsIndex\":[{\"id\":\"d1\",\"name\":\"a.pdf\",\"ref\":\"\",\"inline\":true,\"kind\":\"warranty\",\"parentId\":\"w1\"},{\"id\":\"warranty-w1-1\",\"name\":\"disk-file\",\"ref\":\"disk://path/x\",\"inline\":false,\"kind\":\"warranty\",\"parentId\":\"w1\"},{\"id\":\"sale-s1-0\",\"name\":\"s.doc\",\"ref\":\"idb:abc\",\"inline\":false,\"kind\":\"sale\",\"parentId\":\"s1\"},{\"id\":\"invoice-i1-0\",\"name\":\"n\",\"ref\":\"\",\"inline\":true,\"kind\":\"invoice\",\"parentId\":\"i1\"}],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"sectionChecksums\":{\"warranties\":\"607b13b9\",\"invoices\":\"af46ece0\",\"sales\":\"7fbb151d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":1,\"invoices\":1,\"sales\":1,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"d4b5851b32d8385b8b07318aaad1975e9e833f33d3f2ac8718c9245fead95e7c\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[{\"id\":\"w1\",\"docs\":[{\"id\":\"d1\",\"name\":\"a.pdf\",\"data\":\"data:hello\"},{\"name\":\"disk-file\",\"data\":\"disk://path/x\"}]}],\"invoices\":[{\"id\":\"i1\",\"docs\":{\"extra\":[{\"name\":\"n\",\"ref\":\"inline-ref\"}]}}],\"sales\":[{\"id\":\"s1\",\"attachments\":[{\"name\":\"s.doc\",\"src\":\"idb:abc\"}]}],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":1,\"invoices\":1,\"sales\":1,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"attachmentsIndex\":[{\"id\":\"d1\",\"name\":\"a.pdf\",\"ref\":\"\",\"inline\":true,\"kind\":\"warranty\",\"parentId\":\"w1\"},{\"id\":\"warranty-w1-1\",\"name\":\"disk-file\",\"ref\":\"disk://path/x\",\"inline\":false,\"kind\":\"warranty\",\"parentId\":\"w1\"},{\"id\":\"sale-s1-0\",\"name\":\"s.doc\",\"ref\":\"idb:abc\",\"inline\":false,\"kind\":\"sale\",\"parentId\":\"s1\"},{\"id\":\"invoice-i1-0\",\"name\":\"n\",\"ref\":\"\",\"inline\":true,\"kind\":\"invoice\",\"parentId\":\"i1\"}],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"sectionChecksums\":{\"warranties\":\"607b13b9\",\"invoices\":\"af46ece0\",\"sales\":\"7fbb151d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":1,\"invoices\":1,\"sales\":1,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "d4b5851b32d8385b8b07318aaad1975e9e833f33d3f2ac8718c9245fead95e7c",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "d4b5851b32d8385b8b07318aaad1975e9e833f33d3f2ac8718c9245fead95e7c",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "607b13b9",
+          "invoices": "af46ece0",
+          "sales": "7fbb151d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [
+          {
+            "id": "d1",
+            "name": "a.pdf",
+            "ref": "",
+            "inline": true,
+            "kind": "warranty",
+            "parentId": "w1"
+          },
+          {
+            "id": "warranty-w1-1",
+            "name": "disk-file",
+            "ref": "disk://path/x",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "w1"
+          },
+          {
+            "id": "sale-s1-0",
+            "name": "s.doc",
+            "ref": "idb:abc",
+            "inline": false,
+            "kind": "sale",
+            "parentId": "s1"
+          },
+          {
+            "id": "invoice-i1-0",
+            "name": "n",
+            "ref": "",
+            "inline": true,
+            "kind": "invoice",
+            "parentId": "i1"
+          }
+        ],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 1,
+            "invoices": 1,
+            "sales": 1,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 1,
+          "invoices": 1,
+          "sales": 1,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [
+            {
+              "id": "w1",
+              "docs": [
+                {
+                  "id": "d1",
+                  "name": "a.pdf",
+                  "data": "data:hello"
+                },
+                {
+                  "name": "disk-file",
+                  "data": "disk://path/x"
+                }
+              ]
+            }
+          ],
+          "invoices": [
+            {
+              "id": "i1",
+              "docs": {
+                "extra": [
+                  {
+                    "name": "n",
+                    "ref": "inline-ref"
+                  }
+                ]
+              }
+            }
+          ],
+          "sales": [
+            {
+              "id": "s1",
+              "attachments": [
+                {
+                  "name": "s.doc",
+                  "src": "idb:abc"
+                }
+              ]
+            }
+          ],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 1,
+            "invoices": 1,
+            "sales": 1,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "attachmentsIndex": [
+            {
+              "id": "d1",
+              "name": "a.pdf",
+              "ref": "",
+              "inline": true,
+              "kind": "warranty",
+              "parentId": "w1"
+            },
+            {
+              "id": "warranty-w1-1",
+              "name": "disk-file",
+              "ref": "disk://path/x",
+              "inline": false,
+              "kind": "warranty",
+              "parentId": "w1"
+            },
+            {
+              "id": "sale-s1-0",
+              "name": "s.doc",
+              "ref": "idb:abc",
+              "inline": false,
+              "kind": "sale",
+              "parentId": "s1"
+            },
+            {
+              "id": "invoice-i1-0",
+              "name": "n",
+              "ref": "",
+              "inline": true,
+              "kind": "invoice",
+              "parentId": "i1"
+            }
+          ],
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "sectionChecksums": {
+            "warranties": "607b13b9",
+            "invoices": "af46ece0",
+            "sales": "7fbb151d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 1,
+              "invoices": 1,
+              "sales": 1,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "d4b5851b32d8385b8b07318aaad1975e9e833f33d3f2ac8718c9245fead95e7c",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T13-itemCounts",
+      "notes": "itemCounts copied into manifest as-is; not recomputed by finalize",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [
+          {
+            "id": "w1"
+          },
+          {
+            "id": "w2"
+          }
+        ],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 2,
+          "invoices": 0,
+          "extraDeclared": 9
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ]
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[{\"id\":\"w1\"},{\"id\":\"w2\"}],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":2,\"invoices\":0,\"extraDeclared\":9},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"dac35e48\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":2,\"invoices\":0,\"extraDeclared\":9},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"85096c921dcb61c3bf7fa9bbbfbf098cc2d8f17ef0abb6e1f3efceffd16edbc5\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[{\"id\":\"w1\"},{\"id\":\"w2\"}],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":2,\"invoices\":0,\"extraDeclared\":9},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"dac35e48\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":2,\"invoices\":0,\"extraDeclared\":9},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "85096c921dcb61c3bf7fa9bbbfbf098cc2d8f17ef0abb6e1f3efceffd16edbc5",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "85096c921dcb61c3bf7fa9bbbfbf098cc2d8f17ef0abb6e1f3efceffd16edbc5",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "dac35e48",
+          "invoices": "59765d",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 2,
+            "invoices": 0,
+            "extraDeclared": 9
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 2,
+          "invoices": 0,
+          "extraDeclared": 9
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [
+            {
+              "id": "w1"
+            },
+            {
+              "id": "w2"
+            }
+          ],
+          "invoices": [],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 2,
+            "invoices": 0,
+            "extraDeclared": 9
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "dac35e48",
+            "invoices": "59765d",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 2,
+              "invoices": 0,
+              "extraDeclared": 9
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "85096c921dcb61c3bf7fa9bbbfbf098cc2d8f17ef0abb6e1f3efceffd16edbc5",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T14-property-ordering",
+      "notes": "key insertion order is preserved; new finalize keys append only if absent",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "zebra": 1,
+        "accounts": [],
+        "parts": [],
+        "sales": [],
+        "invoices": [],
+        "warranties": [],
+        "alpha": true,
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z"
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"zebra\":1,\"accounts\":[],\"parts\":[],\"sales\":[],\"invoices\":[],\"warranties\":[],\"alpha\":true,\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"zebra\":\"2b5d6\",\"accounts\":\"59765d\",\"parts\":\"59765d\",\"sales\":\"59765d\",\"invoices\":\"59765d\",\"warranties\":\"59765d\",\"alpha\":\"7c9e9fe5\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"a5194bf864afbd1f86858ea2678be7a6883f4cbf1c6abecffec86acf1e098c7d\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"zebra\":1,\"accounts\":[],\"parts\":[],\"sales\":[],\"invoices\":[],\"warranties\":[],\"alpha\":true,\"version\":\"1405.6.3α\",\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"zebra\":\"2b5d6\",\"accounts\":\"59765d\",\"parts\":\"59765d\",\"sales\":\"59765d\",\"invoices\":\"59765d\",\"warranties\":\"59765d\",\"alpha\":\"7c9e9fe5\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "a5194bf864afbd1f86858ea2678be7a6883f4cbf1c6abecffec86acf1e098c7d",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "a5194bf864afbd1f86858ea2678be7a6883f4cbf1c6abecffec86acf1e098c7d",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "zebra": "2b5d6",
+          "accounts": "59765d",
+          "parts": "59765d",
+          "sales": "59765d",
+          "invoices": "59765d",
+          "warranties": "59765d",
+          "alpha": "7c9e9fe5"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {},
+          "sections": [],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": null,
+        "finalized": {
+          "zebra": 1,
+          "accounts": [],
+          "parts": [],
+          "sales": [],
+          "invoices": [],
+          "warranties": [],
+          "alpha": true,
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "zebra": "2b5d6",
+            "accounts": "59765d",
+            "parts": "59765d",
+            "sales": "59765d",
+            "invoices": "59765d",
+            "warranties": "59765d",
+            "alpha": "7c9e9fe5"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {},
+            "sections": [],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "a5194bf864afbd1f86858ea2678be7a6883f4cbf1c6abecffec86acf1e098c7d",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T15-input-immutability",
+      "notes": "golden stores original input; Core must leave caller identical (HTML mutates — Core clones)",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ],
+        "probe": "do-not-mutate-caller"
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"probe\":\"do-not-mutate-caller\",\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"353fceccf47bc9e39d680ceabfa597afe8d7f8b2840505b385d399f87b1a0fbb\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"probe\":\"do-not-mutate-caller\",\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "353fceccf47bc9e39d680ceabfa597afe8d7f8b2840505b385d399f87b1a0fbb",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "353fceccf47bc9e39d680ceabfa597afe8d7f8b2840505b385d399f87b1a0fbb",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "59765d",
+          "invoices": "59765d",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [],
+          "invoices": [],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "probe": "do-not-mutate-caller",
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "59765d",
+            "invoices": "59765d",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 0,
+              "invoices": 0,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "353fceccf47bc9e39d680ceabfa597afe8d7f8b2840505b385d399f87b1a0fbb",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T16-injected-nowMs",
+      "notes": "StampExportedAt + injected nowMs; Core must not call Date.now. ISO matches JS toISOString.",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": 1700000000000,
+      "stampExportedAt": true,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "1999-01-01T00:00:00.000Z",
+        "origin": "manual",
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ]
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "59765d",
+          "invoices": "59765d",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [],
+          "invoices": [],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "59765d",
+            "invoices": "59765d",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 0,
+              "invoices": 0,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T17-repeated-identical",
+      "notes": "same as T2; Core runs finalize twice and requires identical compact JSON",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ]
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"59765d\",\"invoices\":\"59765d\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "59765d",
+          "invoices": "59765d",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [],
+          "invoices": [],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "59765d",
+            "invoices": "59765d",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 0,
+              "invoices": 0,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "0cade03890879f3f7c9c3768451b7704e33656b2b45937c52b77c90823aa7062",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T18-unicode-utf8",
+      "notes": "Persian + emoji + U+2028 line separator (JSON.stringify escapes U+2028/U+2029)",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": {
+        "version": "1405.6.3α",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "origin": "manual",
+        "warranties": [
+          {
+            "id": "u1",
+            "note": "سلام 😀 خط بعد"
+          }
+        ],
+        "invoices": [
+          {
+            "id": "u2",
+            "note": " paragraph"
+          }
+        ],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [],
+        "products": [],
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "sections": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts",
+          "phonebook",
+          "products"
+        ]
+      },
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"version\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"warranties\":[{\"id\":\"u1\",\"note\":\"سلام 😀 خط بعد\"}],\"invoices\":[{\"id\":\"u2\",\"note\":\" paragraph\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"972825eb\",\"invoices\":\"4c43c66e\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"d0fcd267fda00573c0f21b9bd1421ae67b52b00c349c245fd633b37cb662ef90\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"version\":\"1405.6.3α\",\"origin\":\"manual\",\"warranties\":[{\"id\":\"u1\",\"note\":\"سلام 😀 خط بعد\"}],\"invoices\":[{\"id\":\"u2\",\"note\":\" paragraph\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"products\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"attachmentsIndex\":[],\"sectionChecksums\":{\"warranties\":\"972825eb\",\"invoices\":\"4c43c66e\",\"sales\":\"59765d\",\"parts\":\"59765d\",\"accounts\":\"59765d\",\"phonebook\":\"59765d\",\"products\":\"59765d\"},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"1405.6.3α\",\"exportedAt\":\"2023-11-14T22:13:20.000Z\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0},\"sections\":[\"warranties\",\"invoices\",\"sales\",\"parts\",\"accounts\",\"phonebook\",\"products\"],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "d0fcd267fda00573c0f21b9bd1421ae67b52b00c349c245fd633b37cb662ef90",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "d0fcd267fda00573c0f21b9bd1421ae67b52b00c349c245fd633b37cb662ef90",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "2023-11-14T22:13:20.000Z",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "1405.6.3α",
+        "sectionChecksums": {
+          "warranties": "972825eb",
+          "invoices": "4c43c66e",
+          "sales": "59765d",
+          "parts": "59765d",
+          "accounts": "59765d",
+          "phonebook": "59765d",
+          "products": "59765d"
+        },
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        },
+        "finalized": {
+          "version": "1405.6.3α",
+          "exportedAt": "2023-11-14T22:13:20.000Z",
+          "origin": "manual",
+          "warranties": [
+            {
+              "id": "u1",
+              "note": "سلام 😀 خط بعد"
+            }
+          ],
+          "invoices": [
+            {
+              "id": "u2",
+              "note": " paragraph"
+            }
+          ],
+          "sales": [],
+          "parts": [],
+          "accounts": [],
+          "phonebook": [],
+          "products": [],
+          "itemCounts": {
+            "warranties": 0,
+            "invoices": 0,
+            "sales": 0,
+            "parts": 0,
+            "accounts": 0
+          },
+          "sections": [
+            "warranties",
+            "invoices",
+            "sales",
+            "parts",
+            "accounts",
+            "phonebook",
+            "products"
+          ],
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "1405.6.3α",
+          "attachmentsIndex": [],
+          "sectionChecksums": {
+            "warranties": "972825eb",
+            "invoices": "4c43c66e",
+            "sales": "59765d",
+            "parts": "59765d",
+            "accounts": "59765d",
+            "phonebook": "59765d",
+            "products": "59765d"
+          },
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "1405.6.3α",
+            "exportedAt": "2023-11-14T22:13:20.000Z",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {
+              "warranties": 0,
+              "invoices": 0,
+              "sales": 0,
+              "parts": 0,
+              "accounts": 0
+            },
+            "sections": [
+              "warranties",
+              "invoices",
+              "sales",
+              "parts",
+              "accounts",
+              "phonebook",
+              "products"
+            ],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "d0fcd267fda00573c0f21b9bd1421ae67b52b00c349c245fd633b37cb662ef90",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    },
+    {
+      "id": "T19-malformed-null",
+      "notes": "HTML data||{} : null becomes empty package then finalized",
+      "origin": "manual",
+      "kind": "full",
+      "nowMs": null,
+      "stampExportedAt": false,
+      "checksumMode": "sha256",
+      "input": null,
+      "html": {
+        "threw": false,
+        "errorName": "",
+        "errorMessage": "",
+        "compactJson": "{\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"\",\"attachmentsIndex\":[],\"sectionChecksums\":{},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"\",\"exportedAt\":\"\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"checksum\":\"b53db70a70e757e7ded193f2c90742e3dff7545ec852f9d6fa66ab5d8184c1b5\",\"checksumAlgo\":\"SHA-256\"}",
+        "canonicalString": "{\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"applicationVersion\":\"\",\"attachmentsIndex\":[],\"sectionChecksums\":{},\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"\",\"exportedAt\":\"\",\"origin\":\"manual\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"}}",
+        "sha256Hex": "b53db70a70e757e7ded193f2c90742e3dff7545ec852f9d6fa66ab5d8184c1b5",
+        "sha256AfterMutateExportedAt": null,
+        "checksum": "b53db70a70e757e7ded193f2c90742e3dff7545ec852f9d6fa66ab5d8184c1b5",
+        "checksumAlgo": "SHA-256",
+        "exportedAt": "",
+        "magic": "SIRMAN_BACKUP",
+        "schemaVersion": 1,
+        "applicationVersion": "",
+        "sectionChecksums": {},
+        "attachmentsIndex": [],
+        "manifest": {
+          "magic": "SIRMAN_BACKUP",
+          "format": 1,
+          "schemaVersion": 1,
+          "applicationVersion": "",
+          "exportedAt": "",
+          "origin": "manual",
+          "kind": "full",
+          "itemCounts": {},
+          "sections": [],
+          "encrypted": false,
+          "immutable": false,
+          "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+        },
+        "itemCounts": null,
+        "finalized": {
+          "magic": "SIRMAN_BACKUP",
+          "schemaVersion": 1,
+          "applicationVersion": "",
+          "attachmentsIndex": [],
+          "sectionChecksums": {},
+          "manifest": {
+            "magic": "SIRMAN_BACKUP",
+            "format": 1,
+            "schemaVersion": 1,
+            "applicationVersion": "",
+            "exportedAt": "",
+            "origin": "manual",
+            "kind": "full",
+            "itemCounts": {},
+            "sections": [],
+            "encrypted": false,
+            "immutable": false,
+            "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
+          },
+          "checksum": "b53db70a70e757e7ded193f2c90742e3dff7545ec852f9d6fa66ab5d8184c1b5",
+          "checksumAlgo": "SHA-256"
+        },
+        "prettyPrintIsNotHashed": true,
+        "canonicalExclusions": [
+          "exportedAt",
+          "checksum",
+          "checksumAlgo"
+        ]
+      }
+    }
+  ]
+}
