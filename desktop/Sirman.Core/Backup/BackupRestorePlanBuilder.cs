@@ -17,7 +17,12 @@ public static class BackupRestorePlanBuilder
     };
 
     public static RestorePlan Build(RestorePlanRequest? request) =>
-        Build(request?.Data, request?.Current, request?.Mode ?? RestorePlanMode.Merge, request?.SelectedSections, request?.NowMs);
+        Build(
+            request?.Data,
+            request?.CurrentSnapshot?.Data ?? request?.Current,
+            request?.Mode ?? RestorePlanMode.Merge,
+            request?.SelectedSections,
+            request?.NowMs);
 
     public static RestorePlan Build(
         JsonNode? backup,

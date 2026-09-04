@@ -322,6 +322,27 @@ public class BackupRestorePlanTests
     }
 
     [Fact]
+    public void CurrentStateSnapshot_IsExplicitDto_NotLiveGlobals()
+    {
+        var backup = Schema1(invoices: A(Rec("invoiceId", "I1")));
+        var viaType = BackupRestorePlanBuilder.Build(new RestorePlanRequest
+        {
+            Data = Clone(backup),
+            CurrentSnapshot = CurrentStateSnapshot.From(Schema1()),
+            Mode = RestorePlanMode.Merge,
+            SelectedSections = new[] { "invoices" },
+            NowMs = FrozenNow
+        });
+        var viaNode = BackupRestorePlanBuilder.Build(Clone(backup), Schema1(), RestorePlanMode.Merge, new[] { "invoices" }, FrozenNow);
+        Assert.True(viaType.Ok);
+        Assert.True(viaNode.Ok);
+        Assert.Equal(viaType.Fingerprint, viaNode.Fingerprint);
+        Assert.True(Sec(viaType, "invoices").CurrentStateAvailable);
+        Assert.Equal(0, Sec(viaType, "invoices").CurrentCount);
+        Assert.DoesNotContain("localStorage", File.ReadAllText(BuilderPath()));
+    }
+
+    [Fact]
     public void MergeWithoutCurrentSnapshot_DoesNotTreatMissingAsZero()
     {
         var backup = Schema1(invoices: A(Rec("invoiceId", "I1")));

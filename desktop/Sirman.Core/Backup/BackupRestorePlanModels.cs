@@ -22,10 +22,22 @@ public enum RestorePlanAction
     NoAction
 }
 
+/// <summary>
+/// Immutable current-application snapshot supplied as data.
+/// Missing snapshot is not an empty shop. Core never reads live globals.
+/// </summary>
+public sealed class CurrentStateSnapshot
+{
+    public JsonNode? Data { get; init; }
+
+    public static CurrentStateSnapshot From(JsonNode? data) => new() { Data = data };
+}
+
 public sealed class RestorePlanRequest
 {
     public JsonNode? Data { get; init; }
     public JsonNode? Current { get; init; }
+    public CurrentStateSnapshot? CurrentSnapshot { get; init; }
     public RestorePlanMode Mode { get; init; } = RestorePlanMode.Merge;
     public IReadOnlyList<string>? SelectedSections { get; init; }
     public long? NowMs { get; init; }
