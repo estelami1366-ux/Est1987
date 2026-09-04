@@ -8507,6 +8507,65 @@ test('ARCH-3 G3: Phonebook زنده و SQLite در این استخراج دست 
 
 
 console.log('');
+console.log('📋 گروه: ARCH-4 نمای خشک پشتیبان Core (بدون cutover)');
+
+function loadArch4BackupDryRunGolden() {
+  const name = 'BackupDryRunGolden.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول طلایی ARCH-4 پیدا نشد: ' + name);
+}
+
+test('ARCH-4 G1: جدول طلایی باید قرارداد دروازه را قفل کند', () => {
+  const pack = loadArch4BackupDryRunGolden();
+  assertTrue(Array.isArray(pack.fixtures) && pack.fixtures.length >= 18, 'باید فیکسچرهای ARCH-4 موجود باشند');
+  const byId = {};
+  pack.fixtures.forEach(function (f) { byId[f.id] = f; });
+  const t3 = byId['T3-schema0-missing-sales-parts-accounts'];
+  assertTrue(!!t3, 'T3 لازم است');
+  assertEqual(t3.html.ok, true, 'T3 schema0 باید از دروازه بگذرد');
+  assertEqual(t3.html.migrationPerformed, true, 'T3 باید migrate شود');
+  assertEqual(t3.html.hasSales, true, 'T3 بعد از 0→1 باید sales داشته باشد');
+  assertEqual(Object.prototype.hasOwnProperty.call(t3.input, 'sales'), false, 'ورودی T3 نباید sales داشته باشد');
+  const t4 = byId['T4-schema1-missing-sales'];
+  assertEqual(t4.html.ok, false, 'T4 باید INVALID باشد');
+  assertEqual(t4.html.migrationStatus, 'NotAttempted', 'T4 نباید migrate شود');
+  assertEqual(t4.html.hasSales, false, 'T4 نباید sales=[] بسازد');
+  const t13 = byId['T13-invalid-checksum'];
+  assertEqual(t13.html.integrityStatus, 'INVALID', 'checksum غلط fail-closed');
+  assertEqual(t13.html.migrationStatus, 'NotAttempted', 'checksum غلط نباید migrate شود');
+  const t14 = byId['T14-checksum-absent'];
+  assertEqual(t14.html.integrityStatus, 'NOT_VERIFIABLE', 'checksum غایب سازگار است');
+  assertEqual(t14.html.ok, true, 'checksum غایب overall VALID است');
+  const v = loadP1CValidator();
+  assertEqual(v.validateRequiredBackupCollections(t4.input).ok, false, 'validator HTML هنوز T4 را رد می‌کند');
+  assertEqual(v.validateRequiredBackupCollections(t3.input).ok, true, 'validator HTML هنوز T3 را قبول می‌کند');
+});
+
+test('ARCH-4 G2: HTML restore به DryRun وصل نشده', () => {
+  const importSrc = extractFunctionSource(html, 'importData');
+  const testSrc = extractFunctionSource(html, 'testRestoreBackup');
+  assertTrue(importSrc.indexOf('validateRequiredBackupCollections') >= 0, 'importData باید validator HTML را صدا بزند');
+  assertTrue(importSrc.indexOf('applySchemaMigrations') >= 0, 'importData باید migration HTML را صدا بزند');
+  assertTrue(importSrc.indexOf('BackupDryRun') < 0, 'importData نباید BackupDryRun را صدا بزند');
+  assertTrue(testSrc.indexOf('BackupDryRun') < 0, 'testRestoreBackup نباید BackupDryRun را صدا بزند');
+  assertTrue(html.indexOf('BackupDryRunService') < 0, 'HTML نباید به سرویس Core DryRun ارجاع دهد');
+});
+
+test('ARCH-4 G3: Phonebook و resetAll و merge در این بسته دست نخورده‌اند', () => {
+  assertTrue(extractFunctionSource(html, 'savePBContact') !== null, 'savePBContact باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'resetAll') !== null, 'resetAll باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'applyBackupMergeSections') !== null, 'merge باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'applyBackupReplaceSections') !== null, 'replace باید باقی بماند');
+});
+
+
+console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
 
 function loadErrorEngine(srcHtml){
