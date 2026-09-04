@@ -29,5 +29,6 @@
     <None Include="BackupFinalizeGolden.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="BackupRestorePlanGolden.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="BackupSnapshotGolden.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="BackupSettingsFixtures.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
