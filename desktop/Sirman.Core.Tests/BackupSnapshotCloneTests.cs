@@ -279,15 +279,18 @@ public class BackupSnapshotCloneTests
     }
 
     [Fact]
-    public void CloneIsTestOnly_DoesNotReplaceProductionAssembly()
+    public void ProductionClone_IsAtAssemblyReturnBoundary()
     {
         var src = File.ReadAllText(HtmlPath());
         Assert.Contains("function _buildFullBackupData(){", src);
         Assert.Contains("invoices: _safeArr(invoices)", src);
+        Assert.Contains("return JSON.parse(JSON.stringify(data));", src);
         Assert.DoesNotContain("JSON.parse(JSON.stringify(_safeArr", src);
         Assert.DoesNotContain("BackupJsonUtil.CloneExact", src);
         Assert.Contains("function _safeArr(a){ return Array.isArray(a)?a:[]; }", src);
         Assert.Contains("function _safeObj(o){ return (o && typeof o==='object')?o:{}; }", src);
+        var build = ExtractBetween(src, "function _buildFullBackupData(){", "\nfunction buildBackupObject(){");
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(build, @"return JSON\.parse\(JSON\.stringify\(data\)\);"));
         Assert.Contains("_buildFullBackupData()", ExtractBetween(src, "async function exportData(", "function exportSelected("));
         Assert.Contains("var d = _buildFullBackupData();", ExtractBetween(src, "function buildBackupObject(){", "async function attachChecksum("));
         Assert.Contains("_buildFullBackupData()", ExtractBetween(src, "function applyBackupSelective(", "function applyBackupMergeSections("));
