@@ -8598,6 +8598,66 @@ function buildBackupObject(){
   return d;
 }
 
+// ARCH-14 — LS-only settings snapshot adapter.
+// Reads the same localStorage keys / helpers as the settings slice of _buildFullBackupData.
+// NOT wired into exportData / buildBackupObject / _buildFullBackupData (no live cutover).
+// Must not read invoices/sales/warranties/phonebook/parts/accounts or other business RAM.
+function collectBackupSettingsSnapshot(){
+  var data = {
+    appliedUpdates: (typeof getAppliedUpdatesMeta==='function'?getAppliedUpdatesMeta():[]),
+    updatePackages: (typeof collectUpdatePackagesForBackup==='function'?collectUpdatePackagesForBackup():[]),
+    printSettings: _safeObj(JSON.parse(localStorage.getItem('laegh_printSettings')||'{}')),
+    company: _safeObj(JSON.parse(localStorage.getItem('laegh_company')||'{}')),
+    serviceCenter: _safeObj(JSON.parse(localStorage.getItem('laegh_service_center')||'{}')),
+    starredAlarms: (typeof getStarredAlarms==='function' ? getStarredAlarms() : _safeArr(JSON.parse(localStorage.getItem('laegh_starred_alarms')||'[]'))),
+    appearance: {
+      skin: localStorage.getItem('laegh_skin')||'',
+      depth3d: localStorage.getItem('laegh_depth3d')||'',
+      colorTheme: localStorage.getItem('laegh_color_theme')||'',
+      theme: localStorage.getItem('laegh_theme')||'',
+      appFont: localStorage.getItem('laegh_app_font')||'',
+      textSize: localStorage.getItem('laegh_text_size')||'',
+      textColor: localStorage.getItem('laegh_text_color')||'',
+      headingColor: localStorage.getItem('laegh_heading_color')||'',
+      sbHeadingSize: localStorage.getItem('laegh_sb_heading_size')||'',
+      dashTint: localStorage.getItem('laegh_dash_tint')||'',
+      lastPage: localStorage.getItem('laegh_last_page')||'',
+      density: localStorage.getItem('laegh_density')||'',
+      radius: localStorage.getItem('laegh_radius')||'',
+      appBg: localStorage.getItem('laegh_app_bg')||'',
+      appBgOverlay: localStorage.getItem('laegh_app_bg_overlay')||'',
+      sbMode: localStorage.getItem('laegh_sb_mode')||'',
+      sbCollapsed: localStorage.getItem('laegh_sb_collapsed')||'',
+      navShape: localStorage.getItem('laegh_nav_shape')||'',
+      sbBg: localStorage.getItem('laegh_sb_bg')||'',
+      mainBg: localStorage.getItem('laegh_main_bg')||'',
+      dashBg: localStorage.getItem('laegh_dash_bg')||'',
+      dashBgOverlay: localStorage.getItem('laegh_dash_bg_overlay')||'',
+      dashShortcuts: localStorage.getItem('laegh_dash_shortcuts')||'',
+      dashHideWidgets: localStorage.getItem('laegh_dash_hide_widgets')||''
+    },
+    sms: _safeObj(JSON.parse(localStorage.getItem('laegh_sms')||'{}')),
+    tz: localStorage.getItem('laegh_tz')||'Asia/Tehran',
+    networkSettings: (typeof loadNetworkSettings==='function' ? loadNetworkSettings() : _safeObj(JSON.parse(localStorage.getItem('laegh_network')||'{}'))),
+    prefs: (typeof collectPrefsBundle==='function' ? collectPrefsBundle() : {}),
+    aiKeys: (function(){
+      var keys = {};
+      try {
+        for(var i=0;i<localStorage.length;i++){
+          var k = localStorage.key(i);
+          if(!k) continue;
+          if(k.indexOf('laegh_ai_key_')===0 || k==='laegh_ai_custom_url' || k==='laegh_ai_custom_model' || k==='laegh_ai_model' || k==='laegh_ai_purpose'){
+            keys[k] = localStorage.getItem(k);
+          }
+        }
+      } catch(e){}
+      return keys;
+    })()
+  };
+  try{ if(typeof getPrintCenterState==='function') data.printCenter = getPrintCenterState(); }catch(_pc){}
+  return JSON.parse(JSON.stringify(data));
+}
+
 // ─── Checksum (SHA-256) برای سلامت فایل بک‌آپ ───
 // نکته: crypto.subtle فقط در secure context (localhost HTTPS) موجود است، نه file://.
 // در file://، checksum خالی می‌ماند و checksumAlgo='none' — برنامه همچنان کار می‌کند.

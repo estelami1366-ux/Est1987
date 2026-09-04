@@ -1,0 +1,2818 @@
+{
+  "generatedAt": "ARCH-14",
+  "cases": [
+    {
+      "id": "T1",
+      "note": "all settings populated",
+      "ls": {
+        "laegh_skin": "dark",
+        "laegh_depth3d": "1",
+        "laegh_color_theme": "blue",
+        "laegh_theme": "night",
+        "laegh_app_font": "Tahoma",
+        "laegh_text_size": "14",
+        "laegh_text_color": "#111",
+        "laegh_heading_color": "#222",
+        "laegh_sb_heading_size": "16",
+        "laegh_dash_tint": "warm",
+        "laegh_last_page": "dashboard",
+        "laegh_density": "compact",
+        "laegh_radius": "8",
+        "laegh_app_bg": "#fff",
+        "laegh_app_bg_overlay": "0.2",
+        "laegh_sb_mode": "icons",
+        "laegh_sb_collapsed": "0",
+        "laegh_nav_shape": "round",
+        "laegh_sb_bg": "#111",
+        "laegh_main_bg": "#fafafa",
+        "laegh_dash_bg": "#eee",
+        "laegh_dash_bg_overlay": "0.1",
+        "laegh_dash_shortcuts": "1",
+        "laegh_dash_hide_widgets": "0",
+        "laegh_desktop_notify_on": "1",
+        "laegh_autosave_enabled": "1",
+        "laegh_autosave_mode": "folder",
+        "laegh_autosave_interval": "3",
+        "laegh_autosave_ok_name": "ok.json",
+        "laegh_autosave_file_name": "auto.json",
+        "laegh_autosave_dir_name": "Backup",
+        "laegh_ai_float_x": "10",
+        "laegh_ai_float_y": "20",
+        "laegh_printSettings": "{\"paper\":\"A4\",\"_center\":{\"lastDocId\":\"invoice\"}}",
+        "laegh_company": "{\"name\":\"لایق الکترونیک پارسیان\",\"city\":\"تهران\"}",
+        "laegh_service_center": "{\"title\":\"مرکز خدمات\",\"phone\":\"021-123\"}",
+        "laegh_starred_alarms": "[{\"id\":\"wh_sepidar_phy\",\"on\":false,\"days\":5,\"lastFired\":1}]",
+        "laegh_sms": "{\"provider\":\"kavenegar\",\"sender\":\"1000\"}",
+        "laegh_tz": "Asia/Tehran",
+        "laegh_network": "{\"role\":\"server\",\"lanEnabled\":true,\"port\":9000,\"sharedFolder\":\"C\\\\\\\\Share\",\"stationName\":\"میز1\",\"workstations\":[{\"ip\":\"192.168.1.2\",\"name\":\"A\"}]}",
+        "laegh_printCenter": "{\"lastDocId\":\"postal\",\"lastProfileId\":\"zebra\",\"selectedPrinter\":\"Z1\",\"templates\":{},\"history\":[],\"lastByDoc\":{},\"job\":{\"id\":\"zebra\"}}",
+        "laegh_applied_updates": "[{\"id\":\"upd-1\",\"tag\":\"1405.6.3α\"}]",
+        "laegh_upd_pkg_upd-1": "{\"magic\":\"SIRMAN_UPDATE\",\"id\":\"upd-1\",\"body\":\"پچ\"}",
+        "laegh_ai_key_openai": "sk-test-plain",
+        "laegh_ai_custom_url": "https://example.test/v1",
+        "laegh_ai_custom_model": "gpt-test",
+        "laegh_ai_model": "gpt-4",
+        "laegh_ai_purpose": "support"
+      },
+      "expected": {
+        "appliedUpdates": [
+          {
+            "id": "upd-1",
+            "tag": "1405.6.3α"
+          }
+        ],
+        "updatePackages": [
+          {
+            "magic": "SIRMAN_UPDATE",
+            "id": "upd-1",
+            "body": "پچ"
+          }
+        ],
+        "printSettings": {
+          "paper": "A4",
+          "_center": {
+            "lastDocId": "invoice"
+          }
+        },
+        "company": {
+          "name": "لایق الکترونیک پارسیان",
+          "city": "تهران"
+        },
+        "serviceCenter": {
+          "title": "مرکز خدمات",
+          "phone": "021-123"
+        },
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": false,
+            "priority": "high",
+            "days": 5,
+            "hours": 0,
+            "lastFired": 1
+          }
+        ],
+        "appearance": {
+          "skin": "dark",
+          "depth3d": "1",
+          "colorTheme": "blue",
+          "theme": "night",
+          "appFont": "Tahoma",
+          "textSize": "14",
+          "textColor": "#111",
+          "headingColor": "#222",
+          "sbHeadingSize": "16",
+          "dashTint": "warm",
+          "lastPage": "dashboard",
+          "density": "compact",
+          "radius": "8",
+          "appBg": "#fff",
+          "appBgOverlay": "0.2",
+          "sbMode": "icons",
+          "sbCollapsed": "0",
+          "navShape": "round",
+          "sbBg": "#111",
+          "mainBg": "#fafafa",
+          "dashBg": "#eee",
+          "dashBgOverlay": "0.1",
+          "dashShortcuts": "1",
+          "dashHideWidgets": "0"
+        },
+        "sms": {
+          "provider": "kavenegar",
+          "sender": "1000"
+        },
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "server",
+          "lanEnabled": true,
+          "port": 9000,
+          "sharedFolder": "C\\\\Share",
+          "stationName": "میز1",
+          "workstations": [
+            {
+              "ip": "192.168.1.2",
+              "name": "A"
+            }
+          ]
+        },
+        "prefs": {
+          "laegh_desktop_notify_on": "1",
+          "laegh_autosave_enabled": "1",
+          "laegh_autosave_mode": "folder",
+          "laegh_autosave_interval": "3",
+          "laegh_autosave_ok_name": "ok.json",
+          "laegh_autosave_file_name": "auto.json",
+          "laegh_autosave_dir_name": "Backup",
+          "laegh_theme": "night",
+          "laegh_skin": "dark",
+          "laegh_depth3d": "1",
+          "laegh_color_theme": "blue",
+          "laegh_sb_mode": "icons",
+          "laegh_sb_collapsed": "0",
+          "laegh_nav_shape": "round",
+          "laegh_text_color": "#111",
+          "laegh_heading_color": "#222",
+          "laegh_sb_heading_size": "16",
+          "laegh_app_font": "Tahoma",
+          "laegh_text_size": "14",
+          "laegh_tz": "Asia/Tehran",
+          "laegh_last_page": "dashboard",
+          "laegh_ai_float_x": "10",
+          "laegh_ai_float_y": "20"
+        },
+        "aiKeys": {
+          "laegh_ai_key_openai": "sk-test-plain",
+          "laegh_ai_custom_url": "https://example.test/v1",
+          "laegh_ai_custom_model": "gpt-test",
+          "laegh_ai_model": "gpt-4",
+          "laegh_ai_purpose": "support"
+        },
+        "printCenter": {
+          "lastDocId": "postal",
+          "lastProfileId": "zebra",
+          "selectedPrinter": "Z1",
+          "templates": {},
+          "history": [],
+          "lastByDoc": {},
+          "job": {
+            "id": "zebra"
+          },
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "T2",
+      "note": "missing tz",
+      "ls": {
+        "laegh_skin": "dark",
+        "laegh_depth3d": "1",
+        "laegh_color_theme": "blue",
+        "laegh_theme": "night",
+        "laegh_app_font": "Tahoma",
+        "laegh_text_size": "14",
+        "laegh_text_color": "#111",
+        "laegh_heading_color": "#222",
+        "laegh_sb_heading_size": "16",
+        "laegh_dash_tint": "warm",
+        "laegh_last_page": "dashboard",
+        "laegh_density": "compact",
+        "laegh_radius": "8",
+        "laegh_app_bg": "#fff",
+        "laegh_app_bg_overlay": "0.2",
+        "laegh_sb_mode": "icons",
+        "laegh_sb_collapsed": "0",
+        "laegh_nav_shape": "round",
+        "laegh_sb_bg": "#111",
+        "laegh_main_bg": "#fafafa",
+        "laegh_dash_bg": "#eee",
+        "laegh_dash_bg_overlay": "0.1",
+        "laegh_dash_shortcuts": "1",
+        "laegh_dash_hide_widgets": "0",
+        "laegh_desktop_notify_on": "1",
+        "laegh_autosave_enabled": "1",
+        "laegh_autosave_mode": "folder",
+        "laegh_autosave_interval": "3",
+        "laegh_autosave_ok_name": "ok.json",
+        "laegh_autosave_file_name": "auto.json",
+        "laegh_autosave_dir_name": "Backup",
+        "laegh_ai_float_x": "10",
+        "laegh_ai_float_y": "20",
+        "laegh_printSettings": "{\"paper\":\"A4\",\"_center\":{\"lastDocId\":\"invoice\"}}",
+        "laegh_company": "{\"name\":\"لایق الکترونیک پارسیان\",\"city\":\"تهران\"}",
+        "laegh_service_center": "{\"title\":\"مرکز خدمات\",\"phone\":\"021-123\"}",
+        "laegh_starred_alarms": "[{\"id\":\"wh_sepidar_phy\",\"on\":false,\"days\":5,\"lastFired\":1}]",
+        "laegh_sms": "{\"provider\":\"kavenegar\",\"sender\":\"1000\"}",
+        "laegh_network": "{\"role\":\"server\",\"lanEnabled\":true,\"port\":9000,\"sharedFolder\":\"C\\\\\\\\Share\",\"stationName\":\"میز1\",\"workstations\":[{\"ip\":\"192.168.1.2\",\"name\":\"A\"}]}",
+        "laegh_printCenter": "{\"lastDocId\":\"postal\",\"lastProfileId\":\"zebra\",\"selectedPrinter\":\"Z1\",\"templates\":{},\"history\":[],\"lastByDoc\":{},\"job\":{\"id\":\"zebra\"}}",
+        "laegh_applied_updates": "[{\"id\":\"upd-1\",\"tag\":\"1405.6.3α\"}]",
+        "laegh_upd_pkg_upd-1": "{\"magic\":\"SIRMAN_UPDATE\",\"id\":\"upd-1\",\"body\":\"پچ\"}",
+        "laegh_ai_key_openai": "sk-test-plain",
+        "laegh_ai_custom_url": "https://example.test/v1",
+        "laegh_ai_custom_model": "gpt-test",
+        "laegh_ai_model": "gpt-4",
+        "laegh_ai_purpose": "support"
+      },
+      "expected": {
+        "appliedUpdates": [
+          {
+            "id": "upd-1",
+            "tag": "1405.6.3α"
+          }
+        ],
+        "updatePackages": [
+          {
+            "magic": "SIRMAN_UPDATE",
+            "id": "upd-1",
+            "body": "پچ"
+          }
+        ],
+        "printSettings": {
+          "paper": "A4",
+          "_center": {
+            "lastDocId": "invoice"
+          }
+        },
+        "company": {
+          "name": "لایق الکترونیک پارسیان",
+          "city": "تهران"
+        },
+        "serviceCenter": {
+          "title": "مرکز خدمات",
+          "phone": "021-123"
+        },
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": false,
+            "priority": "high",
+            "days": 5,
+            "hours": 0,
+            "lastFired": 1
+          }
+        ],
+        "appearance": {
+          "skin": "dark",
+          "depth3d": "1",
+          "colorTheme": "blue",
+          "theme": "night",
+          "appFont": "Tahoma",
+          "textSize": "14",
+          "textColor": "#111",
+          "headingColor": "#222",
+          "sbHeadingSize": "16",
+          "dashTint": "warm",
+          "lastPage": "dashboard",
+          "density": "compact",
+          "radius": "8",
+          "appBg": "#fff",
+          "appBgOverlay": "0.2",
+          "sbMode": "icons",
+          "sbCollapsed": "0",
+          "navShape": "round",
+          "sbBg": "#111",
+          "mainBg": "#fafafa",
+          "dashBg": "#eee",
+          "dashBgOverlay": "0.1",
+          "dashShortcuts": "1",
+          "dashHideWidgets": "0"
+        },
+        "sms": {
+          "provider": "kavenegar",
+          "sender": "1000"
+        },
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "server",
+          "lanEnabled": true,
+          "port": 9000,
+          "sharedFolder": "C\\\\Share",
+          "stationName": "میز1",
+          "workstations": [
+            {
+              "ip": "192.168.1.2",
+              "name": "A"
+            }
+          ]
+        },
+        "prefs": {
+          "laegh_desktop_notify_on": "1",
+          "laegh_autosave_enabled": "1",
+          "laegh_autosave_mode": "folder",
+          "laegh_autosave_interval": "3",
+          "laegh_autosave_ok_name": "ok.json",
+          "laegh_autosave_file_name": "auto.json",
+          "laegh_autosave_dir_name": "Backup",
+          "laegh_theme": "night",
+          "laegh_skin": "dark",
+          "laegh_depth3d": "1",
+          "laegh_color_theme": "blue",
+          "laegh_sb_mode": "icons",
+          "laegh_sb_collapsed": "0",
+          "laegh_nav_shape": "round",
+          "laegh_text_color": "#111",
+          "laegh_heading_color": "#222",
+          "laegh_sb_heading_size": "16",
+          "laegh_app_font": "Tahoma",
+          "laegh_text_size": "14",
+          "laegh_last_page": "dashboard",
+          "laegh_ai_float_x": "10",
+          "laegh_ai_float_y": "20"
+        },
+        "aiKeys": {
+          "laegh_ai_key_openai": "sk-test-plain",
+          "laegh_ai_custom_url": "https://example.test/v1",
+          "laegh_ai_custom_model": "gpt-test",
+          "laegh_ai_model": "gpt-4",
+          "laegh_ai_purpose": "support"
+        },
+        "printCenter": {
+          "lastDocId": "postal",
+          "lastProfileId": "zebra",
+          "selectedPrinter": "Z1",
+          "templates": {},
+          "history": [],
+          "lastByDoc": {},
+          "job": {
+            "id": "zebra"
+          },
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "T3",
+      "note": "missing appearance keys",
+      "ls": {
+        "laegh_desktop_notify_on": "1",
+        "laegh_autosave_enabled": "1",
+        "laegh_autosave_mode": "folder",
+        "laegh_autosave_interval": "3",
+        "laegh_autosave_ok_name": "ok.json",
+        "laegh_autosave_file_name": "auto.json",
+        "laegh_autosave_dir_name": "Backup",
+        "laegh_ai_float_x": "10",
+        "laegh_ai_float_y": "20",
+        "laegh_printSettings": "{\"paper\":\"A4\",\"_center\":{\"lastDocId\":\"invoice\"}}",
+        "laegh_company": "{\"name\":\"لایق الکترونیک پارسیان\",\"city\":\"تهران\"}",
+        "laegh_service_center": "{\"title\":\"مرکز خدمات\",\"phone\":\"021-123\"}",
+        "laegh_starred_alarms": "[{\"id\":\"wh_sepidar_phy\",\"on\":false,\"days\":5,\"lastFired\":1}]",
+        "laegh_sms": "{\"provider\":\"kavenegar\",\"sender\":\"1000\"}",
+        "laegh_tz": "Asia/Tehran",
+        "laegh_network": "{\"role\":\"server\",\"lanEnabled\":true,\"port\":9000,\"sharedFolder\":\"C\\\\\\\\Share\",\"stationName\":\"میز1\",\"workstations\":[{\"ip\":\"192.168.1.2\",\"name\":\"A\"}]}",
+        "laegh_printCenter": "{\"lastDocId\":\"postal\",\"lastProfileId\":\"zebra\",\"selectedPrinter\":\"Z1\",\"templates\":{},\"history\":[],\"lastByDoc\":{},\"job\":{\"id\":\"zebra\"}}",
+        "laegh_applied_updates": "[{\"id\":\"upd-1\",\"tag\":\"1405.6.3α\"}]",
+        "laegh_upd_pkg_upd-1": "{\"magic\":\"SIRMAN_UPDATE\",\"id\":\"upd-1\",\"body\":\"پچ\"}",
+        "laegh_ai_key_openai": "sk-test-plain",
+        "laegh_ai_custom_url": "https://example.test/v1",
+        "laegh_ai_custom_model": "gpt-test",
+        "laegh_ai_model": "gpt-4",
+        "laegh_ai_purpose": "support"
+      },
+      "expected": {
+        "appliedUpdates": [
+          {
+            "id": "upd-1",
+            "tag": "1405.6.3α"
+          }
+        ],
+        "updatePackages": [
+          {
+            "magic": "SIRMAN_UPDATE",
+            "id": "upd-1",
+            "body": "پچ"
+          }
+        ],
+        "printSettings": {
+          "paper": "A4",
+          "_center": {
+            "lastDocId": "invoice"
+          }
+        },
+        "company": {
+          "name": "لایق الکترونیک پارسیان",
+          "city": "تهران"
+        },
+        "serviceCenter": {
+          "title": "مرکز خدمات",
+          "phone": "021-123"
+        },
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": false,
+            "priority": "high",
+            "days": 5,
+            "hours": 0,
+            "lastFired": 1
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {
+          "provider": "kavenegar",
+          "sender": "1000"
+        },
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "server",
+          "lanEnabled": true,
+          "port": 9000,
+          "sharedFolder": "C\\\\Share",
+          "stationName": "میز1",
+          "workstations": [
+            {
+              "ip": "192.168.1.2",
+              "name": "A"
+            }
+          ]
+        },
+        "prefs": {
+          "laegh_desktop_notify_on": "1",
+          "laegh_autosave_enabled": "1",
+          "laegh_autosave_mode": "folder",
+          "laegh_autosave_interval": "3",
+          "laegh_autosave_ok_name": "ok.json",
+          "laegh_autosave_file_name": "auto.json",
+          "laegh_autosave_dir_name": "Backup",
+          "laegh_tz": "Asia/Tehran",
+          "laegh_ai_float_x": "10",
+          "laegh_ai_float_y": "20"
+        },
+        "aiKeys": {
+          "laegh_ai_key_openai": "sk-test-plain",
+          "laegh_ai_custom_url": "https://example.test/v1",
+          "laegh_ai_custom_model": "gpt-test",
+          "laegh_ai_model": "gpt-4",
+          "laegh_ai_purpose": "support"
+        },
+        "printCenter": {
+          "lastDocId": "postal",
+          "lastProfileId": "zebra",
+          "selectedPrinter": "Z1",
+          "templates": {},
+          "history": [],
+          "lastByDoc": {},
+          "job": {
+            "id": "zebra"
+          },
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "T4",
+      "note": "empty settings objects",
+      "ls": {
+        "laegh_printSettings": "{}",
+        "laegh_company": "{}",
+        "laegh_service_center": "{}",
+        "laegh_sms": "{}",
+        "laegh_network": "{}",
+        "laegh_starred_alarms": "[]"
+      },
+      "expected": {
+        "appliedUpdates": [],
+        "updatePackages": [],
+        "printSettings": {},
+        "company": {},
+        "serviceCenter": {},
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "high",
+            "days": 3,
+            "hours": 0,
+            "lastFired": 0
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {},
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "standalone",
+          "lanEnabled": false,
+          "port": 8765,
+          "sharedFolder": "",
+          "stationName": "",
+          "workstations": []
+        },
+        "prefs": {},
+        "aiKeys": {},
+        "printCenter": {
+          "lastDocId": "invoice",
+          "lastProfileId": "a4-office",
+          "selectedPrinter": "",
+          "job": {
+            "id": "a4-office",
+            "title": "A4 Office",
+            "printer": "",
+            "paper": "A4",
+            "orientation": "portrait",
+            "margin": "8mm",
+            "copies": 1,
+            "pageRange": "all",
+            "color": true,
+            "scale": 100,
+            "duplex": false
+          },
+          "templates": {},
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          },
+          "history": [],
+          "lastByDoc": {}
+        }
+      }
+    },
+    {
+      "id": "T5",
+      "note": "company",
+      "ls": {
+        "laegh_company": "{\"name\":\"شرکت نمونه\",\"note\":\"یونیکد\"}"
+      },
+      "expected": {
+        "appliedUpdates": [],
+        "updatePackages": [],
+        "printSettings": {},
+        "company": {
+          "name": "شرکت نمونه",
+          "note": "یونیکد"
+        },
+        "serviceCenter": {},
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "high",
+            "days": 3,
+            "hours": 0,
+            "lastFired": 0
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {},
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "standalone",
+          "lanEnabled": false,
+          "port": 8765,
+          "sharedFolder": "",
+          "stationName": "",
+          "workstations": []
+        },
+        "prefs": {},
+        "aiKeys": {},
+        "printCenter": {
+          "lastDocId": "invoice",
+          "lastProfileId": "a4-office",
+          "selectedPrinter": "",
+          "job": {
+            "id": "a4-office",
+            "title": "A4 Office",
+            "printer": "",
+            "paper": "A4",
+            "orientation": "portrait",
+            "margin": "8mm",
+            "copies": 1,
+            "pageRange": "all",
+            "color": true,
+            "scale": 100,
+            "duplex": false
+          },
+          "templates": {},
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          },
+          "history": [],
+          "lastByDoc": {}
+        }
+      }
+    },
+    {
+      "id": "T6",
+      "note": "serviceCenter",
+      "ls": {
+        "laegh_service_center": "{\"title\":\"خدمات\",\"addr\":\"تهران\"}"
+      },
+      "expected": {
+        "appliedUpdates": [],
+        "updatePackages": [],
+        "printSettings": {},
+        "company": {},
+        "serviceCenter": {
+          "title": "خدمات",
+          "addr": "تهران"
+        },
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "high",
+            "days": 3,
+            "hours": 0,
+            "lastFired": 0
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {},
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "standalone",
+          "lanEnabled": false,
+          "port": 8765,
+          "sharedFolder": "",
+          "stationName": "",
+          "workstations": []
+        },
+        "prefs": {},
+        "aiKeys": {},
+        "printCenter": {
+          "lastDocId": "invoice",
+          "lastProfileId": "a4-office",
+          "selectedPrinter": "",
+          "job": {
+            "id": "a4-office",
+            "title": "A4 Office",
+            "printer": "",
+            "paper": "A4",
+            "orientation": "portrait",
+            "margin": "8mm",
+            "copies": 1,
+            "pageRange": "all",
+            "color": true,
+            "scale": 100,
+            "duplex": false
+          },
+          "templates": {},
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          },
+          "history": [],
+          "lastByDoc": {}
+        }
+      }
+    },
+    {
+      "id": "T7",
+      "note": "printSettings",
+      "ls": {
+        "laegh_printSettings": "{\"invoice\":{\"paper\":\"A5\"},\"list\":{\"zebra\":true}}"
+      },
+      "expected": {
+        "appliedUpdates": [],
+        "updatePackages": [],
+        "printSettings": {
+          "invoice": {
+            "paper": "A5"
+          },
+          "list": {
+            "zebra": true
+          }
+        },
+        "company": {},
+        "serviceCenter": {},
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "high",
+            "days": 3,
+            "hours": 0,
+            "lastFired": 0
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {},
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "standalone",
+          "lanEnabled": false,
+          "port": 8765,
+          "sharedFolder": "",
+          "stationName": "",
+          "workstations": []
+        },
+        "prefs": {},
+        "aiKeys": {},
+        "printCenter": {
+          "lastDocId": "invoice",
+          "lastProfileId": "a4-office",
+          "selectedPrinter": "",
+          "job": {
+            "id": "a4-office",
+            "title": "A4 Office",
+            "printer": "",
+            "paper": "A4",
+            "orientation": "portrait",
+            "margin": "8mm",
+            "copies": 1,
+            "pageRange": "all",
+            "color": true,
+            "scale": 100,
+            "duplex": false
+          },
+          "templates": {},
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          },
+          "history": [],
+          "lastByDoc": {}
+        }
+      }
+    },
+    {
+      "id": "T8",
+      "note": "printCenter",
+      "ls": {
+        "laegh_printCenter": "{\"lastDocId\":\"warranty\",\"lastProfileId\":\"thermal\",\"selectedPrinter\":\"T\",\"templates\":{},\"history\":[],\"lastByDoc\":{\"warranty\":\"thermal\"},\"job\":{\"id\":\"thermal\",\"paper\":\"80mm\"}}"
+      },
+      "expected": {
+        "appliedUpdates": [],
+        "updatePackages": [],
+        "printSettings": {},
+        "company": {},
+        "serviceCenter": {},
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "high",
+            "days": 3,
+            "hours": 0,
+            "lastFired": 0
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {},
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "standalone",
+          "lanEnabled": false,
+          "port": 8765,
+          "sharedFolder": "",
+          "stationName": "",
+          "workstations": []
+        },
+        "prefs": {},
+        "aiKeys": {},
+        "printCenter": {
+          "lastDocId": "warranty",
+          "lastProfileId": "thermal",
+          "selectedPrinter": "T",
+          "templates": {},
+          "history": [],
+          "lastByDoc": {
+            "warranty": "thermal"
+          },
+          "job": {
+            "id": "thermal",
+            "paper": "80mm"
+          },
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "T9",
+      "note": "starred alarms",
+      "ls": {
+        "laegh_starred_alarms": "[{\"id\":\"wh_sepidar_phy\",\"on\":true,\"priority\":\"medium\",\"days\":9,\"hours\":2,\"lastFired\":42}]"
+      },
+      "expected": {
+        "appliedUpdates": [],
+        "updatePackages": [],
+        "printSettings": {},
+        "company": {},
+        "serviceCenter": {},
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "medium",
+            "days": 9,
+            "hours": 2,
+            "lastFired": 42
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {},
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "standalone",
+          "lanEnabled": false,
+          "port": 8765,
+          "sharedFolder": "",
+          "stationName": "",
+          "workstations": []
+        },
+        "prefs": {},
+        "aiKeys": {},
+        "printCenter": {
+          "lastDocId": "invoice",
+          "lastProfileId": "a4-office",
+          "selectedPrinter": "",
+          "job": {
+            "id": "a4-office",
+            "title": "A4 Office",
+            "printer": "",
+            "paper": "A4",
+            "orientation": "portrait",
+            "margin": "8mm",
+            "copies": 1,
+            "pageRange": "all",
+            "color": true,
+            "scale": 100,
+            "duplex": false
+          },
+          "templates": {},
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          },
+          "history": [],
+          "lastByDoc": {}
+        }
+      }
+    },
+    {
+      "id": "T10",
+      "note": "networkSettings coerce",
+      "ls": {
+        "laegh_network": "{\"role\":\"ایستگاه\",\"lanEnabled\":\"1\",\"port\":0,\"sharedFolder\":\"  \\\\\\\\srv\\\\d  \",\"stationName\":\" B \"}"
+      },
+      "expected": {
+        "appliedUpdates": [],
+        "updatePackages": [],
+        "printSettings": {},
+        "company": {},
+        "serviceCenter": {},
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "high",
+            "days": 3,
+            "hours": 0,
+            "lastFired": 0
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {},
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "station",
+          "lanEnabled": true,
+          "port": 8765,
+          "sharedFolder": "\\\\srv\\d",
+          "stationName": "B",
+          "workstations": []
+        },
+        "prefs": {},
+        "aiKeys": {},
+        "printCenter": {
+          "lastDocId": "invoice",
+          "lastProfileId": "a4-office",
+          "selectedPrinter": "",
+          "job": {
+            "id": "a4-office",
+            "title": "A4 Office",
+            "printer": "",
+            "paper": "A4",
+            "orientation": "portrait",
+            "margin": "8mm",
+            "copies": 1,
+            "pageRange": "all",
+            "color": true,
+            "scale": 100,
+            "duplex": false
+          },
+          "templates": {},
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          },
+          "history": [],
+          "lastByDoc": {}
+        }
+      }
+    },
+    {
+      "id": "T11",
+      "note": "prefs subset",
+      "ls": {
+        "laegh_autosave_enabled": "1",
+        "laegh_tz": "Asia/Tehran",
+        "laegh_skin": "light"
+      },
+      "expected": {
+        "appliedUpdates": [],
+        "updatePackages": [],
+        "printSettings": {},
+        "company": {},
+        "serviceCenter": {},
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "high",
+            "days": 3,
+            "hours": 0,
+            "lastFired": 0
+          }
+        ],
+        "appearance": {
+          "skin": "light",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {},
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "standalone",
+          "lanEnabled": false,
+          "port": 8765,
+          "sharedFolder": "",
+          "stationName": "",
+          "workstations": []
+        },
+        "prefs": {
+          "laegh_autosave_enabled": "1",
+          "laegh_skin": "light",
+          "laegh_tz": "Asia/Tehran"
+        },
+        "aiKeys": {},
+        "printCenter": {
+          "lastDocId": "invoice",
+          "lastProfileId": "a4-office",
+          "selectedPrinter": "",
+          "job": {
+            "id": "a4-office",
+            "title": "A4 Office",
+            "printer": "",
+            "paper": "A4",
+            "orientation": "portrait",
+            "margin": "8mm",
+            "copies": 1,
+            "pageRange": "all",
+            "color": true,
+            "scale": 100,
+            "duplex": false
+          },
+          "templates": {},
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          },
+          "history": [],
+          "lastByDoc": {}
+        }
+      }
+    },
+    {
+      "id": "T12",
+      "note": "aiKeys",
+      "ls": {
+        "laegh_ai_key_openai": "sk-abc",
+        "laegh_ai_purpose": "chat",
+        "laegh_ai_model": "gpt-4o"
+      },
+      "expected": {
+        "appliedUpdates": [],
+        "updatePackages": [],
+        "printSettings": {},
+        "company": {},
+        "serviceCenter": {},
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "high",
+            "days": 3,
+            "hours": 0,
+            "lastFired": 0
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {},
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "standalone",
+          "lanEnabled": false,
+          "port": 8765,
+          "sharedFolder": "",
+          "stationName": "",
+          "workstations": []
+        },
+        "prefs": {},
+        "aiKeys": {
+          "laegh_ai_key_openai": "sk-abc",
+          "laegh_ai_purpose": "chat",
+          "laegh_ai_model": "gpt-4o"
+        },
+        "printCenter": {
+          "lastDocId": "invoice",
+          "lastProfileId": "a4-office",
+          "selectedPrinter": "",
+          "job": {
+            "id": "a4-office",
+            "title": "A4 Office",
+            "printer": "",
+            "paper": "A4",
+            "orientation": "portrait",
+            "margin": "8mm",
+            "copies": 1,
+            "pageRange": "all",
+            "color": true,
+            "scale": 100,
+            "duplex": false
+          },
+          "templates": {},
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          },
+          "history": [],
+          "lastByDoc": {}
+        }
+      }
+    },
+    {
+      "id": "T13",
+      "note": "appliedUpdates",
+      "ls": {
+        "laegh_applied_updates": "[{\"id\":\"a\",\"tag\":\"x\"},{\"id\":\"b\",\"tag\":\"y\"}]"
+      },
+      "expected": {
+        "appliedUpdates": [
+          {
+            "id": "a",
+            "tag": "x"
+          },
+          {
+            "id": "b",
+            "tag": "y"
+          }
+        ],
+        "updatePackages": [],
+        "printSettings": {},
+        "company": {},
+        "serviceCenter": {},
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "high",
+            "days": 3,
+            "hours": 0,
+            "lastFired": 0
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {},
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "standalone",
+          "lanEnabled": false,
+          "port": 8765,
+          "sharedFolder": "",
+          "stationName": "",
+          "workstations": []
+        },
+        "prefs": {},
+        "aiKeys": {},
+        "printCenter": {
+          "lastDocId": "invoice",
+          "lastProfileId": "a4-office",
+          "selectedPrinter": "",
+          "job": {
+            "id": "a4-office",
+            "title": "A4 Office",
+            "printer": "",
+            "paper": "A4",
+            "orientation": "portrait",
+            "margin": "8mm",
+            "copies": 1,
+            "pageRange": "all",
+            "color": true,
+            "scale": 100,
+            "duplex": false
+          },
+          "templates": {},
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          },
+          "history": [],
+          "lastByDoc": {}
+        }
+      }
+    },
+    {
+      "id": "T14",
+      "note": "updatePackages",
+      "ls": {
+        "laegh_applied_updates": "[{\"id\":\"pkg-9\"}]",
+        "laegh_upd_pkg_pkg-9": "{\"magic\":\"SIRMAN_UPDATE\",\"id\":\"pkg-9\",\"files\":[\"a.js\"]}"
+      },
+      "expected": {
+        "appliedUpdates": [
+          {
+            "id": "pkg-9"
+          }
+        ],
+        "updatePackages": [
+          {
+            "magic": "SIRMAN_UPDATE",
+            "id": "pkg-9",
+            "files": [
+              "a.js"
+            ]
+          }
+        ],
+        "printSettings": {},
+        "company": {},
+        "serviceCenter": {},
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "high",
+            "days": 3,
+            "hours": 0,
+            "lastFired": 0
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {},
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "standalone",
+          "lanEnabled": false,
+          "port": 8765,
+          "sharedFolder": "",
+          "stationName": "",
+          "workstations": []
+        },
+        "prefs": {},
+        "aiKeys": {},
+        "printCenter": {
+          "lastDocId": "invoice",
+          "lastProfileId": "a4-office",
+          "selectedPrinter": "",
+          "job": {
+            "id": "a4-office",
+            "title": "A4 Office",
+            "printer": "",
+            "paper": "A4",
+            "orientation": "portrait",
+            "margin": "8mm",
+            "copies": 1,
+            "pageRange": "all",
+            "color": true,
+            "scale": 100,
+            "duplex": false
+          },
+          "templates": {},
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          },
+          "history": [],
+          "lastByDoc": {}
+        }
+      }
+    },
+    {
+      "id": "T15",
+      "note": "SMS",
+      "ls": {
+        "laegh_sms": "{\"provider\":\"melipayamak\",\"unicode\":true}"
+      },
+      "expected": {
+        "appliedUpdates": [],
+        "updatePackages": [],
+        "printSettings": {},
+        "company": {},
+        "serviceCenter": {},
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "high",
+            "days": 3,
+            "hours": 0,
+            "lastFired": 0
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {
+          "provider": "melipayamak",
+          "unicode": true
+        },
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "standalone",
+          "lanEnabled": false,
+          "port": 8765,
+          "sharedFolder": "",
+          "stationName": "",
+          "workstations": []
+        },
+        "prefs": {},
+        "aiKeys": {},
+        "printCenter": {
+          "lastDocId": "invoice",
+          "lastProfileId": "a4-office",
+          "selectedPrinter": "",
+          "job": {
+            "id": "a4-office",
+            "title": "A4 Office",
+            "printer": "",
+            "paper": "A4",
+            "orientation": "portrait",
+            "margin": "8mm",
+            "copies": 1,
+            "pageRange": "all",
+            "color": true,
+            "scale": 100,
+            "duplex": false
+          },
+          "templates": {},
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          },
+          "history": [],
+          "lastByDoc": {}
+        }
+      }
+    },
+    {
+      "id": "T16",
+      "note": "Persian Unicode",
+      "ls": {
+        "laegh_company": "{\"name\":\"لایق\",\"city\":\"تهران\",\"slogan\":\"خدمات پس از فروش\"}",
+        "laegh_sms": "{\"text\":\"سلام علی\"}"
+      },
+      "expected": {
+        "appliedUpdates": [],
+        "updatePackages": [],
+        "printSettings": {},
+        "company": {
+          "name": "لایق",
+          "city": "تهران",
+          "slogan": "خدمات پس از فروش"
+        },
+        "serviceCenter": {},
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "high",
+            "days": 3,
+            "hours": 0,
+            "lastFired": 0
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {
+          "text": "سلام علی"
+        },
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "standalone",
+          "lanEnabled": false,
+          "port": 8765,
+          "sharedFolder": "",
+          "stationName": "",
+          "workstations": []
+        },
+        "prefs": {},
+        "aiKeys": {},
+        "printCenter": {
+          "lastDocId": "invoice",
+          "lastProfileId": "a4-office",
+          "selectedPrinter": "",
+          "job": {
+            "id": "a4-office",
+            "title": "A4 Office",
+            "printer": "",
+            "paper": "A4",
+            "orientation": "portrait",
+            "margin": "8mm",
+            "copies": 1,
+            "pageRange": "all",
+            "color": true,
+            "scale": 100,
+            "duplex": false
+          },
+          "templates": {},
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          },
+          "history": [],
+          "lastByDoc": {}
+        }
+      }
+    },
+    {
+      "id": "T17",
+      "note": "malformed stored JSON on catch-path keys",
+      "ls": {
+        "laegh_starred_alarms": "{not-json",
+        "laegh_network": "not-json",
+        "laegh_applied_updates": "{oops",
+        "laegh_printSettings": "{}",
+        "laegh_company": "{}",
+        "laegh_service_center": "{}",
+        "laegh_sms": "{}"
+      },
+      "expected": {
+        "appliedUpdates": [],
+        "updatePackages": [],
+        "printSettings": {},
+        "company": {},
+        "serviceCenter": {},
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "high",
+            "days": 3,
+            "hours": 0,
+            "lastFired": 0
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {},
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "standalone",
+          "lanEnabled": false,
+          "port": 8765,
+          "sharedFolder": "",
+          "stationName": "",
+          "workstations": []
+        },
+        "prefs": {},
+        "aiKeys": {},
+        "printCenter": {
+          "lastDocId": "invoice",
+          "lastProfileId": "a4-office",
+          "selectedPrinter": "",
+          "job": {
+            "id": "a4-office",
+            "title": "A4 Office",
+            "printer": "",
+            "paper": "A4",
+            "orientation": "portrait",
+            "margin": "8mm",
+            "copies": 1,
+            "pageRange": "all",
+            "color": true,
+            "scale": 100,
+            "duplex": false
+          },
+          "templates": {},
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          },
+          "history": [],
+          "lastByDoc": {}
+        }
+      }
+    },
+    {
+      "id": "T18",
+      "note": "missing optional settings",
+      "ls": {},
+      "expected": {
+        "appliedUpdates": [],
+        "updatePackages": [],
+        "printSettings": {},
+        "company": {},
+        "serviceCenter": {},
+        "starredAlarms": [
+          {
+            "id": "wh_sepidar_phy",
+            "title": "اختلاف انبار سپیدار و فیزیکی",
+            "hint": "اگر تعداد فیزیکی با سپیدار یکی نباشد",
+            "on": true,
+            "priority": "high",
+            "days": 3,
+            "hours": 0,
+            "lastFired": 0
+          }
+        ],
+        "appearance": {
+          "skin": "",
+          "depth3d": "",
+          "colorTheme": "",
+          "theme": "",
+          "appFont": "",
+          "textSize": "",
+          "textColor": "",
+          "headingColor": "",
+          "sbHeadingSize": "",
+          "dashTint": "",
+          "lastPage": "",
+          "density": "",
+          "radius": "",
+          "appBg": "",
+          "appBgOverlay": "",
+          "sbMode": "",
+          "sbCollapsed": "",
+          "navShape": "",
+          "sbBg": "",
+          "mainBg": "",
+          "dashBg": "",
+          "dashBgOverlay": "",
+          "dashShortcuts": "",
+          "dashHideWidgets": ""
+        },
+        "sms": {},
+        "tz": "Asia/Tehran",
+        "networkSettings": {
+          "role": "standalone",
+          "lanEnabled": false,
+          "port": 8765,
+          "sharedFolder": "",
+          "stationName": "",
+          "workstations": []
+        },
+        "prefs": {},
+        "aiKeys": {},
+        "printCenter": {
+          "lastDocId": "invoice",
+          "lastProfileId": "a4-office",
+          "selectedPrinter": "",
+          "job": {
+            "id": "a4-office",
+            "title": "A4 Office",
+            "printer": "",
+            "paper": "A4",
+            "orientation": "portrait",
+            "margin": "8mm",
+            "copies": 1,
+            "pageRange": "all",
+            "color": true,
+            "scale": 100,
+            "duplex": false
+          },
+          "templates": {},
+          "profiles": {
+            "a4-office": {
+              "id": "a4-office",
+              "title": "A4 Office",
+              "printer": "",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "8mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            },
+            "thermal": {
+              "id": "thermal",
+              "title": "Thermal",
+              "printer": "",
+              "paper": "80mm",
+              "orientation": "portrait",
+              "margin": "2mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "zebra": {
+              "id": "zebra",
+              "title": "Zebra",
+              "printer": "",
+              "paper": "label",
+              "orientation": "portrait",
+              "margin": "1mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": false,
+              "scale": 100,
+              "duplex": false
+            },
+            "pdf": {
+              "id": "pdf",
+              "title": "PDF",
+              "printer": "PDF",
+              "paper": "A4",
+              "orientation": "portrait",
+              "margin": "10mm",
+              "copies": 1,
+              "pageRange": "all",
+              "color": true,
+              "scale": 100,
+              "duplex": false
+            }
+          },
+          "history": [],
+          "lastByDoc": {}
+        }
+      }
+    }
+  ]
+}

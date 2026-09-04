@@ -85,6 +85,39 @@ function buildMockDocument() {
 // (در آینده بهتر است این توابع در فایل .js جدا نگه داشته شوند)
 // ===================================================================
 
+function extractJsDeclaration(htmlSrc, name) {
+  const re = new RegExp('(?:var|let|const)\\s+' + name + '\\s*=');
+  const m = htmlSrc.match(re);
+  if (!m) return null;
+  let i = m.index + m[0].length;
+  while (i < htmlSrc.length && /\s/.test(htmlSrc[i])) i++;
+  const start = m.index;
+  if (htmlSrc[i] === '{' || htmlSrc[i] === '[') {
+    const open = htmlSrc[i], close = open === '{' ? '}' : ']';
+    let depth = 0;
+    for (let j = i; j < htmlSrc.length; j++) {
+      const ch = htmlSrc[j];
+      if (ch === '"' || ch === "'" || ch === '`') {
+        const q = ch; j++;
+        while (j < htmlSrc.length && htmlSrc[j] !== q) { if (htmlSrc[j] === '\\') j++; j++; }
+        continue;
+      }
+      if (ch === open) depth++;
+      else if (ch === close) {
+        depth--;
+        if (depth === 0) {
+          j++;
+          while (j < htmlSrc.length && htmlSrc[j] !== ';') j++;
+          return htmlSrc.substring(start, j + 1);
+        }
+      }
+    }
+  }
+  const end = htmlSrc.indexOf(';', i);
+  if (end < 0) return null;
+  return htmlSrc.substring(start, end + 1);
+}
+
 function extractFunctionSource(html, fnName) {
   // پیدا کردن "function fnName(" (با async اختیاری) و گرفتن بدنه با شمارش آکولاد
   const startMatch = html.match(new RegExp('(?:async\\s+)?function\\s+' + fnName + '\\s*\\([^)]*\\)\\s*\\{'));
@@ -9753,6 +9786,179 @@ test('ARCH-12: Restore زنده هنوز verifyChecksum را قبل از migrate
     assertTrue(extractFunctionSource(html, name) !== null, name + ' باید بماند');
   });
   assertTrue(html.indexOf('.sirmanbak') < 0, 'پسوند .sirmanbak نباید معرفی شود');
+});
+
+
+console.log('');
+console.log('📋 گروه: ARCH-14 آداپتر تنظیمات بک‌آپ (LS فقط، بدون قطع مسیر زنده)');
+
+const ARCH14_SETTINGS_KEYS = ['appliedUpdates','updatePackages','printSettings','company','serviceCenter','starredAlarms','appearance','sms','tz','networkSettings','prefs','aiKeys','printCenter'];
+const ARCH14_FIXTURES = JSON.parse(fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', 'BackupSettingsFixtures.json'), 'utf8'));
+const ARCH14_BANNED_RAM = ['_safeArr(invoices)','_safeArr(phonebook)','_safeArr(warranties)','_safeArr(sales)','_safeArr(parts)','_safeArr(accounts)','_safeArr(tasks)','_safeStr(loginPw)','_safeObj(senderInfo)','_safeStr(logoSrc)'];
+
+function arch14HelperSrc() {
+  const decls = ['PREF_KEYS','SIRMAN_LAN_PORT','PS_KEY','PS_DEFAULTS','PC_KEY','PRINT_PROFILE_DEFAULTS']
+    .map(function(n){ const d = extractJsDeclaration(html, n); if(!d) throw new Error('decl '+n); return d; })
+    .join('\n');
+  const fns = ['_safeArr','_safeObj','_safeStr','getAppliedUpdatesMeta','collectUpdatePackagesForBackup','starredAlarmCatalog','normalizeStarredAlarms','getStarredAlarms','normalizeNetworkRole','parseNetworkSettings','loadNetworkSettings','collectPrefsBundle','getPrintSettings','printCenterDefaultState','getPrintCenterState','collectBackupSettingsSnapshot']
+    .map(function(n){ const s = extractFunctionSource(html, n); if(!s) throw new Error('fn '+n); return s; })
+    .join('\n');
+  return decls + '\n' + fns;
+}
+
+function arch14RunAdapter(lsMap) {
+  const ctx = { localStorage: arch9cMakeLs(lsMap) };
+  return new Function('ctx', 'with(ctx){ ' + arch14HelperSrc() + '\nreturn collectBackupSettingsSnapshot(); }')(ctx);
+}
+
+function arch14PickSettings(obj) {
+  const o = {};
+  ARCH14_SETTINGS_KEYS.forEach(function(k){ if(obj && obj[k] !== undefined) o[k] = obj[k]; });
+  return o;
+}
+
+function arch14AssemblerAndAdapter(lsMap) {
+  const ram = {
+    invoices: [], products: [], inventory: {}, invCtr: 1, invoiceUidCtr: 0, saleCtr: 1, saleUidCtr: 0,
+    phonebook: [], parts: [], services: [], warranties: [], sales: [], tasks: [], accounts: [],
+    defectiveStock: [], warehouseDocs: [], stockMoves: [], warehouses: [], daqi: [], daqiWarehouse: [],
+    daqiVouchers: [], postalHistory: [], userAuditLog: [], bgAuditLog: [], userRoles: [], loginPw: '',
+    senderInfo: {}, logoSrc: '', acH: {}, SIRMAN_BACKUP_MAGIC: 'SIRMAN_BACKUP', SIRMAN_SCHEMA_VERSION: 1
+  };
+  const ctx = Object.assign({ localStorage: arch9cMakeLs(lsMap) }, ram);
+  const src = arch14HelperSrc() + '\n' + extractFunctionSource(html, 'collectAttachmentIndex') + '\n' + extractFunctionSource(html, '_buildFullBackupData');
+  return new Function('ctx', 'with(ctx){ ' + src + '\nreturn { adapter: collectBackupSettingsSnapshot(), full: _buildFullBackupData() }; }')(ctx);
+}
+
+test('ARCH-14 G1: اسمبل زنده و مسیر export دست‌نخورده‌اند', () => {
+  assertEqual(arch9cSha256(extractFunctionSource(html, '_buildFullBackupData')), ARCH9D_BUILD_SHA256, '_buildFullBackupData نباید عوض شود');
+  const exp = extractFunctionSource(html, 'exportData');
+  const buildObj = extractFunctionSource(html, 'buildBackupObject');
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  assertTrue(exp.indexOf('collectBackupSettingsSnapshot') < 0, 'exportData نباید آداپتر تنظیمات را صدا بزند');
+  assertTrue(buildObj.indexOf('collectBackupSettingsSnapshot') < 0, 'buildBackupObject نباید آداپتر را صدا بزند');
+  assertTrue(build.indexOf('collectBackupSettingsSnapshot') < 0, 'اسمبل نباید آداپتر را صدا بزند');
+  assertContainsString(exp, 'var data = _buildFullBackupData();', 'exportData همچنان اسمبل کامل است');
+  assertContainsString(buildObj, 'var d = _buildFullBackupData();', 'autosave همچنان اسمبل کامل است');
+});
+
+test('ARCH-14 G2: آداپتر RAM کسب‌وکار را نمی‌خواند', () => {
+  const src = extractFunctionSource(html, 'collectBackupSettingsSnapshot');
+  assertTrue(src !== null, 'collectBackupSettingsSnapshot باید موجود باشد');
+  ARCH14_BANNED_RAM.forEach(function(pat){
+    assertTrue(src.indexOf(pat) < 0, 'آداپتر نباید '+pat+' داشته باشد');
+  });
+  assertContainsString(src, "localStorage.getItem('laegh_tz')", 'آداپتر باید LS tz را بخواند');
+  assertContainsString(src, 'return JSON.parse(JSON.stringify(data));', 'آداپتر باید clone کند');
+  assertTrue(src.indexOf('localStorage.setItem') < 0, 'آداپتر نباید LS بنویسد');
+  assertTrue(src.indexOf('indexedDB') < 0, 'آداپتر نباید IDB داشته باشد');
+});
+
+ARCH14_FIXTURES.cases.forEach(function(fx){
+  test('ARCH-14 '+fx.id+' '+fx.note+': خروجی آداپتر با فیکسچر طلایی یکی است', () => {
+    const got = arch14RunAdapter(fx.ls);
+    assertEqual(JSON.stringify(got), JSON.stringify(fx.expected), fx.id+' semantic match');
+  });
+});
+
+test('ARCH-14: آداپتر با برش تنظیمات اسمبل یکی است (T1)', () => {
+  const t1 = ARCH14_FIXTURES.cases.find(function(c){ return c.id==='T1'; });
+  const both = arch14AssemblerAndAdapter(t1.ls);
+  assertEqual(JSON.stringify(arch14PickSettings(both.full)), JSON.stringify(both.adapter), 'settings slice');
+  assertEqual(JSON.stringify(both.adapter), JSON.stringify(t1.expected), 'adapter vs golden');
+  assertTrue(Array.isArray(both.full.invoices), 'اسمبل هنوز invoices دارد');
+  assertTrue(both.adapter.invoices === undefined, 'آداپتر invoices ندارد');
+  assertTrue(both.adapter.phonebook === undefined, 'آداپتر phonebook ندارد');
+  assertTrue(both.adapter.loginPw === undefined, 'آداپتر loginPw ندارد');
+});
+
+test('ARCH-14 T2: tz غایب → Asia/Tehran', () => {
+  const t2 = ARCH14_FIXTURES.cases.find(function(c){ return c.id==='T2'; });
+  const got = arch14RunAdapter(t2.ls);
+  assertEqual(got.tz, 'Asia/Tehran', 'default tz');
+  assertTrue(got.prefs.laegh_tz === undefined, 'prefs نباید tz غایب را invent کند');
+});
+
+test('ARCH-14 T3: کلید ظاهر غایب → رشته خالی', () => {
+  const t3 = ARCH14_FIXTURES.cases.find(function(c){ return c.id==='T3'; });
+  const got = arch14RunAdapter(t3.ls);
+  Object.keys(got.appearance).forEach(function(k){
+    assertEqual(got.appearance[k], '', 'appearance.'+k);
+  });
+  assertEqual(Object.keys(got.appearance).length, 24, '۲۴ کلید ظاهر');
+});
+
+test('ARCH-14 T12: کلید AI به‌صورت plaintext در payload می‌ماند', () => {
+  const t12 = ARCH14_FIXTURES.cases.find(function(c){ return c.id==='T12'; });
+  const got = arch14RunAdapter(t12.ls);
+  assertEqual(got.aiKeys.laegh_ai_key_openai, 'sk-abc', 'ai key');
+  assertTrue(JSON.stringify(got).indexOf('sk-abc') >= 0, 'نباید redact شود');
+});
+
+test('ARCH-14 T16: یونیکد فارسی حفظ می‌شود', () => {
+  const t16 = ARCH14_FIXTURES.cases.find(function(c){ return c.id==='T16'; });
+  const got = arch14RunAdapter(t16.ls);
+  assertEqual(got.company.name, 'لایق', 'company');
+  assertTrue(JSON.stringify(got.sms).indexOf('علی') >= 0, 'sms unicode');
+});
+
+test('ARCH-14 T17: JSON خراب روی مسیر try/catch هلپرها', () => {
+  const t17 = ARCH14_FIXTURES.cases.find(function(c){ return c.id==='T17'; });
+  const got = arch14RunAdapter(t17.ls);
+  assertEqual(got.appliedUpdates.length, 0, 'appliedUpdates');
+  assertEqual(got.networkSettings.port, 8765, 'network default port');
+  assertEqual(got.starredAlarms[0].id, 'wh_sepidar_phy', 'catalog merge');
+});
+
+test('ARCH-14 T19: جهش خروجی آداپتر LS را عوض نمی‌کند', () => {
+  const t1 = ARCH14_FIXTURES.cases.find(function(c){ return c.id==='T1'; });
+  const ctxLs = arch9cMakeLs(t1.ls);
+  const ctx = { localStorage: ctxLs };
+  const got = new Function('ctx', 'with(ctx){ ' + arch14HelperSrc() + '\nreturn collectBackupSettingsSnapshot(); }')(ctx);
+  const before = ctxLs.getItem('laegh_company');
+  got.company.name = 'MUTATED';
+  got.appearance.skin = 'MUTATED';
+  got.printCenter.lastDocId = 'MUTATED';
+  got.aiKeys.laegh_ai_key_openai = 'MUTATED';
+  assertEqual(ctxLs.getItem('laegh_company'), before, 'LS company');
+  assertEqual(ctxLs.stats.setItem, 0, 'no setItem');
+  const again = new Function('ctx', 'with(ctx){ ' + arch14HelperSrc() + '\nreturn collectBackupSettingsSnapshot(); }')(ctx);
+  assertEqual(again.company.name, 'لایق الکترونیک پارسیان', 'second read');
+});
+
+test('ARCH-14 T20: سریال‌سازی قطعی است', () => {
+  const t1 = ARCH14_FIXTURES.cases.find(function(c){ return c.id==='T1'; });
+  const a = JSON.stringify(arch14RunAdapter(t1.ls));
+  const b = JSON.stringify(arch14RunAdapter(t1.ls));
+  assertEqual(a, b, 'deterministic');
+  const src = extractFunctionSource(html, 'collectBackupSettingsSnapshot');
+  assertTrue(src.indexOf('Date.now') < 0 && src.indexOf('Math.random') < 0, 'no clock/random in adapter');
+});
+
+test('ARCH-14 T21: printSettings خراب مثل اسمبل پرتاب می‌شود', () => {
+  let threw = false;
+  try { arch14RunAdapter({ laegh_printSettings: '{bad' }); }
+  catch (e) { threw = true; }
+  assertTrue(threw, 'malformed printSettings باید throw کند (رفتار فعلی اسمبل)');
+});
+
+test('ARCH-14 T23: DTO تنظیمات فیلد RAM ندارد', () => {
+  const got = arch14RunAdapter({});
+  ['invoices','products','inventory','phonebook','parts','services','warranties','sales','tasks','accounts','loginPw','senderInfo','logoSrc','itemCounts','sections','exportedAt'].forEach(function(k){
+    assertTrue(got[k] === undefined, k+' نباید در DTO تنظیمات باشد');
+  });
+});
+
+test('ARCH-14 T24: Restore / Phonebook / Print / SQLite قفل', () => {
+  ['applyBackupMergeSections','applyBackupReplaceSections','importData','savePBContact','resetAll','getPrintCenterState','getPrintSettings'].forEach(function(name){
+    assertTrue(extractFunctionSource(html, name) !== null, name+' باید بماند');
+  });
+  const pc = extractFunctionSource(html, 'getPrintCenterState');
+  assertContainsString(pc, 'localStorage.getItem(PC_KEY)', 'printCenter helper نباید بازنویسی شود');
+  const sqlite = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Persistence.Sqlite', 'Sirman.Persistence.Sqlite.csproj'), 'utf8');
+  assertTrue(sqlite.length > 0, 'SQLite پروژه باید بماند');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'exportData')), ARCH9C_FN_SHA256.exportData, 'exportData SHA');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'buildBackupObject')), ARCH9C_FN_SHA256.buildBackupObject, 'buildBackupObject SHA');
 });
 
 
