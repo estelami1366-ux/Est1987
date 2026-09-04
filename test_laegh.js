@@ -100,6 +100,31 @@ function extractFunctionSource(html, fnName) {
   return html.substring(start, i);
 }
 
+function p1cValidatorSrc(srcHtml) {
+  return [
+    extractFunctionSource(srcHtml, 'backupHasOwnCollection'),
+    extractFunctionSource(srcHtml, 'validateRequiredBackupCollections'),
+    extractFunctionSource(srcHtml, 'assertRequiredBackupCollections')
+  ].filter(Boolean).join('\n');
+}
+
+function loadP1CValidator(srcHtml) {
+  const src = p1cValidatorSrc(srcHtml || html);
+  if (!src || src.indexOf('function validateRequiredBackupCollections') < 0) {
+    throw new Error('validateRequiredBackupCollections پیدا نشد');
+  }
+  return new Function(src + '\nreturn { backupHasOwnCollection: typeof backupHasOwnCollection==="function"?backupHasOwnCollection:null, validateRequiredBackupCollections: validateRequiredBackupCollections, assertRequiredBackupCollections: assertRequiredBackupCollections };')();
+}
+
+function loadMigrateBackupFn(srcHtml) {
+  const migrateSrc = extractFunctionSource(srcHtml || html, 'migrateBackup');
+  const schemasSrc = extractFunctionSource(srcHtml || html, 'SCHEMAS') || 'var SCHEMAS = {};';
+  const migrateRecSrc = extractFunctionSource(srcHtml || html, 'migrateRecord') || 'function migrateRecord(r){return r;}';
+  const migrateSecSrc = extractFunctionSource(srcHtml || html, 'migrateSection') || 'function migrateSection(a){return a;}';
+  if (!migrateSrc) throw new Error('تابع migrateBackup پیدا نشد');
+  return new Function('return (function(){ ' + schemasSrc + '\n' + migrateRecSrc + '\n' + migrateSecSrc + '\n return ' + migrateSrc + ' })();')();
+}
+
 // ===================================================================
 // بخش ۳: تعریف تست‌ها
 // هر تست یک سناریوی واقعی است که قبلاً باعث باگ شده یا ممکن است بشود
@@ -360,10 +385,12 @@ console.log('📋 گروه ۲: منطق ذخیره و بازگردانی (مهم
 function runReplaceSectionsOnSandbox(html, sandbox){
   const wantsSrc = extractFunctionSource(html, '_restoreWants');
   const replaceSrc = extractFunctionSource(html, 'applyBackupReplaceSections');
+  const valSrc = p1cValidatorSrc(html);
   if(!wantsSrc || !replaceSrc) throw new Error('توابع بازگردانی پیدا نشد');
+  if(!valSrc || valSrc.indexOf('function assertRequiredBackupCollections') < 0) throw new Error('validator بازگردانی پیدا نشد');
   const body = replaceSrc.substring(replaceSrc.indexOf('{')+1, replaceSrc.lastIndexOf('}'));
   // بدنه را داخل with اجرا کن تا assignmentها روی sandbox بنشینند (مثل applyAll قدیمی)
-  const runner = new Function('ctx', wantsSrc + '\n' + 'with(ctx){ var d = ctx.d; var selectedKeys = null;\n' + body + '\n}');
+  const runner = new Function('ctx', valSrc + '\n' + wantsSrc + '\n' + 'with(ctx){ var d = ctx.d; var selectedKeys = null;\n' + body + '\n}');
   runner(sandbox);
 }
 
@@ -425,7 +452,7 @@ test('شبیه‌سازی کامل: بازگردانی یک فایل بک‌اپ
   assertArrayLength(pb, 27, 'بعد از بازگردانی، pb باید ۲۷ مخاطب داشته باشد');
 });
 
-test('بازگردانی بک‌اپ نسخه قدیمی (v2.0 بدون warranties) باید بدون کرش کار کند', () => {
+test('بازگردانی بک‌اپ نسخه قدیمی (v2.0 بدون warranties) باید fail-closed شود نه تبدیل به []', () => {
   const oldBackup = {
     version: '2.0',
     invoices: [{ num: '1', seller: 'test' }],
@@ -436,14 +463,13 @@ test('بازگردانی بک‌اپ نسخه قدیمی (v2.0 بدون warranti
     // توجه: این بک‌اپ قدیمی است و parts/warranties/sales اصلاً ندارد
   };
 
-  // باید بدون خطا، مقادیر پیش‌فرض خالی برای فیلدهای جدید ست شود
-  let warranties = Array.isArray(oldBackup.warranties) ? oldBackup.warranties : [];
-  let parts = Array.isArray(oldBackup.parts) ? oldBackup.parts : [];
-  let sales = Array.isArray(oldBackup.sales) ? oldBackup.sales : [];
+  const v = loadP1CValidator().validateRequiredBackupCollections(oldBackup);
+  assertEqual(v.ok, false, 'بک‌اپ بدون کلید warranties باید اعتبارسنجی را رد کند');
+  assertTrue(v.missingRequiredCollections.indexOf('warranties') >= 0, 'دلیل رد باید missing warranties باشد');
 
-  assertArrayLength(warranties, 0, 'بک‌اپ قدیمی بدون warranties باید آرایه خالی برگرداند نه کرش کند');
-  assertArrayLength(parts, 0, 'بک‌اپ قدیمی بدون parts باید آرایه خالی برگرداند');
-  assertArrayLength(sales, 0, 'بک‌اپ قدیمی بدون sales باید آرایه خالی برگرداند');
+  const migrateBackup = loadMigrateBackupFn();
+  const migrated = migrateBackup(JSON.parse(JSON.stringify(oldBackup)));
+  assertEqual(Object.prototype.hasOwnProperty.call(migrated.data, 'warranties'), false, 'migrateBackup نباید کلید غایب warranties را به [] تبدیل کند');
 });
 
 test('فایل بک‌اپ خراب (JSON نامعتبر) باید پیام خطای فارسی بدهد، نه کرش خاموش', () => {
@@ -6780,7 +6806,7 @@ function loadBackupEngine(srcHtml){
 }
 
 test('توابع BackupEngine و UI مدیر پشتیبان باید تعریف شده باشند', () => {
-  ['inferBackupSchemaVersion','canRestoreSchema','buildBackupManifest','finalizeBackupPackage','validateBackupPackage','applySchemaMigrations','testRestoreBackup','unwrapBackupEnvelope','pruneBackupRetention','layersDueForPromotion','verifyLayerPayload','prepareAtomicRestore','archivalCsvFromRows','recordBackupLayer','saveSafetySnapshot','openLastSafetyForRestore'].forEach(fn=>{
+  ['inferBackupSchemaVersion','canRestoreSchema','buildBackupManifest','finalizeBackupPackage','validateBackupPackage','validateRequiredBackupCollections','assertRequiredBackupCollections','applySchemaMigrations','testRestoreBackup','unwrapBackupEnvelope','pruneBackupRetention','layersDueForPromotion','verifyLayerPayload','prepareAtomicRestore','archivalCsvFromRows','recordBackupLayer','saveSafetySnapshot','openLastSafetyForRestore'].forEach(fn=>{
     assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
   });
   assertContainsString(html, 'var BackupEngine = {', 'شیء BackupEngine پیدا نشد');
@@ -6820,8 +6846,11 @@ test('شبیه‌سازی: Schema، Migration ۰→۱، Restore ایمن، نگ�
 
   const emptyVal = BE.validate({});
   assertEqual(emptyVal.ok, false, 'بسته بدون کلید داده باید نامعتبر باشد');
-  const okVal = BE.validate({invoices:[{num:'1', items:[]}]});
-  assertEqual(okVal.ok, true, 'بسته با فاکتور باید معتبر باشد');
+  assertTrue((emptyVal.missingRequiredCollections||[]).indexOf('warranties')>=0, '{} باید missing warranties داشته باشد');
+  const okVal = BE.validate({invoices:[{num:'1', items:[]}], warranties:[]});
+  assertEqual(okVal.ok, true, 'بسته با فاکتور و warranties=[] باید معتبر باشد');
+  const missingWarVal = BE.validate({invoices:[{num:'1', items:[]}]});
+  assertEqual(missingWarVal.ok, false, 'بسته با فاکتور ولی بدون warranties باید رد شود');
 
   const pruned = BE.prune([
     {id:'d1', layer:'daily', ts:'2026-08-13'}, {id:'d2', layer:'daily', ts:'2026-08-12'},
@@ -6846,7 +6875,11 @@ test('شبیه‌سازی: Schema، Migration ۰→۱، Restore ایمن، نگ�
   assertEqual(env.version, '1405.5.22δ', 'applicationVersion باید به version نگاشته شود');
 
   const live = { invoices:[{num:'KEEP'}], phonebook:[] };
-  const incoming = { invoices:[{num:'NEW'}], phonebook:[{fn:'ب'}] };
+  const incomingMissing = { invoices:[{num:'NEW'}], phonebook:[{fn:'ب'}] };
+  const trMissing = BE.testRestore(incomingMissing);
+  assertEqual(trMissing.ok, false, 'تست بازگردانی بدون warranties باید رد شود');
+  assertEqual(trMissing.applied, false, 'رد اعتبارسنجی نباید داده را اعمال کند');
+  const incoming = { invoices:[{num:'NEW'}], phonebook:[{fn:'ب'}], warranties:[] };
   const tr = BE.testRestore(incoming);
   assertEqual(tr.applied, false, 'تست بازگردانی نباید داده را اعمال کند');
   assertTrue(tr.ok, 'تست بازگردانی روی بسته معتبر باید ok باشد');
@@ -6879,6 +6912,170 @@ test('شبیه‌سازی: Schema، Migration ۰→۱، Restore ایمن، نگ�
   assertEqual(badLayer.ok, false, 'لایه خالی نباید ثبت شود');
   const goodLayer = BE.verifyLayer({invoices:[{num:'1'}]});
   assertEqual(goodLayer.ok, true, 'لایه دارای داده باید تأیید شود');
+});
+
+
+console.log('');
+console.log('📋 گروه: P1C اعتبارسنج fail-closed گارانتی (MISSING ≠ EMPTY)');
+
+function p1cSyntheticWarranty(){
+  return { id:'W-TEST', name:'مشتری آزمایشی', phone:'09120000000', status:'open', accRef:'', model:'X', serial:'SN-1' };
+}
+
+function p1cRunRestoreGate(mode, backup, liveWarranties){
+  const valSrc = p1cValidatorSrc(html);
+  const wantsSrc = extractFunctionSource(html, '_restoreWants');
+  const replaceSrc = extractFunctionSource(html, 'applyBackupReplaceSections');
+  const mergeSrc = extractFunctionSource(html, 'applyBackupMergeSections');
+  const selectiveSrc = extractFunctionSource(html, 'applyBackupSelective');
+  const fns = valSrc + '\n' + wantsSrc + '\n' + replaceSrc + '\n' + mergeSrc + '\n' + selectiveSrc;
+  const runner = new Function('backup','mode','liveWarranties', fns + `
+    var mutations = { sv:0, svWarr:0, snapshot:0, auditOk:0, auditErr:0, ls:0 };
+    var warranties = (liveWarranties||[]).map(function(x){ return JSON.parse(JSON.stringify(x)); });
+    var invoices = []; var products = []; var inventory = {}; var phonebook = []; var pb = [];
+    var parts = []; var services = []; var svcs = []; var sales = []; var tasks = [];
+    var accounts = []; var defectiveStock = []; var warehouseDocs = []; var stockMoves = [];
+    var warehouses = []; var daqi = []; var daqiWarehouse = []; var daqiVouchers = []; var postalHistory = [];
+    var userRoles = []; var saleCtr = 1; var saleUidCtr = 0; var invCtr = 1; var invoiceUidCtr = 0;
+    var logoSrc = ''; var senderInfo = {}; var acH = {};
+    var localStorage = { setItem:function(){ mutations.ls++; }, getItem:function(){ return null; } };
+    function sv(){ mutations.sv++; }
+    function svParts(){} function svSvcs(){} function svSales(){}
+    function svWarr(){ mutations.svWarr++; }
+    function svTasks(){} function svDefective(){} function svAccounts(){} function svWarehouses(){}
+    function _buildFullBackupData(){ mutations.snapshot++; return { warranties: warranties, invoices: invoices }; }
+    function saveSafetySnapshot(){ mutations.snapshot++; }
+    function logBackupAudit(op, result){ if(result==='ok') mutations.auditOk++; else mutations.auditErr++; }
+    function addDbgEntry(){} function ntf(){} function auditUser(){} function alert(){}
+    function emit(){} function getNum(){} function renderSaved(){} function renderProds(){} function renderInv(){}
+    function renderPB(){} function renderParts(){} function renderSvcs(){} function renderSales(){}
+    function renderWarList(){} function renderDataStats(){} function renderTasks(){} function renderSidebarBadges(){}
+    var threw = null;
+    var before = JSON.stringify(warranties);
+    try {
+      if(mode==='replace') applyBackupReplaceSections(backup, ['warranties']);
+      else if(mode==='merge') applyBackupMergeSections(backup, ['warranties']);
+      else applyBackupSelective(backup, ['warranties'], (mode==='selective-replace' ? 'replace' : 'merge'));
+    } catch(e){ threw = String(e && e.message || e); }
+    return {
+      threw: threw,
+      live: JSON.parse(JSON.stringify(warranties)),
+      liveUnchanged: JSON.stringify(warranties) === before,
+      mutations: mutations
+    };
+  `);
+  return runner(backup, mode, liveWarranties || [{id:'LIVE-1', status:'open'}]);
+}
+
+test('P1C T1: {} باید FAIL شود چون warranties غایب است', () => {
+  const v = loadP1CValidator().validateRequiredBackupCollections({});
+  assertEqual(v.ok, false, '{} باید نامعتبر باشد');
+  assertTrue(v.missingRequiredCollections.indexOf('warranties')>=0, 'دلیل باید missing warranties باشد');
+  assertTrue((v.errors||[]).some(function(e){ return /warranties/.test(e) && /MISSING/.test(e); }), 'پیام باید MISSING ≠ EMPTY را بگوید');
+});
+
+test('P1C T2: warranties=null باید FAIL شود', () => {
+  const v = loadP1CValidator().validateRequiredBackupCollections({warranties:null});
+  assertEqual(v.ok, false, 'null باید نامعتبر باشد');
+  assertTrue(v.invalidCollections.indexOf('warranties')>=0, 'null باید invalidCollections باشد نه missing تفسیرشده به []');
+});
+
+test('P1C T3: warranties غیرآرایه باید FAIL شود', () => {
+  const v = loadP1CValidator().validateRequiredBackupCollections({warranties:'invalid'});
+  assertEqual(v.ok, false, 'رشته باید نامعتبر باشد');
+  assertTrue(v.invalidCollections.indexOf('warranties')>=0, 'نوع نامعتبر باید در invalidCollections باشد');
+});
+
+test('P1C T4: warranties=[] باید از نظر ساختاری PASS شود و غایب محسوب نشود', () => {
+  const input = {warranties:[]};
+  const v = loadP1CValidator().validateRequiredBackupCollections(input);
+  assertEqual(v.ok, true, 'آرایه خالی صریح باید معتبر باشد');
+  assertEqual(v.missingRequiredCollections.length, 0, '[] نباید missing باشد');
+  assertTrue(Object.prototype.hasOwnProperty.call(input,'warranties'), 'کلید باید باقی بماند');
+  assertTrue(Array.isArray(input.warranties) && input.warranties.length===0, '[] باید [] بماند');
+});
+
+test('P1C T5: warranties با رکورد مصنوعی معتبر باید PASS شود', () => {
+  const v = loadP1CValidator().validateRequiredBackupCollections({warranties:[p1cSyntheticWarranty()]});
+  assertEqual(v.ok, true, 'آرایه دارای رکورد باید معتبر باشد');
+  assertEqual(v.invalidCollections.length, 0, 'رکورد مصنوعی نباید invalid باشد');
+});
+
+test('P1C T6: بک‌آپ با بخش‌های دیگر ولی بدون warranties باید بازگردانی را متوقف کند', () => {
+  const backup = { invoices:[{num:'1'}], products:[{code:'A'}], phonebook:[{fn:'علی'}], parts:[], sales:[], tasks:[] };
+  const v = loadP1CValidator().validateRequiredBackupCollections(backup);
+  assertEqual(v.ok, false, 'وجود بخش‌های دیگر مجوز حذف warranties نیست');
+  const r = p1cRunRestoreGate('replace', backup);
+  assertTrue(!!r.threw, 'replace باید throw کند');
+  assertEqual(r.liveUnchanged, true, 'داده زنده نباید عوض شود');
+  const eng = loadBackupEngine(html);
+  const tr = eng.BackupEngine.testRestore(backup);
+  assertEqual(tr.ok, false, 'testRestore باید رد کند');
+  assertEqual(tr.applied, false, 'testRestore نباید اعمال کند');
+});
+
+test('P1C T7: warranties=[] بعد از migrateBackup غایب نمی‌شود و بازگردانی ساختاری مجاز است', () => {
+  const migrateBackup = loadMigrateBackupFn();
+  const d = migrateBackup({ version:'10.4.3', invoices:[], products:[], inventory:{}, phonebook:[], warranties:[] }).data;
+  assertEqual(Object.prototype.hasOwnProperty.call(d,'warranties'), true, 'کلید warranties باید بماند');
+  assertTrue(Array.isArray(d.warranties) && d.warranties.length===0, '[] باید [] بماند');
+  const v = loadP1CValidator().validateRequiredBackupCollections(d);
+  assertEqual(v.ok, true, '[] صریح بعد از migrate باید معتبر بماند');
+  const r = p1cRunRestoreGate('merge', {warranties:[]}, [{id:'LIVE-1'}]);
+  assertEqual(r.threw, null, 'merge روی [] صریح نباید throw کند');
+  assertEqual(r.live.length, 1, 'ادغام [] نباید گارانتی زنده را پاک کند');
+  assertEqual(r.live[0].id, 'LIVE-1', 'رکورد زنده باید بماند');
+});
+
+test('P1C T8: شکست اعتبارسنجی نباید هیچ mutation زنده ایجاد کند', () => {
+  const rSel = p1cRunRestoreGate('replace', {invoices:[{num:'1'}]});
+  assertTrue(!!rSel.threw, 'باید متوقف شود');
+  assertEqual(rSel.liveUnchanged, true, 'آرایه زنده warranties نباید عوض شود');
+  assertEqual(rSel.mutations.sv, 0, 'sv نباید صدا شود');
+  assertEqual(rSel.mutations.svWarr, 0, 'svWarr نباید صدا شود');
+  assertEqual(rSel.mutations.snapshot, 0, 'snapshot ایمنی / IndexedDB نباید نوشته شود');
+  assertEqual(rSel.mutations.auditOk, 0, 'audit موفقیت نباید ثبت شود');
+  assertEqual(rSel.mutations.ls, 0, 'localStorage نباید نوشته شود');
+  const rSelective = p1cRunRestoreGate('selective-merge', {});
+  assertTrue(!!rSelective.threw, 'applyBackupSelective باید throw کند');
+  assertEqual(rSelective.mutations.snapshot, 0, 'selective نباید قبل از اعتبارسنجی snapshot بگیرد');
+  assertEqual(rSelective.mutations.auditOk, 0, 'pre-restore ok نباید ثبت شود');
+});
+
+test('P1C T9: migrateBackup نباید warranties غایب را به [] تبدیل کند', () => {
+  const migrateBackup = loadMigrateBackupFn();
+  const src = extractFunctionSource(html, 'migrateBackup');
+  assertTrue(src.indexOf("if (!d.warranties) { d.warranties = [];") === -1, 'خط MISSING→[] باید حذف شده باشد');
+  const d = { version:'2.0', invoices:[{num:'1'}], products:[], inventory:{}, phonebook:[], invCtr:2 };
+  assertEqual(Object.prototype.hasOwnProperty.call(d,'warranties'), false, 'ورودی نباید warranties داشته باشد');
+  const result = migrateBackup(d);
+  assertEqual(Object.prototype.hasOwnProperty.call(result.data,'warranties'), false, 'migrateBackup نباید کلید warranties بسازد');
+  assertEqual(result.data.warranties, undefined, 'مقدار warranties باید undefined بماند نه []');
+  assertTrue((result.log||[]).some(function(x){ return /غایب/.test(x) && /fail-closed/.test(x); }), 'لاگ باید غایب بودن را بدون جایگزینی ثبت کند');
+});
+
+test('P1C T10: هم MERGE و هم REPLACE قبل از mutation وقتی warranties غایب است مسدود می‌شوند', () => {
+  const backup = { invoices:[{num:'9'}], products:[], phonebook:[], parts:[], sales:[] };
+  const rMerge = p1cRunRestoreGate('merge', backup);
+  const rReplace = p1cRunRestoreGate('replace', backup);
+  const rSelMerge = p1cRunRestoreGate('selective-merge', backup);
+  const rSelReplace = p1cRunRestoreGate('selective-replace', backup);
+  assertTrue(!!rMerge.threw && /warranties/.test(rMerge.threw), 'merge مستقیم باید مسدود شود');
+  assertTrue(!!rReplace.threw && /warranties/.test(rReplace.threw), 'replace مستقیم باید مسدود شود');
+  assertEqual(rMerge.liveUnchanged, true, 'merge نباید live را عوض کند');
+  assertEqual(rReplace.liveUnchanged, true, 'replace نباید live را عوض کند');
+  assertEqual(rSelMerge.mutations.snapshot, 0, 'selective merge نباید snapshot بسازد');
+  assertEqual(rSelReplace.mutations.snapshot, 0, 'selective replace نباید snapshot بسازد');
+});
+
+test('P1C: importData باید قبل از migrateBackup اعتبارسنجی الزامی را اجرا کند', () => {
+  const src = extractFunctionSource(html, 'importData');
+  assertTrue(src.indexOf('validateRequiredBackupCollections') >= 0, 'importData باید validator را صدا بزند');
+  assertTrue(src.indexOf('validateRequiredBackupCollections') < src.indexOf('migrateBackup'), 'validator باید قبل از migrateBackup باشد');
+  assertTrue(src.indexOf('validateRequiredBackupCollections') < src.indexOf('applySchemaMigrations'), 'validator باید قبل از schema migration باشد');
+  assertTrue(src.indexOf('openRestorePreviewModal') > src.indexOf('validateRequiredBackupCollections'), 'پیش‌نمایش فقط بعد از اعتبارسنجی است');
+  const prep = extractFunctionSource(html, 'prepareNetworkWorkspacePull');
+  assertTrue(prep.indexOf('validateRequiredBackupCollections') < prep.indexOf('migrateBackup'), 'دریافت شبکه هم باید قبل از migrate اعتبارسنجی کند');
 });
 
 
@@ -8854,7 +9051,8 @@ function networkPullPreviewBundle(srcHtml) {
     '_previewJsonEqual','_previewRecLabel','_previewPhonebookEntry',
     '_previewClassifyRecords','_previewClassifyOverwrite','_networkPullLiveSnapshot',
     'previewNetworkWorkspaceMerge','isNetworkWorkspaceBackupPackage','prepareNetworkWorkspacePull',
-    'closeNetworkPullPreviewModal','cancelNetworkPullPreview','confirmNetworkPullPreview'
+    'closeNetworkPullPreviewModal','cancelNetworkPullPreview','confirmNetworkPullPreview',
+    'backupHasOwnCollection','validateRequiredBackupCollections','assertRequiredBackupCollections'
   ];
   return names.map(n => extractFunctionSource(srcHtml, n)).filter(Boolean).join('\n');
 }
@@ -8956,7 +9154,7 @@ test('آماده‌سازی و انصراف نباید دادهٔ کسب‌وک�
     var document = {getElementById:function(){ return {classList:{add:function(){}, remove:function(){}}}; }};
     var _pendingNetworkPull = null;
     var snap = JSON.stringify({invoices:invoices, products:products, warranties:warranties, accounts:accounts, inventory:inventory});
-    var pkg = {schemaVersion:1, origin:'network-workspace', invoices:[{invoiceId:'INV-2', customer:'تازه'}], products:[{code:'P2'}]};
+    var pkg = {schemaVersion:1, origin:'network-workspace', invoices:[{invoiceId:'INV-2', customer:'تازه'}], products:[{code:'P2'}], warranties:[]};
     var prepared = prepareNetworkWorkspacePull(JSON.stringify(pkg));
     _pendingNetworkPull = prepared;
     cancelNetworkPullPreview();
@@ -9000,8 +9198,10 @@ test('تأیید باید applyBackupSelective را با merge و selectedKeys=n
 test('ادغام موجود باید همچنان فاکتور/کالا/گارانتی/حساب هم‌هویت را نگه دارد', () => {
   const mergeSrc = extractFunctionSource(html, 'applyBackupMergeSections');
   const wantsSrc = extractFunctionSource(html, '_restoreWants');
+  const valSrc = p1cValidatorSrc(html);
   assertTrue(!!mergeSrc && !!wantsSrc, 'موتور ادغام پیدا نشد');
-  const runner = new Function(wantsSrc + '\n' + mergeSrc + `
+  assertTrue(!!valSrc, 'validator ادغام پیدا نشد');
+  const runner = new Function(valSrc + '\n' + wantsSrc + '\n' + mergeSrc + `
     var invoices = [{invoiceId:'INV-1', id:1, num:'100', customer:'قدیم'}];
     var products = [{code:'P1', name:'A'}];
     var phonebook = []; var parts=[]; var services=[]; var svcs=[];
@@ -9074,10 +9274,11 @@ test('دادهٔ نامعتبر یا Schema جدیدتر نباید ادغام �
     var badJson = prepareNetworkWorkspacePull('{');
     var notBackup = prepareNetworkWorkspacePull(JSON.stringify({hello:'world'}));
     var tooNew = prepareNetworkWorkspacePull(JSON.stringify({schemaVersion:99, invoices:[{invoiceId:'INV-X'}], products:[{code:'PX'}]}));
+    var missingWar = prepareNetworkWorkspacePull(JSON.stringify({schemaVersion:1, invoices:[{invoiceId:'INV-X'}], products:[{code:'PX'}]}));
     var same = JSON.stringify({invoices:invoices, products:products, warranties:warranties, accounts:accounts, inventory:inventory}) === snap;
     return {
-      badOk: badJson.ok, notOk: notBackup.ok, newOk: tooNew.ok,
-      newErr: tooNew.error||'', applyCalled:applyCalled, writes:writes, same:same,
+      badOk: badJson.ok, notOk: notBackup.ok, newOk: tooNew.ok, missOk: missingWar.ok,
+      newErr: tooNew.error||'', missErr: missingWar.error||'', applyCalled:applyCalled, writes:writes, same:same,
       invLen: invoices.length
     };
   `);
@@ -9085,6 +9286,8 @@ test('دادهٔ نامعتبر یا Schema جدیدتر نباید ادغام �
   assertEqual(r.badOk, false, 'JSON خراب باید رد شود');
   assertEqual(r.notOk, false, 'فایل غیرپشتیبان باید رد شود');
   assertEqual(r.newOk, false, 'Schema جدیدتر باید رد شود');
+  assertEqual(r.missOk, false, 'بسته بدون warranties باید رد شود');
+  assertTrue(/warranties|MISSING/.test(String(r.missErr)), 'دلیل رد باید warranties غایب باشد');
   assertTrue(/schema|ساختار|پشتیبان|خراب|نامعتبر|سیرمن/i.test(String(r.newErr)+'schema'), 'باید دلیل رد داشته باشد');
   assertEqual(r.applyCalled, 0, 'داده نامعتبر نباید ادغام را صدا بزند');
   assertEqual(r.same, true, 'داده محلی نباید جزئی عوض شود');
