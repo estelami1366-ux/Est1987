@@ -111,6 +111,22 @@ public class SirmanHostObject
         }
     }
 
+    /// <summary>
+    /// ARCH-7: read-only restore preview via Core BackupDryRunService.
+    /// Never applies merge/replace. Never writes disk. Applied is always false.
+    /// </summary>
+    public string TestRestoreBackup(string json)
+    {
+        try
+        {
+            return Sirman.Core.Backup.BackupDryRunBridge.Execute(json ?? "");
+        }
+        catch (Exception ex)
+        {
+            return SafeError.Json("backup-dry-run", "پیش‌نمایش پشتیبان انجام نشد", ex);
+        }
+    }
+
     /// <summary>کاتالوگ پوستهٔ شیشه‌ای فصل/ماه برای مرور گارانتی.</summary>
     public string GetWarrantyBrowseCatalog() => SeasonalGlassTheme.CatalogJson();
 

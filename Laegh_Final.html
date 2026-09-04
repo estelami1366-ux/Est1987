@@ -8311,7 +8311,57 @@ function unwrapBackupEnvelope(rawObj){
   }
   return rawObj;
 }
+function restoreDryRunMode(){
+  var forced = '';
+  try { if(typeof window !== 'undefined' && window.SIRMAN_RESTORE_DRYRUN_MODE) forced = String(window.SIRMAN_RESTORE_DRYRUN_MODE); } catch(_m){}
+  if(forced === 'html') return 'html';
+  var h = (typeof getSirmanHostSync === 'function') ? getSirmanHostSync() : null;
+  var hasCore = !!(h && h.TestRestoreBackup);
+  if(forced === 'core'){
+    if(!hasCore) throw new Error('TestRestoreBackup Core در دسترس نیست');
+    return 'core';
+  }
+  return hasCore ? 'core' : 'html';
+}
+function mapCoreDryRunToPreview(res){
+  res = res || {};
+  var status = res.status || '';
+  var invalid = (status === 'INVALID') || (res.ok === false);
+  var errors = (res.errors && res.errors.length) ? res.errors
+    : (res.validation && res.validation.errors && res.validation.errors.length) ? res.validation.errors
+    : (res.message ? [res.message] : []);
+  return {
+    ok: !invalid,
+    applied: false,
+    wrote: false,
+    mode: 'DRY_RUN_ONLY',
+    engine: res.engine || 'core',
+    status: status || (invalid ? 'INVALID' : ''),
+    integrityStatus: res.integrityStatus || '',
+    migrationStatus: res.migrationStatus || '',
+    migrationRequired: !!res.migrationRequired,
+    migrationPerformed: !!res.migrationPerformed,
+    log: res.log || errors,
+    validation: res.validation || { ok: !invalid, errors: errors, warnings: res.warnings || [] },
+    schemaFrom: res.sourceSchema,
+    schemaTo: res.targetSchema,
+    data: res.data
+  };
+}
+function applyCoreRestoreDryRun(d){
+  var h = (typeof getSirmanHostSync === 'function') ? getSirmanHostSync() : null;
+  if(!h || !h.TestRestoreBackup) throw new Error('TestRestoreBackup Core در دسترس نیست');
+  var payload = JSON.stringify({ data: d });
+  var raw = h.TestRestoreBackup(payload);
+  var res = (typeof raw === 'string') ? JSON.parse(raw) : raw;
+  if(!res || typeof res !== 'object') throw new Error('پیش‌نمایش پشتیبان نامعتبر بود');
+  return mapCoreDryRunToPreview(res);
+}
 function testRestoreBackup(d){
+  var _dryMode = (typeof restoreDryRunMode==='function') ? restoreDryRunMode() : 'html';
+  if(_dryMode === 'core'){
+    return applyCoreRestoreDryRun(d);
+  }
   var cloned = cloneBackupData(d);
   cloned = unwrapBackupEnvelope(cloned);
   var fileVer = inferBackupSchemaVersion(cloned);
@@ -14806,10 +14856,18 @@ function confirmRestorePreview(){
 
 function runPendingTestRestore(){
   if(!_pendingRestore || !_pendingRestore.data){ ntf('فایلی برای تست نیست','err'); return; }
-  var r = (typeof testRestoreBackup==='function') ? testRestoreBackup(_pendingRestore.data) : {ok:false, log:['تابع تست نیست']};
-  if(typeof logBackupAudit==='function') logBackupAudit('test-restore', r.ok?'ok':'err', {detail:(r.log||[]).join(' | '), error: r.ok?'':((r.validation&&r.validation.errors)||[]).join(',')});
-  var extra = r.ok ? 'اعتبارسنجی موفق — هیچ داده‌ای اعمال نشد.' : ('ناموفق: '+((r.validation&&r.validation.errors)||r.log||[]).join('\n'));
-  alert((r.ok?'✅ ':'❌ ')+'تست بازگردانی (بدون اعمال)\nSchema '+(r.schemaFrom)+' → '+(r.schemaTo)+'\n\n'+(r.log||[]).join('\n')+'\n\n'+extra);
+  var r;
+  try {
+    r = (typeof testRestoreBackup==='function') ? testRestoreBackup(_pendingRestore.data) : {ok:false, applied:false, mode:'DRY_RUN_ONLY', log:['تابع تست نیست']};
+  } catch(e) {
+    r = { ok:false, applied:false, mode:'DRY_RUN_ONLY', log:[String(e && e.message || e)], validation:{ok:false, errors:[String(e && e.message || e)], warnings:[]}, schemaFrom:'?', schemaTo:'?' };
+  }
+  r.applied = false;
+  if(typeof logBackupAudit==='function') logBackupAudit('test-restore', r.ok?'ok':'err', {detail:(r.log||[]).join(' | '), error: r.ok?'':((r.validation&&r.validation.errors)||[]).join(','), mode: r.mode||'DRY_RUN_ONLY'});
+  var extra = r.ok
+    ? 'تحلیل فقط‌خواندنی — هیچ داده‌ای اعمال نشد (DRY_RUN_ONLY).'
+    : ('نامعتبر: '+((r.validation&&r.validation.errors)||r.log||[]).join('\n'));
+  alert((r.ok?'✅ ':'❌ ')+'تست بازگردانی (بدون اعمال / DRY_RUN_ONLY)\nSchema '+(r.schemaFrom)+' → '+(r.schemaTo)+'\n\n'+(r.log||[]).join('\n')+'\n\n'+extra);
 }
 
 function _restoreWants(selected, key){

@@ -65,6 +65,7 @@ public class AuthorizationTests
         var s = AuthSession.Unauthenticated(true);
         Assert.True(gate.Authorize(s, "WriteBackupText").Ok);
         Assert.True(gate.Authorize(s, "FinalizeBackup").Ok);
+        Assert.True(gate.Authorize(s, "TestRestoreBackup").Ok);
         Assert.True(gate.Authorize(s, "CloseApp").Ok);
         Assert.True(gate.Authorize(s, "Ping").Ok);
         Assert.True(gate.Authorize(s, "SaveAppPref").Ok);
