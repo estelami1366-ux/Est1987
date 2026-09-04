@@ -7,4 +7,9 @@
     <AssemblyName>Sirman.Core</AssemblyName>
     <Description>هستهٔ امنیتی سیرمان — Password / Auth / Authorization / Validation بدون وابستگی Windows</Description>
   </PropertyGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Sirman.Core.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
 </Project>

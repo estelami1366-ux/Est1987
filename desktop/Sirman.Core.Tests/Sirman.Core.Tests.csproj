@@ -24,5 +24,6 @@
     <None Include="InventoryStockParityVectors.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="InventoryStockFailClosedContract.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="BackupValidatorGolden.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="BackupMigrationGolden.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
