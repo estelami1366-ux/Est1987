@@ -73,6 +73,7 @@ public class PrintHardwareFactsTests
         Assert.Contains("RunPrintHardwareDiagnostic", Sirman.Core.Security.PermissionCatalog.AlwaysAllowedHostMethods);
         Assert.Contains("FinalizeBackup", Sirman.Core.Security.PermissionCatalog.AlwaysAllowedHostMethods);
         Assert.Contains("TestRestoreBackup", Sirman.Core.Security.PermissionCatalog.AlwaysAllowedHostMethods);
+        Assert.Contains("ConsumeBackupSnapshot", Sirman.Core.Security.PermissionCatalog.AlwaysAllowedHostMethods);
         Assert.False(Sirman.Core.Security.PermissionCatalog.HostMethodPermission.ContainsKey("RunPrintHardwareDiagnostic"));
     }
 }
