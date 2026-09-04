@@ -10,6 +10,8 @@ namespace Sirman.Core.Data.Repositories;
 /// این اینترفیس برای فاز بعد است؛ پیاده‌سازی JSON اینجا موتور بک‌آپ را کپی نمی‌کند.
 /// همتای MergeItem در <c>Sirman.Core.Data</c> برای بک‌آپ وجود ندارد.
 /// این اینترفیس هنوز به BusinessFacade / HTML وصل نشده است.
+/// اعتبارسنجی خالص بسته (P1C-1..7) در <c>Sirman.Core.Backup.BackupValidator</c> است
+/// و به restore زنده / این اینترفیس وصل نشده — HTML validator منبع تولید می‌ماند.
 /// </summary>
 public interface IBackupRepository
 {

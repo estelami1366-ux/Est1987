@@ -1,0 +1,3654 @@
+{
+  "id": "SIRMAN_ARCH2_BACKUP_VALIDATOR_GOLDEN",
+  "capturedFrom": "Sirman_Final.html HTML BackupEngine validators (P1C-1..P1C-7)",
+  "note": "HTML is the production baseline. Core must match these results. Do not change HTML to make Core pass. Phonebook uniqueness is not scanned. backupId is not invented. SHA-256 is of compact JSON.stringify(payload) UTF-8, not pretty disk bytes. Key order is insertion order (not sorted).",
+  "spec": {
+    "requiredAlways": [
+      "warranties",
+      "invoices"
+    ],
+    "requiredFromSchema": {
+      "1": [
+        "sales",
+        "parts",
+        "accounts"
+      ]
+    },
+    "tasks": "legacy-compatible-not-required",
+    "itemCounts": {
+      "absent": "compatible",
+      "present": "declared-finite-number-must-equal-array-length-no-repair"
+    },
+    "attachmentsIndex": {
+      "absent": "compatible",
+      "present": "kind+parentId must match rec.id in warranties|sales|invoices"
+    },
+    "duplicateIdentities": {
+      "keys": [
+        "invoices.invoiceId",
+        "sales.saleUid",
+        "warranties.id",
+        "parts.id",
+        "accounts.id"
+      ],
+      "semantics": "WARNING-only",
+      "phonebook": "not-scanned"
+    },
+    "canonicalExclusions": [
+      "exportedAt",
+      "checksum",
+      "checksumAlgo"
+    ],
+    "canonicalSerialization": "JSON.stringify compact, key insertion order, UTF-8 then SHA-256 when computing digest",
+    "checksumAlgo": {
+      "absentOrNone": "compatible-skipped",
+      "claimedUnknown": "INVALID",
+      "claimedSha256": "portable does not compare digest; digest is a separate pure function"
+    },
+    "notDiskByteHash": true,
+    "backupId": "not-in-format"
+  },
+  "fixtures": [
+    {
+      "id": "invalid-null-package",
+      "notes": "non-object",
+      "input": null,
+      "html": {
+        "required": {
+          "ok": false,
+          "errors": [
+            "بستهٔ پشتیبان نامعتبر است"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "بستهٔ پشتیبان نامعتبر است"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "بستهٔ پشتیبان نامعتبر است"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{}",
+          "sha256Hex": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "checksumClaimed": false,
+          "checksumAlgo": "",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices"
+        ],
+        "schemaVersion": 0
+      }
+    },
+    {
+      "id": "invalid-array-package",
+      "notes": "array is not a package",
+      "input": [],
+      "html": {
+        "required": {
+          "ok": false,
+          "errors": [
+            "بستهٔ پشتیبان نامعتبر است"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "بستهٔ پشتیبان نامعتبر است"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "بستهٔ پشتیبان نامعتبر است"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{}",
+          "sha256Hex": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices"
+        ],
+        "schemaVersion": 0
+      }
+    },
+    {
+      "id": "schema0-empty-required",
+      "notes": "schema 0 empty arrays VALID",
+      "input": {
+        "warranties": [],
+        "invoices": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"warranties\":[],\"invoices\":[]}",
+          "sha256Hex": "a908ca75b2396826ff0660635badbc4e741ec5e677161b5f78dc84b7d93abab7",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices"
+        ],
+        "schemaVersion": 0
+      }
+    },
+    {
+      "id": "schema0-missing-sales-parts-accounts",
+      "notes": "schema 0 omit sales/parts/accounts compatible",
+      "input": {
+        "warranties": [],
+        "invoices": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"warranties\":[],\"invoices\":[]}",
+          "sha256Hex": "a908ca75b2396826ff0660635badbc4e741ec5e677161b5f78dc84b7d93abab7",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices"
+        ],
+        "schemaVersion": 0
+      }
+    },
+    {
+      "id": "schema0-missing-warranties",
+      "notes": "warranties always required",
+      "input": {
+        "invoices": []
+      },
+      "html": {
+        "required": {
+          "ok": false,
+          "errors": [
+            "مجموعهٔ الزامی «warranties» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [
+            "warranties"
+          ],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «warranties» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [
+            "warranties"
+          ],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «warranties» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"invoices\":[]}",
+          "sha256Hex": "0dd3ce96c77eb66ec1d9b08802d4a7fca4770796e89944531ad725923b974468",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices"
+        ],
+        "schemaVersion": 0
+      }
+    },
+    {
+      "id": "schema0-missing-invoices",
+      "notes": "invoices always required",
+      "input": {
+        "warranties": []
+      },
+      "html": {
+        "required": {
+          "ok": false,
+          "errors": [
+            "مجموعهٔ الزامی «invoices» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [
+            "invoices"
+          ],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «invoices» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [
+            "invoices"
+          ],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «invoices» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"warranties\":[]}",
+          "sha256Hex": "4859ca6d61629a8aab2fb1660fedf9fbdc146815cd7fa0ced38308d42a785220",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices"
+        ],
+        "schemaVersion": 0
+      }
+    },
+    {
+      "id": "schema0-warranties-null",
+      "notes": "null warranties INVALID",
+      "input": {
+        "warranties": null,
+        "invoices": []
+      },
+      "html": {
+        "required": {
+          "ok": false,
+          "errors": [
+            "مجموعهٔ الزامی «warranties» مقدار null دارد و قابل بازگردانی نیست"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [
+            "warranties"
+          ]
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «warranties» مقدار null دارد و قابل بازگردانی نیست"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [
+            "warranties"
+          ],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «warranties» مقدار null دارد و قابل بازگردانی نیست"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"warranties\":null,\"invoices\":[]}",
+          "sha256Hex": "dafce930e16eda02dd2975c176fc4b2249c5db87228347608280775a90422a13",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices"
+        ],
+        "schemaVersion": 0
+      }
+    },
+    {
+      "id": "schema0-invoices-wrong-type",
+      "notes": "non-array invoices INVALID",
+      "input": {
+        "warranties": [],
+        "invoices": "invalid"
+      },
+      "html": {
+        "required": {
+          "ok": false,
+          "errors": [
+            "مجموعهٔ الزامی «invoices» باید آرایه باشد، نه string"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [
+            "invoices"
+          ]
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «invoices» باید آرایه باشد، نه string"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [
+            "invoices"
+          ],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «invoices» باید آرایه باشد، نه string"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"warranties\":[],\"invoices\":\"invalid\"}",
+          "sha256Hex": "3767d2194b6748d488528233d7a53cf573e34bbaf8a12f82ce3fb372690a06b8",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices"
+        ],
+        "schemaVersion": 0
+      }
+    },
+    {
+      "id": "schema0-bad-record",
+      "notes": "null record INVALID",
+      "input": {
+        "warranties": [
+          null
+        ],
+        "invoices": []
+      },
+      "html": {
+        "required": {
+          "ok": false,
+          "errors": [
+            "مجموعهٔ الزامی «warranties» در اندیس 0 رکورد ساختاری نامعتبر دارد"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [
+            "warranties"
+          ]
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «warranties» در اندیس 0 رکورد ساختاری نامعتبر دارد"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [
+            "warranties"
+          ],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «warranties» در اندیس 0 رکورد ساختاری نامعتبر دارد"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"warranties\":[null],\"invoices\":[]}",
+          "sha256Hex": "1ed18fd7a7bfb00d5d9ec3b014f36c9df1a95b799c9451e7ed528ef688ee5e34",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices"
+        ],
+        "schemaVersion": 0
+      }
+    },
+    {
+      "id": "schema0-tasks-omitted",
+      "notes": "tasks not required",
+      "input": {
+        "warranties": [],
+        "invoices": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"warranties\":[],\"invoices\":[]}",
+          "sha256Hex": "a908ca75b2396826ff0660635badbc4e741ec5e677161b5f78dc84b7d93abab7",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices"
+        ],
+        "schemaVersion": 0
+      }
+    },
+    {
+      "id": "schema0-tasks-empty",
+      "notes": "tasks empty compatible",
+      "input": {
+        "warranties": [],
+        "invoices": [],
+        "tasks": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"warranties\":[],\"invoices\":[],\"tasks\":[]}",
+          "sha256Hex": "5364d3932360db14810bfd7bdd414eb4ddfc10d5cfbbd52b7d8f9937062e0dc4",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices"
+        ],
+        "schemaVersion": 0
+      }
+    },
+    {
+      "id": "schema1-complete-empty",
+      "notes": "schema >=1 empty required arrays VALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "437ab3c37db5447ac06109899f5dca30f5c3132cfa7b1740d89f715e7613621a",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "schema1-missing-sales",
+      "notes": "schema>=1 sales missing INVALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "parts": [],
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": false,
+          "errors": [
+            "مجموعهٔ الزامی «sales» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [
+            "sales"
+          ],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «sales» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [
+            "sales"
+          ],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «sales» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "88fcda57404fe4d1dd209158a380a8823bea2853449ef4bb9f4b214d61954f58",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "schema1-missing-parts",
+      "notes": "schema>=1 parts missing INVALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": false,
+          "errors": [
+            "مجموعهٔ الزامی «parts» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [
+            "parts"
+          ],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «parts» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [
+            "parts"
+          ],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «parts» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"accounts\":[]}",
+          "sha256Hex": "72f98f7bd310838ec8f917fca3df6d43de9e113446bb3c1d33c4b5bf169168de",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "schema1-missing-accounts",
+      "notes": "schema>=1 accounts missing INVALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": []
+      },
+      "html": {
+        "required": {
+          "ok": false,
+          "errors": [
+            "مجموعهٔ الزامی «accounts» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [
+            "accounts"
+          ],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «accounts» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [
+            "accounts"
+          ],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «accounts» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[]}",
+          "sha256Hex": "92d36da5e454c30e8881ae247b0883e6aedbadd94d8dc15ed234c5f68c2048d7",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "schema1-sales-null",
+      "notes": "schema>=1 sales null INVALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": null,
+        "parts": [],
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": false,
+          "errors": [
+            "مجموعهٔ الزامی «sales» مقدار null دارد و قابل بازگردانی نیست"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [
+            "sales"
+          ]
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «sales» مقدار null دارد و قابل بازگردانی نیست"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [
+            "sales"
+          ],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «sales» مقدار null دارد و قابل بازگردانی نیست"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":null,\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "440e9d87b950bea5d699977d6ca9cc16bacc4f49ab3904c6455f425c1cea1240",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "schema1-parts-wrong-type",
+      "notes": "schema>=1 parts type INVALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": "invalid",
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": false,
+          "errors": [
+            "مجموعهٔ الزامی «parts» باید آرایه باشد، نه string"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [
+            "parts"
+          ]
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «parts» باید آرایه باشد، نه string"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [
+            "parts"
+          ],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «parts» باید آرایه باشد، نه string"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":\"invalid\",\"accounts\":[]}",
+          "sha256Hex": "126ec5531cbdea6224fdb0a1883385238719d0dc8742ca4f99bd6285126645a9",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "schema1-accounts-null",
+      "notes": "schema>=1 accounts null INVALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": null
+      },
+      "html": {
+        "required": {
+          "ok": false,
+          "errors": [
+            "مجموعهٔ الزامی «accounts» مقدار null دارد و قابل بازگردانی نیست"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [
+            "accounts"
+          ]
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «accounts» مقدار null دارد و قابل بازگردانی نیست"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [
+            "accounts"
+          ],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "مجموعهٔ الزامی «accounts» مقدار null دارد و قابل بازگردانی نیست"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":null}",
+          "sha256Hex": "86b9231ab9227fffa3b19a01fff1a32329ac970b98cea006069789c7941c2a3a",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "schema1-manifest-schema",
+      "notes": "schema from manifest",
+      "input": {
+        "manifest": {
+          "schemaVersion": 1
+        },
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"manifest\":{\"schemaVersion\":1},\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "e3434ca17d19245b0f6374a7dc34637046889cda9216a3f803c0b6ff52885701",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "v2-legacy-no-schema-no-accounts",
+      "notes": "v2.0 without schemaVersion is schema 0; accounts omitted compatible",
+      "input": {
+        "version": "2.0",
+        "warranties": [],
+        "invoices": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"version\":\"2.0\",\"warranties\":[],\"invoices\":[]}",
+          "sha256Hex": "a9cbafbbdc427bc56986d232ba0f680b6b00cbab80350b89c09cf7e1a094f3cc",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices"
+        ],
+        "schemaVersion": 0
+      }
+    },
+    {
+      "id": "itemcounts-absent",
+      "notes": "absent itemCounts compatible",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "437ab3c37db5447ac06109899f5dca30f5c3132cfa7b1740d89f715e7613621a",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "itemcounts-match",
+      "notes": "matching counts VALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "itemCounts": {
+          "warranties": 0,
+          "invoices": 0,
+          "sales": 0,
+          "parts": 0,
+          "accounts": 0
+        }
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"itemCounts\":{\"warranties\":0,\"invoices\":0,\"sales\":0,\"parts\":0,\"accounts\":0}}",
+          "sha256Hex": "3e3032256a9b49dd808e522566fbc8e10ab54c5039d06cbd1f9449628955b610",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "itemcounts-mismatch",
+      "notes": "declared !== length INVALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [
+          {
+            "id": "W1"
+          }
+        ],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "itemCounts": {
+          "warranties": 2
+        }
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "شمارش warranties ناهماهنگ است: اعلام 2 ولی واقعیت 1"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [
+            "warranties"
+          ],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "شمارش warranties ناهماهنگ است: اعلام 2 ولی واقعیت 1"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W1\"}],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"itemCounts\":{\"warranties\":2}}",
+          "sha256Hex": "c0ecf55448b6ad48cdfa374bc9bc88553d23b8c6b48e0258947291ce6c4d0e31",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "itemcounts-not-object",
+      "notes": "itemCounts array INVALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "itemCounts": [
+          1
+        ]
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "itemCounts باید شیء شمارش باشد، نه array"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "itemCounts باید شیء شمارش باشد، نه array"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"itemCounts\":[1]}",
+          "sha256Hex": "f6a1cbfac944ac746fe0d4b86f81d159759627c410886b5d233998518a798e9b",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "itemcounts-non-finite",
+      "notes": "non-number declared INVALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "itemCounts": {
+          "invoices": "2"
+        }
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "itemCounts.invoices نوع نامعتبر است"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [
+            "invoices"
+          ],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "itemCounts.invoices نوع نامعتبر است"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"itemCounts\":{\"invoices\":\"2\"}}",
+          "sha256Hex": "b1ea166306d3a909660abe0a5d5617a6eb7083d722f60290790c175f7bfb1015",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "attachments-absent",
+      "notes": "absent attachmentsIndex compatible",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "437ab3c37db5447ac06109899f5dca30f5c3132cfa7b1740d89f715e7613621a",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "attachments-ok",
+      "notes": "supported parent exists",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [
+          {
+            "id": "W1",
+            "docs": [
+              {
+                "id": "d1",
+                "name": "a.pdf"
+              }
+            ]
+          }
+        ],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "attachmentsIndex": [
+          {
+            "id": "d1",
+            "kind": "warranty",
+            "parentId": "W1",
+            "name": "a.pdf",
+            "ref": "",
+            "inline": false
+          }
+        ]
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W1\",\"docs\":[{\"id\":\"d1\",\"name\":\"a.pdf\"}]}],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[{\"id\":\"d1\",\"kind\":\"warranty\",\"parentId\":\"W1\",\"name\":\"a.pdf\",\"ref\":\"\",\"inline\":false}]}",
+          "sha256Hex": "378653e029f56e5d2b5caa7aea827807a63a1f9adad2c32981ebc7a668bd276d",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "attachments-broken",
+      "notes": "broken supported reference INVALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [
+          {
+            "id": "W1"
+          }
+        ],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "attachmentsIndex": [
+          {
+            "id": "d1",
+            "kind": "warranty",
+            "parentId": "MISSING",
+            "name": "a.pdf"
+          }
+        ]
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "پیوست به والد ناموجود: warranty MISSING"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [
+            {
+              "index": 0,
+              "kind": "warranty",
+              "parentId": "MISSING"
+            }
+          ],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "پیوست به والد ناموجود: warranty MISSING"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W1\"}],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[{\"id\":\"d1\",\"kind\":\"warranty\",\"parentId\":\"MISSING\",\"name\":\"a.pdf\"}]}",
+          "sha256Hex": "2b5c05e40c9443df9c488f6679b1694673199429990380ce27ec3ec01b07f958",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "attachments-not-array",
+      "notes": "attachmentsIndex object INVALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "attachmentsIndex": {}
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "attachmentsIndex باید آرایه باشد، نه object"
+          ],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "attachmentsIndex باید آرایه باشد، نه object"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":{}}",
+          "sha256Hex": "afccc98bf3ccb32a95a9fd7303e3c7ee9eded18ec1f504d09ce1f194a4639532",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "dup-invoiceId-warn",
+      "notes": "duplicate invoiceId WARNING only",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [
+          {
+            "id": "a",
+            "invoiceId": "INVUID-1"
+          },
+          {
+            "id": "b",
+            "invoiceId": "INVUID-1"
+          }
+        ],
+        "sales": [],
+        "parts": [],
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID_WITH_WARNINGS",
+          "errors": [],
+          "warnings": [
+            "شناسه تکراری اعلام‌شده: 1 مورد (بدون تغییر داده)"
+          ],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": [
+            {
+              "collection": "invoices",
+              "field": "invoiceId",
+              "value": "INVUID-1",
+              "index": 1
+            }
+          ]
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID_WITH_WARNINGS",
+          "errors": [],
+          "warnings": [
+            "شناسه تکراری اعلام‌شده: 1 مورد (بدون تغییر داده)"
+          ]
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[{\"id\":\"a\",\"invoiceId\":\"INVUID-1\"},{\"id\":\"b\",\"invoiceId\":\"INVUID-1\"}],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "3a8e5e44a816699d808acd1de36ee653669c35d1108ace62cc8feb8374669ea3",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "dup-saleUid-warn",
+      "notes": "duplicate saleUid WARNING only",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [
+          {
+            "id": "s1",
+            "saleUid": "SALEUID-1"
+          },
+          {
+            "id": "s2",
+            "saleUid": "SALEUID-1"
+          }
+        ],
+        "parts": [],
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID_WITH_WARNINGS",
+          "errors": [],
+          "warnings": [
+            "شناسه تکراری اعلام‌شده: 1 مورد (بدون تغییر داده)"
+          ],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": [
+            {
+              "collection": "sales",
+              "field": "saleUid",
+              "value": "SALEUID-1",
+              "index": 1
+            }
+          ]
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID_WITH_WARNINGS",
+          "errors": [],
+          "warnings": [
+            "شناسه تکراری اعلام‌شده: 1 مورد (بدون تغییر داده)"
+          ]
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[{\"id\":\"s1\",\"saleUid\":\"SALEUID-1\"},{\"id\":\"s2\",\"saleUid\":\"SALEUID-1\"}],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "d041823d89ae0df33a9a5dc36c87e187bb94258e404c1e423faff07b0100c413",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "dup-warranty-id-warn",
+      "notes": "duplicate warranty id WARNING only",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [
+          {
+            "id": "W1"
+          },
+          {
+            "id": "W1"
+          }
+        ],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID_WITH_WARNINGS",
+          "errors": [],
+          "warnings": [
+            "شناسه تکراری اعلام‌شده: 1 مورد (بدون تغییر داده)"
+          ],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": [
+            {
+              "collection": "warranties",
+              "field": "id",
+              "value": "W1",
+              "index": 1
+            }
+          ]
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID_WITH_WARNINGS",
+          "errors": [],
+          "warnings": [
+            "شناسه تکراری اعلام‌شده: 1 مورد (بدون تغییر داده)"
+          ]
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W1\"},{\"id\":\"W1\"}],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "137cea22c835eadcf9682cde8eac9df19f8a6279c50e978b561f7677fd07381b",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "dup-parts-accounts-warn",
+      "notes": "duplicate parts.id and accounts.id WARNING only",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [
+          {
+            "id": "P1"
+          },
+          {
+            "id": "P1"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "A1"
+          },
+          {
+            "id": "A1"
+          }
+        ]
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID_WITH_WARNINGS",
+          "errors": [],
+          "warnings": [
+            "شناسه تکراری اعلام‌شده: 2 مورد (بدون تغییر داده)"
+          ],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": [
+            {
+              "collection": "accounts",
+              "field": "id",
+              "value": "A1",
+              "index": 1
+            },
+            {
+              "collection": "parts",
+              "field": "id",
+              "value": "P1",
+              "index": 1
+            }
+          ]
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID_WITH_WARNINGS",
+          "errors": [],
+          "warnings": [
+            "شناسه تکراری اعلام‌شده: 2 مورد (بدون تغییر داده)"
+          ]
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[{\"id\":\"P1\"},{\"id\":\"P1\"}],\"accounts\":[{\"id\":\"A1\"},{\"id\":\"A1\"}]}",
+          "sha256Hex": "47bc1f497ba6598e9b44f35215fb048324fb5f7e55ef9d1b650a1b3f70465c54",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "phonebook-not-scanned",
+      "notes": "Phonebook uniqueness is not part of this extraction",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "phonebook": [
+          {
+            "fn": "Ali",
+            "phones": [
+              "0912"
+            ]
+          },
+          {
+            "fn": "Ali2",
+            "phones": [
+              "0912"
+            ]
+          }
+        ]
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[{\"fn\":\"Ali\",\"phones\":[\"0912\"]},{\"fn\":\"Ali2\",\"phones\":[\"0912\"]}]}",
+          "sha256Hex": "7d486144b7ae22509e092f0c3729321937505dea8105fc10307a15a805446daa",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "checksum-none",
+      "notes": "none compatible",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "checksum": "",
+        "checksumAlgo": "none"
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "437ab3c37db5447ac06109899f5dca30f5c3132cfa7b1740d89f715e7613621a",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "checksum-absent",
+      "notes": "absent checksum compatible",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "437ab3c37db5447ac06109899f5dca30f5c3132cfa7b1740d89f715e7613621a",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "checksum-unknown-algo",
+      "notes": "unknown algo + checksum INVALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "checksum": "abcd",
+        "checksumAlgo": "MD5"
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "الگوریتم checksum پشتیبانی نمی‌شود: MD5"
+          ],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": true,
+          "checksumAlgo": "MD5",
+          "checksumSkipped": false,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "الگوریتم checksum پشتیبانی نمی‌شود: MD5"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "437ab3c37db5447ac06109899f5dca30f5c3132cfa7b1740d89f715e7613621a",
+          "checksumClaimed": true,
+          "checksumAlgo": "MD5",
+          "checksumSkipped": false
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "section-checksums-match",
+      "notes": "matching sectionChecksums VALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [
+          {
+            "id": "W1"
+          }
+        ],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "sectionChecksums": {
+          "warranties": "2ef493ac",
+          "invoices": "59765d"
+        }
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W1\"}],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"sectionChecksums\":{\"warranties\":\"2ef493ac\",\"invoices\":\"59765d\"}}",
+          "sha256Hex": "c9f1e79906cd7ba9a65bab8dc5054e19cb7c0c7bc04af845f0cac2c9f471eaaf",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "section-checksums-mismatch",
+      "notes": "mismatched sectionChecksums INVALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [
+          {
+            "id": "W1"
+          },
+          {
+            "id": "W2"
+          }
+        ],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "sectionChecksums": {
+          "warranties": "2ef493ac"
+        }
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "هش بخش warranties مطابقت ندارد"
+          ],
+          "warnings": [],
+          "sectionChecksumMismatches": [
+            "warranties"
+          ],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "هش بخش warranties مطابقت ندارد"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W1\"},{\"id\":\"W2\"}],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"sectionChecksums\":{\"warranties\":\"2ef493ac\"}}",
+          "sha256Hex": "c83f0ef2d2a892402a7fe2147ef133ff8e31d50b8d789398f885367384d346ce",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "section-checksums-absent",
+      "notes": "absent sectionChecksums compatible",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "437ab3c37db5447ac06109899f5dca30f5c3132cfa7b1740d89f715e7613621a",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "section-checksums-not-object",
+      "notes": "sectionChecksums array INVALID",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "sectionChecksums": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "sectionChecksums باید شیء باشد، نه array"
+          ],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": false,
+          "status": "INVALID",
+          "errors": [
+            "sectionChecksums باید شیء باشد، نه array"
+          ],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"sectionChecksums\":[]}",
+          "sha256Hex": "e02951cf81c65c834e61120869281bf2073c14371d6471bb9ec44ae775ba52db",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "persian-text-and-digits",
+      "notes": "Persian text + Persian digits in canonical JSON",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [
+          {
+            "id": "W-۱",
+            "name": "علی",
+            "note": "گارانتی ۱۲۳"
+          }
+        ],
+        "invoices": [
+          {
+            "id": "I1",
+            "num": "۱",
+            "buyer": "فروشگاه نمونه"
+          }
+        ],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "company": {
+          "name": "لایق الکترونیک پارسیان",
+          "city": "تهران"
+        }
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W-۱\",\"name\":\"علی\",\"note\":\"گارانتی ۱۲۳\"}],\"invoices\":[{\"id\":\"I1\",\"num\":\"۱\",\"buyer\":\"فروشگاه نمونه\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"company\":{\"name\":\"لایق الکترونیک پارسیان\",\"city\":\"تهران\"}}",
+          "sha256Hex": "06e4efdc6bf544c610490a83b9e71f14e93811bd470d9565c42b566c91eb9c14",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "nested-objects-nulls-numbers",
+      "notes": "nested objects, null, 1.5",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [
+          {
+            "id": "I1",
+            "items": [
+              {
+                "code": "X",
+                "qty": 1.5,
+                "nested": {
+                  "a": [
+                    null,
+                    {
+                      "b": true
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "inventory": {
+          "P1": {
+            "qty": 2,
+            "loc": {
+              "shelf": "A",
+              "bin": 3
+            }
+          }
+        }
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[{\"id\":\"I1\",\"items\":[{\"code\":\"X\",\"qty\":1.5,\"nested\":{\"a\":[null,{\"b\":true}]}}]}],\"sales\":[],\"parts\":[],\"accounts\":[],\"inventory\":{\"P1\":{\"qty\":2,\"loc\":{\"shelf\":\"A\",\"bin\":3}}}}",
+          "sha256Hex": "33cb665ed3acdd310f080d32ddf187e5be915215d490832829a6b998a6d9b1c7",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "multiple-sections",
+      "notes": "extra optional sections",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "products": [],
+        "phonebook": [],
+        "tasks": [],
+        "appearance": {
+          "theme": "dark"
+        }
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"products\":[],\"phonebook\":[],\"tasks\":[],\"appearance\":{\"theme\":\"dark\"}}",
+          "sha256Hex": "896094233580e99d5403913395d4fe9dff1ba61ef8c766794bc03c8f073fcc14",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "empty-arrays-only",
+      "notes": "empty arrays",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "437ab3c37db5447ac06109899f5dca30f5c3132cfa7b1740d89f715e7613621a",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "key-order-schema-first",
+      "notes": "insertion order A — HTML does not sort keys",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [],
+        "sales": [],
+        "parts": [],
+        "accounts": []
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "437ab3c37db5447ac06109899f5dca30f5c3132cfa7b1740d89f715e7613621a",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "key-order-accounts-first",
+      "notes": "insertion order B — must differ from A",
+      "input": {
+        "accounts": [],
+        "parts": [],
+        "sales": [],
+        "invoices": [],
+        "warranties": [],
+        "schemaVersion": 1
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"accounts\":[],\"parts\":[],\"sales\":[],\"invoices\":[],\"warranties\":[],\"schemaVersion\":1}",
+          "sha256Hex": "3a84b81a6ad2f97f10b564c31093b70afc5a7f97b5c2bf19f71ca2da687f423c",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "canonical-excludes-exportedAt-checksum",
+      "notes": "canonical payload drops 3 keys",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [
+          {
+            "id": "I1",
+            "num": "1"
+          }
+        ],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "exportedAt": "2026-09-04T00:00:00.000Z",
+        "checksum": "SHOULD_BE_EXCLUDED",
+        "checksumAlgo": "SHA-256"
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": true,
+          "checksumAlgo": "SHA-256",
+          "checksumSkipped": false,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[{\"id\":\"I1\",\"num\":\"1\"}],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "0c9d9eda047ee6e8439777b812033cc6599f25e15da7c1324c9e6d97bffebbaf",
+          "checksumClaimed": true,
+          "checksumAlgo": "SHA-256",
+          "checksumSkipped": false
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "exportedAt-changed-same-canonical",
+      "notes": "exportedAt mutation must not change canonical string vs hashBase payload",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [
+          {
+            "id": "I1",
+            "num": "1"
+          }
+        ],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "exportedAt": "2099-12-31T00:00:00.000Z",
+        "checksum": "SHOULD_BE_EXCLUDED",
+        "checksumAlgo": "SHA-256"
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": true,
+          "checksumAlgo": "SHA-256",
+          "checksumSkipped": false,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[{\"id\":\"I1\",\"num\":\"1\"}],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "0c9d9eda047ee6e8439777b812033cc6599f25e15da7c1324c9e6d97bffebbaf",
+          "checksumClaimed": true,
+          "checksumAlgo": "SHA-256",
+          "checksumSkipped": false
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "checksum-field-changed-same-canonical",
+      "notes": "checksum mutation excluded",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [
+          {
+            "id": "I1",
+            "num": "1"
+          }
+        ],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "exportedAt": "2026-09-04T00:00:00.000Z",
+        "checksum": "DEADBEEF",
+        "checksumAlgo": "SHA-256"
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": true,
+          "checksumAlgo": "SHA-256",
+          "checksumSkipped": false,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[{\"id\":\"I1\",\"num\":\"1\"}],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "0c9d9eda047ee6e8439777b812033cc6599f25e15da7c1324c9e6d97bffebbaf",
+          "checksumClaimed": true,
+          "checksumAlgo": "SHA-256",
+          "checksumSkipped": false
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    },
+    {
+      "id": "checksumAlgo-changed-same-canonical-payload",
+      "notes": "checksumAlgo mutation excluded from canonical; claim classification changes",
+      "input": {
+        "schemaVersion": 1,
+        "warranties": [],
+        "invoices": [
+          {
+            "id": "I1",
+            "num": "1"
+          }
+        ],
+        "sales": [],
+        "parts": [],
+        "accounts": [],
+        "exportedAt": "2026-09-04T00:00:00.000Z",
+        "checksum": "SHOULD_BE_EXCLUDED",
+        "checksumAlgo": "none"
+      },
+      "html": {
+        "required": {
+          "ok": true,
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": []
+        },
+        "structural": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "missingRequiredCollections": [],
+          "invalidCollections": [],
+          "countMismatches": [],
+          "brokenAttachmentRefs": [],
+          "duplicateIdentities": []
+        },
+        "portable": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": [],
+          "sectionChecksumMismatches": [],
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true,
+          "hasBackupId": false
+        },
+        "combined": {
+          "ok": true,
+          "status": "VALID",
+          "errors": [],
+          "warnings": []
+        },
+        "integrity": {
+          "canonicalString": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[{\"id\":\"I1\",\"num\":\"1\"}],\"sales\":[],\"parts\":[],\"accounts\":[]}",
+          "sha256Hex": "0c9d9eda047ee6e8439777b812033cc6599f25e15da7c1324c9e6d97bffebbaf",
+          "checksumClaimed": false,
+          "checksumAlgo": "none",
+          "checksumSkipped": true
+        },
+        "requiredKeys": [
+          "warranties",
+          "invoices",
+          "sales",
+          "parts",
+          "accounts"
+        ],
+        "schemaVersion": 1
+      }
+    }
+  ]
+}
