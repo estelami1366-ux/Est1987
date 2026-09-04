@@ -9,6 +9,100 @@ internal static class BackupJsonUtil
     public static bool IsNullish(JsonNode? n) =>
         n is null || n.GetValueKind() == JsonValueKind.Null;
 
+    /// <summary>JS truthiness used by migration <c>if (!d.sales)</c> etc. Missing/null/false/0/"" are falsy; [] and {} are truthy.</summary>
+    public static bool IsJsFalsy(JsonNode? n)
+    {
+        if (n is null) return true;
+        switch (n.GetValueKind())
+        {
+            case JsonValueKind.Undefined:
+            case JsonValueKind.Null:
+            case JsonValueKind.False:
+                return true;
+            case JsonValueKind.True:
+                return false;
+            case JsonValueKind.Number:
+                return TryGetFiniteNumber(n, out var d) && d == 0;
+            case JsonValueKind.String:
+                return n is JsonValue jv && jv.TryGetValue<string>(out var s) && s == "";
+            default:
+                return false;
+        }
+    }
+
+    public static bool IsUndefinedProperty(JsonObject obj, string key)
+    {
+        if (!obj.ContainsKey(key)) return true;
+        var v = obj[key];
+        return v is null || v.GetValueKind() == JsonValueKind.Undefined;
+    }
+
+    public static JsonNode CloneBackupData(JsonNode? d)
+    {
+        var src = IsJsFalsy(d) ? new JsonObject() : d!;
+        return JsonNode.Parse(BackupJsJson.Stringify(src)) ?? new JsonObject();
+    }
+
+    public static JsonNode? CloneExact(JsonNode? d)
+    {
+        if (d is null) return null;
+        if (d.GetValueKind() == JsonValueKind.Null) return JsonValue.Create((object?)null);
+        return JsonNode.Parse(BackupJsJson.Stringify(d));
+    }
+
+    public static string JsLengthLog(JsonNode? n)
+    {
+        if (n is JsonArray arr) return arr.Count.ToString(CultureInfo.InvariantCulture);
+        if (n is JsonValue jv && jv.TryGetValue<string>(out var s))
+            return s.Length.ToString(CultureInfo.InvariantCulture);
+        return "undefined";
+    }
+
+    public static string JsToString(JsonNode? n)
+    {
+        if (n is null || n.GetValueKind() is JsonValueKind.Null or JsonValueKind.Undefined)
+            return "undefined";
+        if (n is JsonValue jv && jv.TryGetValue<string>(out var s)) return s;
+        return BackupJsJson.Stringify(n).Trim('"');
+    }
+
+    public static double JsToNumber(JsonNode? n)
+    {
+        if (n is null || n.GetValueKind() is JsonValueKind.Undefined) return double.NaN;
+        if (n.GetValueKind() == JsonValueKind.Null) return 0;
+        if (n.GetValueKind() == JsonValueKind.True) return 1;
+        if (n.GetValueKind() == JsonValueKind.False) return 0;
+        if (TryGetFiniteNumber(n, out var d)) return d;
+        if (n is JsonValue jv && jv.TryGetValue<string>(out var s))
+        {
+            if (TryParseInt10(s, out var i)) return i;
+            if (double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var x))
+                return x;
+            return double.NaN;
+        }
+        return double.NaN;
+    }
+
+    public static bool JsLessThan(JsonNode? n, double rhs)
+    {
+        var lhs = JsToNumber(n);
+        if (double.IsNaN(lhs)) return false;
+        return lhs < rhs;
+    }
+
+    public static bool JsLessOrEqual(JsonNode? n, double rhs)
+    {
+        var lhs = JsToNumber(n);
+        if (double.IsNaN(lhs)) return false;
+        return lhs <= rhs;
+    }
+
+    public static string PadStart(string s, int len, char c)
+    {
+        if (s.Length >= len) return s;
+        return new string(c, len - s.Length) + s;
+    }
+
     public static bool IsPackageObject(JsonNode? n) =>
         n is JsonObject;
 

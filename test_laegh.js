@@ -8370,6 +8370,143 @@ test('ARCH-2 G3: Phonebook در گراف اعتبارسنجی استخراج‌�
 
 
 console.log('');
+console.log('📋 گروه: ARCH-3 قفل طلایی migration پشتیبان HTML (بدون cutover)');
+
+function loadArch3BackupMigrationGolden() {
+  const name = 'BackupMigrationGolden.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول طلایی ARCH-3 پیدا نشد: ' + name);
+}
+
+function extractArch3Binding(src, name) {
+  const re = new RegExp('var\\s+' + name + '\\s*=');
+  const m = re.exec(src);
+  if (!m) return null;
+  let i = m.index + m[0].length;
+  while (i < src.length && /\s/.test(src[i])) i++;
+  const start = m.index;
+  const open = src[i];
+  if (open !== '{' && open !== '[') {
+    const semi = src.indexOf(';', i);
+    return src.substring(start, semi + 1);
+  }
+  let braces = 0, brackets = 0, inStr = false, strQ = '', esc = false;
+  for (; i < src.length; i++) {
+    const ch = src[i];
+    if (inStr) {
+      if (esc) { esc = false; continue; }
+      if (ch === '\\') { esc = true; continue; }
+      if (ch === strQ) inStr = false;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === '`') { inStr = true; strQ = ch; continue; }
+    if (ch === '{') braces++;
+    else if (ch === '}') braces--;
+    else if (ch === '[') brackets++;
+    else if (ch === ']') brackets--;
+    if (braces === 0 && brackets === 0) {
+      i++;
+      while (i < src.length && /\s/.test(src[i])) i++;
+      if (src[i] === ';') i++;
+      return src.substring(start, i);
+    }
+  }
+  return null;
+}
+
+function loadArch3MigrationOracle(srcHtml) {
+  const migrationSrc = [
+    'var SIRMAN_SCHEMA_VERSION = 1;',
+    'var SIRMAN_BACKUP_MAGIC = "SIRMAN_BACKUP";',
+    'function isDiskRef(s){ return typeof s === "string" && s.indexOf("disk://") === 0; }',
+    extractFunctionSource(srcHtml, 'inferBackupSchemaVersion'),
+    extractFunctionSource(srcHtml, 'canRestoreSchema'),
+    extractFunctionSource(srcHtml, 'buildBackupManifest'),
+    extractFunctionSource(srcHtml, 'collectAttachmentIndex'),
+    extractFunctionSource(srcHtml, 'cloneBackupData'),
+    extractFunctionSource(srcHtml, 'inferRequiredBackupSchemaVersion'),
+    extractArch3Binding(srcHtml, 'SCHEMA_MIGRATIONS'),
+    extractFunctionSource(srcHtml, 'applySchemaMigrations'),
+    extractArch3Binding(srcHtml, 'SCHEMAS'),
+    extractFunctionSource(srcHtml, 'migrateRecord'),
+    extractFunctionSource(srcHtml, 'migrateSection'),
+    extractFunctionSource(srcHtml, 'migrateBackup')
+  ].join('\n');
+  return new Function(migrationSrc + '\nreturn {applySchemaMigrations:applySchemaMigrations,migrateBackup:migrateBackup};')();
+}
+
+function arch3RunStage(oracle, stage, input, nowMs) {
+  const prev = Date.now;
+  Date.now = function () { return nowMs; };
+  try {
+    const base = String(stage).replace(/-twice$/, '');
+    if (base === 'schema') return oracle.applySchemaMigrations(JSON.parse(JSON.stringify(input)));
+    if (base === 'field') {
+      try {
+        const r = oracle.migrateBackup(JSON.parse(JSON.stringify(input)));
+        return { ok: true, threw: false, log: r.log, data: r.data };
+      } catch (e) { return { threw: true, errorMessage: String(e.message || e) }; }
+    }
+    try {
+      const schema = oracle.applySchemaMigrations(JSON.parse(JSON.stringify(input)));
+      if (!schema.ok) return schema;
+      const field = oracle.migrateBackup(schema.data);
+      return { ok: true, tooNew: false, from: schema.from, to: field.data && field.data.schemaVersion, log: (schema.log || []).concat(field.log || []), data: field.data };
+    } catch (e) {
+      return { threw: true, errorMessage: String(e.message || e) };
+    }
+  } finally {
+    Date.now = prev;
+  }
+}
+
+test('ARCH-3 G1: جدول طلایی باید هنوز با migration فعلی HTML یکی باشد', () => {
+  const pack = loadArch3BackupMigrationGolden();
+  assertTrue(Array.isArray(pack.fixtures) && pack.fixtures.length >= 40, 'باید فیکسچرهای ARCH-3 موجود باشند');
+  const oracle = loadArch3MigrationOracle(html);
+  pack.fixtures.forEach(function (row) {
+    const got = arch3RunStage(oracle, row.stage, row.input, pack.frozenNowMs);
+    if (row.html.threw) {
+      assertEqual(!!got.threw, true, row.id + ' should throw');
+      return;
+    }
+    assertEqual(!!got.threw, false, row.id + ' should not throw');
+    if (Object.prototype.hasOwnProperty.call(got, 'ok') && row.html.ok != null)
+      assertEqual(!!got.ok, !!row.html.ok, row.id + ' ok');
+    if (row.html.tooNew != null && got.tooNew != null)
+      assertEqual(!!got.tooNew, !!row.html.tooNew, row.id + ' tooNew');
+    assertEqual(JSON.stringify(got.log || []), JSON.stringify(row.html.log || []), row.id + ' log');
+    assertEqual(JSON.stringify(got.data), row.html.dataCanonical, row.id + ' data');
+  });
+});
+
+test('ARCH-3 G2: HTML migrateBackup در importData باقی است و cutover نشده', () => {
+  const importSrc = extractFunctionSource(html, 'importData');
+  assertTrue(importSrc.indexOf('applySchemaMigrations') >= 0, 'importData باید applySchemaMigrations HTML را صدا بزند');
+  assertTrue(importSrc.indexOf('migrateBackup') >= 0, 'importData باید migrateBackup HTML را صدا بزند');
+  assertTrue(importSrc.indexOf('BackupMigrator') < 0, 'importData نباید Core BackupMigrator را صدا بزند');
+  assertTrue(importSrc.indexOf('MigratePackage') < 0, 'importData نباید Core MigratePackage را صدا بزند');
+  assertTrue(html.indexOf('function migrateBackup') >= 0, 'تابع HTML migrateBackup باید باقی بماند');
+  assertTrue(html.indexOf('function applySchemaMigrations') >= 0, 'تابع HTML applySchemaMigrations باید باقی بماند');
+  assertTrue(html.indexOf('var SCHEMA_MIGRATIONS') >= 0, 'SCHEMA_MIGRATIONS HTML باید باقی بماند');
+});
+
+test('ARCH-3 G3: Phonebook زنده و SQLite در این استخراج دست نخورده‌اند', () => {
+  assertTrue(extractFunctionSource(html, 'savePBContact') !== null, 'savePBContact باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'applyBackupMergeSections') !== null, 'applyBackupMergeSections باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'applyBackupReplaceSections') !== null, 'applyBackupReplaceSections باید باقی بماند');
+  assertTrue(extractFunctionSource(html, '_buildFullBackupData') !== null, '_buildFullBackupData باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'resetAll') !== null, 'resetAll باید باقی بماند');
+});
+
+
+console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
 
 function loadErrorEngine(srcHtml){
