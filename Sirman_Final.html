@@ -7960,7 +7960,7 @@ function detectBackupDuplicateIdentities(d){
     arr.forEach(function(rec, i){
       var id = keyFn(rec);
       if(!id) return;
-      if(seen[id]){
+      if(Object.prototype.hasOwnProperty.call(seen, id)){
         duplicateIdentities.push({ collection:collection, field:field, value:id, index:i });
       } else {
         seen[id] = i;
