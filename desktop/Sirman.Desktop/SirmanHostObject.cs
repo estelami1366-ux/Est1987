@@ -127,6 +127,22 @@ public class SirmanHostObject
         }
     }
 
+    /// <summary>
+    /// ARCH-10: read-only consume of an already-isolated serialized BackupSnapshot.
+    /// Parse + validate only. Does not assemble, persist, merge, replace, or finalize.
+    /// </summary>
+    public string ConsumeBackupSnapshot(string json)
+    {
+        try
+        {
+            return Sirman.Core.Backup.BackupSnapshotConsumer.Execute(json ?? "");
+        }
+        catch (Exception ex)
+        {
+            return SafeError.Json("backup-snapshot-consume", "مصرف snapshot انجام نشد", ex);
+        }
+    }
+
     /// <summary>کاتالوگ پوستهٔ شیشه‌ای فصل/ماه برای مرور گارانتی.</summary>
     public string GetWarrantyBrowseCatalog() => SeasonalGlassTheme.CatalogJson();
 

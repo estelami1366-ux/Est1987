@@ -7801,6 +7801,22 @@ function applyBackupFinalizer(data, origin, kind){
   if(typeof finalizeBackupPackage === 'function') finalizeBackupPackage(data, origin, kind);
   return { engine: 'html', checksumAttached: false };
 }
+function consumeBackupSnapshot(snapshot){
+  var payload = snapshot && typeof snapshot === 'object' ? snapshot : {};
+  var json = JSON.stringify({ data: payload });
+  var h = (typeof getSirmanHostSync === 'function') ? getSirmanHostSync() : null;
+  if(!h || typeof h.ConsumeBackupSnapshot !== 'function'){
+    return { ok:false, engine:'html-unavailable', applied:false, wrote:false, error:'host-unavailable', message:'مصرف snapshot فقط در exe با Core است' };
+  }
+  var raw = h.ConsumeBackupSnapshot(json);
+  var res = (typeof raw === 'string') ? JSON.parse(raw) : raw;
+  if(!res || typeof res !== 'object'){
+    return { ok:false, engine:'core', applied:false, wrote:false, error:'invalid-json', message:'پاسخ میزبان نامعتبر است' };
+  }
+  res.applied = false;
+  res.wrote = false;
+  return res;
+}
 async function attachChecksumUnlessCore(data){
   if(typeof coreChecksumAlreadyAttached === 'function' && coreChecksumAlreadyAttached(data)) return;
   if(typeof attachChecksum === 'function') await attachChecksum(data);
