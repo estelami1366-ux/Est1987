@@ -118,7 +118,15 @@ function p1cValidatorSrc(srcHtml) {
     extractFunctionSource(htmlSrc, 'validateBackupItemCounts'),
     extractFunctionSource(htmlSrc, 'validateBackupAttachmentIndex'),
     extractFunctionSource(htmlSrc, 'detectBackupDuplicateIdentities'),
-    extractFunctionSource(htmlSrc, 'validateBackupStructuralIntegrity')
+    extractFunctionSource(htmlSrc, 'validateBackupStructuralIntegrity'),
+    extractFunctionSource(htmlSrc, 'backupSectionHash'),
+    extractFunctionSource(htmlSrc, 'backupChecksumExcludedKey'),
+    extractFunctionSource(htmlSrc, 'backupChecksumPayload'),
+    extractFunctionSource(htmlSrc, 'backupChecksumCanonicalString'),
+    extractFunctionSource(htmlSrc, 'backupCryptoSubtle'),
+    extractFunctionSource(htmlSrc, 'classifyBackupChecksumClaim'),
+    extractFunctionSource(htmlSrc, 'validateBackupSectionChecksums'),
+    extractFunctionSource(htmlSrc, 'validateBackupPortableIntegrity')
   ].filter(Boolean).join('\n');
 }
 
@@ -127,7 +135,7 @@ function loadP1CValidator(srcHtml) {
   if (!src || src.indexOf('function validateRequiredBackupCollections') < 0) {
     throw new Error('validateRequiredBackupCollections پیدا نشد');
   }
-  return new Function(src + '\nreturn { backupHasOwnCollection: typeof backupHasOwnCollection==="function"?backupHasOwnCollection:null, inferRequiredBackupSchemaVersion: typeof inferRequiredBackupSchemaVersion==="function"?inferRequiredBackupSchemaVersion:null, requiredBackupCollectionsFor: typeof requiredBackupCollectionsFor==="function"?requiredBackupCollectionsFor:null, validateRequiredBackupCollections: validateRequiredBackupCollections, assertRequiredBackupCollections: assertRequiredBackupCollections, backupValidationStatus: typeof backupValidationStatus==="function"?backupValidationStatus:null, validateBackupItemCounts: typeof validateBackupItemCounts==="function"?validateBackupItemCounts:null, validateBackupAttachmentIndex: typeof validateBackupAttachmentIndex==="function"?validateBackupAttachmentIndex:null, detectBackupDuplicateIdentities: typeof detectBackupDuplicateIdentities==="function"?detectBackupDuplicateIdentities:null, validateBackupStructuralIntegrity: typeof validateBackupStructuralIntegrity==="function"?validateBackupStructuralIntegrity:null };')();
+  return new Function(src + '\nreturn { backupHasOwnCollection: typeof backupHasOwnCollection==="function"?backupHasOwnCollection:null, inferRequiredBackupSchemaVersion: typeof inferRequiredBackupSchemaVersion==="function"?inferRequiredBackupSchemaVersion:null, requiredBackupCollectionsFor: typeof requiredBackupCollectionsFor==="function"?requiredBackupCollectionsFor:null, validateRequiredBackupCollections: validateRequiredBackupCollections, assertRequiredBackupCollections: assertRequiredBackupCollections, backupValidationStatus: typeof backupValidationStatus==="function"?backupValidationStatus:null, validateBackupItemCounts: typeof validateBackupItemCounts==="function"?validateBackupItemCounts:null, validateBackupAttachmentIndex: typeof validateBackupAttachmentIndex==="function"?validateBackupAttachmentIndex:null, detectBackupDuplicateIdentities: typeof detectBackupDuplicateIdentities==="function"?detectBackupDuplicateIdentities:null, validateBackupStructuralIntegrity: typeof validateBackupStructuralIntegrity==="function"?validateBackupStructuralIntegrity:null, backupSectionHash: typeof backupSectionHash==="function"?backupSectionHash:null, backupChecksumExcludedKey: typeof backupChecksumExcludedKey==="function"?backupChecksumExcludedKey:null, backupChecksumPayload: typeof backupChecksumPayload==="function"?backupChecksumPayload:null, backupChecksumCanonicalString: typeof backupChecksumCanonicalString==="function"?backupChecksumCanonicalString:null, classifyBackupChecksumClaim: typeof classifyBackupChecksumClaim==="function"?classifyBackupChecksumClaim:null, validateBackupSectionChecksums: typeof validateBackupSectionChecksums==="function"?validateBackupSectionChecksums:null, validateBackupPortableIntegrity: typeof validateBackupPortableIntegrity==="function"?validateBackupPortableIntegrity:null };')();
 }
 
 function loadMigrateBackupFn(srcHtml) {
@@ -6820,7 +6828,7 @@ function loadBackupEngine(srcHtml){
 }
 
 test('توابع BackupEngine و UI مدیر پشتیبان باید تعریف شده باشند', () => {
-  ['inferBackupSchemaVersion','canRestoreSchema','buildBackupManifest','finalizeBackupPackage','validateBackupPackage','validateRequiredBackupCollections','assertRequiredBackupCollections','inferRequiredBackupSchemaVersion','requiredBackupCollectionsFor','backupValidationStatus','validateBackupItemCounts','validateBackupAttachmentIndex','detectBackupDuplicateIdentities','validateBackupStructuralIntegrity','applySchemaMigrations','testRestoreBackup','unwrapBackupEnvelope','pruneBackupRetention','layersDueForPromotion','verifyLayerPayload','prepareAtomicRestore','archivalCsvFromRows','recordBackupLayer','saveSafetySnapshot','openLastSafetyForRestore'].forEach(fn=>{
+  ['inferBackupSchemaVersion','canRestoreSchema','buildBackupManifest','finalizeBackupPackage','validateBackupPackage','validateRequiredBackupCollections','assertRequiredBackupCollections','inferRequiredBackupSchemaVersion','requiredBackupCollectionsFor','backupValidationStatus','validateBackupItemCounts','validateBackupAttachmentIndex','detectBackupDuplicateIdentities','validateBackupStructuralIntegrity','backupChecksumCanonicalString','validateBackupSectionChecksums','validateBackupPortableIntegrity','applySchemaMigrations','testRestoreBackup','unwrapBackupEnvelope','pruneBackupRetention','layersDueForPromotion','verifyLayerPayload','prepareAtomicRestore','archivalCsvFromRows','recordBackupLayer','saveSafetySnapshot','openLastSafetyForRestore'].forEach(fn=>{
     assertTrue(extractFunctionSource(html, fn) !== null, 'تابع '+fn+' پیدا نشد');
   });
   assertContainsString(html, 'var BackupEngine = {', 'شیء BackupEngine پیدا نشد');
@@ -8088,6 +8096,189 @@ test('P1C-6 T18: tasks همچنان required نیست و v2.0 tasks=[] پر می
   const from = html.match(/var REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA = \{[^}]*\};/)[0];
   assertTrue(reg.indexOf("'warranties'")>=0 && reg.indexOf("'invoices'")>=0 && reg.indexOf('tasks')<0, 'رجیستری always-required نباید عوض شود');
   assertTrue(from.indexOf("'sales'")>=0 && from.indexOf("'parts'")>=0 && from.indexOf("'accounts'")>=0 && from.indexOf('tasks')<0, 'رجیستری schema≥1 نباید عوض شود');
+});
+
+
+console.log('');
+console.log('📋 گروه: P1C-7 یکپارچگی قابل‌حمل پشتیبان (checksum / sectionChecksums)');
+
+function p1c7Port(data){
+  const v = loadP1CValidator();
+  assertTrue(typeof v.validateBackupPortableIntegrity === 'function', 'validateBackupPortableIntegrity باید استخراج شود');
+  return v.validateBackupPortableIntegrity(data);
+}
+function p1c7Schema1Base(){
+  return { schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[], accounts:[] };
+}
+function p1c7ChecksumApi(){
+  const { webcrypto } = require('crypto');
+  const rawAttach = extractFunctionSource(html, 'attachChecksum');
+  const rawVerify = extractFunctionSource(html, 'verifyChecksum');
+  assertTrue(!!rawAttach && !!rawVerify, 'توابع checksum استخراج نشد');
+  const attachSrc = rawAttach.startsWith('async') ? rawAttach : 'async '+rawAttach;
+  const verifySrc = rawVerify.startsWith('async') ? rawVerify : 'async '+rawVerify;
+  const src = p1cValidatorSrc(html) + '\n' + attachSrc + '\n' + verifySrc;
+  return new Function('window','crypto', src + '\n return { attachChecksum:attachChecksum, verifyChecksum:verifyChecksum, backupChecksumCanonicalString:backupChecksumCanonicalString, backupChecksumPayload:backupChecksumPayload, backupChecksumExcludedKey:backupChecksumExcludedKey, backupSectionHash:backupSectionHash, validateBackupPortableIntegrity:validateBackupPortableIntegrity, validateBackupSectionChecksums:validateBackupSectionChecksums, validateBackupStructuralIntegrity:validateBackupStructuralIntegrity };')({ crypto: webcrypto }, webcrypto);
+}
+
+test('P1C-7 T1: بدون checksum سازگار است (legacy / file://)', () => {
+  const r = p1c7Port(p1c7Schema1Base());
+  assertEqual(r.ok, true, 'نبود checksum باید PASS باشد');
+  assertEqual(r.checksumSkipped, true, 'باید skipped باشد');
+  assertEqual(r.hasBackupId, false, 'backupId در فرمت فعلی وجود ندارد');
+});
+
+test('P1C-7 T2: checksumAlgo=none سازگار است', () => {
+  const r = p1c7Port(Object.assign(p1c7Schema1Base(), { checksum:'', checksumAlgo:'none' }));
+  assertEqual(r.ok, true, 'none باید PASS باشد');
+});
+
+test('P1C-7 T3: SHA-256 بعد از pretty-print دیسک و parse دوباره تأیید می‌شود', async () => {
+  const api = p1c7ChecksumApi();
+  const data = Object.assign(p1c7Schema1Base(), { exportedAt:'2026-09-04T00:00:00.000Z', invoices:[{id:'I1', num:'1'}] });
+  await api.attachChecksum(data);
+  assertEqual(data.checksumAlgo, 'SHA-256', 'باید SHA-256 نوشته شود');
+  assertTrue(!!data.checksum && data.checksum.length === 64, 'باید هش hex ۶۴ کاراکتر باشد');
+  const disk = JSON.stringify(data, null, 2);
+  const reopened = JSON.parse(disk);
+  const v = await api.verifyChecksum(reopened);
+  assertEqual(v.ok, true, 'پس از بازگشایی بایت pretty باید تأیید شود: '+v.msg);
+  assertEqual(v.skipped, false, 'نباید skip شود');
+});
+
+test('P1C-7 T4: جهش داده با SHA-256 باید FAIL شود', async () => {
+  const api = p1c7ChecksumApi();
+  const data = Object.assign(p1c7Schema1Base(), { invoices:[{id:'I1'}] });
+  await api.attachChecksum(data);
+  const disk = JSON.stringify(data, null, 2);
+  const reopened = JSON.parse(disk);
+  reopened.invoices[0].id = 'TAMPERED';
+  const v = await api.verifyChecksum(reopened);
+  assertEqual(v.ok, false, 'جهش payload باید checksum را بشکند');
+});
+
+test('P1C-7 T5: جهش exportedAt هش را نمی‌شکند (از payload خارج است)', async () => {
+  const api = p1c7ChecksumApi();
+  const data = Object.assign(p1c7Schema1Base(), { exportedAt:'2026-01-01T00:00:00.000Z' });
+  await api.attachChecksum(data);
+  const reopened = JSON.parse(JSON.stringify(data, null, 2));
+  reopened.exportedAt = '2099-12-31T00:00:00.000Z';
+  const v = await api.verifyChecksum(reopened);
+  assertEqual(v.ok, true, 'exportedAt از هش خارج است');
+  assertTrue(api.backupChecksumExcludedKey('exportedAt') && api.backupChecksumExcludedKey('checksum') && api.backupChecksumExcludedKey('checksumAlgo'), 'کلیدهای مستثنی باید ثابت بمانند');
+  assertEqual(Object.prototype.hasOwnProperty.call(api.backupChecksumPayload(reopened), 'exportedAt'), false, 'payload نباید exportedAt داشته باشد');
+});
+
+test('P1C-7 T6: فقط فاصله pretty-print هش را نمی‌شکند (هش روی بایت خام فایل نیست)', async () => {
+  const api = p1c7ChecksumApi();
+  const data = Object.assign(p1c7Schema1Base(), { invoices:[{id:'I1'}] });
+  await api.attachChecksum(data);
+  const compact = JSON.stringify(data);
+  const pretty = JSON.stringify(data, null, 2);
+  assertTrue(compact !== pretty, 'compact و pretty باید فرق داشته باشند');
+  const v1 = await api.verifyChecksum(JSON.parse(compact));
+  const v2 = await api.verifyChecksum(JSON.parse(pretty));
+  assertEqual(v1.ok, true, 'compact parse باید تأیید شود');
+  assertEqual(v2.ok, true, 'pretty parse باید تأیید شود');
+});
+
+test('P1C-7 T7: الگوریتم ناشناخته با checksum ادعایی باید FAIL شود', () => {
+  const r = p1c7Port(Object.assign(p1c7Schema1Base(), { checksum:'abcd', checksumAlgo:'MD5' }));
+  assertEqual(r.ok, false, 'الگوریتم ناشناخته نباید تأیید شود');
+  assertEqual(r.status, 'INVALID', 'وضعیت باید INVALID باشد');
+});
+
+test('P1C-7 T8: sectionChecksums مطابق باید PASS شود', () => {
+  const v = loadP1CValidator();
+  const data = Object.assign(p1c7Schema1Base(), { warranties:[{id:'W1'}] });
+  data.sectionChecksums = { warranties: v.backupSectionHash(data.warranties), invoices: v.backupSectionHash(data.invoices) };
+  const r = v.validateBackupPortableIntegrity(data);
+  assertEqual(r.ok, true, 'هش بخش مطابق باید PASS باشد: '+(r.errors&&r.errors[0]));
+});
+
+test('P1C-7 T9: ناهماهنگی sectionChecksums باید FAIL شود', () => {
+  const v = loadP1CValidator();
+  const data = Object.assign(p1c7Schema1Base(), {
+    warranties:[{id:'W1'},{id:'W2'}],
+    sectionChecksums: { warranties: v.backupSectionHash([{id:'W1'}]) }
+  });
+  const r = v.validateBackupPortableIntegrity(data);
+  assertEqual(r.ok, false, 'mismatch بخش باید FAIL باشد');
+  assertTrue((r.sectionChecksumMismatches||[]).indexOf('warranties')>=0, 'warranties باید mismatch باشد');
+});
+
+test('P1C-7 T10: نبود sectionChecksums سازگار است', () => {
+  const r = p1c7Port(p1c7Schema1Base());
+  assertEqual(r.ok, true, 'نبود sectionChecksums باید PASS باشد');
+});
+
+test('P1C-7 T11: شکست portable → صفر mutation زنده و بدون confirm', () => {
+  const v = loadP1CValidator();
+  const backup = Object.assign(p1c7Schema1Base(), {
+    warranties:[{id:'IMP-W'}],
+    sectionChecksums: { warranties: v.backupSectionHash([{id:'OTHER'}]) }
+  });
+  const rMerge = p1c6RunRestoreGate('merge', backup);
+  assertTrue(!!rMerge.threw && /هش بخش/.test(rMerge.threw), 'merge باید به‌خاطر sectionChecksums throw کند');
+  assertEqual(rMerge.liveUnchanged, true, 'ادغام نباید داده زنده را عوض کند');
+  const rRep = p1c6RunRestoreGate('replace', JSON.parse(JSON.stringify(backup)));
+  assertTrue(!!rRep.threw, 'replace باید مسدود شود');
+  assertEqual(rRep.liveUnchanged, true, 'جایگزینی نباید داده زنده را عوض کند');
+  const eng = loadBackupEngine(html);
+  const tr = eng.BackupEngine.testRestore(JSON.parse(JSON.stringify(backup)));
+  assertEqual(tr.ok, false, 'testRestore باید FAIL شود');
+  assertEqual(tr.applied, false, 'testRestore نباید اعمال کند');
+  const importSrc = extractFunctionSource(html, 'importData');
+  assertTrue(importSrc.indexOf("if(!confirm('⚠️ هشدار سلامت فایل") < 0, 'mismatch checksum نباید confirm داشته باشد');
+  assertContainsString(importSrc, 'یکپارچگی checksum نامعتبر', 'importData باید checksum را fail-closed کند');
+});
+
+test('P1C-7 T12: فیکسچر تاریخی بدون checksum و sectionChecksums سازگار می‌ماند', () => {
+  const old = { version:'2.0', schemaVersion:0, warranties:[{id:'W1'}], invoices:[] };
+  const r = p1c7Port(old);
+  assertEqual(r.ok, true, 'legacy باید PASS باشد');
+  assertEqual(loadP1CValidator().validateBackupStructuralIntegrity(old).ok, true, 'ساختاری P1C-6 باید بماند');
+});
+
+test('P1C-7 T13: رگرسیون warranties P1C-1', () => {
+  const v = loadP1CValidator();
+  assertEqual(v.validateBackupStructuralIntegrity({ invoices:[] }).ok, false, 'warranties غایب');
+  assertEqual(v.validateBackupStructuralIntegrity({ warranties:[], invoices:[] }).ok, true, 'warranties []');
+});
+
+test('P1C-7 T14: رگرسیون invoices P1C-2', () => {
+  const v = loadP1CValidator();
+  assertEqual(v.validateBackupStructuralIntegrity({ warranties:[] }).ok, false, 'invoices غایب');
+  assertEqual(v.validateBackupStructuralIntegrity({ warranties:[], invoices:[] }).ok, true, 'invoices []');
+});
+
+test('P1C-7 T15: رگرسیون sales P1C-3', () => {
+  const v = loadP1CValidator();
+  assertEqual(v.validateBackupStructuralIntegrity({ schemaVersion:0, warranties:[], invoices:[] }).ok, true, 'schema 0 بدون sales');
+  assertEqual(v.validateBackupStructuralIntegrity({ schemaVersion:1, warranties:[], invoices:[], parts:[], accounts:[] }).ok, false, 'schema 1 بدون sales');
+});
+
+test('P1C-7 T16: رگرسیون parts P1C-4', () => {
+  const v = loadP1CValidator();
+  assertEqual(v.validateBackupStructuralIntegrity({ schemaVersion:1, warranties:[], invoices:[], sales:[], accounts:[] }).ok, false, 'schema 1 بدون parts');
+  assertEqual(v.validateBackupStructuralIntegrity(p1c7Schema1Base()).ok, true, 'schema 1 با parts=[]');
+});
+
+test('P1C-7 T17: رگرسیون accounts P1C-5 و counts P1C-6', () => {
+  const v = loadP1CValidator();
+  assertEqual(v.validateBackupStructuralIntegrity({ schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[] }).ok, false, 'schema 1 بدون accounts');
+  const mismatch = Object.assign(p1c7Schema1Base(), { warranties:[{id:'W1'},{id:'W2'}], itemCounts:{ warranties:1, invoices:0, sales:0, parts:0, accounts:0 } });
+  assertEqual(v.validateBackupStructuralIntegrity(mismatch).ok, false, 'P1C-6 count mismatch باید FAIL بماند');
+});
+
+test('P1C-7 T18: tasks required نیست و backupId اختراع نشد', () => {
+  const v = loadP1CValidator();
+  assertEqual(v.validateRequiredBackupCollections(p1c7Schema1Base()).ok, true, 'بدون tasks باید PASS باشد');
+  assertTrue(html.indexOf("var REQUIRED_BACKUP_COLLECTIONS = ['warranties', 'invoices']") >= 0, 'رجیستری always-required نباید عوض شود');
+  assertTrue(!/_buildFullBackupData[\s\S]{0,400}backupId\s*:/.test(html), 'صادرکننده نباید backupId بسازد');
+  const migrateBackup = loadMigrateBackupFn();
+  const old = migrateBackup({ version:'2.0', invoices:[], products:[], inventory:{}, phonebook:[], invCtr:2, warranties:[] });
+  assertArrayLength(old.data.tasks, 0, 'tasks=[] v2.0 باید بماند');
 });
 
 
