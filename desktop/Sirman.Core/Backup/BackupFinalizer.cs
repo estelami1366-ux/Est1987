@@ -6,8 +6,8 @@ namespace Sirman.Core.Backup;
 /// <summary>
 /// ARCH-5 pure extraction of HTML <c>finalizeBackupPackage</c> + <c>attachChecksum</c>
 /// + canonical compact JSON + SHA-256.
-/// Does not call <c>_buildFullBackupData</c>, filesystem, Host, or live restore.
-/// Does not mutate the caller's node. Does not call Date.now / UtcNow.
+/// Does not extract HTML live data-assembly, filesystem, Host, or live restore.
+/// Does not mutate the caller's node. Does not read the system clock.
 /// </summary>
 public static class BackupFinalizer
 {
@@ -47,7 +47,7 @@ public static class BackupFinalizer
             }
             else if (request.StampExportedAt)
             {
-                log.Add("stampExportedAt skipped: nowMs not injected (Core does not call Date.now)");
+                log.Add("stampExportedAt skipped: nowMs not injected (Core does not read the system clock)");
             }
 
             if (!request.SkipPackageFinalize)

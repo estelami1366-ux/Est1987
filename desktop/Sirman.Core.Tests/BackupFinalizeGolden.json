@@ -3192,7 +3192,7 @@
     },
     {
       "id": "T18-unicode-utf8",
-      "notes": "Persian + emoji + U+2028 line separator (JSON.stringify escapes U+2028/U+2029)",
+      "notes": "Persian + emoji + U+2028/U+2029; modern JSON.stringify does not escape LS/PS",
       "origin": "manual",
       "kind": "full",
       "nowMs": null,

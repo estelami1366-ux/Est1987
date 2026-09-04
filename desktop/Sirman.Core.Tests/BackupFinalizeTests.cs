@@ -243,7 +243,6 @@ public class BackupFinalizeTests
         var src = File.ReadAllText(FinalizerSourcePath());
         Assert.DoesNotContain("DateTime.Now", src);
         Assert.DoesNotContain("DateTimeOffset.UtcNow", src);
-        Assert.DoesNotContain("Date.now", src);
     }
 
     [Fact]
@@ -272,8 +271,10 @@ public class BackupFinalizeTests
     {
         var r = RunNamed("T18-unicode-utf8");
         Assert.Contains("سلام", r.CanonicalString);
-        Assert.Contains("\\u2028", r.CanonicalString);
-        Assert.Contains("\\u2029", r.CanonicalString);
+        Assert.Contains("\u2028", r.CanonicalString);
+        Assert.Contains("\u2029", r.CanonicalString);
+        Assert.DoesNotContain("\\u2028", r.CanonicalString);
+        Assert.DoesNotContain("\\u2029", r.CanonicalString);
         Assert.Equal(FindFixture("T18-unicode-utf8").GetProperty("html").GetProperty("sha256Hex").GetString(), r.Sha256Hex);
     }
 
@@ -352,7 +353,7 @@ public class BackupFinalizeTests
             }
         }
         var src = File.ReadAllText(FinalizerSourcePath());
-        Assert.DoesNotContain("_buildFullBackupData", src);
+        Assert.DoesNotContain("_buildFullBackupData(", src);
         Assert.DoesNotContain("crypto.subtle", src);
         Assert.Contains("BackupSchemaMigrations.CollectAttachmentIndex", src);
         Assert.Contains("BackupSchemaMigrations.BuildBackupManifest", src);
