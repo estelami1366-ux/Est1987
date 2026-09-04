@@ -8622,6 +8622,27 @@ function collectBackupSettingsSnapshot(){
   return JSON.parse(JSON.stringify(data));
 }
 
+// ARCH-17 — REQUIRED business snapshot transport only.
+// Reads the same RAM globals as _buildFullBackupData for invoices/sales/warranties/parts/accounts/counters.
+// Clone-on-return. No localStorage/IndexedDB write. No ID generation. No phonebook.
+// NOT called from _buildFullBackupData / exportData / buildBackupObject.
+function collectRequiredBusinessSnapshot(){
+  var data = {
+    invoices: _safeArr(invoices),
+    sales: _safeArr(sales),
+    warranties: _safeArr(warranties),
+    parts: _safeArr(parts),
+    accounts: _safeArr(accounts),
+    counters: {
+      invCtr: invCtr||1,
+      invoiceUidCtr: (typeof invoiceUidCtr!=='undefined' && invoiceUidCtr>0) ? invoiceUidCtr : 0,
+      saleCtr: (typeof saleCtr!=='undefined' && saleCtr>0) ? saleCtr : 1,
+      saleUidCtr: (typeof saleUidCtr!=='undefined' && saleUidCtr>0) ? saleUidCtr : 0
+    }
+  };
+  return JSON.parse(JSON.stringify(data));
+}
+
 // ─── Checksum (SHA-256) برای سلامت فایل بک‌آپ ───
 // نکته: crypto.subtle فقط در secure context (localhost HTTPS) موجود است، نه file://.
 // در file://، checksum خالی می‌ماند و checksumAlgo='none' — برنامه همچنان کار می‌کند.
