@@ -7778,7 +7778,7 @@ function validateBackupPackage(d){
 }
 // P1C fail-closed: required collections. MISSING ≠ EMPTY. Do not coerce absent keys to [].
 var REQUIRED_BACKUP_COLLECTIONS = ['warranties', 'invoices'];
-var REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA = { 1: ['sales'] };
+var REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA = { 1: ['sales', 'parts'] };
 function backupHasOwnCollection(d, key){
   return !!(d && typeof d === 'object' && !Array.isArray(d) && Object.prototype.hasOwnProperty.call(d, key));
 }
@@ -7799,7 +7799,7 @@ function requiredBackupCollectionsFor(d){
   var keys = (typeof REQUIRED_BACKUP_COLLECTIONS !== 'undefined' && REQUIRED_BACKUP_COLLECTIONS && REQUIRED_BACKUP_COLLECTIONS.length)
     ? REQUIRED_BACKUP_COLLECTIONS.slice() : ['warranties','invoices'];
   var ver = inferRequiredBackupSchemaVersion(d);
-  var fromSchema = (typeof REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA !== 'undefined') ? REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA : { 1: ['sales'] };
+  var fromSchema = (typeof REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA !== 'undefined') ? REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA : { 1: ['sales', 'parts'] };
   Object.keys(fromSchema).forEach(function(sv){
     if(ver >= parseInt(sv, 10)){
       (fromSchema[sv]||[]).forEach(function(k){ if(keys.indexOf(k) < 0) keys.push(k); });
@@ -7863,6 +7863,11 @@ var SCHEMA_MIGRATIONS = [
       if (!d.sales) {
         d.sales = [];
         log.push('Schema ۰→۱: فروش غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)');
+      }
+      // P1C-4 Decision B: Schema 0 may omit parts. Same 0→1-only conversion as sales.
+      if (!d.parts) {
+        d.parts = [];
+        log.push('Schema ۰→۱: قطعات غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)');
       }
       if(!d.attachmentsIndex) d.attachmentsIndex = collectAttachmentIndex(d);
       if(!d.manifest) d.manifest = buildBackupManifest(d, d.origin||'unknown', d.partial?'partial':'full');
@@ -14061,9 +14066,22 @@ function migrateBackup(d) {
   if (!d.services) { d.services = []; d.svcs = []; }
   log.push('🔧 خدمات: '+d.services.length+' مورد');
 
-  // === بخش‌های که ممکنه نباشن (نسخه‌های قدیمی) ===
-  if (!d.parts)      { d.parts = [];      log.push('🔩 قطعات: خالی (نسخه قدیمی)'); }
-  else log.push('🔩 قطعات: '+d.parts.length+' مورد');
+  // P1C-4: parts is required from schemaVersion >= 1. Schema 0 (قدیمی) may omit it.
+  var partsSchemaVer = (typeof inferRequiredBackupSchemaVersion==='function') ? inferRequiredBackupSchemaVersion(d) : (parseInt(d && d.schemaVersion,10)||0);
+  if (partsSchemaVer >= 1) {
+    if (!Object.prototype.hasOwnProperty.call(d, 'parts')) {
+      log.push('🔩 قطعات: غایب — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else if (d.parts === null) {
+      log.push('🔩 قطعات: null — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else if (!Array.isArray(d.parts)) {
+      log.push('🔩 قطعات: نوع نامعتبر ('+(typeof d.parts)+') — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else {
+      log.push('🔩 قطعات: '+d.parts.length+' مورد');
+    }
+  } else {
+    if (!d.parts)      { d.parts = [];      log.push('🔩 قطعات: خالی (نسخه قدیمی)'); }
+    else log.push('🔩 قطعات: '+d.parts.length+' مورد');
+  }
 
   // P1C: warranties is required. MISSING/null/non-array must NOT become [].
   if (!Object.prototype.hasOwnProperty.call(d, 'warranties')) {
@@ -14161,7 +14179,7 @@ function migrateBackup(d) {
   // === ID های missing ===
   var fixedIds = 0;
   if (Array.isArray(d.invoices)) d.invoices.forEach(function(inv,i){ if(!inv.id){ inv.id='mig_inv_'+i+'_'+Date.now(); fixedIds++; } });
-  d.parts.forEach(function(p,i){ if(!p.id){ p.id='mig_part_'+i+'_'+Date.now(); fixedIds++; } });
+  if (Array.isArray(d.parts)) d.parts.forEach(function(p,i){ if(!p.id){ p.id='mig_part_'+i+'_'+Date.now(); fixedIds++; } });
   if (Array.isArray(d.warranties)) d.warranties.forEach(function(w,i){ if(!w.id){ w.id='mig_war_'+i+'_'+Date.now(); fixedIds++; } });
   if (Array.isArray(d.sales)) d.sales.forEach(function(s,i){ if(!s.id){ s.id='mig_sale_'+i+'_'+Date.now(); fixedIds++; } });
   d.tasks.forEach(function(t,i){ if(!t.id){ t.id='mig_task_'+i+'_'+Date.now(); fixedIds++; } if(!t.kind) t.kind='do'; if(!t.priority) t.priority='normal'; if(!t.status) t.status='open'; });
@@ -14594,7 +14612,7 @@ function applyBackupMergeSections(d, selectedKeys){
       if (!exists) { phonebook.push(entry); added.pb++; } else skip.pb++;
     });
   }
-  if(_restoreWants(selectedKeys,'parts')) (d.parts||[]).forEach(function(x){ if(!parts.find(function(p){return p.id===x.id;})){ parts.push(x); added.parts++; } });
+  if(_restoreWants(selectedKeys,'parts') && Array.isArray(d.parts)) d.parts.forEach(function(x){ if(!parts.find(function(p){return p.id===x.id;})){ parts.push(x); added.parts++; } });
   if(_restoreWants(selectedKeys,'services')) (d.services||d.svcs||[]).forEach(function(x){ if(!services.find(function(p){return p.id===x.id||p.code===x.code;})){ services.push(x); svcs=services; added.svc++; } });
   if(_restoreWants(selectedKeys,'warranties')) d.warranties.forEach(function(x){ if(!warranties.find(function(p){return p.id===x.id;})){ warranties.push(x); added.war++; } });
   if(_restoreWants(selectedKeys,'sales') && Array.isArray(d.sales)) d.sales.forEach(function(x){ if(!sales.find(function(p){return (x.saleUid && p.saleUid===x.saleUid) || p.id===x.id;})){ sales.push(x); added.sale++; } });
