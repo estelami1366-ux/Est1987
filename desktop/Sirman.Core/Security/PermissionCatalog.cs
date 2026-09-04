@@ -54,7 +54,7 @@ public static class PermissionCatalog
     /// <summary>متدهایی که بدون نشست هم باید کار کنند (خروج، بک‌آپ، سلامت).</summary>
     public static readonly HashSet<string> AlwaysAllowedHostMethods = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Ping", "CloseApp", "Notify", "GetNotifyPort", "GetBackupDir", "WriteBackupText",
+        "Ping", "CloseApp", "Notify", "GetNotifyPort", "GetBackupDir", "WriteBackupText", "FinalizeBackup",
         "LoadAppPref", "SaveAppPref", "GetWarrantyBrowseCatalog", "GetWarrantyBrowseCss", "ApplyUiSkin",
         "GetPrinters", "GetMachineInfo", "GetNetworkInfo",
         "Login", "Logout", "BindSession", "CheckPermission", "HashPassword", "VerifyPassword",
