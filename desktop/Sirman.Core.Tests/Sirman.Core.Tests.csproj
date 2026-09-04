@@ -27,5 +27,6 @@
     <None Include="BackupMigrationGolden.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="BackupDryRunGolden.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="BackupFinalizeGolden.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="BackupRestorePlanGolden.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

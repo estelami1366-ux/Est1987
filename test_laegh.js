@@ -8993,6 +8993,40 @@ test('ARCH-7 G5: مسیر Core نباید ذخیره‌سازی زنده را ص
 
 
 console.log('');
+console.log('📋 گروه: ARCH-8 برنامه Restore خالص (بدون اعمال)');
+
+test('ARCH-8 G1: HTML Restore زنده به RestorePlan وصل نشده', () => {
+  const importSrc = extractFunctionSource(html, 'importData');
+  const mergeSrc = extractFunctionSource(html, 'applyBackupMergeSections');
+  const replaceSrc = extractFunctionSource(html, 'applyBackupReplaceSections');
+  const confirmSrc = extractFunctionSource(html, 'confirmRestorePreview');
+  assertTrue(importSrc.indexOf('validateRequiredBackupCollections') >= 0, 'importData باید validator HTML را صدا بزند');
+  assertTrue(importSrc.indexOf('applySchemaMigrations') >= 0, 'importData باید migration HTML را صدا بزند');
+  assertTrue(importSrc.indexOf('RestorePlan') < 0, 'importData نباید RestorePlan را صدا بزند');
+  assertTrue(mergeSrc.indexOf('RestorePlan') < 0, 'merge نباید RestorePlan را صدا بزند');
+  assertTrue(replaceSrc.indexOf('RestorePlan') < 0, 'replace نباید RestorePlan را صدا بزند');
+  assertTrue(confirmSrc.indexOf('applyBackupSelective') >= 0, 'اعمال باید همان confirmRestorePreview باشد');
+  assertTrue(html.indexOf('BackupRestorePlanBuilder') < 0, 'HTML نباید به برنامه‌ریز Core ارجاع دهد');
+});
+
+test('ARCH-8 G2: Merge/Replace/Phonebook/SQLite در این استخراج دست نخورده‌اند', () => {
+  assertTrue(extractFunctionSource(html, 'applyBackupMergeSections') !== null, 'merge باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'applyBackupReplaceSections') !== null, 'replace باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'savePBContact') !== null, 'savePBContact باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'resetAll') !== null, 'resetAll باید باقی بماند');
+  const mergeSrc = extractFunctionSource(html, 'applyBackupMergeSections');
+  assertTrue(mergeSrc.indexOf('phonebook') >= 0, 'merge HTML هنوز phonebook دارد (Core آن را استخراج نکرد)');
+  const builder = path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Backup', 'BackupRestorePlanBuilder.cs');
+  assertTrue(fs.existsSync(builder), 'BackupRestorePlanBuilder باید موجود باشد');
+  const src = fs.readFileSync(builder, 'utf8');
+  assertTrue(src.indexOf('applyBackupMergeSections') < 0, 'Core نباید Merge زنده را صدا بزند');
+  assertTrue(src.indexOf('localStorage') < 0, 'Core نباید localStorage داشته باشد');
+  const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
+  assertContainsString(repo, 'html-backup-engine', 'JsonBackupRepository باید TBD بماند');
+});
+
+
+console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
 
 function loadErrorEngine(srcHtml){

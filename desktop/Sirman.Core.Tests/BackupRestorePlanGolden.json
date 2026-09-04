@@ -1,0 +1,48 @@
+{
+  "packet": "ARCH-8",
+  "generatedAt": "2026-09-04",
+  "frozenNowMs": 1700000000000,
+  "notes": [
+    "RestorePlan is decision-only. Applied is always false.",
+    "Phonebook is excluded from identity. HTML merge/replace remain live engines.",
+    "Supported identity keys: invoices.invoiceId, sales.saleUid, warranties.id, parts.id, accounts.id.",
+    "HTML invoice merge also matches id/num; HTML sales merge also matches id. Those fallbacks are NOT copied.",
+    "Insufficient identity fixture is accounts without id. Invoices without invoiceId get INVUID from BackupFieldMigrator before planning.",
+    "MISSING required collection → INVALID, no plan. Empty [] is a valid zero-record plan."
+  ],
+  "identityKeys": {
+    "invoices": "invoiceId",
+    "sales": "saleUid",
+    "warranties": "id",
+    "parts": "id",
+    "accounts": "id"
+  },
+  "plannableCollections": ["accounts", "invoices", "parts", "sales", "warranties"],
+  "excludedCollections": ["phonebook", "pb"],
+  "actions": ["Add", "Update", "Replace", "Conflict", "Skip", "NoAction"],
+  "unusedActions": ["Update"],
+  "fixtures": [
+    { "id": "T1-replace-valid", "mode": "Replace", "expectOk": true, "expectApplied": false },
+    { "id": "T2-merge-valid", "mode": "Merge", "expectOk": true, "expectApplied": false },
+    { "id": "T3-empty-required", "mode": "Merge", "expectOk": true, "expectApplied": false },
+    { "id": "T4-missing-required", "mode": "Replace", "expectOk": false, "expectApplied": false },
+    { "id": "T5-schema0-legacy", "mode": "Replace", "expectOk": true, "expectApplied": false },
+    { "id": "T6-duplicate-identity", "mode": "Merge", "expectOk": true, "expectAction": "Conflict" },
+    { "id": "T7-clear-match", "mode": "Merge", "expectAction": "Skip" },
+    { "id": "T8-ambiguous-identity", "mode": "Merge", "expectAction": "Conflict" },
+    { "id": "T9-multiple-sections", "mode": "Merge", "expectOk": true },
+    { "id": "T10-selected-subset", "mode": "Replace", "expectOk": true },
+    { "id": "T11-omitted-neq-empty", "mode": "Replace", "expectOk": true },
+    { "id": "T12-malformed", "mode": "Merge", "expectOk": false },
+    { "id": "T13-checksum-invalid", "mode": "Merge", "expectOk": false },
+    { "id": "T14-schema0-migrate", "mode": "Merge", "expectOk": true },
+    { "id": "T15-deterministic", "mode": "Merge", "expectOk": true },
+    { "id": "T16-immutable", "mode": "Merge", "expectOk": true },
+    { "id": "T17-applied-false", "mode": "Merge", "expectApplied": false },
+    { "id": "T18-warranties", "mode": "Replace", "expectOk": true },
+    { "id": "T19-invoices", "mode": "Merge", "expectOk": true },
+    { "id": "T20-sales", "mode": "Merge", "expectOk": true },
+    { "id": "T21-parts", "mode": "Merge", "expectOk": true },
+    { "id": "T22-accounts", "mode": "Merge", "expectOk": true }
+  ]
+}
