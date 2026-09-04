@@ -9663,7 +9663,70 @@ test('ARCH-10: HTML-only بدون Host Restore نمی‌کند و fail-closed ا
 
 
 console.log('');
+console.log('📋 گروه: ARCH-11 راستی‌آزمایی رفت‌وبرگشت دیسک پشتیبان (فقط قفل تولید)');
+
+test('ARCH-11 G1: اسمبل، Restore، Phonebook و مصرف-روی-صادرات دست‌نخورده‌اند', () => {
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  assertEqual(arch9cSha256(build), ARCH9D_BUILD_SHA256, '_buildFullBackupData نباید در ARCH-11 عوض شود');
+  assertContainsString(build, 'return JSON.parse(JSON.stringify(data));', 'clone-on-return باید بماند');
+  ['_safeArr', '_safeObj', 'importData', 'applyBackupSelective', 'applyBackupMergeSections', 'applyBackupReplaceSections', 'savePBContact', 'renderPB', 'resetAll', 'finalizeBackupPackage', 'applyBackupFinalizer'].forEach(function(name){
+    assertTrue(extractFunctionSource(html, name) !== null, name + ' باید بماند');
+  });
+  const exp = extractFunctionSource(html, 'exportData');
+  assertTrue(exp.indexOf('consumeBackupSnapshot') < 0, 'exportData نباید مصرف snapshot را قطع کند');
+  assertTrue(exp.indexOf('JSON.stringify(data,null,2)') >= 0, 'exportData باید pretty-print HTML را نگه دارد');
+  const autosave = extractFunctionSource(html, 'doAutoSave');
+  assertTrue(autosave.indexOf('consumeBackupSnapshot') < 0, 'doAutoSave نباید مصرف snapshot را صدا بزند');
+  assertTrue(autosave.indexOf('JSON.stringify(data, null, 2)') >= 0, 'doAutoSave باید pretty-print دو فاصله را نگه دارد');
+  const writeTarget = extractFunctionSource(html, 'writeAutoSaveTarget');
+  assertContainsString(writeTarget, "WriteBackupText('sirman_autosave.txt', text)", 'مسیر Host باید همان autosave.txt باشد');
+  assertTrue(html.indexOf('.sirmanbak') < 0, 'پسوند .sirmanbak نباید معرفی شود');
+});
+
+test('ARCH-11: WriteBackupText همان UTF-8 بدون BOM است و پوشه فروشگاه را هدف می‌گیرد', () => {
+  const host = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs'), 'utf8');
+  const i = host.indexOf('public string WriteBackupText');
+  const j = host.indexOf('public string FinalizeBackup');
+  assertTrue(i >= 0 && j > i, 'WriteBackupText باید قبل از FinalizeBackup باشد');
+  const method = host.slice(i, j);
+  assertContainsString(method, 'new UTF8Encoding(encoderShouldEmitUTF8Identifier: false)', 'encoding باید UTF-8 بدون BOM باشد');
+  assertContainsString(method, 'File.WriteAllText(path, content ?? ""', 'محتوا باید بدون پوشش اضافه نوشته شود');
+  assertContainsString(method, 'GetBackupDir()', 'مسیر زنده فروشگاه باید همان GetBackupDir بماند');
+  assertTrue(method.indexOf('encoderShouldEmitUTF8Identifier: true') < 0, 'WriteBackupText نباید BOM بنویسد');
+  const dir = host.slice(host.indexOf('public string GetBackupDir()'), host.indexOf('public void SaveAppPref'));
+  assertContainsString(dir, '"Sirman", "backup"', 'GetBackupDir باید AppData/Sirman/backup بماند');
+});
+
+test('ARCH-11: FinalizeBackup دیسک نمی‌نویسد و checksum قراردادی عوض نشده', () => {
+  const host = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs'), 'utf8');
+  const i = host.indexOf('public string FinalizeBackup');
+  const j = host.indexOf('public string TestRestoreBackup');
+  const method = host.slice(i, j);
+  assertContainsString(method, 'BackupFinalizeBridge.Execute', 'Host باید فقط پل Finalizer باشد');
+  assertTrue(method.indexOf('WriteBackupText') < 0 && method.indexOf('File.WriteAllText') < 0, 'FinalizeBackup نباید دیسک بنویسد');
+  const htmlCs = fs.readFileSync(path.join(path.dirname(filePath), 'Sirman_Final.html'), 'utf8');
+  assertContainsString(htmlCs, 'checksumAlgo', 'قرارداد checksum باید بماند');
+  const canon = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Backup', 'BackupCanonicalChecksum.cs'), 'utf8');
+  assertContainsString(canon, 'exportedAt', 'حذف exportedAt از payload باید بماند');
+  assertContainsString(canon, 'pretty-printed disk bytes', 'تعریف SHA-256 نباید به بایت دیسک عوض شود');
+  const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
+  assertContainsString(repo, 'html-backup-engine', 'JsonBackupRepository باید TBD بماند');
+});
+
+test('ARCH-11 T18 T20: Restore و SQLite و resetAll در این بسته دست نخورده‌اند', () => {
+  assertTrue(extractFunctionSource(html, 'importData') !== null, 'importData باید بماند');
+  assertTrue(extractFunctionSource(html, 'resetAll') !== null, 'resetAll باید بماند');
+  assertContainsString(html, 'function savePBContact(', 'Phonebook باید بماند');
+  const sqlite = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Persistence.Sqlite', 'Sirman.Persistence.Sqlite.csproj'), 'utf8');
+  assertTrue(sqlite.length > 0, 'پروژه SQLite باید سر جایش باشد');
+  const consume = extractFunctionSource(html, 'consumeBackupSnapshot');
+  assertTrue(consume.indexOf('importData') < 0, 'consume نباید Restore باشد');
+});
+
+
+console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
+
 
 function loadErrorEngine(srcHtml){
   const start = srcHtml.indexOf('var ERROR_CATALOG = {');
