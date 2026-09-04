@@ -8569,7 +8569,7 @@ function _buildFullBackupData(){
   try{ if(typeof getPrintCenterState==='function') data.printCenter = getPrintCenterState(); }catch(_pc){}
   if(data.printCenter && data.sections && data.sections.indexOf('printCenter')<0) data.sections.push('printCenter');
   if(typeof collectAttachmentIndex==='function') data.attachmentsIndex = collectAttachmentIndex(data);
-  return data;
+  return JSON.parse(JSON.stringify(data));
 }
 
 // autosave از همین تابع مشترک استفاده می‌کند (دیگر لیست دستی ناقص ندارد)
