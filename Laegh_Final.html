@@ -7760,10 +7760,19 @@ function validateBackupPackage(d){
   }
   var has = d.invoices||d.products||d.phonebook||d.pb||d.parts||d.warranties||d.sales||d.accounts||d.tasks||d.services||d.svcs||d.company||d.appearance||d.inventory||d.warehouses;
   if(!has) errors.push('کلید داده شناخته‌شده نیست');
-  if(d.itemCounts){
+  if(typeof validateBackupItemCounts==='function'){
+    var c = validateBackupItemCounts(d);
+    (c.errors||[]).forEach(function(e){ errors.push(e); });
+    (c.warnings||[]).forEach(function(w){ warnings.push(w); });
+  } else if(d.itemCounts){
     Object.keys(d.itemCounts).forEach(function(k){
-      if(Array.isArray(d[k]) && d[k].length !== d.itemCounts[k]) warnings.push('شمارش '+k+' ناهماهنگ است');
+      if(Array.isArray(d[k]) && d[k].length !== d.itemCounts[k]) errors.push('شمارش '+k+' ناهماهنگ است');
     });
+  }
+  if(typeof validateBackupAttachmentIndex==='function'){
+    var a = validateBackupAttachmentIndex(d);
+    (a.errors||[]).forEach(function(e){ errors.push(e); });
+    (a.warnings||[]).forEach(function(w){ warnings.push(w); });
   }
   if(d.sectionChecksums){
     Object.keys(d.sectionChecksums).forEach(function(k){
@@ -7851,7 +7860,150 @@ function assertRequiredBackupCollections(d, opLabel){
   if(!v.ok){
     throw new Error((opLabel ? (opLabel + ': ') : '') + v.errors.join('؛ '));
   }
+  if(typeof validateBackupItemCounts==='function'){
+    var c = validateBackupItemCounts(d);
+    if(!c.ok){
+      throw new Error((opLabel ? (opLabel + ': ') : '') + c.errors.join('؛ '));
+    }
+  }
+  if(typeof validateBackupAttachmentIndex==='function'){
+    var a = validateBackupAttachmentIndex(d);
+    if(!a.ok){
+      throw new Error((opLabel ? (opLabel + ': ') : '') + a.errors.join('؛ '));
+    }
+  }
   return v;
+}
+function backupValidationStatus(v){
+  if(!v || v.ok === false) return 'INVALID';
+  if(v.warnings && v.warnings.length) return 'VALID_WITH_WARNINGS';
+  return 'VALID';
+}
+// P1C-6: itemCounts is optional (schema 0 and 0→1 do not require it). When present, declared === actual or FAIL.
+function validateBackupItemCounts(d){
+  var errors = [];
+  var warnings = [];
+  var countMismatches = [];
+  if(!d || typeof d !== 'object' || Array.isArray(d)){
+    return { ok:true, errors:errors, warnings:warnings, countMismatches:countMismatches };
+  }
+  if(!Object.prototype.hasOwnProperty.call(d, 'itemCounts')){
+    return { ok:true, errors:errors, warnings:warnings, countMismatches:countMismatches };
+  }
+  var ic = d.itemCounts;
+  if(ic === null || typeof ic !== 'object' || Array.isArray(ic)){
+    errors.push('itemCounts باید شیء شمارش باشد، نه '+(ic===null?'null':(Array.isArray(ic)?'array':typeof ic)));
+    return { ok:false, errors:errors, warnings:warnings, countMismatches:countMismatches };
+  }
+  Object.keys(ic).forEach(function(k){
+    var declared = ic[k];
+    if(typeof declared !== 'number' || !isFinite(declared)){
+      errors.push('itemCounts.'+k+' نوع نامعتبر است');
+      countMismatches.push(k);
+      return;
+    }
+    if(!Object.prototype.hasOwnProperty.call(d, k) || !Array.isArray(d[k])){
+      errors.push('شمارش '+k+' ناهماهنگ است: اعلام '+declared+' ولی مجموعه آرایه نیست');
+      countMismatches.push(k);
+      return;
+    }
+    if(d[k].length !== declared){
+      errors.push('شمارش '+k+' ناهماهنگ است: اعلام '+declared+' ولی واقعیت '+d[k].length);
+      countMismatches.push(k);
+    }
+  });
+  return { ok: errors.length===0, errors:errors, warnings:warnings, countMismatches:countMismatches };
+}
+// P1C-6: attachmentsIndex is derived (kind/parentId from rec.id). Missing index is compatible.
+// Present non-array → FAIL. Entry with kind+parentId whose parent rec.id is absent → FAIL.
+function validateBackupAttachmentIndex(d){
+  var errors = [];
+  var warnings = [];
+  var brokenAttachmentRefs = [];
+  if(!d || typeof d !== 'object' || Array.isArray(d)){
+    return { ok:true, errors:errors, warnings:warnings, brokenAttachmentRefs:brokenAttachmentRefs };
+  }
+  if(!Object.prototype.hasOwnProperty.call(d, 'attachmentsIndex')){
+    return { ok:true, errors:errors, warnings:warnings, brokenAttachmentRefs:brokenAttachmentRefs };
+  }
+  var idx = d.attachmentsIndex;
+  if(!Array.isArray(idx)){
+    errors.push('attachmentsIndex باید آرایه باشد، نه '+(idx===null?'null':typeof idx));
+    return { ok:false, errors:errors, warnings:warnings, brokenAttachmentRefs:brokenAttachmentRefs };
+  }
+  var kindToSection = { warranty:'warranties', sale:'sales', invoice:'invoices' };
+  idx.forEach(function(entry, i){
+    if(!entry || typeof entry !== 'object' || Array.isArray(entry)) return;
+    var section = kindToSection[entry.kind];
+    var pid = String(entry.parentId == null ? '' : entry.parentId).trim();
+    if(!section || !pid) return;
+    if(!Array.isArray(d[section])){
+      brokenAttachmentRefs.push({ index:i, kind:entry.kind, parentId:pid });
+      errors.push('پیوست به والد ناموجود: '+entry.kind+' '+pid);
+      return;
+    }
+    var found = d[section].some(function(rec){ return rec && String(rec.id || '') === pid; });
+    if(!found){
+      brokenAttachmentRefs.push({ index:i, kind:entry.kind, parentId:pid });
+      errors.push('پیوست به والد ناموجود: '+entry.kind+' '+pid);
+    }
+  });
+  return { ok: errors.length===0, errors:errors, warnings:warnings, brokenAttachmentRefs:brokenAttachmentRefs };
+}
+// Detect only; do not mutate. Duplicate invoice num is historically allowed. Phonebook frozen.
+function detectBackupDuplicateIdentities(d){
+  var warnings = [];
+  var duplicateIdentities = [];
+  function scan(arr, keyFn, collection, field){
+    if(!Array.isArray(arr)) return;
+    var seen = {};
+    arr.forEach(function(rec, i){
+      var id = keyFn(rec);
+      if(!id) return;
+      if(seen[id]){
+        duplicateIdentities.push({ collection:collection, field:field, value:id, index:i });
+      } else {
+        seen[id] = i;
+      }
+    });
+  }
+  scan(d && d.invoices, function(r){ return r && String(r.invoiceId || r.InvoiceId || '').trim(); }, 'invoices', 'invoiceId');
+  scan(d && d.sales, function(r){ return r && String(r.saleUid || r.SaleUid || '').trim(); }, 'sales', 'saleUid');
+  scan(d && d.warranties, function(r){ return r && String(r.id || '').trim(); }, 'warranties', 'id');
+  scan(d && d.accounts, function(r){ return r && String(r.id || '').trim(); }, 'accounts', 'id');
+  scan(d && d.parts, function(r){ return r && String(r.id || '').trim(); }, 'parts', 'id');
+  if(duplicateIdentities.length){
+    warnings.push('شناسه تکراری اعلام‌شده: '+duplicateIdentities.length+' مورد (بدون تغییر داده)');
+  }
+  return { ok:true, errors:[], warnings:warnings, duplicateIdentities:duplicateIdentities };
+}
+function validateBackupStructuralIntegrity(d){
+  var req = (typeof validateRequiredBackupCollections==='function')
+    ? validateRequiredBackupCollections(d)
+    : { ok:true, errors:[], warnings:[], missingRequiredCollections:[], invalidCollections:[] };
+  var counts = (typeof validateBackupItemCounts==='function')
+    ? validateBackupItemCounts(d)
+    : { ok:true, errors:[], warnings:[], countMismatches:[] };
+  var atts = (typeof validateBackupAttachmentIndex==='function')
+    ? validateBackupAttachmentIndex(d)
+    : { ok:true, errors:[], warnings:[], brokenAttachmentRefs:[] };
+  var dups = (typeof detectBackupDuplicateIdentities==='function')
+    ? detectBackupDuplicateIdentities(d)
+    : { ok:true, errors:[], warnings:[], duplicateIdentities:[] };
+  var errors = [].concat(req.errors||[], counts.errors||[], atts.errors||[], dups.errors||[]);
+  var warnings = [].concat(req.warnings||[], counts.warnings||[], atts.warnings||[], dups.warnings||[]);
+  var result = {
+    ok: errors.length===0,
+    errors: errors,
+    warnings: warnings,
+    missingRequiredCollections: req.missingRequiredCollections || [],
+    invalidCollections: req.invalidCollections || [],
+    countMismatches: counts.countMismatches || [],
+    brokenAttachmentRefs: atts.brokenAttachmentRefs || [],
+    duplicateIdentities: dups.duplicateIdentities || []
+  };
+  result.status = backupValidationStatus(result);
+  return result;
 }
 var SCHEMA_MIGRATIONS = [
   { from:0, to:1, id:'add-package-manifest', run:function(d, log){
@@ -8014,6 +8166,12 @@ function testRestoreBackup(d){
   if(!req.ok){
     return { ok:false, applied:false, log: req.errors.slice(), validation: req, schemaFrom:fileVer, schemaTo:SIRMAN_SCHEMA_VERSION };
   }
+  if(typeof validateBackupStructuralIntegrity==='function'){
+    var struct = validateBackupStructuralIntegrity(cloned);
+    if(!struct.ok){
+      return { ok:false, applied:false, log: struct.errors.slice(), validation: struct, schemaFrom:fileVer, schemaTo:SIRMAN_SCHEMA_VERSION };
+    }
+  }
   var gate = canRestoreSchema(fileVer, SIRMAN_SCHEMA_VERSION);
   if(!gate.ok) return { ok:false, applied:false, log:[gate.reason], validation:{ok:false, errors:[gate.reason], warnings:[]}, schemaFrom:fileVer, schemaTo:SIRMAN_SCHEMA_VERSION };
   var mig = applySchemaMigrations(cloned);
@@ -8050,15 +8208,21 @@ var BackupEngine = {
   manifest: buildBackupManifest,
   finalize: finalizeBackupPackage,
   validate: function(d){
-    var req = validateRequiredBackupCollections(d);
-    if(!req.ok) return req;
+    var struct = (typeof validateBackupStructuralIntegrity==='function')
+      ? validateBackupStructuralIntegrity(d)
+      : validateRequiredBackupCollections(d);
+    if(!struct.ok) return struct;
     var wrap = validateBackupPackage(d);
     return {
       ok: wrap.ok,
+      status: (typeof backupValidationStatus==='function') ? backupValidationStatus({ ok: wrap.ok, warnings: [].concat(struct.warnings||[], wrap.warnings||[]) }) : undefined,
       errors: wrap.errors,
-      warnings: wrap.warnings,
-      missingRequiredCollections: req.missingRequiredCollections,
-      invalidCollections: req.invalidCollections
+      warnings: [].concat(struct.warnings||[], wrap.warnings||[]),
+      missingRequiredCollections: struct.missingRequiredCollections,
+      invalidCollections: struct.invalidCollections,
+      countMismatches: struct.countMismatches,
+      brokenAttachmentRefs: struct.brokenAttachmentRefs,
+      duplicateIdentities: struct.duplicateIdentities
     };
   },
   migrateSchema: applySchemaMigrations,
@@ -14752,6 +14916,15 @@ async function importData(inp) {
       alert('❌ بازگردانی انجام نشد — اعتبارسنجی ناموفق\n\n'+(reqCol.errors||[]).join('\n')+'\n\nوجودنداشتن مجموعهٔ الزامی با آرایهٔ خالی [] یکی نیست و به‌صورت خودکار پر نمی‌شود.');
       inp.value=''; return;
     }
+    if(typeof validateBackupStructuralIntegrity==='function'){
+      var structCol = validateBackupStructuralIntegrity(d);
+      if(!structCol.ok){
+        addDbgEntry('err','بازگردانی','structural_integrity', (structCol.errors||[]).join('; '), 'بازگردانی قبل از migrate/preview متوقف شد');
+        if(typeof logBackupAudit==='function') logBackupAudit('restore', 'err', {reason:'structural_integrity', errors:structCol.errors, counts:structCol.countMismatches, attachments:structCol.brokenAttachmentRefs});
+        alert('❌ بازگردانی انجام نشد — یکپارچگی ساختاری نامعتبر\n\n'+(structCol.errors||[]).join('\n'));
+        inp.value=''; return;
+      }
+    }
     var hasData = d.invoices||d.products||d.pb||d.phonebook||d.parts||d.warranties||d.sales||d.accounts||d.tasks||d.services||d.svcs||d.daqi||d.company||d.appearance||d.database;
     if (!hasData) {
       addDbgEntry('err','بازگردانی','no known keys','این فایل بک‌اپ لایق نیست — کلیدهای موجود: '+Object.keys(d).join(', '),'فایل بک‌اپ باید با نرم‌افزار سیرمان ساخته شده باشد');
@@ -14789,8 +14962,16 @@ async function importData(inp) {
     d = migResult.data;
     var migLog = migResult.log;
 
-    // مرحله ۳.۵: تأیید itemCounts (تشخیص truncation)
-    if(d.itemCounts){
+    // مرحله ۳.۵: تأیید itemCounts (تشخیص truncation) — mismatch is FAIL, never repair
+    if(typeof validateBackupItemCounts==='function'){
+      var countGate = validateBackupItemCounts(d);
+      if(!countGate.ok){
+        addDbgEntry('err','بازگردانی','itemCounts mismatch', (countGate.errors||[]).join('; '), 'شمارش اعلام‌شده با طول آرایه یکی نیست — بدون تعمیر خودکار');
+        if(typeof logBackupAudit==='function') logBackupAudit('restore', 'err', {reason:'itemCounts', errors:countGate.errors});
+        alert('❌ بازگردانی انجام نشد — ناهماهنگی شمارش\n\n'+(countGate.errors||[]).join('\n'));
+        inp.value=''; return;
+      }
+    } else if(d.itemCounts){
       var countWarns = [];
       Object.keys(d.itemCounts).forEach(function(k){
         if(Array.isArray(d[k]) && d[k].length !== d.itemCounts[k]){
@@ -14798,7 +14979,9 @@ async function importData(inp) {
         }
       });
       if(countWarns.length){
-        addDbgEntry('warn','بازگردانی','itemCounts mismatch', countWarns.join('; '), 'برخی بخش‌ها ممکن است ناقص باشند');
+        addDbgEntry('err','بازگردانی','itemCounts mismatch', countWarns.join('; '), 'برخی بخش‌ها ممکن است ناقص باشند');
+        alert('❌ بازگردانی انجام نشد — ناهماهنگی شمارش\n\n'+countWarns.join('\n'));
+        inp.value=''; return;
       }
     }
 
@@ -14807,7 +14990,9 @@ async function importData(inp) {
       var val = validateBackupPackage(d);
       if(!val.ok){
         addDbgEntry('err','بازگردانی','validate', (val.errors||[]).join('; '), '');
-        if(!confirm('⚠️ اعتبارسنجی بسته:\n'+(val.errors||[]).join('\n')+'\n\nادامه؟')){ inp.value=''; return; }
+        if(typeof logBackupAudit==='function') logBackupAudit('restore', 'err', {reason:'validateBackupPackage', errors:val.errors});
+        alert('❌ بازگردانی انجام نشد — اعتبارسنجی بسته نامعتبر\n\n'+(val.errors||[]).join('\n'));
+        inp.value=''; return;
       } else if(val.warnings && val.warnings.length){
         chkInfo.msg = (chkInfo.msg?chkInfo.msg+' — ':'') + val.warnings.join('؛ ');
       }
@@ -27947,6 +28132,12 @@ function prepareNetworkWorkspacePull(raw){
       if(!Object.prototype.hasOwnProperty.call(data,rk) || data[rk]===null || !Array.isArray(data[rk])){
         return {ok:false, error:'مجموعهٔ الزامی «'+rk+'» غایب یا نامعتبر است (MISSING ≠ EMPTY)'};
       }
+    }
+  }
+  if(typeof validateBackupStructuralIntegrity==='function'){
+    var structCol = validateBackupStructuralIntegrity(data);
+    if(!structCol.ok){
+      return {ok:false, error:(structCol.errors||[]).join('؛ '), validation:structCol};
     }
   }
   var migLog = ['network-workspace'];
