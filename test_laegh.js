@@ -10123,6 +10123,161 @@ test('ARCH-15: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت 
 
 
 console.log('');
+console.log('📋 گروه: ARCH-16 ممیزی برش RAM کسب‌وکار (بدون cutover)');
+
+const ARCH16_REMAINING_ALWAYS_KEYS = [
+  'magic','schemaVersion','version','applicationVersion','exportedAt',
+  'invoices','products','inventory','invCtr','invoiceUidCtr','saleCtr','saleUidCtr',
+  'phonebook','parts','services','svcs','warranties','sales','tasks','accounts',
+  'defectiveStock','warehouseDocs','stockMoves','warehouses','daqi','daqiWarehouse','daqiVouchers','postalHistory',
+  'userAuditLog','bgAuditLog','userRoles','loginPw','senderInfo','logoSrc','acH',
+  'itemCounts','sections'
+];
+const ARCH16_REQUIRED = ['invoices','sales','warranties','parts','accounts'];
+const ARCH16_PHONEBOOK_EXCLUDED = ['phonebook'];
+
+test('ARCH-16 G1: قفل SHA اسمبل ARCH-15 و مسیر export دست‌نخورده‌اند', () => {
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  assertEqual(arch9cSha256(build), ARCH9D_BUILD_SHA256, 'SHA اسمبل باید همان ARCH-15 بماند');
+  assertEqual(ARCH9D_BUILD_SHA256, '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6', 'قفل ARCH-15');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'exportData')), ARCH9C_FN_SHA256.exportData, 'exportData SHA');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'buildBackupObject')), ARCH9C_FN_SHA256.buildBackupObject, 'buildBackupObject SHA');
+  const exp = extractFunctionSource(html, 'exportData');
+  const buildObj = extractFunctionSource(html, 'buildBackupObject');
+  assertContainsString(exp, 'var data = _buildFullBackupData();', 'exportData همچنان اسمبل است');
+  assertContainsString(buildObj, 'var d = _buildFullBackupData();', 'autosave همچنان اسمبل است');
+  assertTrue(exp.indexOf('collectBackupSettingsSnapshot') < 0, 'exportData نباید آداپتر تنظیمات را صدا بزند');
+  assertTrue(buildObj.indexOf('collectBackupSettingsSnapshot') < 0, 'buildBackupObject نباید آداپتر را صدا بزند');
+  assertEqual((build.match(/collectBackupSettingsSnapshot\s*\(\s*\)/g) || []).length, 1, 'آداپتر تنظیمات همان یک‌بار ARCH-15');
+  assertTrue(build.indexOf('await ') < 0 && build.indexOf('Promise') < 0, 'اسمبل باید همزمان بماند');
+  assertTrue(build.indexOf('indexedDB') < 0, 'اسمبل نباید IndexedDB داشته باشد');
+  assertTrue(build.indexOf('localStorage.setItem') < 0, 'اسمبل نباید LS بنویسد');
+});
+
+test('ARCH-16: فهرست فیلدهای باقی‌مانده غیرتنظیمات قفل است', () => {
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  ARCH16_REMAINING_ALWAYS_KEYS.forEach(function(k){
+    assertContainsString(build, k + ':', 'فیلد باقی‌مانده '+k);
+  });
+  ARCH14_SETTINGS_KEYS.filter(function(k){ return k !== 'printCenter'; }).forEach(function(k){
+    assertContainsString(build, k + ': s.' + k, 'تنظیمات باید از آداپتر بیاید: '+k);
+  });
+  ARCH16_REQUIRED.forEach(function(k){
+    assertContainsString(build, k + ': _safeArr(' + k + ')', k+' باید RAM زنده را با _safeArr بخواند');
+  });
+  ARCH16_PHONEBOOK_EXCLUDED.forEach(function(k){
+    assertContainsString(build, k + ': _safeArr(' + k + ')', k+' خارج از برش تنظیمات است و هنوز RAM است');
+    assertTrue(build.indexOf(k + ': s.' + k) < 0, k+' نباید از آداپتر تنظیمات بیاید');
+  });
+  assertContainsString(build, 'svcs: _safeArr(services)', 'svcs alias همان services زنده است');
+  assertContainsString(build, 'collectAttachmentIndex(data)', 'attachmentsIndex مشتق است');
+  assertTrue(build.indexOf('function collectBusiness') < 0, 'آداپتر کسب‌وکار تولیدی نباید وجود داشته باشد');
+});
+
+test('ARCH-16: قبل از clone نهایی، انتساب _safeArr ارجاع زنده است (probe فقط‌تست)', () => {
+  const helperSrc = extractFunctionSource(html, '_safeArr') + '\n' + extractFunctionSource(html, '_safeObj');
+  const invoices = [{ invoiceId:'INVUID-000001', nested:{v:'live'} }];
+  const inventory = { SKU:{ qty:1, nested:{bin:'A'} } };
+  const r = new Function('invoices','inventory', helperSrc + `
+    var data = { invoices: _safeArr(invoices), inventory: _safeObj(inventory), svcs: _safeArr(invoices) };
+    var before = (data.invoices === invoices) && (data.inventory === inventory) && (data.svcs === invoices);
+    data.invoices.push({invoiceId:'PUSHED'});
+    data.invoices[0].nested.v = 'mutated';
+    inventory.SKU.qty = 9;
+    var cloned = JSON.parse(JSON.stringify(data));
+    cloned.invoices.push({invoiceId:'CLONE'});
+    cloned.invoices[0].nested.v = 'clone-mut';
+    return {
+      before: before,
+      ramLen: invoices.length,
+      ramNested: invoices[0].nested.v,
+      ramQty: inventory.SKU.qty,
+      cloneLen: cloned.invoices.length,
+      cloneNested: cloned.invoices[0].nested.v
+    };
+  `)(invoices, inventory);
+  assertTrue(r.before, 'قبل از clone باید همان ارجاع RAM باشد');
+  assertEqual(r.ramLen, 2, 'جهش pre-clone باید RAM را عوض کند');
+  assertEqual(r.ramNested, 'mutated', 'nested pre-clone باید RAM را عوض کند');
+  assertEqual(r.ramQty, 9, 'object pre-clone باید RAM را عوض کند');
+  assertEqual(r.cloneLen, 3, 'جهش clone نباید به طول RAM برگردد');
+  assertEqual(invoices.length, 2, 'پس از clone، RAM همان pre-clone است نه clone-mut');
+  assertEqual(invoices[0].nested.v, 'mutated', 'جهش clone نباید nested RAM را عوض کند');
+});
+
+test('ARCH-16: خروجی اسمبل بعد از clone از RAM جداست (کسب‌وکار)', () => {
+  const run = arch9cLiveAssembly();
+  ARCH16_REQUIRED.concat(['products','phonebook','services']).forEach(function(k){
+    assertTrue(run.assembly[k] !== run[k], k+' بعد از clone جداست');
+  });
+  run.assembly.invoices[0].someNested.value = 'arch16-mut';
+  assertEqual(run.invoices[0].someNested.value, 'original-nested', 'جهش خروجی نباید RAM را عوض کند');
+  assertEqual(run.sandbox.localStorage.stats.setItem, 0, 'اسمبل LS نمی‌نویسد');
+  assertEqual(run.idbStats.open, 0, 'اسمبل IDB باز نمی‌کند');
+});
+
+test('ARCH-16: attachmentsIndex مشتق است و باینری ندارد', () => {
+  const src = extractFunctionSource(html, 'collectAttachmentIndex');
+  assertTrue(src !== null, 'collectAttachmentIndex باید موجود باشد');
+  assertContainsString(src, "walk(d && d.warranties, 'warranty')", 'warranty');
+  assertContainsString(src, "walk(d && d.sales, 'sale')", 'sale');
+  assertContainsString(src, "walk(d && d.invoices, 'invoice')", 'invoice');
+  assertContainsString(src, 'parentId: parentId || \'\'', 'parentId');
+  assertContainsString(src, 'rec && rec.id', 'parent از rec.id است نه invoiceId');
+  const fn = new Function(src + '\nreturn collectAttachmentIndex;')();
+  const idx = fn({
+    invoices: [{ id:'NUM-1', invoiceId:'INVUID-000001', docs:[{ id:'d1', name:'a.pdf', data:'disk://sirman_media/a.pdf' }] }],
+    sales: [{ id:'SL-0001', saleUid:'SALEUID-000001', docs:[{ name:'s.pdf', data:'idb:att-s' }] }],
+    warranties: [{ id:'W-1', docs:[{ name:'inline.png', data:'data:image/png;base64,xx' }] }]
+  });
+  assertEqual(idx.length, 3, 'سه پیوست');
+  const byKind = {};
+  idx.forEach(function(r){ byKind[r.kind] = r; });
+  assertEqual(byKind.invoice.parentId, 'NUM-1', 'فاکتور parentId از rec.id است نه invoiceId');
+  assertEqual(byKind.invoice.ref, 'disk://sirman_media/a.pdf', 'ارجاع دیسک');
+  assertEqual(byKind.invoice.inline, false, 'disk inline نیست');
+  assertEqual(byKind.sale.parentId, 'SL-0001', 'فروش parentId از rec.id است نه saleUid');
+  assertTrue(byKind.sale.ref.indexOf('idb:')===0, 'ارجاع idb');
+  assertEqual(byKind.warranty.parentId, 'W-1', 'گارانتی parentId همان id');
+  assertEqual(byKind.warranty.inline, true, 'dataURL به‌صورت inline پرچم می‌شود');
+  assertEqual(byKind.warranty.ref, '', 'باینری در index کپی نمی‌شود');
+  idx.push({ forged:true });
+  assertEqual(fn({invoices:[],sales:[],warranties:[]}).length, 0, 'هر بار آرایه جدید');
+});
+
+test('ARCH-16: هویت‌های قفل‌شده در منبع تشخیص تکرار', () => {
+  const src = extractFunctionSource(html, 'detectBackupDuplicateIdentities');
+  assertContainsString(src, 'invoiceId', 'invoices.invoiceId');
+  assertContainsString(src, 'saleUid', 'sales.saleUid');
+  assertContainsString(src, "d.warranties", 'warranties');
+  assertContainsString(src, "d.accounts", 'accounts');
+  assertContainsString(src, "d.parts", 'parts');
+  assertTrue(src.indexOf('phonebook') < 0, 'phonebook در تشخیص تکرار هویت نیست');
+  const savePB = extractFunctionSource(html, 'savePBContact');
+  assertTrue(savePB.indexOf("id:'PB-") < 0 && savePB.indexOf('id: \'PB-') < 0, 'savePBContact شناسه پایدار نمی‌سازد');
+  const saveTask = extractFunctionSource(html, 'saveTask');
+  assertContainsString(saveTask, "id:'TSK-'", 'وظیفه id دارد');
+  const saveAcc = extractFunctionSource(html, 'saveAccount');
+  assertContainsString(saveAcc, "id: 'ACC-'", 'حساب id دارد');
+});
+
+test('ARCH-16: Restore / Phonebook / Print / SQLite بدون تغییر کارکردی', () => {
+  ['applyBackupMergeSections','applyBackupReplaceSections','importData','savePBContact','resetAll','getPrintCenterState','getPrintSettings'].forEach(function(name){
+    assertTrue(extractFunctionSource(html, name) !== null, name+' باید بماند');
+  });
+  const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
+  assertContainsString(repo, 'html-backup-engine', 'TbdMarker');
+  assertContainsString(repo, 'TbdMarker', 'ثابت TbdMarker');
+  const sqlite = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Persistence.Sqlite', 'Sirman.Persistence.Sqlite.csproj'), 'utf8');
+  assertTrue(sqlite.length > 0, 'SQLite پروژه باید بماند');
+  const host = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs'), 'utf8');
+  assertContainsString(host, 'RunPrintHardwareDiagnostic', 'هارنس چاپ');
+  const printHost = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'WindowsPrintHost.cs'), 'utf8');
+  assertTrue(printHost.length > 0, 'WindowsPrintHost باید بماند');
+});
+
+
+console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
 
 
