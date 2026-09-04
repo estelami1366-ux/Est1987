@@ -95,6 +95,22 @@ public class SirmanHostObject
         }
     }
 
+    /// <summary>
+    /// ARCH-6: finalize a serialized backup snapshot via Core BackupFinalizer.
+    /// Does not write disk. Callers still use WriteBackupText. No live app state.
+    /// </summary>
+    public string FinalizeBackup(string json)
+    {
+        try
+        {
+            return Sirman.Core.Backup.BackupFinalizeBridge.Execute(json ?? "");
+        }
+        catch (Exception ex)
+        {
+            return SafeError.Json("backup-finalize", "نهایی‌سازی پشتیبان انجام نشد", ex);
+        }
+    }
+
     /// <summary>کاتالوگ پوستهٔ شیشه‌ای فصل/ماه برای مرور گارانتی.</summary>
     public string GetWarrantyBrowseCatalog() => SeasonalGlassTheme.CatalogJson();
 

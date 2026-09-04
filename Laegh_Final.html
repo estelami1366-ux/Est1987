@@ -7748,6 +7748,63 @@ function finalizeBackupPackage(data, origin, kind){
   data.manifest = buildBackupManifest(data, origin, kind);
   return data;
 }
+function backupFinalizerMode(){
+  var forced = '';
+  try { if(typeof window !== 'undefined' && window.SIRMAN_BACKUP_FINALIZER_MODE) forced = String(window.SIRMAN_BACKUP_FINALIZER_MODE); } catch(_m){}
+  if(forced === 'html') return 'html';
+  var h = (typeof getSirmanHostSync === 'function') ? getSirmanHostSync() : null;
+  var hasCore = !!(h && h.FinalizeBackup);
+  if(forced === 'core'){
+    if(!hasCore) throw new Error('BackupFinalizer Core در دسترس نیست');
+    return 'core';
+  }
+  return hasCore ? 'core' : 'html';
+}
+function replaceBackupObjectInPlace(target, src){
+  if(!target || typeof target !== 'object') return src;
+  Object.keys(target).forEach(function(k){ delete target[k]; });
+  Object.keys(src || {}).forEach(function(k){ target[k] = src[k]; });
+  return target;
+}
+var SIRMAN_CORE_CHECKSUM_ATTACHED = typeof WeakMap === 'function' ? new WeakMap() : null;
+function markCoreChecksumAttached(data){
+  if(SIRMAN_CORE_CHECKSUM_ATTACHED && data && typeof data === 'object') SIRMAN_CORE_CHECKSUM_ATTACHED.set(data, true);
+}
+function coreChecksumAlreadyAttached(data){
+  return !!(SIRMAN_CORE_CHECKSUM_ATTACHED && data && SIRMAN_CORE_CHECKSUM_ATTACHED.get(data));
+}
+function applyCoreBackupFinalizer(data, origin, kind, checksumMode){
+  var h = (typeof getSirmanHostSync === 'function') ? getSirmanHostSync() : null;
+  if(!h || !h.FinalizeBackup) throw new Error('BackupFinalizer Core در دسترس نیست');
+  var payload = JSON.stringify({
+    data: data,
+    origin: origin || (data && data.origin) || 'manual',
+    kind: kind || (data && data.partial ? 'partial' : 'full'),
+    checksumMode: checksumMode || 'sha256'
+  });
+  var raw = h.FinalizeBackup(payload);
+  var res = (typeof raw === 'string') ? JSON.parse(raw) : raw;
+  if(!res || res.ok !== true || !res.data){
+    var msg = (res && (res.message || res.error)) || 'نهایی‌سازی پشتیبان ناموفق بود';
+    throw new Error(msg);
+  }
+  replaceBackupObjectInPlace(data, res.data);
+  markCoreChecksumAttached(data);
+  return data;
+}
+function applyBackupFinalizer(data, origin, kind){
+  var mode = backupFinalizerMode();
+  if(mode === 'core'){
+    applyCoreBackupFinalizer(data, origin, kind, 'sha256');
+    return { engine: 'core', checksumAttached: true };
+  }
+  if(typeof finalizeBackupPackage === 'function') finalizeBackupPackage(data, origin, kind);
+  return { engine: 'html', checksumAttached: false };
+}
+async function attachChecksumUnlessCore(data){
+  if(typeof coreChecksumAlreadyAttached === 'function' && coreChecksumAlreadyAttached(data)) return;
+  if(typeof attachChecksum === 'function') await attachChecksum(data);
+}
 function cloneBackupData(d){
   try { return JSON.parse(JSON.stringify(d || {})); }
   catch(_e){ return d || {}; }
@@ -8470,7 +8527,8 @@ function buildBackupObject(){
   var d = _buildFullBackupData();
   d.autoSave = true;
   d.origin = 'autosave';
-  if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(d, 'autosave', 'full');
+  if(typeof applyBackupFinalizer==='function') applyBackupFinalizer(d, 'autosave', 'full');
+  else if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(d, 'autosave', 'full');
   return d;
 }
 
@@ -9952,7 +10010,8 @@ async function doAutoSave(force){
   if (!isDirty && !force) return; // چیزی تغییر نکرده و درخواست اجباری هم نبوده، لازم نیست ذخیره شود
   try {
     var data = buildBackupObject();
-    if(typeof attachChecksum==='function'){ await attachChecksum(data); }
+    if(typeof attachChecksumUnlessCore==='function'){ await attachChecksumUnlessCore(data); }
+    else if(typeof attachChecksum==='function'){ await attachChecksum(data); }
     var json = JSON.stringify(data, null, 2);
     // mirror در IndexedDB (کپی امن اضافی — قانون ۳-۲-۱)
     if(typeof mirrorBackupToIDB==='function'){ try{ await mirrorBackupToIDB(json); }catch(idbErr){} }
@@ -14193,7 +14252,15 @@ async function exportData(selectedKeys, opts){
     selectedKeys.forEach(function(k){ if(Array.isArray(data[k])) data.itemCounts[k] = data[k].length; });
   }
   var kind = (data.partial ? 'partial' : 'full');
-  if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(data, data.origin, kind);
+  try {
+    if(typeof applyBackupFinalizer==='function') applyBackupFinalizer(data, data.origin, kind);
+    else if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(data, data.origin, kind);
+  } catch(finErr){
+    if(typeof ntf==='function') ntf('نهایی‌سازی پشتیبان ناموفق بود','err');
+    if(typeof logBackupAudit==='function') logBackupAudit('backup', 'fail', {detail: String(finErr && finErr.message || finErr)});
+    if(typeof addDbgEntry==='function') addDbgEntry('err','بک‌آپ','', String(finErr && finErr.message || finErr), '');
+    return;
+  }
   var encPw = ((document.getElementById('bk-encrypt-pw')||{}).value||'').trim();
   if(!opts.skipEncryptPrompt){
     var preferEnc = (typeof isBackupEncryptPreferred==='function') ? isBackupEncryptPreferred() : true;
@@ -14207,7 +14274,8 @@ async function exportData(selectedKeys, opts){
   }
   if(encPw && typeof encryptBackupPackage==='function'){
     try{
-      if(typeof attachChecksum==='function'){ await attachChecksum(data); }
+      if(typeof attachChecksumUnlessCore==='function'){ await attachChecksumUnlessCore(data); }
+      else if(typeof attachChecksum==='function'){ await attachChecksum(data); }
       var env = await encryptBackupPackage(data, encPw);
       var blobEnc = new Blob([JSON.stringify(env,null,2)],{type:'application/json'});
       var aEnc = document.createElement('a');
@@ -14225,8 +14293,9 @@ async function exportData(selectedKeys, opts){
       ntf('رمزنگاری ناموفق بود — فایل عادی ذخیره می‌شود','err');
     }
   }
-  // checksum محاسبه کن (اگر crypto.subtle موجود باشد)
-  if(typeof attachChecksum==='function'){ await attachChecksum(data); }
+  // checksum محاسبه کن (اگر crypto.subtle موجود باشد و Core قبلاً نزده باشد)
+  if(typeof attachChecksumUnlessCore==='function'){ await attachChecksumUnlessCore(data); }
+  else if(typeof attachChecksum==='function'){ await attachChecksum(data); }
   var blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -14267,8 +14336,16 @@ async function exportArchiveBackup(){
   var data = _buildFullBackupData();
   data.origin = 'archive';
   data.immutable = true;
-  if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(data, 'archive', 'archive');
-  if(typeof attachChecksum==='function') await attachChecksum(data);
+  try {
+    if(typeof applyBackupFinalizer==='function') applyBackupFinalizer(data, 'archive', 'archive');
+    else if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(data, 'archive', 'archive');
+  } catch(finErr){
+    if(typeof ntf==='function') ntf('نهایی‌سازی پشتیبان ناموفق بود','err');
+    if(typeof logBackupAudit==='function') logBackupAudit('archive', 'fail', {detail: String(finErr && finErr.message || finErr)});
+    return;
+  }
+  if(typeof attachChecksumUnlessCore==='function') await attachChecksumUnlessCore(data);
+  else if(typeof attachChecksum==='function') await attachChecksum(data);
   var blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);

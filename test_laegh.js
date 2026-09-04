@@ -6123,6 +6123,8 @@ test('میزبان دات‌نت باید فهرست چاپگر و چاپ HTML �
   assertContainsString(host, 'PrintHtml', 'میزبان باید PrintHtml داشته باشد');
   assertContainsString(host, 'SaveAppPref', 'میزبان باید تنظیمات را در AppData نگه دارد');
   assertContainsString(host, 'WriteBackupText', 'میزبان باید بک‌آپ متنی پایدار بنویسد');
+  assertContainsString(host, 'FinalizeBackup', 'میزبان باید نهایی‌سازی Core را از همین sirmanHost بدهد');
+  assertContainsString(host, 'FinalizeBackup', 'میزبان باید نهایی‌سازی Core را از همین sirmanHost بدهد');
   assertContainsString(host, 'GetPrintJob', 'میزبان باید وضعیت کار چاپ را بدهد');
   assertContainsString(host, 'PrintDocument', 'میزبان باید PrintDocument با شناسه سند داشته باشد');
   assertContainsString(host, 'EnqueueHtmlPrint', 'میزبان باید کار چاپ را به موتور دسکتاپ بسپارد');
@@ -8644,18 +8646,17 @@ test('ARCH-5 G1: جدول طلایی باید هنوز با finalize فعلی HT
   assertTrue(pack.spec.notExtracted.indexOf('_buildFullBackupData') >= 0, '_buildFullBackupData نباید در ARCH-5 استخراج شده باشد');
 });
 
-test('ARCH-5 G2: exportData هنوز finalize HTML است نه Core', () => {
+test('ARCH-5 G2: HTML-only هنوز finalize HTML دارد و اسمبل در HTML مانده', () => {
   const exportSrc = extractFunctionSource(html, 'exportData');
   const buildSrc = extractFunctionSource(html, '_buildFullBackupData');
   const autoSrc = extractFunctionSource(html, 'buildBackupObject');
+  const applySrc = extractFunctionSource(html, 'applyBackupFinalizer');
   assertTrue(buildSrc !== null, '_buildFullBackupData باید باقی بماند');
   assertTrue(exportSrc.indexOf('_buildFullBackupData') >= 0, 'exportData باید از _buildFullBackupData اسمبل کند');
-  assertTrue(exportSrc.indexOf('finalizeBackupPackage') >= 0, 'exportData باید finalizeBackupPackage HTML را صدا بزند');
-  assertTrue(exportSrc.indexOf('attachChecksum') >= 0, 'exportData باید attachChecksum HTML را صدا بزند');
-  assertTrue(exportSrc.indexOf('BackupFinalizer') < 0, 'exportData نباید BackupFinalizer را صدا بزند');
-  assertTrue(autoSrc.indexOf('finalizeBackupPackage') >= 0, 'autosave باید finalize HTML را صدا بزند');
-  assertTrue(html.indexOf('BackupFinalizer') < 0, 'HTML نباید به BackupFinalizer ارجاع دهد');
-  assertTrue(html.indexOf('function finalizeBackupPackage') >= 0, 'تابع HTML finalizeBackupPackage باید باقی بماند');
+  assertTrue(applySrc.indexOf('finalizeBackupPackage') >= 0, 'مسیر HTML-only باید finalizeBackupPackage را صدا بزند');
+  assertTrue(exportSrc.indexOf('applyBackupFinalizer') >= 0, 'exportData باید از دروازه applyBackupFinalizer بگذرد');
+  assertTrue(autoSrc.indexOf('applyBackupFinalizer') >= 0, 'autosave باید از همان دروازه بگذرد');
+  assertTrue(html.indexOf('function finalizeBackupPackage') >= 0, 'تابع HTML finalizeBackupPackage باید برای HTML-only باقی بماند');
   assertTrue(html.indexOf('function attachChecksum') >= 0, 'تابع HTML attachChecksum باید باقی بماند');
 });
 
@@ -8666,7 +8667,147 @@ test('ARCH-5 G3: Phonebook و restore زنده و SQLite در این استخر�
   assertTrue(extractFunctionSource(html, 'applyBackupReplaceSections') !== null, 'replace باید باقی بماند');
   assertTrue(extractFunctionSource(html, 'resetAll') !== null, 'resetAll باید باقی بماند');
   const importSrc = extractFunctionSource(html, 'importData');
-  assertTrue(importSrc.indexOf('BackupFinalizer') < 0, 'importData نباید BackupFinalizer را صدا بزند');
+  assertTrue(importSrc.indexOf('applyBackupFinalizer') < 0, 'importData نباید نهایی‌ساز خروجی را صدا بزند');
+  assertTrue(importSrc.indexOf('FinalizeBackup') < 0, 'importData نباید Host FinalizeBackup را صدا بزند');
+});
+
+
+console.log('');
+console.log('📋 گروه: ARCH-6 قطعی‌سازی نهایی‌ساز پشتیبان (بدون Restore)');
+
+function loadArch6FinalizeHelpers(srcHtml) {
+  const fnSrc = [
+    'var SIRMAN_SCHEMA_VERSION = 1;',
+    'var SIRMAN_BACKUP_MAGIC = "SIRMAN_BACKUP";',
+    extractFunctionSource(srcHtml, 'buildBackupManifest'),
+    extractFunctionSource(srcHtml, 'backupSectionHash'),
+    extractFunctionSource(srcHtml, 'attachSectionChecksums'),
+    extractFunctionSource(srcHtml, 'collectAttachmentIndex'),
+    extractFunctionSource(srcHtml, 'finalizeBackupPackage'),
+    extractFunctionSource(srcHtml, 'backupFinalizerMode'),
+    extractFunctionSource(srcHtml, 'replaceBackupObjectInPlace'),
+    'var SIRMAN_CORE_CHECKSUM_ATTACHED = typeof WeakMap === "function" ? new WeakMap() : null;',
+    extractFunctionSource(srcHtml, 'markCoreChecksumAttached'),
+    extractFunctionSource(srcHtml, 'coreChecksumAlreadyAttached'),
+    extractFunctionSource(srcHtml, 'applyCoreBackupFinalizer'),
+    extractFunctionSource(srcHtml, 'applyBackupFinalizer'),
+    extractFunctionSource(srcHtml, 'attachChecksumUnlessCore')
+  ].join('\n');
+  return fnSrc;
+}
+
+test('ARCH-6 G1: HTML-only باید finalize HTML باشد و exe باید فقط Core را صدا بزند', () => {
+  const fnSrc = loadArch6FinalizeHelpers(html);
+  const htmlOnly = new Function(fnSrc + `
+    function getSirmanHostSync(){ return null; }
+    var data = { warranties:[], invoices:[], origin:'manual' };
+    var r = applyBackupFinalizer(data, 'manual', 'full');
+    return { engine:r.engine, magic:data.magic, checksumAttached:r.checksumAttached, schemaVersion:data.schemaVersion };
+  `)();
+  assertEqual(htmlOnly.engine, 'html', 'بدون Host باید HTML باشد');
+  assertEqual(htmlOnly.magic, 'SIRMAN_BACKUP', 'HTML-only باید finalizeBackupPackage را اجرا کند');
+  assertEqual(htmlOnly.checksumAttached, false, 'HTML-only نباید checksum Core بزند');
+
+  var coreCalls = { n:0, payload:null, htmlFinalize:0 };
+  const exe = new Function('coreCalls', fnSrc + `
+    var _html = finalizeBackupPackage;
+    finalizeBackupPackage = function(){ coreCalls.htmlFinalize++; return _html.apply(this, arguments); };
+    function getSirmanHostSync(){
+      return { FinalizeBackup: function(json){
+        coreCalls.n++;
+        coreCalls.payload = JSON.parse(json);
+        return JSON.stringify({ok:true, wrote:false, data:{magic:'SIRMAN_BACKUP', schemaVersion:1, checksum:'ab', checksumAlgo:'SHA-256', fromCore:true}});
+      }};
+    }
+    var data = { warranties:[], invoices:[], origin:'manual' };
+    var r = applyBackupFinalizer(data, 'manual', 'full');
+    return { engine:r.engine, fromCore:data.fromCore, htmlFinalize:coreCalls.htmlFinalize, hostCalls:coreCalls.n, hasLive: !!(coreCalls.payload && (coreCalls.payload.localStorage || coreCalls.payload.indexedDB)), hasData: !!(coreCalls.payload && coreCalls.payload.data) };
+  `)(coreCalls);
+  assertEqual(exe.engine, 'core', 'با Host.FinalizeBackup باید Core باشد');
+  assertEqual(exe.fromCore, true, 'نتیجه Core باید روی شیء اسمبل‌شده کپی شود');
+  assertEqual(exe.htmlFinalize, 0, 'مسیر Core نباید finalize HTML را هم اجرا کند');
+  assertEqual(exe.hostCalls, 1, 'باید دقیقاً یک بار Host صدا شود');
+  assertEqual(exe.hasLive, false, 'قرارداد نباید localStorage/IDB بفرستد');
+  assertEqual(exe.hasData, true, 'قرارداد باید data سریال داشته باشد');
+});
+
+test('ARCH-6 G2: شکست Core باید fail-closed باشد نه fallback پنهان', () => {
+  const fnSrc = loadArch6FinalizeHelpers(html);
+  const r = new Function(fnSrc + `
+    var htmlCalls = 0;
+    var _html = finalizeBackupPackage;
+    finalizeBackupPackage = function(){ htmlCalls++; return _html.apply(this, arguments); };
+    function getSirmanHostSync(){
+      return { FinalizeBackup: function(){ return JSON.stringify({ok:false, error:'backup-finalize', message:'نهایی‌سازی پشتیبان انجام نشد'}); } };
+    }
+    var data = { warranties:[], invoices:[] };
+    var threw = false, msg = '';
+    try { applyBackupFinalizer(data, 'manual', 'full'); }
+    catch(e){ threw = true; msg = e.message; }
+    return { threw:threw, msg:msg, htmlCalls:htmlCalls, hasMagic: Object.prototype.hasOwnProperty.call(data,'magic') };
+  `)();
+  assertEqual(r.threw, true, 'شکست Core باید throw شود');
+  assertEqual(r.htmlCalls, 0, 'نباید پس از شکست Core به finalize HTML پناه ببرد');
+  assertEqual(r.hasMagic, false, 'نباید بسته نیمه‌نهایی روی شیء ورودی بماند');
+  const exportSrc = extractFunctionSource(html, 'exportData');
+  assertTrue(exportSrc.indexOf("logBackupAudit('backup', 'fail'") >= 0, 'شکست باید audit fail بخورد نه ok');
+  assertTrue(exportSrc.indexOf('نهایی‌سازی پشتیبان ناموفق بود') >= 0, 'نباید toast موفقیت بدهد');
+  assertTrue(exportSrc.indexOf('applyBackupFinalizer') >= 0, 'exportData باید از دروازه واحد بگذرد');
+});
+
+test('ARCH-6 G3: سوئیچ صریح html باید Host را دور بزند و rollback مشاهده‌پذیر باشد', () => {
+  const fnSrc = loadArch6FinalizeHelpers(html);
+  const r = new Function(fnSrc + `
+    var hostCalls = 0;
+    function getSirmanHostSync(){
+      return { FinalizeBackup: function(){ hostCalls++; return JSON.stringify({ok:true, data:{fromCore:true}}); } };
+    }
+    var window = { SIRMAN_BACKUP_FINALIZER_MODE: 'html' };
+    var data = { warranties:[], invoices:[] };
+    var mode = backupFinalizerMode();
+    var fin = applyBackupFinalizer(data, 'manual', 'full');
+    return { mode:mode, engine:fin.engine, hostCalls:hostCalls, magic:data.magic };
+  `)();
+  assertEqual(r.mode, 'html', 'سوئیچ html باید اجباری باشد');
+  assertEqual(r.engine, 'html', 'rollback صریح باید موتور HTML را استفاده کند');
+  assertEqual(r.hostCalls, 0, 'rollback صریح نباید Host را صدا بزند');
+  assertEqual(r.magic, 'SIRMAN_BACKUP', 'مسیر HTML باید بسته را نهایی کند');
+});
+
+test('ARCH-6 G4: Restore/Merge/Phonebook/SQLite/resetAll در این قطعی‌سازی دست نخورده‌اند', () => {
+  assertTrue(extractFunctionSource(html, 'importData') !== null, 'importData باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'applyBackupMergeSections') !== null, 'merge باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'applyBackupReplaceSections') !== null, 'replace باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'savePBContact') !== null, 'savePBContact باید باقی بماند');
+  assertTrue(extractFunctionSource(html, 'resetAll') !== null, 'resetAll باید باقی بماند');
+  const importSrc = extractFunctionSource(html, 'importData');
+  const mergeSrc = extractFunctionSource(html, 'applyBackupMergeSections');
+  assertTrue(importSrc.indexOf('FinalizeBackup') < 0, 'restore نباید FinalizeBackup را صدا بزند');
+  assertTrue(mergeSrc.indexOf('FinalizeBackup') < 0, 'merge نباید FinalizeBackup را صدا بزند');
+  const host = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs'), 'utf8');
+  assertContainsString(host, 'FinalizeBackup', 'Host باید FinalizeBackup داشته باشد');
+  assertContainsString(host, 'BackupFinalizeBridge.Execute', 'Host باید فقط پل Core را صدا بزند');
+  const rules = fs.readFileSync(path.join(path.dirname(filePath), 'docs', 'ARCHITECTURE_RULES.md'), 'utf8');
+  assertContainsString(rules, 'FinalizeBackup', 'لیست مجاز معماری باید FinalizeBackup را ثبت کند');
+  const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
+  assertContainsString(repo, 'html-backup-engine', 'JsonBackupRepository باید TBD بماند');
+});
+
+test('ARCH-6 G5: جدول طلایی T1–T10 باید با خروجی HTML finalize یکی بماند', () => {
+  const pack = loadArch5BackupFinalizeGolden();
+  const api = loadArch5FinalizeOracle(html);
+  const ids = ['T1-valid-ordinary','T2-empty-collections','T3-persian-text','T4-nested-object','T12-attachmentsIndex','T13-itemCounts','T9-sha256','T8-checksumAlgo-none','T6-exportedAt-variation','T11-sectionChecksums'];
+  ids.forEach(function(id){
+    const row = pack.fixtures.filter(function(f){ return f.id === id; })[0];
+    assertTrue(!!row, id + ' باید در جدول طلایی باشد');
+    let data = row.input === null ? row.input : JSON.parse(JSON.stringify(row.input));
+    const origin = row.origin == null ? undefined : row.origin;
+    const kind = row.kind == null ? undefined : row.kind;
+    const got = api.finalizeBackupPackage(data, origin, kind);
+    const attached = arch5AttachChecksum(api, got, row.checksumMode || 'leave');
+    assertEqual(JSON.stringify(attached), row.html.compactJson, id + ' compactJson');
+    assertEqual(api.backupChecksumCanonicalString(attached), row.html.canonicalString, id + ' canonical');
+  });
 });
 
 
