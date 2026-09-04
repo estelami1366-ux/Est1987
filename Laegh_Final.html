@@ -7777,7 +7777,7 @@ function validateBackupPackage(d){
   return { ok: errors.length===0, errors:errors, warnings:warnings };
 }
 // P1C fail-closed: required collections. MISSING ≠ EMPTY. Do not coerce absent keys to [].
-var REQUIRED_BACKUP_COLLECTIONS = ['warranties'];
+var REQUIRED_BACKUP_COLLECTIONS = ['warranties', 'invoices'];
 function backupHasOwnCollection(d, key){
   return !!(d && typeof d === 'object' && !Array.isArray(d) && Object.prototype.hasOwnProperty.call(d, key));
 }
@@ -7787,7 +7787,7 @@ function validateRequiredBackupCollections(d){
   var missingRequiredCollections = [];
   var invalidCollections = [];
   var required = (typeof REQUIRED_BACKUP_COLLECTIONS !== 'undefined' && REQUIRED_BACKUP_COLLECTIONS && REQUIRED_BACKUP_COLLECTIONS.length)
-    ? REQUIRED_BACKUP_COLLECTIONS : ['warranties'];
+    ? REQUIRED_BACKUP_COLLECTIONS : ['warranties','invoices'];
   if(!d || typeof d !== 'object' || Array.isArray(d)){
     errors.push('بستهٔ پشتیبان نامعتبر است');
     return { ok:false, errors:errors, warnings:warnings, missingRequiredCollections:missingRequiredCollections, invalidCollections:invalidCollections };
@@ -14081,11 +14081,15 @@ function migrateBackup(d) {
 
   if (!d.inventory)  { d.inventory = {}; }
   if (!d.products)   { d.products = []; }
-  if (!d.invoices)   { d.invoices = []; }
 
-  // === شماره فاکتور ===
-  if (!d.invCtr && d.invoices.length > 0) {
-    // حدس از روی بزرگترین شماره
+  // P1C-2: invoices is required. MISSING/null/non-array must NOT become [].
+  if (!Object.prototype.hasOwnProperty.call(d, 'invoices')) {
+    log.push('📋 فاکتورها: غایب — بدون جایگزینی [] (fail-closed)');
+  } else if (d.invoices === null) {
+    log.push('📋 فاکتورها: null — بدون جایگزینی [] (fail-closed)');
+  } else if (!Array.isArray(d.invoices)) {
+    log.push('📋 فاکتورها: نوع نامعتبر ('+(typeof d.invoices)+') — بدون جایگزینی [] (fail-closed)');
+  } else if (!d.invCtr && d.invoices.length > 0) {
     var maxNum = 0;
     d.invoices.forEach(function(inv){ var n=parseInt(inv.num)||0; if(n>maxNum)maxNum=n; });
     d.invCtr = maxNum + 1;
@@ -14108,7 +14112,7 @@ function migrateBackup(d) {
 
   // === ID های missing ===
   var fixedIds = 0;
-  d.invoices.forEach(function(inv,i){ if(!inv.id){ inv.id='mig_inv_'+i+'_'+Date.now(); fixedIds++; } });
+  if (Array.isArray(d.invoices)) d.invoices.forEach(function(inv,i){ if(!inv.id){ inv.id='mig_inv_'+i+'_'+Date.now(); fixedIds++; } });
   d.parts.forEach(function(p,i){ if(!p.id){ p.id='mig_part_'+i+'_'+Date.now(); fixedIds++; } });
   if (Array.isArray(d.warranties)) d.warranties.forEach(function(w,i){ if(!w.id){ w.id='mig_war_'+i+'_'+Date.now(); fixedIds++; } });
   d.sales.forEach(function(s,i){ if(!s.id){ s.id='mig_sale_'+i+'_'+Date.now(); fixedIds++; } });
@@ -14394,7 +14398,7 @@ function applyBackupSelective(d, selectedKeys, mode, migLog){
 
 function applyBackupReplaceSections(d, selectedKeys){
   assertRequiredBackupCollections(d, 'replace');
-  if(_restoreWants(selectedKeys,'invoices')) invoices = Array.isArray(d.invoices) ? d.invoices : [];
+  if(_restoreWants(selectedKeys,'invoices')) invoices = d.invoices;
   if(_restoreWants(selectedKeys,'products')) products = Array.isArray(d.products) ? d.products : [];
   if(_restoreWants(selectedKeys,'inventory')) inventory = (d.inventory && typeof d.inventory==='object' && !Array.isArray(d.inventory)) ? d.inventory : {};
   if(_restoreWants(selectedKeys,'phonebook')){
@@ -14524,7 +14528,7 @@ function applyBackupMergeSections(d, selectedKeys){
   var added = {inv:0,prod:0,pb:0,parts:0,svc:0,sale:0,war:0,task:0};
   var skip  = {inv:0,prod:0,pb:0};
   var addedAcc = 0;
-  if(_restoreWants(selectedKeys,'invoices')) (d.invoices||[]).forEach(function(x){ if(!invoices.find(function(i){return (x.invoiceId && i.invoiceId===x.invoiceId) || i.id===x.id || i.num===x.num;})){ invoices.push(x); added.inv++; } else skip.inv++; });
+  if(_restoreWants(selectedKeys,'invoices')) d.invoices.forEach(function(x){ if(!invoices.find(function(i){return (x.invoiceId && i.invoiceId===x.invoiceId) || i.id===x.id || i.num===x.num;})){ invoices.push(x); added.inv++; } else skip.inv++; });
   if(_restoreWants(selectedKeys,'products')) (d.products||[]).forEach(function(x){ if(!products.find(function(p){return p.code===x.code;})){ products.push(x); added.prod++; } else skip.prod++; });
   if(_restoreWants(selectedKeys,'phonebook')){
     var pbSource = (Array.isArray(d.phonebook) && d.phonebook.length>0) ? d.phonebook : (d.pb||[]);
@@ -27843,8 +27847,15 @@ function prepareNetworkWorkspacePull(raw){
     if(!reqCol.ok){
       return {ok:false, error:(reqCol.errors||[]).join('؛ '), validation:reqCol};
     }
-  } else if(!Object.prototype.hasOwnProperty.call(data,'warranties') || data.warranties===null || !Array.isArray(data.warranties)){
-    return {ok:false, error:'مجموعهٔ الزامی «warranties» غایب یا نامعتبر است (MISSING ≠ EMPTY)'};
+  } else {
+    var reqKeys = (typeof REQUIRED_BACKUP_COLLECTIONS!=='undefined' && REQUIRED_BACKUP_COLLECTIONS && REQUIRED_BACKUP_COLLECTIONS.length)
+      ? REQUIRED_BACKUP_COLLECTIONS : ['warranties','invoices'];
+    for(var ri=0;ri<reqKeys.length;ri++){
+      var rk = reqKeys[ri];
+      if(!Object.prototype.hasOwnProperty.call(data,rk) || data[rk]===null || !Array.isArray(data[rk])){
+        return {ok:false, error:'مجموعهٔ الزامی «'+rk+'» غایب یا نامعتبر است (MISSING ≠ EMPTY)'};
+      }
+    }
   }
   var migLog = ['network-workspace'];
   if(typeof migrateBackup==='function'){
