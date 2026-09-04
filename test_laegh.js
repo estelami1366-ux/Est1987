@@ -135,7 +135,7 @@ function loadP1CValidator(srcHtml) {
   if (!src || src.indexOf('function validateRequiredBackupCollections') < 0) {
     throw new Error('validateRequiredBackupCollections پیدا نشد');
   }
-  return new Function(src + '\nreturn { backupHasOwnCollection: typeof backupHasOwnCollection==="function"?backupHasOwnCollection:null, inferRequiredBackupSchemaVersion: typeof inferRequiredBackupSchemaVersion==="function"?inferRequiredBackupSchemaVersion:null, requiredBackupCollectionsFor: typeof requiredBackupCollectionsFor==="function"?requiredBackupCollectionsFor:null, validateRequiredBackupCollections: validateRequiredBackupCollections, assertRequiredBackupCollections: assertRequiredBackupCollections, backupValidationStatus: typeof backupValidationStatus==="function"?backupValidationStatus:null, validateBackupItemCounts: typeof validateBackupItemCounts==="function"?validateBackupItemCounts:null, validateBackupAttachmentIndex: typeof validateBackupAttachmentIndex==="function"?validateBackupAttachmentIndex:null, detectBackupDuplicateIdentities: typeof detectBackupDuplicateIdentities==="function"?detectBackupDuplicateIdentities:null, validateBackupStructuralIntegrity: typeof validateBackupStructuralIntegrity==="function"?validateBackupStructuralIntegrity:null, backupSectionHash: typeof backupSectionHash==="function"?backupSectionHash:null, backupChecksumExcludedKey: typeof backupChecksumExcludedKey==="function"?backupChecksumExcludedKey:null, backupChecksumPayload: typeof backupChecksumPayload==="function"?backupChecksumPayload:null, backupChecksumCanonicalString: typeof backupChecksumCanonicalString==="function"?backupChecksumCanonicalString:null, classifyBackupChecksumClaim: typeof classifyBackupChecksumClaim==="function"?classifyBackupChecksumClaim:null, validateBackupSectionChecksums: typeof validateBackupSectionChecksums==="function"?validateBackupSectionChecksums:null, validateBackupPortableIntegrity: typeof validateBackupPortableIntegrity==="function"?validateBackupPortableIntegrity:null };')();
+  return new Function(src + '\nreturn { inferBackupSchemaVersion: typeof inferBackupSchemaVersion==="function"?inferBackupSchemaVersion:null, backupHasOwnCollection: typeof backupHasOwnCollection==="function"?backupHasOwnCollection:null, inferRequiredBackupSchemaVersion: typeof inferRequiredBackupSchemaVersion==="function"?inferRequiredBackupSchemaVersion:null, requiredBackupCollectionsFor: typeof requiredBackupCollectionsFor==="function"?requiredBackupCollectionsFor:null, validateRequiredBackupCollections: validateRequiredBackupCollections, assertRequiredBackupCollections: assertRequiredBackupCollections, backupValidationStatus: typeof backupValidationStatus==="function"?backupValidationStatus:null, validateBackupItemCounts: typeof validateBackupItemCounts==="function"?validateBackupItemCounts:null, validateBackupAttachmentIndex: typeof validateBackupAttachmentIndex==="function"?validateBackupAttachmentIndex:null, detectBackupDuplicateIdentities: typeof detectBackupDuplicateIdentities==="function"?detectBackupDuplicateIdentities:null, validateBackupStructuralIntegrity: typeof validateBackupStructuralIntegrity==="function"?validateBackupStructuralIntegrity:null, backupSectionHash: typeof backupSectionHash==="function"?backupSectionHash:null, backupChecksumExcludedKey: typeof backupChecksumExcludedKey==="function"?backupChecksumExcludedKey:null, backupChecksumPayload: typeof backupChecksumPayload==="function"?backupChecksumPayload:null, backupChecksumCanonicalString: typeof backupChecksumCanonicalString==="function"?backupChecksumCanonicalString:null, classifyBackupChecksumClaim: typeof classifyBackupChecksumClaim==="function"?classifyBackupChecksumClaim:null, validateBackupSectionChecksums: typeof validateBackupSectionChecksums==="function"?validateBackupSectionChecksums:null, validateBackupPortableIntegrity: typeof validateBackupPortableIntegrity==="function"?validateBackupPortableIntegrity:null };')();
 }
 
 function loadMigrateBackupFn(srcHtml) {
@@ -8279,6 +8279,93 @@ test('P1C-7 T18: tasks required نیست و backupId اختراع نشد', () =>
   const migrateBackup = loadMigrateBackupFn();
   const old = migrateBackup({ version:'2.0', invoices:[], products:[], inventory:{}, phonebook:[], invCtr:2, warranties:[] });
   assertArrayLength(old.data.tasks, 0, 'tasks=[] v2.0 باید بماند');
+});
+
+
+console.log('');
+console.log('📋 گروه: ARCH-2 قفل طلایی validator پشتیبان HTML (بدون cutover)');
+
+function loadArch2BackupValidatorGolden() {
+  const name = 'BackupValidatorGolden.json';
+  const candidates = [
+    path.join(__dirname, 'desktop', 'Sirman.Core.Tests', name),
+    path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', name)
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  }
+  throw new Error('جدول طلایی ARCH-2 پیدا نشد: ' + name);
+}
+
+function arch2Sha256Utf8(s) {
+  return require('crypto').createHash('sha256').update(s, 'utf8').digest('hex');
+}
+
+function arch2HtmlSnapshot(v, d) {
+  const required = v.validateRequiredBackupCollections(d);
+  const structural = v.validateBackupStructuralIntegrity(d);
+  const portable = v.validateBackupPortableIntegrity(d);
+  const canonicalString = v.backupChecksumCanonicalString(d);
+  const combinedErrors = [].concat(structural.errors || [], portable.errors || []);
+  const combinedWarnings = [].concat(structural.warnings || [], portable.warnings || []);
+  const combinedOk = combinedErrors.length === 0;
+  return {
+    required: required,
+    structural: structural,
+    portable: portable,
+    combined: {
+      ok: combinedOk,
+      status: v.backupValidationStatus({ ok: combinedOk, warnings: combinedWarnings }),
+      errors: combinedErrors,
+      warnings: combinedWarnings
+    },
+    integrity: {
+      canonicalString: canonicalString,
+      sha256Hex: arch2Sha256Utf8(canonicalString)
+    },
+    requiredKeys: v.requiredBackupCollectionsFor(d),
+    schemaVersion: v.inferBackupSchemaVersion(d)
+  };
+}
+
+test('ARCH-2 G1: جدول طلایی باید هنوز با validator فعلی HTML یکی باشد', () => {
+  const pack = loadArch2BackupValidatorGolden();
+  assertTrue(Array.isArray(pack.fixtures) && pack.fixtures.length >= 40, 'باید فیکسچرهای ARCH-2 موجود باشند');
+  const v = loadP1CValidator();
+  pack.fixtures.forEach(function(row) {
+    const got = arch2HtmlSnapshot(v, row.input);
+    assertEqual(got.required.ok, row.html.required.ok, row.id + ' required.ok');
+    assertEqual(JSON.stringify(got.required.errors), JSON.stringify(row.html.required.errors), row.id + ' required.errors');
+    assertEqual(JSON.stringify(got.required.missingRequiredCollections||[]), JSON.stringify(row.html.required.missingRequiredCollections||[]), row.id + ' missing');
+    assertEqual(got.structural.ok, row.html.structural.ok, row.id + ' structural.ok');
+    assertEqual(got.structural.status, row.html.structural.status, row.id + ' structural.status');
+    assertEqual(JSON.stringify(got.structural.errors), JSON.stringify(row.html.structural.errors), row.id + ' structural.errors');
+    assertEqual(JSON.stringify(got.structural.warnings), JSON.stringify(row.html.structural.warnings), row.id + ' structural.warnings');
+    assertEqual(got.portable.ok, row.html.portable.ok, row.id + ' portable.ok');
+    assertEqual(got.portable.status, row.html.portable.status, row.id + ' portable.status');
+    assertEqual(JSON.stringify(got.portable.errors), JSON.stringify(row.html.portable.errors), row.id + ' portable.errors');
+    assertEqual(got.combined.ok, row.html.combined.ok, row.id + ' combined.ok');
+    assertEqual(got.combined.status, row.html.combined.status, row.id + ' combined.status');
+    assertEqual(got.integrity.canonicalString, row.html.integrity.canonicalString, row.id + ' canonical');
+    assertEqual(got.integrity.sha256Hex, row.html.integrity.sha256Hex, row.id + ' sha256');
+    assertEqual(got.schemaVersion, row.html.schemaVersion, row.id + ' schemaVersion');
+  });
+});
+
+test('ARCH-2 G2: HTML validator در importData باقی است و cutover نشده', () => {
+  const importSrc = extractFunctionSource(html, 'importData');
+  assertTrue(importSrc.indexOf('validateRequiredBackupCollections') >= 0, 'importData باید validator HTML را صدا بزند');
+  assertTrue(importSrc.indexOf('BackupValidator') < 0, 'importData نباید Core BackupValidator را صدا بزند');
+  assertTrue(html.indexOf('function validateRequiredBackupCollections') >= 0, 'تابع HTML باید باقی بماند');
+  assertTrue(html.indexOf('chrome.webview.hostObjects.sync.sirmanHost') >= 0, 'Host موجود است');
+  assertTrue(!/validateRequiredBackupCollections[\s\S]{0,80}RunBusiness/.test(extractFunctionSource(html, 'importData')), 'restore نباید از RunBusiness برای validator استفاده کند');
+});
+
+test('ARCH-2 G3: Phonebook در گراف اعتبارسنجی استخراج‌شده اسکن نمی‌شود', () => {
+  const v = loadP1CValidator();
+  const d = { schemaVersion:1, warranties:[], invoices:[], sales:[], parts:[], accounts:[], phonebook:[{fn:'A',phones:['1']},{fn:'B',phones:['1']}] };
+  const r = v.detectBackupDuplicateIdentities(d);
+  assertEqual((r.duplicateIdentities||[]).length, 0, 'Phonebook نباید در duplicateIdentities باشد');
 });
 
 
