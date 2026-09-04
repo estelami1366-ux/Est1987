@@ -9052,6 +9052,383 @@ test('ARCH-9B G2: Restore/Phonebook/SQLite در این قرارداد دست ن�
 
 
 console.log('');
+console.log('📋 گروه: ARCH-9C اثبات clone-on-assemble (فقط تست، بدون تغییر تولید)');
+
+const ARCH9C_FN_SHA256 = {
+  _buildFullBackupData: '5224e91e5e888217d42fa5d557b06e50ebfe982abf18f5ff5f7260083ff2349b',
+  _safeArr: 'c14ddc772241ede09e95578d561ffa4732d9c51cc439ab5ee85360b875a4590a',
+  _safeObj: '9fcac0940a097e4c92bda249b14a91dcf143bb614edae3cfd423035c6df860b7',
+  exportData: 'aa8f62ed31807362c3ca80e6c58f73bff68f5354d49b76bbfd9c9a76b82bb498',
+  buildBackupObject: 'f66b0a89313603ae5e70c581e523719056f1a484e8a323423f63e3e69f0150a5',
+  applyBackupSelective: '06a395a4e7e89e8d5a032e6210955b071a23c42e064063a86b7f6d0f97444637'
+};
+
+function arch9cSha256(s) {
+  return require('crypto').createHash('sha256').update(s, 'utf8').digest('hex');
+}
+
+function arch9cMakeLs(map) {
+  const store = Object.assign({}, map || {});
+  return {
+    getItem: function(k){ return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },
+    setItem: function(k, v){ store[k] = String(v); },
+    removeItem: function(k){ delete store[k]; },
+    key: function(i){ return Object.keys(store)[i] || null; },
+    get length(){ return Object.keys(store).length; }
+  };
+}
+
+function arch9cJsonClone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function arch9cScanTypes(value, acc, path) {
+  acc = acc || { kinds: {}, special: [] };
+  path = path || '$';
+  if (value === undefined) { acc.special.push({ path: path, type: 'undefined' }); return acc; }
+  if (typeof value === 'bigint') { acc.special.push({ path: path, type: 'bigint' }); return acc; }
+  if (typeof value === 'function') { acc.special.push({ path: path, type: 'function' }); return acc; }
+  if (typeof value === 'symbol') { acc.special.push({ path: path, type: 'symbol' }); return acc; }
+  if (typeof value === 'number' && !Number.isFinite(value)) {
+    acc.special.push({ path: path, type: String(value) });
+    return acc;
+  }
+  if (value === null) { acc.kinds.null = (acc.kinds.null || 0) + 1; return acc; }
+  if (typeof value === 'string') { acc.kinds.string = (acc.kinds.string || 0) + 1; return acc; }
+  if (typeof value === 'boolean') { acc.kinds.boolean = (acc.kinds.boolean || 0) + 1; return acc; }
+  if (typeof value === 'number') { acc.kinds.number = (acc.kinds.number || 0) + 1; return acc; }
+  if (typeof value === 'object') {
+    if (Object.prototype.toString.call(value) === '[object Date]') {
+      acc.special.push({ path: path, type: 'Date' });
+      return acc;
+    }
+    if (value instanceof Map || value instanceof Set) {
+      acc.special.push({ path: path, type: value.constructor.name });
+      return acc;
+    }
+    if (Array.isArray(value)) {
+      acc.kinds.array = (acc.kinds.array || 0) + 1;
+      for (var i = 0; i < value.length; i++) arch9cScanTypes(value[i], acc, path + '[' + i + ']');
+      return acc;
+    }
+    acc.kinds.object = (acc.kinds.object || 0) + 1;
+    Object.keys(value).forEach(function(k){ arch9cScanTypes(value[k], acc, path + '.' + k); });
+    return acc;
+  }
+  acc.special.push({ path: path, type: typeof value });
+  return acc;
+}
+
+function arch9cLiveAssembly() {
+  const invoices = [{
+    id: 'INV-1',
+    invoiceId: 'INVUID-000001',
+    num: '۱۲',
+    someNested: { value: 'original-nested' },
+    docs: [{ id: 'doc-inv-1', name: 'فاکتور.pdf', data: 'idb:att-1' }]
+  }];
+  const products = [{ id: 'PRD-1', name: 'کالا', nested: { sku: 'S1' } }];
+  const warranties = [{ id: 'W-1', title: 'گارانتی', nested: { serial: 'SN1' }, docs: [{ id: 'doc-w-1', name: 'w.pdf', data: 'idb:att-w' }] }];
+  const phonebook = [{ id: 'PB-1', fn: 'علی', ln: 'رضایی', shop: 'فروشگاه سیرمان' }];
+  const parts = [{ id: 'PT-1', name: 'قطعه', nested: { bin: 'B1' } }];
+  const sales = [{ id: 'SALE-1', saleUid: 'SALEUID-000001', nested: { total: 10 }, docs: [{ id: 'doc-s-1', name: 's.pdf', data: 'disk:att-s' }] }];
+  const accounts = [{ id: 'ACC-1', name: 'صندوق', nested: { bal: 100 } }];
+  const services = [{ id: 'SVC-1', name: 'خدمت' }];
+  const inventory = { 'SKU-1': { qty: 4, nested: { bin: 'A' } } };
+  const sandbox = {
+    invoices: invoices,
+    products: products,
+    inventory: inventory,
+    invCtr: 2,
+    invoiceUidCtr: 1,
+    saleCtr: 2,
+    saleUidCtr: 1,
+    phonebook: phonebook,
+    parts: parts,
+    services: services,
+    warranties: warranties,
+    sales: sales,
+    tasks: [],
+    accounts: accounts,
+    defectiveStock: [],
+    warehouseDocs: [],
+    stockMoves: [],
+    warehouses: [],
+    daqi: [],
+    daqiWarehouse: [],
+    daqiVouchers: [],
+    postalHistory: [],
+    userAuditLog: [],
+    bgAuditLog: [],
+    userRoles: [],
+    loginPw: '',
+    senderInfo: { name: 'x' },
+    logoSrc: '',
+    acH: {},
+    SIRMAN_BACKUP_MAGIC: 'SIRMAN_BACKUP',
+    SIRMAN_SCHEMA_VERSION: 1,
+    localStorage: arch9cMakeLs({
+      laegh_printSettings: JSON.stringify({ paper: 'A4' }),
+      laegh_company: JSON.stringify({ name: 'لایق' }),
+      laegh_tz: 'Asia/Tehran'
+    }),
+    getPrintCenterState: function(){ return { enabled: true, nested: { printer: 'HP' } }; }
+  };
+  const allSrc = [
+    extractFunctionSource(html, '_safeArr'),
+    extractFunctionSource(html, '_safeObj'),
+    extractFunctionSource(html, '_safeStr'),
+    extractFunctionSource(html, 'collectAttachmentIndex'),
+    extractFunctionSource(html, '_buildFullBackupData')
+  ].join('\n');
+  const runner = new Function('ctx', 'with(ctx){ ' + allSrc + '\nreturn _buildFullBackupData(); }');
+  const assembly = runner(sandbox);
+  return {
+    sandbox: sandbox,
+    assembly: assembly,
+    invoices: invoices,
+    products: products,
+    warranties: warranties,
+    phonebook: phonebook,
+    parts: parts,
+    sales: sales,
+    accounts: accounts,
+    inventory: inventory,
+    services: services
+  };
+}
+
+test('ARCH-9C alias: اسمبل فعلی ارجاع زنده invoices برمی‌گرداند', () => {
+  const run = arch9cLiveAssembly();
+  assertTrue(run.assembly.invoices === run.sandbox.invoices, 'invoices باید همان آرایه RAM باشد');
+  assertTrue(run.assembly.invoices === run.invoices, 'assembly.invoices === invoices');
+  assertTrue(run.assembly.invoices[0] === run.invoices[0], 'رکورد فاکتور باید همان ارجاع زنده باشد');
+});
+
+test('ARCH-9C alias: اشیاء تو در تو و inventory زنده هستند', () => {
+  const run = arch9cLiveAssembly();
+  assertTrue(run.assembly.invoices[0].someNested === run.invoices[0].someNested, 'someNested باید ارجاع زنده باشد');
+  assertTrue(run.assembly.inventory === run.inventory, 'inventory باید ارجاع زنده باشد');
+  assertTrue(run.assembly.inventory['SKU-1'] === run.inventory['SKU-1'], 'رکورد انبار باید ارجاع زنده باشد');
+  assertTrue(run.assembly.svcs === run.services, 'svcs باید همان آرایه services باشد');
+  assertTrue(run.assembly.services === run.services, 'services باید ارجاع زنده باشد');
+});
+
+test('ARCH-9C T1: push روی clone.invoices اصل را عوض نمی‌کند', () => {
+  const run = arch9cLiveAssembly();
+  const origLen = run.invoices.length;
+  const clone = arch9cJsonClone(run.assembly);
+  assertTrue(clone.invoices !== run.invoices, 'clone.invoices نباید همان ارجاع باشد');
+  clone.invoices.push({ invoiceId: 'INVUID-PUSHED' });
+  assertEqual(run.invoices.length, origLen, 'آرایه اصلی invoices نباید رشد کند');
+  assertEqual(run.assembly.invoices.length, origLen, 'اسمبل زنده نباید رشد کند');
+  assertEqual(clone.invoices.length, origLen + 1, 'clone باید آیتم جدید داشته باشد');
+});
+
+test('ARCH-9C T2: جهش تو در تو روی clone اصل را عوض نمی‌کند', () => {
+  const run = arch9cLiveAssembly();
+  const clone = arch9cJsonClone(run.assembly);
+  clone.invoices[0].someNested.value = 'changed';
+  assertEqual(run.invoices[0].someNested.value, 'original-nested', 'مقدار تو در تو در RAM باید ثابت بماند');
+  assertTrue(clone.invoices[0].someNested !== run.invoices[0].someNested, 'شیء تو در تو باید جدا شود');
+  assertEqual(clone.invoices[0].someNested.value, 'changed', 'clone باید مقدار جدید داشته باشد');
+});
+
+test('ARCH-9C T3: products بعد از clone جداست', () => {
+  const run = arch9cLiveAssembly();
+  const clone = arch9cJsonClone(run.assembly);
+  clone.products.push({ id: 'PRD-PUSHED' });
+  clone.products[0].name = 'changed';
+  assertEqual(run.products.length, 1, 'products اصلی نباید رشد کند');
+  assertEqual(run.products[0].name, 'کالا', 'نام کالای اصلی باید ثابت بماند');
+  assertTrue(clone.products !== run.products, 'ارجاع products باید جدا باشد');
+});
+
+test('ARCH-9C T4: warranties بعد از clone جداست', () => {
+  const run = arch9cLiveAssembly();
+  const clone = arch9cJsonClone(run.assembly);
+  clone.warranties.push({ id: 'W-PUSHED' });
+  clone.warranties[0].nested.serial = 'CHANGED';
+  assertEqual(run.warranties.length, 1, 'warranties اصلی نباید رشد کند');
+  assertEqual(run.warranties[0].nested.serial, 'SN1', 'سریال اصلی باید ثابت بماند');
+});
+
+test('ARCH-9C T5: phonebook بعد از clone جداست', () => {
+  const run = arch9cLiveAssembly();
+  const clone = arch9cJsonClone(run.assembly);
+  clone.phonebook.push({ fn: 'جدید' });
+  clone.phonebook[0].fn = 'changed';
+  assertEqual(run.phonebook.length, 1, 'phonebook اصلی نباید رشد کند');
+  assertEqual(run.phonebook[0].fn, 'علی', 'یونیکد فارسی در RAM باید بماند');
+  assertEqual(clone.phonebook[0].fn, 'changed', 'clone باید جهش بپذیرد');
+});
+
+test('ARCH-9C T6: parts بعد از clone جداست', () => {
+  const run = arch9cLiveAssembly();
+  const clone = arch9cJsonClone(run.assembly);
+  clone.parts.push({ id: 'PT-PUSHED' });
+  clone.parts[0].nested.bin = 'CHANGED';
+  assertEqual(run.parts.length, 1, 'parts اصلی نباید رشد کند');
+  assertEqual(run.parts[0].nested.bin, 'B1', 'nested parts باید ثابت بماند');
+});
+
+test('ARCH-9C T7: sales بعد از clone جداست', () => {
+  const run = arch9cLiveAssembly();
+  const clone = arch9cJsonClone(run.assembly);
+  clone.sales.push({ id: 'SALE-PUSHED' });
+  clone.sales[0].nested.total = 99;
+  assertEqual(run.sales.length, 1, 'sales اصلی نباید رشد کند');
+  assertEqual(run.sales[0].nested.total, 10, 'nested sales باید ثابت بماند');
+});
+
+test('ARCH-9C T8: accounts بعد از clone جداست', () => {
+  const run = arch9cLiveAssembly();
+  const clone = arch9cJsonClone(run.assembly);
+  clone.accounts.push({ id: 'ACC-PUSHED' });
+  clone.accounts[0].nested.bal = 0;
+  assertEqual(run.accounts.length, 1, 'accounts اصلی نباید رشد کند');
+  assertEqual(run.accounts[0].nested.bal, 100, 'nested accounts باید ثابت بماند');
+});
+
+test('ARCH-9C T9: شیء تو در توی inventory بعد از clone جداست', () => {
+  const run = arch9cLiveAssembly();
+  const clone = arch9cJsonClone(run.assembly);
+  assertTrue(clone.inventory !== run.inventory, 'inventory clone نباید همان ارجاع باشد');
+  assertTrue(clone.inventory['SKU-1'] !== run.inventory['SKU-1'], 'رکورد انبار باید جدا شود');
+  assertTrue(clone.inventory['SKU-1'].nested !== run.inventory['SKU-1'].nested, 'nested inventory باید جدا شود');
+  clone.inventory['SKU-1'].qty = 99;
+  clone.inventory['SKU-1'].nested.bin = 'CHANGED';
+  clone.inventory['SKU-NEW'] = { qty: 1 };
+  assertEqual(run.inventory['SKU-1'].qty, 4, 'qty اصلی باید ثابت بماند');
+  assertEqual(run.inventory['SKU-1'].nested.bin, 'A', 'bin اصلی باید ثابت بماند');
+  assertTrue(run.inventory['SKU-NEW'] === undefined, 'کلید جدید نباید به RAM اضافه شود');
+});
+
+test('ARCH-9C T10: داده پیوست بعد از clone جداست', () => {
+  const run = arch9cLiveAssembly();
+  assertTrue(Array.isArray(run.assembly.attachmentsIndex), 'attachmentsIndex باید از collectAttachmentIndex بیاید');
+  assertTrue(run.assembly.attachmentsIndex.length >= 1, 'حداقل یک پیوست باید ایندکس شود');
+  const clone = arch9cJsonClone(run.assembly);
+  assertTrue(clone.attachmentsIndex !== run.assembly.attachmentsIndex, 'attachmentsIndex باید جدا شود');
+  assertTrue(clone.invoices[0].docs !== run.invoices[0].docs, 'آرایه docs باید جدا شود');
+  assertTrue(clone.invoices[0].docs[0] !== run.invoices[0].docs[0], 'رکورد doc باید جدا شود');
+  clone.attachmentsIndex.push({ id: 'forged' });
+  clone.invoices[0].docs[0].name = 'changed.pdf';
+  clone.invoices[0].docs.push({ id: 'doc-new' });
+  assertEqual(run.assembly.attachmentsIndex.length, clone.attachmentsIndex.length - 1, 'ایندکس اصلی نباید رشد کند');
+  assertEqual(run.invoices[0].docs[0].name, 'فاکتور.pdf', 'نام پیوست RAM باید ثابت بماند');
+  assertEqual(run.invoices[0].docs.length, 1, 'docs اصلی نباید رشد کند');
+});
+
+test('ARCH-9C T11: جهش چند آرایه بعد از clone اصل را عوض نمی‌کند', () => {
+  const run = arch9cLiveAssembly();
+  const before = JSON.stringify(run.invoices) + JSON.stringify(run.products) + JSON.stringify(run.warranties) +
+    JSON.stringify(run.phonebook) + JSON.stringify(run.parts) + JSON.stringify(run.sales) + JSON.stringify(run.accounts) +
+    JSON.stringify(run.sandbox.tasks);
+  const clone = arch9cJsonClone(run.assembly);
+  ['invoices','products','warranties','phonebook','parts','sales','accounts'].forEach(function(k){
+    clone[k].push({ id: 'MUT-' + k });
+  });
+  clone.tasks.push({ id: 'T-NEW' });
+  const after = JSON.stringify(run.invoices) + JSON.stringify(run.products) + JSON.stringify(run.warranties) +
+    JSON.stringify(run.phonebook) + JSON.stringify(run.parts) + JSON.stringify(run.sales) + JSON.stringify(run.accounts) +
+    JSON.stringify(run.sandbox.tasks);
+  assertEqual(after, before, 'RAM بعد از جهش clone باید بایت‌به‌بایت همان باشد');
+  assertEqual(run.sandbox.tasks.length, 0, 'tasks خالی باید خالی بماند');
+  assertEqual(clone.tasks.length, 1, 'clone.tasks باید آیتم جدید داشته باشد');
+});
+
+test('ARCH-9C reference isolation: آرایه / شیء تو در تو / آرایه تو در تو', () => {
+  const run = arch9cLiveAssembly();
+  const clone = arch9cJsonClone(run.assembly);
+  assertTrue(clone !== run.assembly, 'ریشه clone جداست');
+  ['invoices','products','warranties','phonebook','parts','sales','accounts','tasks','attachmentsIndex','sections'].forEach(function(k){
+    assertTrue(clone[k] !== run.assembly[k], k + ' باید ارجاع جدا داشته باشد');
+  });
+  assertTrue(clone.inventory !== run.assembly.inventory, 'inventory جداست');
+  assertTrue(clone.printCenter !== run.assembly.printCenter, 'printCenter جداست');
+  assertTrue(clone.invoices[0] !== run.assembly.invoices[0], 'رکورد فاکتور جداست');
+  assertTrue(clone.invoices[0].someNested !== run.assembly.invoices[0].someNested, 'شیء تو در تو جداست');
+  assertTrue(clone.invoices[0].docs !== run.assembly.invoices[0].docs, 'آرایه تو در تو جداست');
+  assertTrue(JSON.stringify(clone) === JSON.stringify(run.assembly), 'محتوای JSON قبل از جهش باید برابر باشد — اما ارجاع‌ها جدا');
+});
+
+test('ARCH-9C: اسکن نوع اسمبل فعلی فقط JSON است', () => {
+  const run = arch9cLiveAssembly();
+  const scan = arch9cScanTypes(run.assembly);
+  assertEqual(scan.special.length, 0, 'اسمبل فعلی نباید Date/function/undefined/NaN/Infinity/bigint داشته باشد: ' + JSON.stringify(scan.special));
+  assertTrue(typeof run.assembly.exportedAt === 'string', 'exportedAt باید رشته ISO باشد نه Date');
+  assertTrue(run.assembly.exportedAt.indexOf('T') > 0, 'exportedAt باید ISO باشد');
+  assertTrue(scan.kinds.string > 0 && scan.kinds.array > 0 && scan.kinds.object > 0, 'باید string/array/object داشته باشد');
+});
+
+test('ARCH-9C: جدول نوع JSON.clone فرضی — در snapshot فعلی استفاده نشده', () => {
+  assertEqual(JSON.stringify({ a: undefined }), '{}', 'undefined در object حذف می‌شود');
+  assertEqual(JSON.stringify([undefined]), '[null]', 'undefined در array می‌شود null');
+  assertEqual(JSON.stringify(new Date('2023-11-14T22:13:20.000Z')), '"2023-11-14T22:13:20.000Z"', 'Date به ISO رشته تبدیل می‌شود');
+  assertEqual(JSON.stringify({ a: function(){} }), '{}', 'function در object حذف می‌شود');
+  assertEqual(JSON.stringify(NaN), 'null', 'NaN به null');
+  assertEqual(JSON.stringify(Infinity), 'null', 'Infinity به null');
+  assertEqual(JSON.stringify(-Infinity), 'null', '-Infinity به null');
+  let threw = false;
+  try { JSON.stringify({ a: BigInt(1) }); } catch (e) { threw = true; }
+  assertTrue(threw, 'bigint باید throw کند');
+  const scan = arch9cScanTypes(arch9cLiveAssembly().assembly);
+  assertEqual(scan.special.length, 0, 'پس این زیان‌ها روی snapshot فعلی اعمال نمی‌شوند');
+});
+
+test('ARCH-9C: clone قرارداد ARCH-9B را حفظ می‌کند', () => {
+  const run = arch9cLiveAssembly();
+  const clone = arch9cJsonClone(run.assembly);
+  const baseKeys = ['magic','schemaVersion','version','applicationVersion','exportedAt','invoices','products','inventory','invCtr','invoiceUidCtr','saleCtr','saleUidCtr','phonebook','parts','services','svcs','warranties','sales','tasks','accounts','defectiveStock','warehouseDocs','stockMoves','warehouses','daqi','daqiWarehouse','daqiVouchers','postalHistory','appliedUpdates','updatePackages','userAuditLog','bgAuditLog','userRoles','loginPw','printSettings','company','serviceCenter','starredAlarms','senderInfo','logoSrc','acH','appearance','sms','tz','networkSettings','prefs','aiKeys','itemCounts','sections'];
+  baseKeys.forEach(function(k){
+    assertTrue(Object.prototype.hasOwnProperty.call(clone, k), 'کلید پایه باید باشد: ' + k);
+  });
+  assertTrue(Array.isArray(clone.tasks) && clone.tasks.length === 0, '[] tasks باید حفظ شود');
+  assertEqual(clone.itemCounts.invoices, 1, 'itemCounts.invoices');
+  assertEqual(clone.itemCounts.tasks, 0, 'itemCounts.tasks');
+  assertEqual(clone.sections.length >= 32, true, 'sections حداقل ۳۲ نام');
+  assertTrue(clone.printCenter && clone.printCenter.enabled === true, 'printCenter اختیاری باید بماند');
+  assertTrue(Array.isArray(clone.attachmentsIndex), 'attachmentsIndex اختیاری باید بماند');
+  assertTrue(JSON.stringify(clone).indexOf('علی') >= 0, 'یونیکد فارسی باید بماند');
+  ['localStorage','indexedDB','IndexedDB','document','window','chrome','webview','sirmanHost'].forEach(function(k){
+    assertTrue(clone[k] === undefined, 'handle زمان اجرا نباید در clone باشد: ' + k);
+  });
+});
+
+test('ARCH-9C G1: توابع تولید بدون clone باقی مانده‌اند (SHA256 قفل)', () => {
+  Object.keys(ARCH9C_FN_SHA256).forEach(function(name){
+    const src = extractFunctionSource(html, name);
+    assertTrue(src !== null, name + ' باید موجود باشد');
+    assertEqual(arch9cSha256(src), ARCH9C_FN_SHA256[name], 'SHA256 منبع ' + name + ' نباید عوض شده باشد');
+  });
+});
+
+test('ARCH-9C G2: _safeArr/_safeObj هنوز ارجاع زنده برمی‌گردانند', () => {
+  const safeArr = extractFunctionSource(html, '_safeArr');
+  const safeObj = extractFunctionSource(html, '_safeObj');
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  assertContainsString(safeArr, 'return Array.isArray(a)?a:[]', '_safeArr باید آرایه زنده برگرداند');
+  assertContainsString(safeObj, "return (o && typeof o==='object')?o:{}", '_safeObj باید شیء زنده برگرداند');
+  assertTrue(safeArr.indexOf('JSON.parse') < 0 && safeArr.indexOf('slice') < 0 && safeArr.indexOf('concat') < 0, '_safeArr نباید clone کند');
+  assertTrue(build.indexOf('JSON.parse(JSON.stringify') < 0, '_buildFullBackupData نباید JSON clone تولید داشته باشد');
+  assertContainsString(build, 'invoices: _safeArr(invoices)', 'اسمبل باید همچنان _safeArr(invoices) باشد');
+});
+
+test('ARCH-9C G3: exportData / buildBackupObject / applyBackupSelective بدون تغییر مسیر', () => {
+  const exp = extractFunctionSource(html, 'exportData');
+  const buildObj = extractFunctionSource(html, 'buildBackupObject');
+  const apply = extractFunctionSource(html, 'applyBackupSelective');
+  assertContainsString(exp, '_buildFullBackupData', 'exportData باید همان اسمبل HTML باشد');
+  assertContainsString(buildObj, '_buildFullBackupData', 'buildBackupObject باید همان اسمبل HTML باشد');
+  assertContainsString(apply, '_buildFullBackupData', 'applyBackupSelective باید safety snapshot را از اسمبل HTML بگیرد');
+  assertTrue(extractFunctionSource(html, 'applyBackupMergeSections') !== null, 'Restore merge نباید حذف شود');
+  assertTrue(extractFunctionSource(html, 'applyBackupReplaceSections') !== null, 'Restore replace نباید حذف شود');
+  assertTrue(extractFunctionSource(html, 'savePBContact') !== null, 'Phonebook نباید حذف شود');
+});
+
+
+console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
 
 function loadErrorEngine(srcHtml){
