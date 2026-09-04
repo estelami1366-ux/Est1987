@@ -173,7 +173,7 @@ public class BackupDryRunBridgeTests
         var host = File.ReadAllText(HostSourcePath());
         Assert.Contains("public string TestRestoreBackup(string json)", host);
         Assert.Contains("BackupDryRunBridge.Execute", host);
-        var method = Slice(host, "public string TestRestoreBackup", "public string GetWarrantyBrowseCatalog");
+        var method = Slice(host, "public string TestRestoreBackup", "public string ConsumeBackupSnapshot");
         Assert.DoesNotContain("File.WriteAllText", method);
         Assert.DoesNotContain("WriteBackupText", method);
         Assert.DoesNotContain("savePBContact", method);

@@ -6124,7 +6124,8 @@ test('میزبان دات‌نت باید فهرست چاپگر و چاپ HTML �
   assertContainsString(host, 'SaveAppPref', 'میزبان باید تنظیمات را در AppData نگه دارد');
   assertContainsString(host, 'WriteBackupText', 'میزبان باید بک‌آپ متنی پایدار بنویسد');
   assertContainsString(host, 'FinalizeBackup', 'میزبان باید نهایی‌سازی Core را از همین sirmanHost بدهد');
-  assertContainsString(host, 'FinalizeBackup', 'میزبان باید نهایی‌سازی Core را از همین sirmanHost بدهد');
+  assertContainsString(host, 'TestRestoreBackup', 'میزبان باید پیش‌نمایش Restore را از همین sirmanHost بدهد');
+  assertContainsString(host, 'ConsumeBackupSnapshot', 'میزبان باید مصرف snapshot جداشده را از همین sirmanHost بدهد');
   assertContainsString(host, 'GetPrintJob', 'میزبان باید وضعیت کار چاپ را بدهد');
   assertContainsString(host, 'PrintDocument', 'میزبان باید PrintDocument با شناسه سند داشته باشد');
   assertContainsString(host, 'EnqueueHtmlPrint', 'میزبان باید کار چاپ را به موتور دسکتاپ بسپارد');
@@ -8794,6 +8795,7 @@ test('ARCH-6 G4: Restore/Merge/Phonebook/SQLite/resetAll در این قطعی‌
   assertContainsString(host, 'BackupFinalizeBridge.Execute', 'Host باید فقط پل Core را صدا بزند');
   const rules = fs.readFileSync(path.join(path.dirname(filePath), 'docs', 'ARCHITECTURE_RULES.md'), 'utf8');
   assertContainsString(rules, 'FinalizeBackup', 'لیست مجاز معماری باید FinalizeBackup را ثبت کند');
+  assertContainsString(rules, 'ConsumeBackupSnapshot', 'لیست مجاز معماری باید ConsumeBackupSnapshot را ثبت کند');
   const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
   assertContainsString(repo, 'html-backup-engine', 'JsonBackupRepository باید TBD بماند');
 });
@@ -9576,6 +9578,87 @@ test('ARCH-9D G2: Restore/Phonebook/SQLite/resetAll قفل منبع', () => {
   });
   const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
   assertContainsString(repo, 'html-backup-engine', 'JsonBackupRepository باید TBD بماند');
+});
+
+
+console.log('');
+console.log('📋 گروه: ARCH-10 مصرف فقط‌خواندنی Core از snapshot جداشده');
+
+test('ARCH-10 G1: اسمبل تولیدی و Restore دست نخورده‌اند', () => {
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  assertEqual(arch9cSha256(build), ARCH9D_BUILD_SHA256, '_buildFullBackupData نباید در ARCH-10 عوض شود');
+  assertContainsString(build, 'return JSON.parse(JSON.stringify(data));', 'clone-on-return باید بماند');
+  ['_safeArr', '_safeObj', 'importData', 'applyBackupSelective', 'applyBackupMergeSections', 'applyBackupReplaceSections', 'savePBContact', 'resetAll'].forEach(function(name){
+    assertTrue(extractFunctionSource(html, name) !== null, name + ' باید بماند');
+  });
+  const exp = extractFunctionSource(html, 'exportData');
+  assertTrue(exp.indexOf('consumeBackupSnapshot') < 0, 'exportData نباید مسیر مصرف snapshot را قطع کند');
+  assertTrue(extractFunctionSource(html, 'buildBackupObject').indexOf('consumeBackupSnapshot') < 0, 'autosave نباید مصرف snapshot را صدا بزند');
+});
+
+test('ARCH-10 T17: جهش snapshot بعد از اسمبل RAM را عوض نمی‌کند', () => {
+  const run = arch9cLiveAssembly();
+  const consumeSrc = extractFunctionSource(html, 'consumeBackupSnapshot');
+  let hostCalls = 0;
+  const consume = new Function('getSirmanHostSync', consumeSrc + '\nreturn consumeBackupSnapshot;')(function(){
+    return {
+      ConsumeBackupSnapshot: function(json){
+        hostCalls++;
+        const parsed = JSON.parse(json);
+        assertTrue(parsed.data !== run.invoices, 'envelope نباید آرایه زنده را جدا بفرستد');
+        assertEqual(JSON.stringify(parsed.data.invoices), JSON.stringify(run.invoices), 'محتوای snapshot باید همان اسمبل جداشده باشد');
+        return JSON.stringify({ ok:true, engine:'core', applied:false, wrote:false, status:'VALID' });
+      }
+    };
+  });
+  const result = consume(run.assembly);
+  assertEqual(result.applied, false, 'applied باید false باشد');
+  assertEqual(result.wrote, false, 'wrote باید false باشد');
+  assertEqual(hostCalls, 1, 'باید یک‌بار Host را صدا بزند');
+  run.assembly.invoices.push({ invoiceId: 'INVUID-CONSUME' });
+  run.assembly.phonebook.push({ fn: 'changed' });
+  assertEqual(run.invoices.length, 1, 'RAM invoices');
+  assertEqual(run.phonebook.length, 1, 'RAM phonebook');
+  assertEqual(run.phonebook[0].fn, 'علی', 'RAM فارسی');
+});
+
+test('ARCH-10 T18 T19: مصرف snapshot نوشتن storage ندارد', () => {
+  const src = extractFunctionSource(html, 'consumeBackupSnapshot');
+  assertTrue(src.indexOf('localStorage.setItem') < 0, 'consume نباید setItem داشته باشد');
+  assertTrue(src.indexOf('indexedDB') < 0, 'consume نباید indexedDB داشته باشد');
+  const run = arch9cLiveAssembly();
+  const consume = new Function('getSirmanHostSync', src + '\nreturn consumeBackupSnapshot;')(function(){
+    return { ConsumeBackupSnapshot: function(){ return JSON.stringify({ ok:true, applied:false, wrote:false }); } };
+  });
+  consume(run.assembly);
+  assertEqual(run.sandbox.localStorage.stats.setItem, 0, 'setItem بعد از consume');
+  assertEqual(run.idbStats.open, 0, 'indexedDB.open بعد از consume');
+});
+
+test('ARCH-10 T20: مصرف snapshot Restore را صدا نمی‌زند', () => {
+  const src = extractFunctionSource(html, 'consumeBackupSnapshot');
+  ['importData', 'applyBackupSelective', 'applyBackupMergeSections', 'applyBackupReplaceSections', 'sv()', 'svWarr', 'resetAll', 'render'].forEach(function(tok){
+    assertTrue(src.indexOf(tok) < 0, 'consume نباید ' + tok + ' داشته باشد');
+  });
+  const host = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'SirmanHostObject.cs'), 'utf8');
+  const i = host.indexOf('public string ConsumeBackupSnapshot');
+  const j = host.indexOf('public string GetWarrantyBrowseCatalog');
+  assertTrue(i >= 0 && j > i, 'متد Host ConsumeBackupSnapshot باید موجود باشد');
+  const method = host.slice(i, j);
+  assertContainsString(method, 'BackupSnapshotConsumer.Execute', 'Host باید فقط transport باشد');
+  assertTrue(method.indexOf('importData') < 0 && method.indexOf('applyBackupMergeSections') < 0, 'Host نباید Restore را صدا بزند');
+  const rules = fs.readFileSync(path.join(path.dirname(filePath), 'docs', 'ARCHITECTURE_RULES.md'), 'utf8');
+  assertContainsString(rules, 'ConsumeBackupSnapshot', 'لیست مجاز معماری باید ConsumeBackupSnapshot را ثبت کند');
+});
+
+test('ARCH-10: HTML-only بدون Host Restore نمی‌کند و fail-closed است', () => {
+  const src = extractFunctionSource(html, 'consumeBackupSnapshot');
+  const consume = new Function('getSirmanHostSync', src + '\nreturn consumeBackupSnapshot;')(function(){ return null; });
+  const r = consume({ invoices:[], warranties:[], sales:[], parts:[], accounts:[] });
+  assertEqual(r.ok, false, 'بدون Host باید fail-closed باشد');
+  assertEqual(r.applied, false, 'بدون Host نباید apply شود');
+  assertEqual(r.wrote, false, 'بدون Host نباید بنویسد');
+  assertEqual(r.engine, 'html-unavailable', 'موتور HTML-only باید html-unavailable باشد');
 });
 
 
