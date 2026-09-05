@@ -34,5 +34,6 @@
     <None Include="OptionalBusinessFixtures.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="AttachmentReferenceFixtures.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="PhonebookFixtures.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="RecoveryAcceptanceFixture.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
