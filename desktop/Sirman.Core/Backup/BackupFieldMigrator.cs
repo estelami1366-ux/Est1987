@@ -163,16 +163,21 @@ internal static class BackupFieldMigrator
                 d["phonebook"] = converted;
                 log.Add("👥 مخاطبین: " + converted.Count + " نفر (تبدیل از فرمت قدیمی pb)");
             }
+            else if (pbNode is JsonArray)
+            {
+                // ARCH-25: explicit phonebook: [] stays []. No log (same as ARCH-24).
+            }
             else
             {
-                d["phonebook"] = new JsonArray();
+                // ARCH-25: missing/null/wrong-type must remain distinguishable from [].
             }
         }
         else
         {
             log.Add("👥 مخاطبین: " + pbArr.Count + " نفر");
         }
-        d["pb"] = BackupJsonUtil.CloneExact(d["phonebook"]);
+        if (d["phonebook"] is JsonArray livePb)
+            d["pb"] = BackupJsonUtil.CloneExact(livePb);
     }
 
     private static JsonNode ConvertPbContact(JsonNode? c)

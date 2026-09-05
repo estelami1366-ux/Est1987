@@ -58,7 +58,7 @@
           "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
           "✅ آماده برای بارگذاری"
         ],
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
         "hasSales": true,
         "postOk": true
       }
@@ -110,7 +110,7 @@
           "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
           "✅ آماده برای بارگذاری"
         ],
-        "dataCanonical": "{\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "dataCanonical": "{\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
         "hasSales": true,
         "postOk": true
       }
@@ -162,7 +162,7 @@
           "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
           "✅ آماده برای بارگذاری"
         ],
-        "dataCanonical": "{\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "dataCanonical": "{\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
         "hasSales": true,
         "postOk": true
       }
@@ -504,7 +504,7 @@
           "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
           "✅ آماده برای بارگذاری"
         ],
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[{\"id\":\"a\",\"invoiceId\":\"INVUID-1\"},{\"id\":\"b\",\"invoiceId\":\"INVUID-1\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":1,\"saleCtr\":1,\"invoiceUidCtr\":1,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[{\"id\":\"a\",\"invoiceId\":\"INVUID-1\"},{\"id\":\"b\",\"invoiceId\":\"INVUID-1\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":1,\"saleCtr\":1,\"invoiceUidCtr\":1,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
         "hasSales": true,
         "postOk": true
       }
@@ -557,7 +557,7 @@
           "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
           "✅ آماده برای بارگذاری"
         ],
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"checksumAlgo\":\"SHA-256\",\"checksum\":\"437ab3c37db5447ac06109899f5dca30f5c3132cfa7b1740d89f715e7613621a\",\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"checksumAlgo\":\"SHA-256\",\"checksum\":\"437ab3c37db5447ac06109899f5dca30f5c3132cfa7b1740d89f715e7613621a\",\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
         "hasSales": true,
         "postOk": true
       }
@@ -649,7 +649,7 @@
           "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
           "✅ آماده برای بارگذاری"
         ],
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
         "hasSales": true,
         "postOk": true
       }
@@ -702,7 +702,7 @@
           "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
           "✅ آماده برای بارگذاری"
         ],
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"checksum\":\"\",\"checksumAlgo\":\"none\",\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"checksum\":\"\",\"checksumAlgo\":\"none\",\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
         "hasSales": true,
         "postOk": true
       }
@@ -755,7 +755,7 @@
           "🛒 شماره فروش بعدی: 1 (حدس زده شد)",
           "✅ آماده برای بارگذاری"
         ],
-        "dataCanonical": "{\"version\":\"2.0\",\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"2.0\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "dataCanonical": "{\"version\":\"2.0\",\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"2.0\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
         "hasSales": true,
         "postOk": true
       }
@@ -813,7 +813,7 @@
           "🏭 انبار داغی: خالی (نسخه قدیمی)",
           "✅ آماده برای بارگذاری"
         ],
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[],\"services\":[],\"products\":[],\"inventory\":{},\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\",\"phonebook\":[],\"pb\":[],\"svcs\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[]}",
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[],\"services\":[],\"products\":[],\"inventory\":{},\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\",\"svcs\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[]}",
         "hasSales": true,
         "postOk": true
       }
@@ -988,7 +988,7 @@
           "🏢 اطلاعات شرکت: موجود",
           "✅ آماده برای بارگذاری"
         ],
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W-۱\",\"name\":\"علی\",\"phone\":\"\",\"date\":\"\",\"addr\":\"\",\"socialContacts\":[],\"devices\":[],\"initialService\":\"\",\"model\":\"\",\"color\":\"\",\"buydate\":\"\",\"serial\":\"\",\"warrStatus\":\"no\",\"warrExp\":\"\",\"condition\":\"سالم\",\"problem\":\"صفحهٔ نمایش\",\"expert\":\"\",\"refTo\":\"pending\",\"refName\":\"\",\"refDate\":\"\",\"refNote\":\"\",\"docs\":[],\"companyReport\":null,\"accRef\":\"\",\"status\":\"open\",\"savedAt\":\"\",\"createdAt\":\"\"}],\"invoices\":[{\"id\":\"I1\",\"num\":1,\"buyer\":\"فروشگاه نمونه\",\"invoiceId\":\"INVUID-000001\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"company\":{\"name\":\"لایق الکترونیک پارسیان\",\"city\":\"تهران\"},\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":2,\"saleCtr\":1,\"invoiceUidCtr\":1,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W-۱\",\"name\":\"علی\",\"phone\":\"\",\"date\":\"\",\"addr\":\"\",\"socialContacts\":[],\"devices\":[],\"initialService\":\"\",\"model\":\"\",\"color\":\"\",\"buydate\":\"\",\"serial\":\"\",\"warrStatus\":\"no\",\"warrExp\":\"\",\"condition\":\"سالم\",\"problem\":\"صفحهٔ نمایش\",\"expert\":\"\",\"refTo\":\"pending\",\"refName\":\"\",\"refDate\":\"\",\"refNote\":\"\",\"docs\":[],\"companyReport\":null,\"accRef\":\"\",\"status\":\"open\",\"savedAt\":\"\",\"createdAt\":\"\"}],\"invoices\":[{\"id\":\"I1\",\"num\":1,\"buyer\":\"فروشگاه نمونه\",\"invoiceId\":\"INVUID-000001\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"company\":{\"name\":\"لایق الکترونیک پارسیان\",\"city\":\"تهران\"},\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":2,\"saleCtr\":1,\"invoiceUidCtr\":1,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
         "hasSales": true,
         "postOk": true
       }

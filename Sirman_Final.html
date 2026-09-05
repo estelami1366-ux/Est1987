@@ -14577,9 +14577,9 @@ function migrateBackup(d) {
       });
       log.push('👥 مخاطبین: '+d.phonebook.length+' نفر (تبدیل از فرمت قدیمی pb)');
     } else if (Array.isArray(d.phonebook)) {
-      log.push('👥 مخاطبین: 0 نفر');
+      // ARCH-25: explicit phonebook: [] stays []. No log (same as ARCH-24).
     } else {
-      log.push('👥 مخاطبین: در فایل نبود — بدون ساخت []');
+      // ARCH-25: missing/null/wrong-type must remain distinguishable from [].
     }
   } else {
     log.push('👥 مخاطبین: '+d.phonebook.length+' نفر');
