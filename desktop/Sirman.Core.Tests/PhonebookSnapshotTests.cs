@@ -279,9 +279,10 @@ public class PhonebookSnapshotTests
             Assert.DoesNotContain("indexedDB", src);
             Assert.DoesNotContain("Microsoft.Web.WebView2", src);
             Assert.DoesNotContain("System.Windows.Forms", src);
-            Assert.DoesNotContain("savePBContact", src);
-            Assert.DoesNotContain("applyBackupMergeSections", src);
         }
+        var dto = File.ReadAllText(DtoPath());
+        Assert.DoesNotContain("savePBContact", dto);
+        Assert.DoesNotContain("applyBackupMergeSections", dto);
         Assert.Equal("Sirman.Core.Backup", typeof(PhonebookSnapshot).Namespace);
     }
 
