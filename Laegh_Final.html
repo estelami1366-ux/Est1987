@@ -8670,6 +8670,18 @@ function collectOptionalBusinessSnapshot(){
   return JSON.parse(JSON.stringify(data));
 }
 
+// ARCH-22 — Phonebook snapshot transport only. TEST/boundary adapter.
+// Reads the current RAM global `phonebook` (localStorage key `lb` via sv()).
+// Clone-on-return. No localStorage/IndexedDB write. No ID generation.
+// No dedup, no phone normalization, no daqi touch, no Restore.
+// NOT called from _buildFullBackupData / exportData / buildBackupObject.
+function collectPhonebookSnapshot(){
+  var data = {
+    phonebook: _safeArr(phonebook)
+  };
+  return JSON.parse(JSON.stringify(data));
+}
+
 // ─── Checksum (SHA-256) برای سلامت فایل بک‌آپ ───
 // نکته: crypto.subtle فقط در secure context (localhost HTTPS) موجود است، نه file://.
 // در file://، checksum خالی می‌ماند و checksumAlgo='none' — برنامه همچنان کار می‌کند.
