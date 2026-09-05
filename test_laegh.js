@@ -11569,6 +11569,294 @@ test('ARCH-21: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت 
 
 
 console.log('');
+console.log('📋 گروه: ARCH-22 آداپتر امن دفترچه تلفن + مرز هویت (بدون cutover)');
+
+const ARCH22_ASSEMBLER_SHA256 = 'f354ba9875b25c3160581b6f06a62e991c11fb7a6181f9172db0db93c78cbd41';
+const ARCH22_PHONEBOOK_ADAPTER_SHA256 = '7595af4ed999d5c3213af78fe8ef5f74e1da4252d53961df466c998cc5e7a79c';
+const ARCH22_SAVEPB_SHA256 = '1883f9d3dd575719ae6d653a30318faa38fed4dd9e046ead32a7070730e4cf81';
+const ARCH22_FIXTURES = JSON.parse(fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', 'PhonebookFixtures.json'), 'utf8'));
+
+function phonebookAdapterSrc() {
+  return extractFunctionSource(html, 'collectPhonebookSnapshot') || '';
+}
+
+function arch22RunAdapter(ram, extras) {
+  extras = extras || {};
+  const idbStats = extras.idbStats || { open: 0 };
+  const ls = extras.ls || arch9cMakeLs({});
+  extras.hostCalled = extras.hostCalled || false;
+  const ctx = {
+    phonebook: ram.phonebook,
+    pb: ram.pb,
+    daqi: ram.daqi || [],
+    localStorage: ls,
+    indexedDB: { open: function(){ idbStats.open++; return {}; } },
+    sirmanHost: extras.host || { ping: function(){ extras.hostCalled = true; } }
+  };
+  const src = extractFunctionSource(html, '_safeArr') + '\n' + phonebookAdapterSrc() + '\nreturn collectPhonebookSnapshot();';
+  const got = new Function('ctx', 'with(ctx){ ' + src + ' }')(ctx);
+  return { got: got, ctx: ctx, ls: ls, idbStats: idbStats, extras: extras };
+}
+
+function arch22Fingerprint(rec) {
+  return JSON.stringify(rec);
+}
+
+function arch22NormalizePhoneForAnalysis(phone) {
+  if (phone == null) return '';
+  var map = {'۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9',
+             '٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+  return String(phone).replace(/[۰-۹٠-٩]/g, function(ch){ return map[ch] || ch; }).trim();
+}
+
+function arch22FirstRawPhone(rec) {
+  if (!rec || typeof rec !== 'object') return '';
+  if (Array.isArray(rec.phones) && rec.phones.length) return rec.phones[0] == null ? '' : String(rec.phones[0]);
+  if (rec.phone != null && rec.phone !== '') return String(rec.phone);
+  return '';
+}
+
+function arch22RawPhones(rec) {
+  var out = [];
+  if (!rec || typeof rec !== 'object') return out;
+  (Array.isArray(rec.phones) ? rec.phones : []).forEach(function(p){
+    if (p != null && String(p).length) out.push(String(p));
+  });
+  if (rec.phone != null && String(rec.phone).length) out.push(String(rec.phone));
+  return out;
+}
+
+function arch22HasPhoneIdentity(rec) {
+  return arch22RawPhones(rec).length > 0;
+}
+
+function arch22DisplayName(rec) {
+  return String(((rec && rec.fn) || '') + ' ' + ((rec && rec.ln) || '')).replace(/\s+/g,' ').trim();
+}
+
+function arch22ClassesOf(book, index) {
+  var rec = book[index];
+  var found = [];
+  var fp = arch22Fingerprint(rec);
+  for (var i = 0; i < book.length; i++) {
+    if (i !== index && arch22Fingerprint(book[i]) === fp) { found.push('A'); break; }
+  }
+  if (!arch22HasPhoneIdentity(rec)) found.push('D');
+  var raw = arch22RawPhones(rec);
+  if (raw.length) {
+    var hasC = false;
+    for (var j = 0; j < book.length; j++) {
+      if (j === index) continue;
+      var other = arch22RawPhones(book[j]);
+      if (raw.some(function(p){ return other.indexOf(p) !== -1; })) { found.push('C'); hasC = true; break; }
+    }
+    if (!hasC) {
+      var norm = raw.map(arch22NormalizePhoneForAnalysis).filter(Boolean);
+      for (var k = 0; k < book.length; k++) {
+        if (k === index) continue;
+        var otherN = arch22RawPhones(book[k]).map(arch22NormalizePhoneForAnalysis).filter(Boolean);
+        if (norm.some(function(p){ return otherN.indexOf(p) !== -1; })) { found.push('B'); break; }
+      }
+    }
+  }
+  var name = arch22DisplayName(rec);
+  if (name) {
+    for (var n = 0; n < book.length; n++) {
+      if (n === index) continue;
+      if (arch22DisplayName(book[n]) !== name) continue;
+      if (arch22FirstRawPhone(rec) !== arch22FirstRawPhone(book[n])) { found.push('E'); break; }
+    }
+  }
+  if (!found.length) found.push('F');
+  return found;
+}
+
+function arch22PrimaryClass(book, index) {
+  var all = arch22ClassesOf(book, index);
+  var order = ['A','D','C','B','E','F'];
+  for (var i = 0; i < order.length; i++) if (all.indexOf(order[i]) >= 0) return order[i];
+  return 'F';
+}
+
+function arch22RunMerge(state, payload) {
+  const ls = arch9cMakeLs({});
+  const ctx = {
+    phonebook: JSON.parse(JSON.stringify(state)),
+    localStorage: ls,
+    assertRequiredBackupCollections: function(){ return { ok:true }; },
+    sv: function(){ ls.setItem('lb', JSON.stringify(ctx.phonebook)); },
+    svParts: function(){}, svSvcs: function(){}, svSales: function(){}, svWarr: function(){},
+    svTasks: function(){}, svDefective: function(){}, svAccounts: function(){},
+    getNum: function(){}, renderSaved: function(){}, renderProds: function(){}, renderInv: function(){},
+    renderPB: function(){}, renderParts: function(){}, renderSvcs: function(){}, renderSales: function(){},
+    renderWarList: function(){}, renderDataStats: function(){}, renderTasks: function(){},
+    renderSidebarBadges: function(){}, renderAccounts: function(){}, renderDefective: function(){}
+  };
+  const src = extractFunctionSource(html, '_restoreWants') + '\n' + extractFunctionSource(html, 'applyBackupMergeSections') +
+    '\napplyBackupMergeSections({phonebook: payload}, ["phonebook"]);\nreturn phonebook;';
+  const next = new Function('ctx', 'payload', 'with(ctx){ ' + src + ' }')(ctx, JSON.parse(JSON.stringify(payload)));
+  return { phonebook: next, ls: ls };
+}
+
+test('ARCH-22 G1: آداپتر دفترچه هست؛ اسمبل/Restore/savePBContact صدا نمی‌زنند؛ SHA اسمبل قفل ARCH-21', () => {
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  const adapter = extractFunctionSource(html, 'collectPhonebookSnapshot');
+  const exp = extractFunctionSource(html, 'exportData');
+  const buildObj = extractFunctionSource(html, 'buildBackupObject');
+  const merge = extractFunctionSource(html, 'applyBackupMergeSections');
+  const replace = extractFunctionSource(html, 'applyBackupReplaceSections');
+  const savePB = extractFunctionSource(html, 'savePBContact');
+  assertEqual(arch9cSha256(build), ARCH22_ASSEMBLER_SHA256, 'SHA اسمبل باید قفل ARCH-21 بماند');
+  assertEqual(arch9cSha256(adapter), ARCH22_PHONEBOOK_ADAPTER_SHA256, 'SHA آداپتر دفترچه');
+  assertEqual(arch9cSha256(savePB), ARCH22_SAVEPB_SHA256, 'savePBContact نباید عوض شود');
+  assertEqual(arch9cSha256(merge), ARCH19_MERGE_SHA256, 'Merge SHA');
+  assertEqual(arch9cSha256(replace), ARCH19_REPLACE_SHA256, 'Replace SHA');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'collectRequiredBusinessSnapshot')), ARCH17_REQUIRED_ADAPTER_SHA256, 'ARCH-17');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'collectOptionalBusinessSnapshot')), ARCH18_OPTIONAL_ADAPTER_SHA256, 'ARCH-18');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'collectAttachmentIndex')), ARCH19_COLLECT_ATTACHMENT_INDEX_SHA256, 'walker');
+  assertEqual(arch9cSha256(exp), ARCH9C_FN_SHA256.exportData, 'exportData');
+  assertEqual(arch9cSha256(buildObj), ARCH9C_FN_SHA256.buildBackupObject, 'buildBackupObject');
+  assertTrue(build.indexOf('collectPhonebookSnapshot') < 0, 'اسمبل نباید آداپتر دفترچه را صدا بزند');
+  assertTrue(exp.indexOf('collectPhonebookSnapshot') < 0, 'exportData');
+  assertTrue(buildObj.indexOf('collectPhonebookSnapshot') < 0, 'buildBackupObject');
+  assertTrue(merge.indexOf('collectPhonebookSnapshot') < 0, 'Merge');
+  assertTrue(replace.indexOf('collectPhonebookSnapshot') < 0, 'Replace');
+  assertTrue(savePB.indexOf('collectPhonebookSnapshot') < 0, 'savePBContact');
+  assertContainsString(build, 'phonebook: _safeArr(phonebook)', 'مسیر RAM دفترچه');
+  assertContainsString(adapter, 'phonebook: _safeArr(phonebook)', 'منبع RAM phonebook');
+  assertTrue(adapter.indexOf('_safeArr(pb)') < 0, 'آداپتر نباید alias pb را بخواند');
+  assertTrue(adapter.indexOf('setItem') < 0, 'بدون LS');
+  assertTrue(adapter.indexOf('indexedDB') < 0, 'بدون IDB');
+  assertTrue(adapter.indexOf('daqi') < 0, 'بدون daqi');
+  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+});
+
+test('ARCH-22 G2: منبع ذخیره lb و فقدان هویت پایدار در savePBContact', () => {
+  assertContainsString(html, "let phonebook= JSON.parse(localStorage.getItem('lb') || '[]');", 'hydrate از lb');
+  assertContainsString(extractFunctionSource(html, 'sv'), "localStorage.setItem('lb', JSON.stringify(phonebook));", 'persist lb');
+  const savePB = extractFunctionSource(html, 'savePBContact');
+  assertTrue(savePB.indexOf("id:'PB-") < 0, 'شناسه نمی‌سازد');
+  assertContainsString(savePB, 'if(idx===-1)phonebook.push(c);else phonebook[idx]=c;', 'push بدون id');
+  assertContainsString(extractFunctionSource(html, 'applyBackupMergeSections'),
+    "var exists = phonebook.find(function(p){ return entryPhone && (p.phones||[]).indexOf(entryPhone) !== -1; });",
+    'merge فقط تلفن خام اول');
+});
+
+ARCH22_FIXTURES.cases.forEach(function(fx){
+  test('ARCH-22 '+fx.id+' '+fx.note+': خروجی آداپتر با فیکسچر طلایی یکی است', () => {
+    const run = arch22RunAdapter(fx.ram);
+    assertEqual(JSON.stringify(run.got), JSON.stringify(fx.expected), fx.id);
+    assertTrue(Array.isArray(run.got.phonebook), fx.id+' key');
+    assertEqual(JSON.stringify(run.got.phonebook), JSON.stringify(fx.ram.phonebook), fx.id+' payload exact');
+  });
+});
+
+test('ARCH-22 T4: اثرانگشت clone دقیق بدون تغییر payload', () => {
+  const t4 = ARCH22_FIXTURES.cases.find(function(c){ return c.id==='T4'; });
+  const book = arch22RunAdapter(t4.ram).got.phonebook;
+  assertEqual(arch22Fingerprint(book[0]), arch22Fingerprint(book[1]), 'fingerprint');
+  assertEqual(arch22PrimaryClass(book, 0), 'A', 'class A');
+  assertEqual(JSON.stringify(book), JSON.stringify(t4.ram.phonebook), 'payload');
+});
+
+test('ARCH-22 classifier: A/C/D/E/F و B رقم فارسی', () => {
+  const t4 = ARCH22_FIXTURES.cases.find(function(c){ return c.id==='T4'; }).ram.phonebook;
+  assertEqual(arch22PrimaryClass(t4, 0), 'A', 'A');
+  const t6 = ARCH22_FIXTURES.cases.find(function(c){ return c.id==='T6'; }).ram.phonebook;
+  assertTrue(arch22ClassesOf(t6, 0).indexOf('C') >= 0, 'C');
+  const t5 = ARCH22_FIXTURES.cases.find(function(c){ return c.id==='T5'; }).ram.phonebook;
+  assertTrue(arch22ClassesOf(t5, 0).indexOf('D') >= 0, 'D');
+  const t7 = ARCH22_FIXTURES.cases.find(function(c){ return c.id==='T7'; }).ram.phonebook;
+  assertEqual(arch22PrimaryClass(t7, 0), 'E', 'E never auto-merge');
+  const t2 = ARCH22_FIXTURES.cases.find(function(c){ return c.id==='T2'; }).ram.phonebook;
+  assertEqual(arch22PrimaryClass(t2, 0), 'F', 'F');
+  const t10 = ARCH22_FIXTURES.cases.find(function(c){ return c.id==='T10'; }).ram.phonebook;
+  assertEqual(arch22NormalizePhoneForAnalysis(t10[0].phones[0]), '09127777777', 'digit map');
+  assertEqual(t10[0].phones[0], '۰۹۱۲۷۷۷۷۷۷۷', 'raw preserved');
+  assertTrue(arch22ClassesOf(t10, 0).indexOf('B') >= 0, 'B');
+  assertTrue(arch22ClassesOf(t10, 0).indexOf('C') < 0, 'B is not C');
+});
+
+test('ARCH-22 replay: ۵۳۰ ردیف بدون تلفن چهار ادغام → ۲۶۵۰', () => {
+  const payload = [];
+  for (var i = 0; i < 530; i++) payload.push({ fn:'بی‌تلفن', ln:String(i), phones:[], cat:'other' });
+  var state = JSON.parse(JSON.stringify(payload));
+  var counts = [state.length];
+  for (var r = 0; r < 4; r++) {
+    state = arch22RunMerge(state, payload).phonebook;
+    counts.push(state.length);
+  }
+  assertEqual(JSON.stringify(counts), JSON.stringify([530,1060,1590,2120,2650]), 'empty-phone doubling');
+});
+
+test('ARCH-22 replay: ردیف با تلفن خام یکسان تکراری نمی‌شود', () => {
+  const payload = [];
+  for (var i = 0; i < 40; i++) payload.push({ fn:'باشماره', ln:String(i), phones:['0912'+String(1000000+i)], cat:'customer' });
+  var once = arch22RunMerge([], payload).phonebook;
+  var twice = arch22RunMerge(once, payload).phonebook;
+  assertEqual(once.length, 40, 'first merge');
+  assertEqual(twice.length, 40, 'second merge idempotent');
+});
+
+test('ARCH-22 idempotency: خالی غیریدمپوتنت؛ تلفن خام یدمپوتنت', () => {
+  const empty = ARCH22_FIXTURES.cases.find(function(c){ return c.id==='T5'; }).ram.phonebook;
+  var e1 = arch22RunMerge([], empty).phonebook;
+  var e2 = arch22RunMerge(e1, empty).phonebook;
+  assertTrue(e2.length > e1.length, 'non-idempotent empty');
+  const clones = ARCH22_FIXTURES.cases.find(function(c){ return c.id==='T4'; }).ram.phonebook;
+  var c1 = arch22RunMerge([], clones).phonebook;
+  var c2 = arch22RunMerge(c1, clones).phonebook;
+  assertEqual(c1.length, c2.length, 'idempotent phone clones');
+});
+
+test('ARCH-22 T14: جهش خروجی آداپتر RAM را عوض نمی‌کند', () => {
+  const t14 = ARCH22_FIXTURES.cases.find(function(c){ return c.id==='T14'; });
+  const ramBook = JSON.parse(JSON.stringify(t14.ram.phonebook));
+  const run = arch22RunAdapter({ phonebook: ramBook });
+  run.got.phonebook.push({ fn:'FORGED' });
+  run.got.phonebook[0].fn = 'mut';
+  run.got.phonebook[0].nested.v = 'mut';
+  assertEqual(ramBook.length, 1, 'length');
+  assertEqual(ramBook[0].fn, 'ایزوله', 'fn');
+  assertEqual(ramBook[0].nested.v, 'live', 'nested');
+});
+
+test('ARCH-22 T15/T16/T17: آداپتر LS/IDB/Host نمی‌نویسد', () => {
+  const t15 = ARCH22_FIXTURES.cases.find(function(c){ return c.id==='T15'; });
+  const extras = { hostCalled: false, idbStats: { open: 0 }, ls: arch9cMakeLs({ lb: '[]' }) };
+  const run = arch22RunAdapter(t15.ram, extras);
+  assertEqual(extras.ls.stats.setItem, 0, 'setItem');
+  assertEqual(extras.idbStats.open, 0, 'idb');
+  assertTrue(!extras.hostCalled, 'host');
+  assertEqual(run.got.phonebook[0].fn, 'LS', 'payload');
+});
+
+test('ARCH-22: daqi.agencyPhonebookIdx وابسته به اندیس است و آداپتر دست نمی‌زند', () => {
+  const adapter = extractFunctionSource(html, 'collectPhonebookSnapshot');
+  assertTrue(adapter.indexOf('agencyPhonebookIdx') < 0, 'adapter');
+  assertContainsString(extractFunctionSource(html, '_daqiAgencyName'), 'phonebook[d.agencyPhonebookIdx]', 'reader');
+  assertContainsString(extractFunctionSource(html, 'delPBContact'), 'phonebook.splice(idx,1)', 'delete shifts index');
+});
+
+test('ARCH-22: اسمبل هنوز phonebook را از RAM می‌گیرد نه آداپتر', () => {
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  assertContainsString(build, 'phonebook: _safeArr(phonebook)', 'RAM path');
+  assertTrue(build.indexOf('phonebook: o.') < 0, 'not optional');
+  const t2 = ARCH22_FIXTURES.cases.find(function(c){ return c.id==='T2'; });
+  const full = arch20RunAssembler({ phonebook: t2.ram.phonebook }).full;
+  const adapter = arch22RunAdapter(t2.ram).got;
+  assertEqual(JSON.stringify(full.phonebook), JSON.stringify(adapter.phonebook), 'backup key === adapter');
+});
+
+test('ARCH-22: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت یکی هستند', () => {
+  const sirman = fs.readFileSync(path.join(path.dirname(filePath), 'Sirman_Final.html'));
+  const laegh = fs.readFileSync(path.join(path.dirname(filePath), 'Laegh_Final.html'));
+  assertEqual(sirman.length, laegh.length, 'طول فایل');
+  assertEqual(Buffer.compare(sirman, laegh), 0, 'byte-identical');
+});
+
+
+console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
 
 
