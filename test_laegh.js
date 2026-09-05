@@ -10685,6 +10685,201 @@ test('ARCH-18: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت 
 
 
 console.log('');
+console.log('📋 گروه: ARCH-19 مرز پیوست/ارجاع (فقط ممیزی، بدون cutover)');
+
+const ARCH18_OPTIONAL_ADAPTER_SHA256 = 'd885fa4c4c5f128f36db7799a5732adc3765025b9bebe204779a77c01a79b508';
+const ARCH19_COLLECT_ATTACHMENT_INDEX_SHA256 = 'ed781c62b8a0da9e80b458339cf3bf36bbabd38183ee5f5c1b81b9e686877d8f';
+const ARCH19_REPLACE_SHA256 = '8391119460561bc591b346c17bead9bdd75317828dd14a1b3636421e5cedc81b';
+const ARCH19_MERGE_SHA256 = 'd01ee56106db3d5389ac3e7dc9ecec3c242965fb7aee7e2ba7e04835951d6b9d';
+const ARCH19_FIXTURES = JSON.parse(fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', 'AttachmentReferenceFixtures.json'), 'utf8'));
+
+function arch19HelperSrc() {
+  return ['isDiskRef', 'collectAttachmentIndex', 'validateBackupAttachmentIndex']
+    .map(function(n){ const s = extractFunctionSource(html, n); if(!s) throw new Error('fn '+n); return s; })
+    .join('\n');
+}
+
+function arch19RunCollector(bag, extras) {
+  extras = extras || {};
+  const idbStats = extras.idbStats || { open: 0 };
+  const ls = extras.ls || arch9cMakeLs({});
+  const ctx = Object.assign({
+    window: { DISK_REF_PREFIX: 'disk://' },
+    localStorage: ls,
+    indexedDB: { open: function(){ idbStats.open++; return {}; } },
+    sirmanHost: extras.host || { ping: function(){ extras.hostCalled = true; } }
+  }, bag || {});
+  const got = new Function('ctx', 'with(ctx){ ' + arch19HelperSrc() + '\nreturn collectAttachmentIndex(ctx); }')(ctx);
+  return { got: got, ctx: ctx, idbStats: idbStats, extras: extras, ls: ls };
+}
+
+function arch19Validate(d) {
+  const ctx = { window: { DISK_REF_PREFIX: 'disk://' }, d: d };
+  return new Function('ctx', 'with(ctx){ ' + arch19HelperSrc() + '\nreturn validateBackupAttachmentIndex(d); }')(ctx);
+}
+
+function arch19AssemblerIndex(ram) {
+  const ls = arch9cMakeLs({
+    laegh_printSettings: '{}',
+    laegh_company: '{}',
+    laegh_tz: 'Asia/Tehran'
+  });
+  const ctx = Object.assign({ localStorage: ls, window: { DISK_REF_PREFIX: 'disk://' } }, arch17BaseRam(ram));
+  const src = arch14HelperSrc() + '\n' + arch19HelperSrc() + '\n' + extractFunctionSource(html, '_buildFullBackupData');
+  return new Function('ctx', 'with(ctx){ ' + src + '\nreturn { full: _buildFullBackupData(), index: collectAttachmentIndex({warranties: warranties, sales: sales, invoices: invoices}) }; }')(ctx);
+}
+
+test('ARCH-19 G1: قفل SHA اسمبل و ARCH-17/18 و Restore و collectAttachmentIndex', () => {
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  const exp = extractFunctionSource(html, 'exportData');
+  const buildObj = extractFunctionSource(html, 'buildBackupObject');
+  const req = extractFunctionSource(html, 'collectRequiredBusinessSnapshot');
+  const opt = extractFunctionSource(html, 'collectOptionalBusinessSnapshot');
+  const idx = extractFunctionSource(html, 'collectAttachmentIndex');
+  const replace = extractFunctionSource(html, 'applyBackupReplaceSections');
+  const merge = extractFunctionSource(html, 'applyBackupMergeSections');
+  assertEqual(arch9cSha256(build), ARCH9D_BUILD_SHA256, 'SHA اسمبل باید همان ARCH-15 بماند');
+  assertEqual(ARCH9D_BUILD_SHA256, '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6', 'قفل ARCH-15');
+  assertEqual(arch9cSha256(req), ARCH17_REQUIRED_ADAPTER_SHA256, 'آداپتر ARCH-17 نباید عوض شود');
+  assertEqual(arch9cSha256(opt), ARCH18_OPTIONAL_ADAPTER_SHA256, 'آداپتر ARCH-18 نباید عوض شود');
+  assertEqual(arch9cSha256(idx), ARCH19_COLLECT_ATTACHMENT_INDEX_SHA256, 'collectAttachmentIndex نباید عوض شود');
+  assertEqual(arch9cSha256(exp), ARCH9C_FN_SHA256.exportData, 'exportData SHA');
+  assertEqual(arch9cSha256(buildObj), ARCH9C_FN_SHA256.buildBackupObject, 'buildBackupObject SHA');
+  assertEqual(arch9cSha256(replace), ARCH19_REPLACE_SHA256, 'Replace SHA');
+  assertEqual(arch9cSha256(merge), ARCH19_MERGE_SHA256, 'Merge SHA');
+  assertTrue(build.indexOf('collectAttachmentReferenceSnapshot') < 0, 'اسمبل آداپتر جدید ندارد');
+  assertTrue(html.indexOf('function collectAttachmentReferenceSnapshot') < 0, 'آداپتر HTML جدید ساخته نشده');
+  assertTrue(idx.indexOf('invoiceId') < 0, 'واکر invoiceId نمی‌خواند');
+  assertTrue(idx.indexOf('saleUid') < 0, 'واکر saleUid نمی‌خواند');
+  assertTrue(idx.indexOf('phonebook') < 0, 'واکر phonebook نمی‌خواند');
+});
+
+test('ARCH-19 G2: واکر فقط warranties/sales/invoices و rec.id', () => {
+  const src = extractFunctionSource(html, 'collectAttachmentIndex');
+  assertContainsString(src, "walk(d && d.warranties, 'warranty')", 'warranty');
+  assertContainsString(src, "walk(d && d.sales, 'sale')", 'sale');
+  assertContainsString(src, "walk(d && d.invoices, 'invoice')", 'invoice');
+  assertContainsString(src, 'parentId: parentId || \'\'', 'parentId از rec.id');
+  assertContainsString(src, 'pushDoc(kind, rec.id, doc, i)', 'object-map rec.id');
+  assertContainsString(src, 'pushDoc(kind, rec && rec.id, doc, i)', 'array rec.id');
+  assertTrue(src.indexOf('d.tasks') < 0, 'tasks واکر ندارد');
+  assertTrue(src.indexOf('stockMoves') < 0, 'stockMoves جداست');
+  assertTrue(src.indexOf('agencyPhonebookIdx') < 0, 'daqi جداست');
+});
+
+ARCH19_FIXTURES.cases.forEach(function(fx){
+  test('ARCH-19 '+fx.id+' '+fx.note+': collectAttachmentIndex با فیکسچر طلایی یکی است', () => {
+    const run = arch19RunCollector(fx.bag);
+    assertEqual(JSON.stringify(run.got), JSON.stringify(fx.expectedIndex), fx.id);
+    assertTrue(!run.got.some(function(row){ return row && row.kind==='phonebook'; }), fx.id+' بدون kind دفترچه');
+    assertEqual(run.ls.stats.setItem, 0, fx.id+' بدون نوشتن LS');
+    assertEqual(run.idbStats.open, 0, fx.id+' بدون IDB');
+  });
+});
+
+test('ARCH-19: برش attachmentsIndex اسمبل با واکر یکی است (T2/T4/T8)', () => {
+  ['T2','T4','T8'].forEach(function(id){
+    const fx = ARCH19_FIXTURES.cases.find(function(c){ return c.id===id; });
+    const both = arch19AssemblerIndex(fx.bag);
+    assertEqual(JSON.stringify(both.full.attachmentsIndex), JSON.stringify(fx.expectedIndex), id+' assembler');
+    assertEqual(JSON.stringify(both.index), JSON.stringify(fx.expectedIndex), id+' collector on RAM');
+  });
+});
+
+test('ARCH-19 T3: parentId فاکتور rec.id است نه invoiceId/num', () => {
+  const t3 = ARCH19_FIXTURES.cases.find(function(c){ return c.id==='T3'; });
+  const row = arch19RunCollector(t3.bag).got[0];
+  assertEqual(row.parentId, 'mig_inv_0_1', 'rec.id');
+  assertTrue(row.parentId !== t3.bag.invoices[0].invoiceId, 'نه invoiceId');
+  assertTrue(row.parentId !== t3.bag.invoices[0].num, 'نه num');
+});
+
+test('ARCH-19 T4: parentId فروش rec.id است نه saleUid', () => {
+  const t4 = ARCH19_FIXTURES.cases.find(function(c){ return c.id==='T4'; });
+  const row = arch19RunCollector(t4.bag).got[0];
+  assertEqual(row.parentId, 'SL-0001', 'display id');
+  assertTrue(row.parentId !== t4.bag.sales[0].saleUid, 'نه saleUid');
+});
+
+test('ARCH-19 T6: ارجاع یتیم در اعتبارسنج FAIL است و تعمیر نمی‌شود', () => {
+  const t6 = ARCH19_FIXTURES.cases.find(function(c){ return c.id==='T6'; });
+  const v = arch19Validate(t6.validatorInput);
+  assertEqual(v.ok, false, 'orphan INVALID');
+  assertTrue(v.brokenAttachmentRefs.some(function(b){ return b.parentId==='W-MISSING'; }), 'W-MISSING');
+  assertEqual(JSON.stringify(t6.validatorInput.attachmentsIndex[0].parentId), JSON.stringify('W-MISSING'), 'بدون repair');
+});
+
+test('ARCH-19 T7/T11: kind نامعتبر و Phonebook ایندکس نمی‌شوند', () => {
+  const t7 = ARCH19_FIXTURES.cases.find(function(c){ return c.id==='T7'; });
+  const t11 = ARCH19_FIXTURES.cases.find(function(c){ return c.id==='T11'; });
+  assertEqual(arch19RunCollector(t7.bag).got.length, 0, 'T7 empty');
+  assertEqual(arch19RunCollector(t11.bag).got.length, 0, 'T11 empty');
+  const v = arch19Validate(t7.validatorInput);
+  assertEqual(v.ok, true, 'unsupported kind skipped');
+});
+
+test('ARCH-19 T8: فاکتور بدون rec.id → parentId خالی؛ اعتبارسنج رد نمی‌کند', () => {
+  const t8 = ARCH19_FIXTURES.cases.find(function(c){ return c.id==='T8'; });
+  const row = arch19RunCollector(t8.bag).got[0];
+  assertEqual(row.parentId, '', 'empty parentId');
+  assertEqual(arch19Validate(t8.validatorInput).ok, true, 'empty parentId compatible skip');
+});
+
+test('ARCH-19: سیستم‌های ارجاع مستقل قاطی نمی‌شوند', () => {
+  const src = extractFunctionSource(html, 'collectAttachmentIndex');
+  assertTrue(src.indexOf('refDoc') < 0, 'stockMoves.refDoc جداست');
+  assertTrue(src.indexOf('agencyPhonebookIdx') < 0, 'daqi جداست');
+  const bag = {
+    warranties: [], sales: [], invoices: [],
+    stockMoves: [{ id:'SM-1', refDoc:'W-1' }],
+    daqi: [{ id:'DQ-1', agencyPhonebookIdx: 3 }]
+  };
+  assertEqual(JSON.stringify(arch19RunCollector(bag).got), '[]', 'ایندکس خالی');
+});
+
+test('ARCH-19: جهش خروجی واکر docs منبع را عوض نمی‌کند', () => {
+  const docs = [{ name:'a.pdf', data:'disk://sirman_media/docs/a.pdf', nested:{v:'live'} }];
+  const warranties = [{ id:'W-1', docs: docs }];
+  const order = docs.map(function(d){ return d.name; }).join(',');
+  const extras = { hostCalled: false, idbStats: { open: 0 } };
+  const run = arch19RunCollector({ warranties: warranties, sales: [], invoices: [] }, extras);
+  run.got[0].name = 'MUT';
+  run.got.push({ id:'FORGED' });
+  assertEqual(docs.length, 1, 'طول docs');
+  assertEqual(docs[0].name, 'a.pdf', 'نام منبع');
+  assertEqual(docs[0].nested.v, 'live', 'nested');
+  assertEqual(docs.map(function(d){ return d.name; }).join(','), order, 'ترتیب');
+  assertEqual(run.ls.stats.setItem, 0, 'بدون LS');
+  assertEqual(extras.idbStats.open, 0, 'بدون IDB');
+  assertTrue(!extras.hostCalled, 'بدون Host');
+});
+
+test('ARCH-19: فایروال Restore / Phonebook / Print / SQLite / نسخه', () => {
+  const savePB = extractFunctionSource(html, 'savePBContact');
+  assertTrue(savePB.indexOf("id:'PB-") < 0, 'savePBContact شناسه نمی‌سازد');
+  ['applyBackupMergeSections','applyBackupReplaceSections','importData','savePBContact','resetAll','getPrintCenterState','collectRequiredBusinessSnapshot','collectOptionalBusinessSnapshot'].forEach(function(name){
+    assertTrue(extractFunctionSource(html, name) !== null, name+' باید بماند');
+  });
+  assertTrue(extractFunctionSource(html, 'applyBackupReplaceSections').indexOf('attachmentsIndex') < 0, 'Replace ایندکس را به RAM نمی‌نویسد');
+  assertTrue(extractFunctionSource(html, 'applyBackupMergeSections').indexOf('attachmentsIndex') < 0, 'Merge ایندکس را به RAM نمی‌نویسد');
+  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+  const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
+  assertContainsString(repo, 'html-backup-engine', 'TbdMarker');
+  const sqlite = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Persistence.Sqlite', 'Sirman.Persistence.Sqlite.csproj'), 'utf8');
+  assertTrue(sqlite.length > 0, 'SQLite');
+  const printHost = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'WindowsPrintHost.cs'), 'utf8');
+  assertTrue(printHost.length > 0, 'WindowsPrintHost');
+});
+
+test('ARCH-19: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت یکی هستند', () => {
+  const sirman = fs.readFileSync(path.join(path.dirname(filePath), 'Sirman_Final.html'));
+  const laegh = fs.readFileSync(path.join(path.dirname(filePath), 'Laegh_Final.html'));
+  assertEqual(sirman.length, laegh.length, 'طول فایل');
+  assertEqual(Buffer.compare(sirman, laegh), 0, 'byte-identical');
+});
+
+
+console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
 
 

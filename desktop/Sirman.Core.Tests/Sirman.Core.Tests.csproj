@@ -32,5 +32,6 @@
     <None Include="BackupSettingsFixtures.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="BusinessDataFixtures.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="OptionalBusinessFixtures.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="AttachmentReferenceFixtures.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

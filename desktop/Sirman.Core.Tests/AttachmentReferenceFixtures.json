@@ -1,0 +1,1506 @@
+{
+  "generatedAt": "ARCH-19",
+  "indexFields": [
+    "id",
+    "name",
+    "ref",
+    "inline",
+    "kind",
+    "parentId"
+  ],
+  "walkOrder": [
+    "warranty",
+    "sale",
+    "invoice"
+  ],
+  "parentIdentityField": "id",
+  "cases": [
+    {
+      "id": "T1",
+      "note": "empty attachmentsIndex",
+      "bag": {
+        "warranties": [],
+        "sales": [],
+        "invoices": []
+      },
+      "expectedIndex": [],
+      "validatorInput": {
+        "warranties": [],
+        "sales": [],
+        "invoices": [],
+        "attachmentsIndex": []
+      },
+      "validation": {
+        "ok": true,
+        "errors": [],
+        "brokenAttachmentRefs": []
+      }
+    },
+    {
+      "id": "T2",
+      "note": "populated warranty attachment",
+      "bag": {
+        "warranties": [
+          {
+            "id": "W-1",
+            "docs": [
+              {
+                "id": "WD-1",
+                "name": "رسید.pdf",
+                "data": "disk://sirman_media/docs/wdoc_1_a.pdf",
+                "mime": "application/pdf"
+              }
+            ]
+          }
+        ],
+        "sales": [],
+        "invoices": []
+      },
+      "expectedIndex": [
+        {
+          "id": "WD-1",
+          "name": "رسید.pdf",
+          "ref": "disk://sirman_media/docs/wdoc_1_a.pdf",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-1"
+        }
+      ],
+      "validatorInput": {
+        "warranties": [
+          {
+            "id": "W-1",
+            "docs": [
+              {
+                "id": "WD-1",
+                "name": "رسید.pdf",
+                "data": "disk://sirman_media/docs/wdoc_1_a.pdf",
+                "mime": "application/pdf"
+              }
+            ]
+          }
+        ],
+        "sales": [],
+        "invoices": [],
+        "attachmentsIndex": [
+          {
+            "id": "WD-1",
+            "name": "رسید.pdf",
+            "ref": "disk://sirman_media/docs/wdoc_1_a.pdf",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-1"
+          }
+        ]
+      },
+      "validation": {
+        "ok": true,
+        "errors": [],
+        "brokenAttachmentRefs": []
+      }
+    },
+    {
+      "id": "T3",
+      "note": "populated invoice attachment (rec.id present)",
+      "bag": {
+        "warranties": [],
+        "sales": [],
+        "invoices": [
+          {
+            "id": "mig_inv_0_1",
+            "invoiceId": "INVUID-000012",
+            "num": "12",
+            "docs": [
+              {
+                "name": "فاکتور.jpg",
+                "data": "data:image/jpeg;base64,AAA"
+              }
+            ]
+          }
+        ]
+      },
+      "expectedIndex": [
+        {
+          "id": "invoice-mig_inv_0_1-0",
+          "name": "فاکتور.jpg",
+          "ref": "",
+          "inline": true,
+          "kind": "invoice",
+          "parentId": "mig_inv_0_1"
+        }
+      ],
+      "validatorInput": {
+        "warranties": [],
+        "sales": [],
+        "invoices": [
+          {
+            "id": "mig_inv_0_1",
+            "invoiceId": "INVUID-000012",
+            "num": "12",
+            "docs": [
+              {
+                "name": "فاکتور.jpg",
+                "data": "data:image/jpeg;base64,AAA"
+              }
+            ]
+          }
+        ],
+        "attachmentsIndex": [
+          {
+            "id": "invoice-mig_inv_0_1-0",
+            "name": "فاکتور.jpg",
+            "ref": "",
+            "inline": true,
+            "kind": "invoice",
+            "parentId": "mig_inv_0_1"
+          }
+        ]
+      },
+      "validation": {
+        "ok": true,
+        "errors": [],
+        "brokenAttachmentRefs": []
+      }
+    },
+    {
+      "id": "T4",
+      "note": "populated sales attachment (rec.id is SL display, not saleUid)",
+      "bag": {
+        "warranties": [],
+        "sales": [
+          {
+            "id": "SL-0001",
+            "saleUid": "SALEUID-000007",
+            "docs": [
+              {
+                "name": "حواله.png",
+                "data": "disk://sirman_media/docs/sale_1_b.png"
+              }
+            ]
+          }
+        ],
+        "invoices": []
+      },
+      "expectedIndex": [
+        {
+          "id": "sale-SL-0001-0",
+          "name": "حواله.png",
+          "ref": "disk://sirman_media/docs/sale_1_b.png",
+          "inline": false,
+          "kind": "sale",
+          "parentId": "SL-0001"
+        }
+      ],
+      "validatorInput": {
+        "warranties": [],
+        "sales": [
+          {
+            "id": "SL-0001",
+            "saleUid": "SALEUID-000007",
+            "docs": [
+              {
+                "name": "حواله.png",
+                "data": "disk://sirman_media/docs/sale_1_b.png"
+              }
+            ]
+          }
+        ],
+        "invoices": [],
+        "attachmentsIndex": [
+          {
+            "id": "sale-SL-0001-0",
+            "name": "حواله.png",
+            "ref": "disk://sirman_media/docs/sale_1_b.png",
+            "inline": false,
+            "kind": "sale",
+            "parentId": "SL-0001"
+          }
+        ]
+      },
+      "validation": {
+        "ok": true,
+        "errors": [],
+        "brokenAttachmentRefs": []
+      }
+    },
+    {
+      "id": "T5",
+      "note": "multiple attachment records, walk order warranties→sales→invoices",
+      "bag": {
+        "warranties": [
+          {
+            "id": "W-A",
+            "docs": [
+              {
+                "name": "a1"
+              },
+              {
+                "name": "a2"
+              }
+            ]
+          },
+          {
+            "id": "W-B",
+            "docs": [
+              {
+                "name": "b1"
+              }
+            ]
+          }
+        ],
+        "sales": [
+          {
+            "id": "SL-0002",
+            "docs": [
+              {
+                "name": "s1"
+              }
+            ]
+          }
+        ],
+        "invoices": [
+          {
+            "id": "INV-X",
+            "docs": [
+              {
+                "name": "i1"
+              }
+            ]
+          }
+        ]
+      },
+      "expectedIndex": [
+        {
+          "id": "warranty-W-A-0",
+          "name": "a1",
+          "ref": "",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-A"
+        },
+        {
+          "id": "warranty-W-A-1",
+          "name": "a2",
+          "ref": "",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-A"
+        },
+        {
+          "id": "warranty-W-B-0",
+          "name": "b1",
+          "ref": "",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-B"
+        },
+        {
+          "id": "sale-SL-0002-0",
+          "name": "s1",
+          "ref": "",
+          "inline": false,
+          "kind": "sale",
+          "parentId": "SL-0002"
+        },
+        {
+          "id": "invoice-INV-X-0",
+          "name": "i1",
+          "ref": "",
+          "inline": false,
+          "kind": "invoice",
+          "parentId": "INV-X"
+        }
+      ],
+      "validatorInput": {
+        "warranties": [
+          {
+            "id": "W-A",
+            "docs": [
+              {
+                "name": "a1"
+              },
+              {
+                "name": "a2"
+              }
+            ]
+          },
+          {
+            "id": "W-B",
+            "docs": [
+              {
+                "name": "b1"
+              }
+            ]
+          }
+        ],
+        "sales": [
+          {
+            "id": "SL-0002",
+            "docs": [
+              {
+                "name": "s1"
+              }
+            ]
+          }
+        ],
+        "invoices": [
+          {
+            "id": "INV-X",
+            "docs": [
+              {
+                "name": "i1"
+              }
+            ]
+          }
+        ],
+        "attachmentsIndex": [
+          {
+            "id": "warranty-W-A-0",
+            "name": "a1",
+            "ref": "",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-A"
+          },
+          {
+            "id": "warranty-W-A-1",
+            "name": "a2",
+            "ref": "",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-A"
+          },
+          {
+            "id": "warranty-W-B-0",
+            "name": "b1",
+            "ref": "",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-B"
+          },
+          {
+            "id": "sale-SL-0002-0",
+            "name": "s1",
+            "ref": "",
+            "inline": false,
+            "kind": "sale",
+            "parentId": "SL-0002"
+          },
+          {
+            "id": "invoice-INV-X-0",
+            "name": "i1",
+            "ref": "",
+            "inline": false,
+            "kind": "invoice",
+            "parentId": "INV-X"
+          }
+        ]
+      },
+      "validation": {
+        "ok": true,
+        "errors": [],
+        "brokenAttachmentRefs": []
+      }
+    },
+    {
+      "id": "T6",
+      "note": "orphan reference: index parentId not in warranties",
+      "bag": {
+        "warranties": [
+          {
+            "id": "W-LIVE",
+            "docs": [
+              {
+                "name": "live.pdf",
+                "data": "disk://sirman_media/docs/live.pdf"
+              }
+            ]
+          }
+        ],
+        "sales": [],
+        "invoices": []
+      },
+      "expectedIndex": [
+        {
+          "id": "warranty-W-LIVE-0",
+          "name": "live.pdf",
+          "ref": "disk://sirman_media/docs/live.pdf",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-LIVE"
+        }
+      ],
+      "validatorInput": {
+        "warranties": [],
+        "sales": [],
+        "invoices": [],
+        "attachmentsIndex": [
+          {
+            "id": "orphan-1",
+            "kind": "warranty",
+            "parentId": "W-MISSING",
+            "name": "gone.pdf",
+            "ref": "",
+            "inline": false
+          }
+        ]
+      },
+      "validation": {
+        "ok": false,
+        "errors": [
+          "پیوست به والد ناموجود: warranty W-MISSING"
+        ],
+        "brokenAttachmentRefs": [
+          {
+            "index": 0,
+            "kind": "warranty",
+            "parentId": "W-MISSING"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T7",
+      "note": "unsupported kind and non-parent collections are not indexed",
+      "bag": {
+        "warranties": [],
+        "sales": [],
+        "invoices": [],
+        "phonebook": [
+          {
+            "fn": "علی",
+            "docs": [
+              {
+                "name": "should-not-index.pdf",
+                "data": "disk://x"
+              }
+            ]
+          }
+        ],
+        "products": [
+          {
+            "code": "P-1",
+            "img": "data:image/png;base64,BBB"
+          }
+        ],
+        "tasks": [
+          {
+            "id": "TSK-1",
+            "docs": [
+              {
+                "name": "task.pdf"
+              }
+            ]
+          }
+        ]
+      },
+      "expectedIndex": [],
+      "validatorInput": {
+        "warranties": [],
+        "sales": [],
+        "invoices": [],
+        "attachmentsIndex": [
+          {
+            "id": "x",
+            "kind": "task",
+            "parentId": "TSK-1",
+            "name": "task.pdf"
+          },
+          {
+            "id": "y",
+            "kind": "phonebook",
+            "parentId": "0",
+            "name": "pb.pdf"
+          }
+        ]
+      },
+      "validation": {
+        "ok": true,
+        "errors": [],
+        "brokenAttachmentRefs": []
+      }
+    },
+    {
+      "id": "T8",
+      "note": "malformed/missing parentId: invoice has invoiceId but no rec.id",
+      "bag": {
+        "warranties": [],
+        "sales": [],
+        "invoices": [
+          {
+            "invoiceId": "INVUID-000099",
+            "num": "99",
+            "docs": [
+              {
+                "name": "بدون-id.pdf",
+                "data": "disk://sirman_media/docs/inv.pdf"
+              }
+            ]
+          }
+        ]
+      },
+      "expectedIndex": [
+        {
+          "id": "invoice--0",
+          "name": "بدون-id.pdf",
+          "ref": "disk://sirman_media/docs/inv.pdf",
+          "inline": false,
+          "kind": "invoice",
+          "parentId": ""
+        }
+      ],
+      "validatorInput": {
+        "warranties": [],
+        "sales": [],
+        "invoices": [
+          {
+            "invoiceId": "INVUID-000099",
+            "num": "99",
+            "docs": [
+              {
+                "name": "بدون-id.pdf",
+                "data": "disk://sirman_media/docs/inv.pdf"
+              }
+            ]
+          }
+        ],
+        "attachmentsIndex": [
+          {
+            "id": "invoice--0",
+            "name": "بدون-id.pdf",
+            "ref": "disk://sirman_media/docs/inv.pdf",
+            "inline": false,
+            "kind": "invoice",
+            "parentId": ""
+          }
+        ]
+      },
+      "validation": {
+        "ok": true,
+        "errors": [],
+        "brokenAttachmentRefs": []
+      }
+    },
+    {
+      "id": "T9",
+      "note": "duplicate attachment identity preserved",
+      "bag": {
+        "warranties": [
+          {
+            "id": "W-DUP",
+            "docs": [
+              {
+                "id": "SAME",
+                "name": "one.pdf"
+              },
+              {
+                "id": "SAME",
+                "name": "two.pdf"
+              }
+            ]
+          }
+        ],
+        "sales": [],
+        "invoices": []
+      },
+      "expectedIndex": [
+        {
+          "id": "SAME",
+          "name": "one.pdf",
+          "ref": "",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-DUP"
+        },
+        {
+          "id": "SAME",
+          "name": "two.pdf",
+          "ref": "",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-DUP"
+        }
+      ],
+      "validatorInput": {
+        "warranties": [
+          {
+            "id": "W-DUP",
+            "docs": [
+              {
+                "id": "SAME",
+                "name": "one.pdf"
+              },
+              {
+                "id": "SAME",
+                "name": "two.pdf"
+              }
+            ]
+          }
+        ],
+        "sales": [],
+        "invoices": [],
+        "attachmentsIndex": [
+          {
+            "id": "SAME",
+            "name": "one.pdf",
+            "ref": "",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-DUP"
+          },
+          {
+            "id": "SAME",
+            "name": "two.pdf",
+            "ref": "",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-DUP"
+          }
+        ]
+      },
+      "validation": {
+        "ok": true,
+        "errors": [],
+        "brokenAttachmentRefs": []
+      }
+    },
+    {
+      "id": "T10",
+      "note": "external-store disk:// and idb: references; inline dataURL",
+      "bag": {
+        "warranties": [
+          {
+            "id": "W-EXT",
+            "docs": [
+              {
+                "name": "disk.pdf",
+                "data": "disk://sirman_media/docs/a.pdf"
+              },
+              {
+                "name": "legacy-idb.bin",
+                "data": "idb:blob-1"
+              },
+              {
+                "name": "inline.png",
+                "data": "data:image/png;base64,CCC"
+              },
+              {
+                "name": "empty",
+                "data": ""
+              }
+            ]
+          }
+        ],
+        "sales": [],
+        "invoices": []
+      },
+      "expectedIndex": [
+        {
+          "id": "warranty-W-EXT-0",
+          "name": "disk.pdf",
+          "ref": "disk://sirman_media/docs/a.pdf",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-EXT"
+        },
+        {
+          "id": "warranty-W-EXT-1",
+          "name": "legacy-idb.bin",
+          "ref": "idb:blob-1",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-EXT"
+        },
+        {
+          "id": "warranty-W-EXT-2",
+          "name": "inline.png",
+          "ref": "",
+          "inline": true,
+          "kind": "warranty",
+          "parentId": "W-EXT"
+        },
+        {
+          "id": "warranty-W-EXT-3",
+          "name": "empty",
+          "ref": "",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-EXT"
+        }
+      ],
+      "validatorInput": {
+        "warranties": [
+          {
+            "id": "W-EXT",
+            "docs": [
+              {
+                "name": "disk.pdf",
+                "data": "disk://sirman_media/docs/a.pdf"
+              },
+              {
+                "name": "legacy-idb.bin",
+                "data": "idb:blob-1"
+              },
+              {
+                "name": "inline.png",
+                "data": "data:image/png;base64,CCC"
+              },
+              {
+                "name": "empty",
+                "data": ""
+              }
+            ]
+          }
+        ],
+        "sales": [],
+        "invoices": [],
+        "attachmentsIndex": [
+          {
+            "id": "warranty-W-EXT-0",
+            "name": "disk.pdf",
+            "ref": "disk://sirman_media/docs/a.pdf",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-EXT"
+          },
+          {
+            "id": "warranty-W-EXT-1",
+            "name": "legacy-idb.bin",
+            "ref": "idb:blob-1",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-EXT"
+          },
+          {
+            "id": "warranty-W-EXT-2",
+            "name": "inline.png",
+            "ref": "",
+            "inline": true,
+            "kind": "warranty",
+            "parentId": "W-EXT"
+          },
+          {
+            "id": "warranty-W-EXT-3",
+            "name": "empty",
+            "ref": "",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-EXT"
+          }
+        ]
+      },
+      "validation": {
+        "ok": true,
+        "errors": [],
+        "brokenAttachmentRefs": []
+      }
+    },
+    {
+      "id": "T11",
+      "note": "Phonebook docs are not attachment parents",
+      "bag": {
+        "warranties": [],
+        "sales": [],
+        "invoices": [],
+        "phonebook": [
+          {
+            "fn": "مریم",
+            "ln": "کاظمی",
+            "phones": [
+              "0912"
+            ],
+            "docs": [
+              {
+                "name": "کارت.pdf",
+                "data": "disk://x"
+              }
+            ]
+          }
+        ]
+      },
+      "expectedIndex": [],
+      "validatorInput": {
+        "warranties": [],
+        "sales": [],
+        "invoices": [],
+        "attachmentsIndex": []
+      },
+      "validation": {
+        "ok": true,
+        "errors": [],
+        "brokenAttachmentRefs": []
+      }
+    },
+    {
+      "id": "T12",
+      "note": "Persian Unicode metadata",
+      "bag": {
+        "warranties": [
+          {
+            "id": "W-فا",
+            "docs": [
+              {
+                "id": "د-۱",
+                "name": "رسید «پره» لایق الکترونیک پارسیان.pdf",
+                "data": "disk://sirman_media/docs/پر.pdf"
+              }
+            ]
+          }
+        ],
+        "sales": [],
+        "invoices": []
+      },
+      "expectedIndex": [
+        {
+          "id": "د-۱",
+          "name": "رسید «پره» لایق الکترونیک پارسیان.pdf",
+          "ref": "disk://sirman_media/docs/پر.pdf",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-فا"
+        }
+      ],
+      "validatorInput": {
+        "warranties": [
+          {
+            "id": "W-فا",
+            "docs": [
+              {
+                "id": "د-۱",
+                "name": "رسید «پره» لایق الکترونیک پارسیان.pdf",
+                "data": "disk://sirman_media/docs/پر.pdf"
+              }
+            ]
+          }
+        ],
+        "sales": [],
+        "invoices": [],
+        "attachmentsIndex": [
+          {
+            "id": "د-۱",
+            "name": "رسید «پره» لایق الکترونیک پارسیان.pdf",
+            "ref": "disk://sirman_media/docs/پر.pdf",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-فا"
+          }
+        ]
+      },
+      "validation": {
+        "ok": true,
+        "errors": [],
+        "brokenAttachmentRefs": []
+      }
+    },
+    {
+      "id": "T13",
+      "note": "nested rec.docs object map is walked; agencyWork.docs is not",
+      "bag": {
+        "warranties": [
+          {
+            "id": "W-NEST",
+            "docs": {
+              "ship": [
+                {
+                  "name": "بارنامه.pdf",
+                  "data": "disk://sirman_media/docs/ship.pdf"
+                }
+              ],
+              "cond": [
+                {
+                  "name": "وضعیت.jpg",
+                  "src": "disk://sirman_media/docs/cond.jpg"
+                }
+              ]
+            },
+            "agencyWork": {
+              "docs": {
+                "ship": [
+                  {
+                    "name": "NOT-INDEXED.pdf",
+                    "data": "disk://hidden.pdf"
+                  }
+                ]
+              }
+            },
+            "devices": [
+              {
+                "model": "پره",
+                "docs": [
+                  {
+                    "name": "device.jpg",
+                    "data": "disk://dev.jpg"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "sales": [],
+        "invoices": []
+      },
+      "expectedIndex": [
+        {
+          "id": "warranty-W-NEST-0",
+          "name": "بارنامه.pdf",
+          "ref": "disk://sirman_media/docs/ship.pdf",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-NEST"
+        },
+        {
+          "id": "warranty-W-NEST-0",
+          "name": "وضعیت.jpg",
+          "ref": "disk://sirman_media/docs/cond.jpg",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-NEST"
+        }
+      ],
+      "validatorInput": {
+        "warranties": [
+          {
+            "id": "W-NEST",
+            "docs": {
+              "ship": [
+                {
+                  "name": "بارنامه.pdf",
+                  "data": "disk://sirman_media/docs/ship.pdf"
+                }
+              ],
+              "cond": [
+                {
+                  "name": "وضعیت.jpg",
+                  "src": "disk://sirman_media/docs/cond.jpg"
+                }
+              ]
+            },
+            "agencyWork": {
+              "docs": {
+                "ship": [
+                  {
+                    "name": "NOT-INDEXED.pdf",
+                    "data": "disk://hidden.pdf"
+                  }
+                ]
+              }
+            },
+            "devices": [
+              {
+                "model": "پره",
+                "docs": [
+                  {
+                    "name": "device.jpg",
+                    "data": "disk://dev.jpg"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "sales": [],
+        "invoices": [],
+        "attachmentsIndex": [
+          {
+            "id": "warranty-W-NEST-0",
+            "name": "بارنامه.pdf",
+            "ref": "disk://sirman_media/docs/ship.pdf",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-NEST"
+          },
+          {
+            "id": "warranty-W-NEST-0",
+            "name": "وضعیت.jpg",
+            "ref": "disk://sirman_media/docs/cond.jpg",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-NEST"
+          }
+        ]
+      },
+      "validation": {
+        "ok": true,
+        "errors": [],
+        "brokenAttachmentRefs": []
+      }
+    },
+    {
+      "id": "T14",
+      "note": "exact ordering preservation",
+      "bag": {
+        "warranties": [
+          {
+            "id": "W-ORD-00",
+            "docs": [
+              {
+                "name": "w0"
+              }
+            ]
+          },
+          {
+            "id": "W-ORD-01",
+            "docs": [
+              {
+                "name": "w1"
+              }
+            ]
+          },
+          {
+            "id": "W-ORD-02",
+            "docs": [
+              {
+                "name": "w2"
+              }
+            ]
+          },
+          {
+            "id": "W-ORD-03",
+            "docs": [
+              {
+                "name": "w3"
+              }
+            ]
+          },
+          {
+            "id": "W-ORD-04",
+            "docs": [
+              {
+                "name": "w4"
+              }
+            ]
+          },
+          {
+            "id": "W-ORD-05",
+            "docs": [
+              {
+                "name": "w5"
+              }
+            ]
+          },
+          {
+            "id": "W-ORD-06",
+            "docs": [
+              {
+                "name": "w6"
+              }
+            ]
+          },
+          {
+            "id": "W-ORD-07",
+            "docs": [
+              {
+                "name": "w7"
+              }
+            ]
+          }
+        ],
+        "sales": [
+          {
+            "id": "SL-ORD-0000",
+            "docs": [
+              {
+                "name": "s0"
+              }
+            ]
+          },
+          {
+            "id": "SL-ORD-0001",
+            "docs": [
+              {
+                "name": "s1"
+              }
+            ]
+          },
+          {
+            "id": "SL-ORD-0002",
+            "docs": [
+              {
+                "name": "s2"
+              }
+            ]
+          }
+        ],
+        "invoices": [
+          {
+            "id": "INV-ORD-0",
+            "docs": [
+              {
+                "name": "i0"
+              }
+            ]
+          },
+          {
+            "id": "INV-ORD-1",
+            "docs": [
+              {
+                "name": "i1"
+              }
+            ]
+          },
+          {
+            "id": "INV-ORD-2",
+            "docs": [
+              {
+                "name": "i2"
+              }
+            ]
+          }
+        ]
+      },
+      "expectedIndex": [
+        {
+          "id": "warranty-W-ORD-00-0",
+          "name": "w0",
+          "ref": "",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-ORD-00"
+        },
+        {
+          "id": "warranty-W-ORD-01-0",
+          "name": "w1",
+          "ref": "",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-ORD-01"
+        },
+        {
+          "id": "warranty-W-ORD-02-0",
+          "name": "w2",
+          "ref": "",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-ORD-02"
+        },
+        {
+          "id": "warranty-W-ORD-03-0",
+          "name": "w3",
+          "ref": "",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-ORD-03"
+        },
+        {
+          "id": "warranty-W-ORD-04-0",
+          "name": "w4",
+          "ref": "",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-ORD-04"
+        },
+        {
+          "id": "warranty-W-ORD-05-0",
+          "name": "w5",
+          "ref": "",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-ORD-05"
+        },
+        {
+          "id": "warranty-W-ORD-06-0",
+          "name": "w6",
+          "ref": "",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-ORD-06"
+        },
+        {
+          "id": "warranty-W-ORD-07-0",
+          "name": "w7",
+          "ref": "",
+          "inline": false,
+          "kind": "warranty",
+          "parentId": "W-ORD-07"
+        },
+        {
+          "id": "sale-SL-ORD-0000-0",
+          "name": "s0",
+          "ref": "",
+          "inline": false,
+          "kind": "sale",
+          "parentId": "SL-ORD-0000"
+        },
+        {
+          "id": "sale-SL-ORD-0001-0",
+          "name": "s1",
+          "ref": "",
+          "inline": false,
+          "kind": "sale",
+          "parentId": "SL-ORD-0001"
+        },
+        {
+          "id": "sale-SL-ORD-0002-0",
+          "name": "s2",
+          "ref": "",
+          "inline": false,
+          "kind": "sale",
+          "parentId": "SL-ORD-0002"
+        },
+        {
+          "id": "invoice-INV-ORD-0-0",
+          "name": "i0",
+          "ref": "",
+          "inline": false,
+          "kind": "invoice",
+          "parentId": "INV-ORD-0"
+        },
+        {
+          "id": "invoice-INV-ORD-1-0",
+          "name": "i1",
+          "ref": "",
+          "inline": false,
+          "kind": "invoice",
+          "parentId": "INV-ORD-1"
+        },
+        {
+          "id": "invoice-INV-ORD-2-0",
+          "name": "i2",
+          "ref": "",
+          "inline": false,
+          "kind": "invoice",
+          "parentId": "INV-ORD-2"
+        }
+      ],
+      "validatorInput": {
+        "warranties": [
+          {
+            "id": "W-ORD-00",
+            "docs": [
+              {
+                "name": "w0"
+              }
+            ]
+          },
+          {
+            "id": "W-ORD-01",
+            "docs": [
+              {
+                "name": "w1"
+              }
+            ]
+          },
+          {
+            "id": "W-ORD-02",
+            "docs": [
+              {
+                "name": "w2"
+              }
+            ]
+          },
+          {
+            "id": "W-ORD-03",
+            "docs": [
+              {
+                "name": "w3"
+              }
+            ]
+          },
+          {
+            "id": "W-ORD-04",
+            "docs": [
+              {
+                "name": "w4"
+              }
+            ]
+          },
+          {
+            "id": "W-ORD-05",
+            "docs": [
+              {
+                "name": "w5"
+              }
+            ]
+          },
+          {
+            "id": "W-ORD-06",
+            "docs": [
+              {
+                "name": "w6"
+              }
+            ]
+          },
+          {
+            "id": "W-ORD-07",
+            "docs": [
+              {
+                "name": "w7"
+              }
+            ]
+          }
+        ],
+        "sales": [
+          {
+            "id": "SL-ORD-0000",
+            "docs": [
+              {
+                "name": "s0"
+              }
+            ]
+          },
+          {
+            "id": "SL-ORD-0001",
+            "docs": [
+              {
+                "name": "s1"
+              }
+            ]
+          },
+          {
+            "id": "SL-ORD-0002",
+            "docs": [
+              {
+                "name": "s2"
+              }
+            ]
+          }
+        ],
+        "invoices": [
+          {
+            "id": "INV-ORD-0",
+            "docs": [
+              {
+                "name": "i0"
+              }
+            ]
+          },
+          {
+            "id": "INV-ORD-1",
+            "docs": [
+              {
+                "name": "i1"
+              }
+            ]
+          },
+          {
+            "id": "INV-ORD-2",
+            "docs": [
+              {
+                "name": "i2"
+              }
+            ]
+          }
+        ],
+        "attachmentsIndex": [
+          {
+            "id": "warranty-W-ORD-00-0",
+            "name": "w0",
+            "ref": "",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-ORD-00"
+          },
+          {
+            "id": "warranty-W-ORD-01-0",
+            "name": "w1",
+            "ref": "",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-ORD-01"
+          },
+          {
+            "id": "warranty-W-ORD-02-0",
+            "name": "w2",
+            "ref": "",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-ORD-02"
+          },
+          {
+            "id": "warranty-W-ORD-03-0",
+            "name": "w3",
+            "ref": "",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-ORD-03"
+          },
+          {
+            "id": "warranty-W-ORD-04-0",
+            "name": "w4",
+            "ref": "",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-ORD-04"
+          },
+          {
+            "id": "warranty-W-ORD-05-0",
+            "name": "w5",
+            "ref": "",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-ORD-05"
+          },
+          {
+            "id": "warranty-W-ORD-06-0",
+            "name": "w6",
+            "ref": "",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-ORD-06"
+          },
+          {
+            "id": "warranty-W-ORD-07-0",
+            "name": "w7",
+            "ref": "",
+            "inline": false,
+            "kind": "warranty",
+            "parentId": "W-ORD-07"
+          },
+          {
+            "id": "sale-SL-ORD-0000-0",
+            "name": "s0",
+            "ref": "",
+            "inline": false,
+            "kind": "sale",
+            "parentId": "SL-ORD-0000"
+          },
+          {
+            "id": "sale-SL-ORD-0001-0",
+            "name": "s1",
+            "ref": "",
+            "inline": false,
+            "kind": "sale",
+            "parentId": "SL-ORD-0001"
+          },
+          {
+            "id": "sale-SL-ORD-0002-0",
+            "name": "s2",
+            "ref": "",
+            "inline": false,
+            "kind": "sale",
+            "parentId": "SL-ORD-0002"
+          },
+          {
+            "id": "invoice-INV-ORD-0-0",
+            "name": "i0",
+            "ref": "",
+            "inline": false,
+            "kind": "invoice",
+            "parentId": "INV-ORD-0"
+          },
+          {
+            "id": "invoice-INV-ORD-1-0",
+            "name": "i1",
+            "ref": "",
+            "inline": false,
+            "kind": "invoice",
+            "parentId": "INV-ORD-1"
+          },
+          {
+            "id": "invoice-INV-ORD-2-0",
+            "name": "i2",
+            "ref": "",
+            "inline": false,
+            "kind": "invoice",
+            "parentId": "INV-ORD-2"
+          }
+        ]
+      },
+      "validation": {
+        "ok": true,
+        "errors": [],
+        "brokenAttachmentRefs": []
+      }
+    }
+  ]
+}
