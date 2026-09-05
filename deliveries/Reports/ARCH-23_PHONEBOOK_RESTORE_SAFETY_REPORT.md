@@ -281,21 +281,22 @@ Assembler still contains `phonebook: _safeArr(phonebook)` and does **not** call 
 
 ## 15. HTML/Core test counts
 
-Recorded after the suite run on this packet (see follow-up commit if counts are filled post-run):
+Recorded on this VM after ARCH-23 tests landed:
 
 | Suite | Command | Result |
 |---|---|---|
-| HTML | `node test_laegh.js Sirman_Final.html` | *filled after run* |
-| Core | `/home/ubuntu/.dotnet/dotnet test desktop/Sirman.Core.Tests` | *filled after run* |
+| HTML | `node test_laegh.js Sirman_Final.html` | **1059 / 1059** (0 failed). ARCH-22 was 1050; this packet added 9 HTML tests. |
+| Core | `/home/ubuntu/.dotnet/dotnet test desktop/Sirman.Core.Tests` | **822 / 822** (0 failed). ARCH-22 was 788; this packet added 34 Core tests. |
 
-New forensic coverage:
+New forensic coverage (all passed):
 
-- Current Merge behavior (10 incoming shapes + `pb` fallback + null-first-phone).
-- Candidate algorithm / outcome taxonomy.
-- Exact-duplicate idempotency (8 cases).
-- Empty-phone production vs candidate.
-- Replace safety (valid array + missing/null/wrong type).
-- daqi index shift `[A,B,C]` → `[A,C]`.
+- Current Merge behavior: HTML `ARCH-23 Phase1` (10 incoming shapes) + `pb` fallback; Core `Phase1_1`…`Phase1_10`, null-first-phone, same-phone-no-update.
+- Candidate algorithm / outcome taxonomy: Core `ClassifyCandidate` facts + HTML `arch23MergeCandidate`.
+- Exact-duplicate idempotency: Core `Candidate_ExactDuplicateIdempotency_EightCases` + HTML candidate group.
+- Empty-phone: production growth vs candidate withhold (`ProductionVsCandidate_EmptyPhoneGrowth`, HTML decision test).
+- Replace safety: HTML execution of `applyBackupReplaceSections` + Core replica (valid array / missing / null / wrong type / `[]`).
+- daqi index: HTML + Core `[A,B,C]` index 1 → `B`; `[A,C]` index 1 → `C`.
+- SHA firewall: HTML G1 + Core `ProductionLocks_ShaUnchanged`.
 
 ---
 
