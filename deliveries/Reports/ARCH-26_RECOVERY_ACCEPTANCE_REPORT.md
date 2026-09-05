@@ -265,12 +265,14 @@ Not FULL RECOVERY. Current contract does not fail-closed the JSON apply when the
 
 ## 19. Full regression totals
 
-Filled after the official suite run in this packet.
+Recorded on this VM after ARCH-26 tests landed:
 
 | Suite | Result |
 |---|---|
-| `node test_laegh.js Sirman_Final.html` | PENDING official record |
-| `/home/ubuntu/.dotnet/dotnet test desktop/Sirman.Core.Tests` | PENDING official record |
+| `node test_laegh.js Sirman_Final.html` | **1094 / 1094** (ARCH-25 was 1074; this packet added 20 HTML RAH tests) |
+| `/home/ubuntu/.dotnet/dotnet test desktop/Sirman.Core.Tests` | **844 / 844** (ARCH-25 was 838; this packet added 6 Core lock tests) |
+
+All new tests are RAH / regression locks. Production Backup/Restore behavior is unchanged.
 
 ---
 
