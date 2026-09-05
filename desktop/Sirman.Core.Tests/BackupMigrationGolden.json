@@ -1178,8 +1178,6 @@
           "invoices": [],
           "parts": [],
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -1197,7 +1195,7 @@
           "saleUidCtr": 0,
           "magic": "SIRMAN_BACKUP"
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -1264,8 +1262,6 @@
           "invoices": [],
           "sales": [],
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -1283,7 +1279,7 @@
           "saleUidCtr": 0,
           "magic": "SIRMAN_BACKUP"
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -1350,8 +1346,6 @@
           "invoices": [],
           "sales": [],
           "parts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -1369,7 +1363,7 @@
           "saleUidCtr": 0,
           "magic": "SIRMAN_BACKUP"
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -1439,8 +1433,6 @@
           "sales": null,
           "parts": [],
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -1458,7 +1450,7 @@
           "saleUidCtr": 0,
           "magic": "SIRMAN_BACKUP"
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":null,\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"sales\":null,\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -1555,8 +1547,6 @@
         "data": {
           "warranties": [],
           "invoices": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "parts": [],
@@ -1578,7 +1568,7 @@
           "schemaVersion": 1,
           "magic": "SIRMAN_BACKUP"
         },
-        "dataCanonical": "{\"warranties\":[],\"invoices\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"parts\":[],\"sales\":[],\"tasks\":[],\"accounts\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"warranties\":[],\"invoices\":[],\"services\":[],\"svcs\":[],\"parts\":[],\"sales\":[],\"tasks\":[],\"accounts\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\"}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -1720,8 +1710,6 @@
           "sales": [],
           "parts": [],
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -1738,7 +1726,7 @@
           "invoiceUidCtr": 0,
           "saleUidCtr": 0
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -1804,8 +1792,6 @@
           "parts": [],
           "accounts": [],
           "tasks": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "defectiveStock": [],
@@ -1821,7 +1807,7 @@
           "invoiceUidCtr": 0,
           "saleUidCtr": 0
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[],\"services\":[],\"svcs\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -1923,8 +1909,6 @@
           "sales": [],
           "parts": [],
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -1942,7 +1926,7 @@
           "saleUidCtr": 0,
           "magic": "SIRMAN_BACKUP"
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"schemaVersion\":1,\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -2010,8 +1994,6 @@
           "sales": [],
           "parts": [],
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -2029,7 +2011,7 @@
           "saleUidCtr": 0,
           "magic": "SIRMAN_BACKUP"
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -2099,8 +2081,6 @@
           "sales": [],
           "parts": [],
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -2118,7 +2098,7 @@
           "saleUidCtr": 0,
           "magic": "SIRMAN_BACKUP"
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":null,\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":null,\"sales\":[],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -2319,8 +2299,6 @@
               "name": "نصب"
             }
           ],
-          "phonebook": [],
-          "pb": [],
           "services": [
             {
               "code": "S1",
@@ -2346,7 +2324,7 @@
           "invoiceUidCtr": 0,
           "saleUidCtr": 0
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"svcs\":[{\"code\":\"S1\",\"name\":\"نصب\"}],\"phonebook\":[],\"pb\":[],\"services\":[{\"code\":\"S1\",\"name\":\"نصب\",\"cat\":\"\",\"price\":0,\"warr\":\"no\",\"desc\":\"\",\"id\":\"\"}],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"svcs\":[{\"code\":\"S1\",\"name\":\"نصب\"}],\"services\":[{\"code\":\"S1\",\"name\":\"نصب\",\"cat\":\"\",\"price\":0,\"warr\":\"no\",\"desc\":\"\",\"id\":\"\"}],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -2439,12 +2417,10 @@
           "bgAuditLog": [],
           "saleCtr": 1,
           "invoiceUidCtr": 0,
-          "saleUidCtr": 0,
-          "phonebook": [],
-          "pb": []
+          "saleUidCtr": 0
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[],\"services\":[],\"svcs\":[],\"products\":[],\"inventory\":{},\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"phonebook\":[],\"pb\":[]}",
-        "htmlMutatesWorkingCopy": true,
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[],\"services\":[],\"svcs\":[],\"products\":[],\"inventory\":{},\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "htmlMutatesWorkingCopy": false,
         "callerCloneUnchanged": true
       },
       "validatorAfter": {
@@ -2620,8 +2596,6 @@
               "doneAt": null
             }
           ],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "defectiveStock": [],
@@ -2638,7 +2612,7 @@
           "invoiceUidCtr": 1,
           "saleUidCtr": 1
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[{\"id\":\"mig_war_0_1700000000000\",\"name\":\"w\",\"phone\":\"\",\"date\":\"\",\"addr\":\"\",\"socialContacts\":[],\"devices\":[],\"initialService\":\"\",\"model\":\"\",\"color\":\"\",\"buydate\":\"\",\"serial\":\"\",\"warrStatus\":\"no\",\"warrExp\":\"\",\"condition\":\"سالم\",\"problem\":\"\",\"expert\":\"\",\"refTo\":\"pending\",\"refName\":\"\",\"refDate\":\"\",\"refNote\":\"\",\"docs\":[],\"companyReport\":null,\"accRef\":\"\",\"status\":\"open\",\"savedAt\":\"\",\"createdAt\":\"\"}],\"invoices\":[{\"num\":7,\"id\":\"mig_inv_0_1700000000000\",\"invoiceId\":\"INVUID-000001\"}],\"sales\":[{\"id\":\"mig_sale_0_1700000000000\",\"items\":[],\"total\":1,\"date\":\"\",\"note\":\"\",\"name\":\"\",\"phone\":\"\",\"msg\":\"\",\"addr\":\"\",\"zip\":\"\",\"ship\":\"post\",\"shipLabel\":\"سایر\",\"accRef\":\"\",\"accountSel\":\"\",\"docs\":[],\"status\":\"final\",\"savedAt\":\"\",\"saleUid\":\"SALEUID-000001\"}],\"parts\":[{\"code\":\"P1\",\"name\":\"\",\"cat\":\"\",\"prodCode\":\"\",\"qty\":0,\"min\":0,\"price\":0,\"location\":\"\",\"id\":\"mig_part_0_1700000000000\"}],\"accounts\":[],\"tasks\":[{\"id\":\"mig_task_0_1700000000000\",\"kind\":\"do\",\"title\":\"کار\",\"desc\":\"\",\"priority\":\"normal\",\"deadlineTS\":null,\"hasTime\":false,\"link\":null,\"status\":\"open\",\"notify\":false,\"notifiedAt\":null,\"createdAt\":\"\",\"doneAt\":null}],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":8,\"saleCtr\":1,\"invoiceUidCtr\":1,\"saleUidCtr\":1}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[{\"id\":\"mig_war_0_1700000000000\",\"name\":\"w\",\"phone\":\"\",\"date\":\"\",\"addr\":\"\",\"socialContacts\":[],\"devices\":[],\"initialService\":\"\",\"model\":\"\",\"color\":\"\",\"buydate\":\"\",\"serial\":\"\",\"warrStatus\":\"no\",\"warrExp\":\"\",\"condition\":\"سالم\",\"problem\":\"\",\"expert\":\"\",\"refTo\":\"pending\",\"refName\":\"\",\"refDate\":\"\",\"refNote\":\"\",\"docs\":[],\"companyReport\":null,\"accRef\":\"\",\"status\":\"open\",\"savedAt\":\"\",\"createdAt\":\"\"}],\"invoices\":[{\"num\":7,\"id\":\"mig_inv_0_1700000000000\",\"invoiceId\":\"INVUID-000001\"}],\"sales\":[{\"id\":\"mig_sale_0_1700000000000\",\"items\":[],\"total\":1,\"date\":\"\",\"note\":\"\",\"name\":\"\",\"phone\":\"\",\"msg\":\"\",\"addr\":\"\",\"zip\":\"\",\"ship\":\"post\",\"shipLabel\":\"سایر\",\"accRef\":\"\",\"accountSel\":\"\",\"docs\":[],\"status\":\"final\",\"savedAt\":\"\",\"saleUid\":\"SALEUID-000001\"}],\"parts\":[{\"code\":\"P1\",\"name\":\"\",\"cat\":\"\",\"prodCode\":\"\",\"qty\":0,\"min\":0,\"price\":0,\"location\":\"\",\"id\":\"mig_part_0_1700000000000\"}],\"accounts\":[],\"tasks\":[{\"id\":\"mig_task_0_1700000000000\",\"kind\":\"do\",\"title\":\"کار\",\"desc\":\"\",\"priority\":\"normal\",\"deadlineTS\":null,\"hasTime\":false,\"link\":null,\"status\":\"open\",\"notify\":false,\"notifiedAt\":null,\"createdAt\":\"\",\"doneAt\":null}],\"services\":[],\"svcs\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":8,\"saleCtr\":1,\"invoiceUidCtr\":1,\"saleUidCtr\":1}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -2731,8 +2705,6 @@
           "parts": [],
           "accounts": [],
           "saleCtr": 4,
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -2748,7 +2720,7 @@
           "invoiceUidCtr": 0,
           "saleUidCtr": 1
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[{\"id\":\"SL-3\",\"items\":[],\"total\":10,\"date\":\"\",\"note\":\"\",\"name\":\"\",\"phone\":\"\",\"msg\":\"\",\"addr\":\"\",\"zip\":\"\",\"ship\":\"post\",\"shipLabel\":\"سایر\",\"accRef\":\"\",\"accountSel\":\"\",\"docs\":[],\"status\":\"final\",\"savedAt\":\"\",\"saleUid\":\"SALEUID-000001\"}],\"parts\":[],\"accounts\":[],\"saleCtr\":4,\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invoiceUidCtr\":0,\"saleUidCtr\":1}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[{\"id\":\"SL-3\",\"items\":[],\"total\":10,\"date\":\"\",\"note\":\"\",\"name\":\"\",\"phone\":\"\",\"msg\":\"\",\"addr\":\"\",\"zip\":\"\",\"ship\":\"post\",\"shipLabel\":\"سایر\",\"accRef\":\"\",\"accountSel\":\"\",\"docs\":[],\"status\":\"final\",\"savedAt\":\"\",\"saleUid\":\"SALEUID-000001\"}],\"parts\":[],\"accounts\":[],\"saleCtr\":4,\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invoiceUidCtr\":0,\"saleUidCtr\":1}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -3081,8 +3053,6 @@
           ],
           "parts": [],
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -3100,7 +3070,7 @@
           "invoiceUidCtr": 1,
           "saleUidCtr": 1
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[{\"id\":\"W2\",\"name\":\"\",\"phone\":\"\",\"date\":\"\",\"addr\":\"\",\"socialContacts\":[],\"devices\":[{\"model\":\"X\"}],\"initialService\":\"\",\"model\":\"\",\"color\":\"\",\"buydate\":\"\",\"serial\":\"\",\"warrStatus\":\"no\",\"warrExp\":\"\",\"condition\":\"سالم\",\"problem\":\"\",\"expert\":\"\",\"refTo\":\"pending\",\"refName\":\"\",\"refDate\":\"\",\"refNote\":\"\",\"docs\":[{\"name\":\"a\",\"data\":\"disk://x\"}],\"companyReport\":null,\"accRef\":\"\",\"status\":\"open\",\"savedAt\":\"\",\"createdAt\":\"\"}],\"invoices\":[{\"id\":\"I1\",\"num\":1,\"items\":[{\"name\":\"قلم\",\"qty\":2}],\"invoiceId\":\"INVUID-000001\"}],\"sales\":[{\"id\":\"SL-2\",\"items\":[],\"total\":0,\"date\":\"\",\"note\":\"\",\"name\":\"\",\"phone\":\"\",\"msg\":\"\",\"addr\":\"\",\"zip\":\"\",\"ship\":\"post\",\"shipLabel\":\"سایر\",\"accRef\":\"\",\"accountSel\":\"\",\"docs\":[{\"name\":\"b\",\"src\":\"inline\"}],\"status\":\"final\",\"savedAt\":\"\",\"saleUid\":\"SALEUID-000001\"}],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":2,\"saleCtr\":3,\"invoiceUidCtr\":1,\"saleUidCtr\":1}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[{\"id\":\"W2\",\"name\":\"\",\"phone\":\"\",\"date\":\"\",\"addr\":\"\",\"socialContacts\":[],\"devices\":[{\"model\":\"X\"}],\"initialService\":\"\",\"model\":\"\",\"color\":\"\",\"buydate\":\"\",\"serial\":\"\",\"warrStatus\":\"no\",\"warrExp\":\"\",\"condition\":\"سالم\",\"problem\":\"\",\"expert\":\"\",\"refTo\":\"pending\",\"refName\":\"\",\"refDate\":\"\",\"refNote\":\"\",\"docs\":[{\"name\":\"a\",\"data\":\"disk://x\"}],\"companyReport\":null,\"accRef\":\"\",\"status\":\"open\",\"savedAt\":\"\",\"createdAt\":\"\"}],\"invoices\":[{\"id\":\"I1\",\"num\":1,\"items\":[{\"name\":\"قلم\",\"qty\":2}],\"invoiceId\":\"INVUID-000001\"}],\"sales\":[{\"id\":\"SL-2\",\"items\":[],\"total\":0,\"date\":\"\",\"note\":\"\",\"name\":\"\",\"phone\":\"\",\"msg\":\"\",\"addr\":\"\",\"zip\":\"\",\"ship\":\"post\",\"shipLabel\":\"سایر\",\"accRef\":\"\",\"accountSel\":\"\",\"docs\":[{\"name\":\"b\",\"src\":\"inline\"}],\"status\":\"final\",\"savedAt\":\"\",\"saleUid\":\"SALEUID-000001\"}],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":2,\"saleCtr\":3,\"invoiceUidCtr\":1,\"saleUidCtr\":1}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -3171,8 +3141,6 @@
             "code": "x"
           },
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -3189,7 +3157,7 @@
           "invoiceUidCtr": 0,
           "saleUidCtr": 0
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":{\"code\":\"x\"},\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":{\"code\":\"x\"},\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -3253,8 +3221,6 @@
           "parts": {
             "code": "x"
           },
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "sales": [],
@@ -3275,7 +3241,7 @@
           "schemaVersion": 1,
           "magic": "SIRMAN_BACKUP"
         },
-        "dataCanonical": "{\"warranties\":[],\"invoices\":[],\"parts\":{\"code\":\"x\"},\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"sales\":[],\"tasks\":[],\"accounts\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\"}",
+        "dataCanonical": "{\"warranties\":[],\"invoices\":[],\"parts\":{\"code\":\"x\"},\"services\":[],\"svcs\":[],\"sales\":[],\"tasks\":[],\"accounts\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\"}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -3363,8 +3329,6 @@
           "sales": [],
           "parts": [],
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -3382,7 +3346,7 @@
           "invoiceUidCtr": 2,
           "saleUidCtr": 0
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[{\"num\":12,\"id\":\"mig_inv_0_1700000000000\",\"invoiceId\":\"INVUID-000001\"},{\"num\":4,\"id\":\"mig_inv_1_1700000000000\",\"invoiceId\":\"INVUID-000002\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":13,\"saleCtr\":1,\"invoiceUidCtr\":2,\"saleUidCtr\":0}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[{\"num\":12,\"id\":\"mig_inv_0_1700000000000\",\"invoiceId\":\"INVUID-000001\"},{\"num\":4,\"id\":\"mig_inv_1_1700000000000\",\"invoiceId\":\"INVUID-000002\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":13,\"saleCtr\":1,\"invoiceUidCtr\":2,\"saleUidCtr\":0}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -3485,8 +3449,6 @@
           ],
           "parts": [],
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -3504,7 +3466,7 @@
           "invoiceUidCtr": 1,
           "saleUidCtr": 1
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[{\"id\":\"keep\",\"num\":1,\"invoiceId\":\"INVUID-000001\"}],\"sales\":[{\"id\":\"SL-1\",\"items\":[],\"total\":0,\"date\":\"\",\"note\":\"\",\"name\":\"\",\"phone\":\"\",\"msg\":\"\",\"addr\":\"\",\"zip\":\"\",\"ship\":\"post\",\"shipLabel\":\"سایر\",\"accRef\":\"\",\"accountSel\":\"\",\"docs\":[],\"status\":\"final\",\"savedAt\":\"\",\"saleUid\":\"SALEUID-000001\"}],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":2,\"saleCtr\":2,\"invoiceUidCtr\":1,\"saleUidCtr\":1}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[{\"id\":\"keep\",\"num\":1,\"invoiceId\":\"INVUID-000001\"}],\"sales\":[{\"id\":\"SL-1\",\"items\":[],\"total\":0,\"date\":\"\",\"note\":\"\",\"name\":\"\",\"phone\":\"\",\"msg\":\"\",\"addr\":\"\",\"zip\":\"\",\"ship\":\"post\",\"shipLabel\":\"سایر\",\"accRef\":\"\",\"accountSel\":\"\",\"docs\":[],\"status\":\"final\",\"savedAt\":\"\",\"saleUid\":\"SALEUID-000001\"}],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":2,\"saleCtr\":2,\"invoiceUidCtr\":1,\"saleUidCtr\":1}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -3567,8 +3529,6 @@
           "sales": [],
           "parts": [],
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -3585,7 +3545,7 @@
           "invoiceUidCtr": 0,
           "saleUidCtr": 0
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -3683,8 +3643,6 @@
           "sales": [],
           "parts": [],
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -3701,7 +3659,7 @@
           "invoiceUidCtr": 0,
           "saleUidCtr": 0
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[{\"id\":\"W3\",\"name\":\"n\",\"phone\":\"\",\"date\":\"\",\"addr\":\"\",\"socialContacts\":[],\"devices\":[],\"initialService\":\"\",\"model\":\"\",\"color\":\"\",\"buydate\":\"\",\"serial\":\"\",\"warrStatus\":\"no\",\"warrExp\":\"\",\"condition\":\"سالم\",\"problem\":\"\",\"expert\":\"\",\"refTo\":\"pending\",\"refName\":\"\",\"refDate\":\"\",\"refNote\":\"\",\"docs\":[],\"companyReport\":null,\"accRef\":\"\",\"status\":\"open\",\"savedAt\":\"\",\"createdAt\":\"\"}],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[{\"id\":\"W3\",\"name\":\"n\",\"phone\":\"\",\"date\":\"\",\"addr\":\"\",\"socialContacts\":[],\"devices\":[],\"initialService\":\"\",\"model\":\"\",\"color\":\"\",\"buydate\":\"\",\"serial\":\"\",\"warrStatus\":\"no\",\"warrExp\":\"\",\"condition\":\"سالم\",\"problem\":\"\",\"expert\":\"\",\"refTo\":\"pending\",\"refName\":\"\",\"refDate\":\"\",\"refNote\":\"\",\"docs\":[],\"companyReport\":null,\"accRef\":\"\",\"status\":\"open\",\"savedAt\":\"\",\"createdAt\":\"\"}],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -3770,8 +3728,6 @@
           "services": {
             "code": "x"
           },
-          "phonebook": [],
-          "pb": [],
           "svcs": {
             "code": "x"
           },
@@ -3789,7 +3745,7 @@
           "invoiceUidCtr": 0,
           "saleUidCtr": 0
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"services\":{\"code\":\"x\"},\"phonebook\":[],\"pb\":[],\"svcs\":{\"code\":\"x\"},\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"services\":{\"code\":\"x\"},\"svcs\":{\"code\":\"x\"},\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -3852,8 +3808,6 @@
           "sales": [],
           "parts": [],
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -3870,7 +3824,7 @@
           "invoiceUidCtr": 0,
           "saleUidCtr": 0
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
         "htmlMutatesWorkingCopy": true,
         "callerCloneUnchanged": true
       },
@@ -4000,13 +3954,11 @@
           "saleCtr": 1,
           "invoiceUidCtr": 0,
           "saleUidCtr": 0,
-          "phonebook": [],
-          "pb": [],
           "svcs": [],
           "userAuditLog": [],
           "bgAuditLog": []
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[],\"services\":[],\"products\":[],\"inventory\":{},\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"phonebook\":[],\"pb\":[],\"svcs\":[],\"userAuditLog\":[],\"bgAuditLog\":[]}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[],\"services\":[],\"products\":[],\"inventory\":{},\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"svcs\":[],\"userAuditLog\":[],\"bgAuditLog\":[]}",
         "idempotentData": true,
         "idempotentLog": true,
         "second": {
@@ -4027,7 +3979,7 @@
             "📮 تاریخچه پستی: 0 مورد",
             "✅ آماده برای بارگذاری"
           ],
-          "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[],\"services\":[],\"products\":[],\"inventory\":{},\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"phonebook\":[],\"pb\":[],\"svcs\":[],\"userAuditLog\":[],\"bgAuditLog\":[]}"
+          "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[],\"services\":[],\"products\":[],\"inventory\":{},\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"svcs\":[],\"userAuditLog\":[],\"bgAuditLog\":[]}"
         }
       },
       "validatorAfter": {
@@ -4126,8 +4078,6 @@
               "doneAt": null
             }
           ],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "defectiveStock": [],
@@ -4144,7 +4094,7 @@
           "invoiceUidCtr": 1,
           "saleUidCtr": 0
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[{\"num\":1,\"id\":\"mig_inv_0_1700000000000\",\"invoiceId\":\"INVUID-000001\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[{\"id\":\"mig_task_0_1700000000000\",\"kind\":\"do\",\"title\":\"t\",\"desc\":\"\",\"priority\":\"normal\",\"deadlineTS\":null,\"hasTime\":false,\"link\":null,\"status\":\"open\",\"notify\":false,\"notifiedAt\":null,\"createdAt\":\"\",\"doneAt\":null}],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":2,\"saleCtr\":1,\"invoiceUidCtr\":1,\"saleUidCtr\":0}",
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[{\"num\":1,\"id\":\"mig_inv_0_1700000000000\",\"invoiceId\":\"INVUID-000001\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[{\"id\":\"mig_task_0_1700000000000\",\"kind\":\"do\",\"title\":\"t\",\"desc\":\"\",\"priority\":\"normal\",\"deadlineTS\":null,\"hasTime\":false,\"link\":null,\"status\":\"open\",\"notify\":false,\"notifiedAt\":null,\"createdAt\":\"\",\"doneAt\":null}],\"services\":[],\"svcs\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":2,\"saleCtr\":1,\"invoiceUidCtr\":1,\"saleUidCtr\":0}",
         "idempotentData": true,
         "idempotentLog": false,
         "second": {
@@ -4165,7 +4115,7 @@
             "📮 تاریخچه پستی: 0 مورد",
             "✅ آماده برای بارگذاری"
           ],
-          "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[{\"num\":1,\"id\":\"mig_inv_0_1700000000000\",\"invoiceId\":\"INVUID-000001\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[{\"id\":\"mig_task_0_1700000000000\",\"kind\":\"do\",\"title\":\"t\",\"desc\":\"\",\"priority\":\"normal\",\"deadlineTS\":null,\"hasTime\":false,\"link\":null,\"status\":\"open\",\"notify\":false,\"notifiedAt\":null,\"createdAt\":\"\",\"doneAt\":null}],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":2,\"saleCtr\":1,\"invoiceUidCtr\":1,\"saleUidCtr\":0}"
+          "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[{\"num\":1,\"id\":\"mig_inv_0_1700000000000\",\"invoiceId\":\"INVUID-000001\"}],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[{\"id\":\"mig_task_0_1700000000000\",\"kind\":\"do\",\"title\":\"t\",\"desc\":\"\",\"priority\":\"normal\",\"deadlineTS\":null,\"hasTime\":false,\"link\":null,\"status\":\"open\",\"notify\":false,\"notifiedAt\":null,\"createdAt\":\"\",\"doneAt\":null}],\"services\":[],\"svcs\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":2,\"saleCtr\":1,\"invoiceUidCtr\":1,\"saleUidCtr\":0}"
         }
       },
       "validatorAfter": {
@@ -4248,8 +4198,6 @@
             "immutable": false,
             "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
           },
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -4266,7 +4214,7 @@
           "invoiceUidCtr": 0,
           "saleUidCtr": 0
         },
-        "dataCanonical": "{\"version\":\"2.0\",\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"2.0\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}"
+        "dataCanonical": "{\"version\":\"2.0\",\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"2.0\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}"
       },
       "validatorAfter": {
         "ok": true,
@@ -4331,8 +4279,6 @@
           "invoices": [],
           "parts": [],
           "accounts": [],
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -4350,7 +4296,7 @@
           "saleUidCtr": 0,
           "magic": "SIRMAN_BACKUP"
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"parts\":[],\"accounts\":[],\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}"
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[],\"invoices\":[],\"parts\":[],\"accounts\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"magic\":\"SIRMAN_BACKUP\"}"
       },
       "validatorAfter": {
         "ok": false,
@@ -4443,13 +4389,11 @@
           "saleCtr": 1,
           "invoiceUidCtr": 0,
           "saleUidCtr": 0,
-          "phonebook": [],
-          "pb": [],
           "svcs": [],
           "userAuditLog": [],
           "bgAuditLog": []
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[],\"services\":[],\"products\":[],\"inventory\":{},\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"phonebook\":[],\"pb\":[],\"svcs\":[],\"userAuditLog\":[],\"bgAuditLog\":[]}"
+        "dataCanonical": "{\"schemaVersion\":1,\"magic\":\"SIRMAN_BACKUP\",\"warranties\":[],\"invoices\":[],\"sales\":[],\"parts\":[],\"accounts\":[],\"tasks\":[],\"services\":[],\"products\":[],\"inventory\":{},\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0,\"svcs\":[],\"userAuditLog\":[],\"bgAuditLog\":[]}"
       },
       "validatorAfter": {
         "ok": true,
@@ -4822,8 +4766,6 @@
             "immutable": false,
             "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
           },
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -4841,7 +4783,7 @@
           "invoiceUidCtr": 1,
           "saleUidCtr": 1
         },
-        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W9\",\"name\":\"نمونه\",\"phone\":\"\",\"date\":\"\",\"addr\":\"\",\"socialContacts\":[],\"devices\":[],\"initialService\":\"\",\"model\":\"\",\"color\":\"\",\"buydate\":\"\",\"serial\":\"\",\"warrStatus\":\"no\",\"warrExp\":\"\",\"condition\":\"سالم\",\"problem\":\"\",\"expert\":\"\",\"refTo\":\"pending\",\"refName\":\"\",\"refDate\":\"\",\"refNote\":\"\",\"docs\":{\"other\":[{\"name\":\"فایل\",\"data\":\"x\"}]},\"companyReport\":null,\"accRef\":\"\",\"status\":\"open\",\"savedAt\":\"\",\"createdAt\":\"\"}],\"invoices\":[{\"num\":2,\"items\":[{\"name\":\"قطعهٔ فارسی\"}],\"id\":\"mig_inv_0_1700000000000\",\"invoiceId\":\"INVUID-000001\"}],\"sales\":[{\"id\":\"SL-9\",\"items\":[],\"total\":0,\"date\":\"\",\"note\":\"فروش\",\"name\":\"\",\"phone\":\"\",\"msg\":\"\",\"addr\":\"\",\"zip\":\"\",\"ship\":\"post\",\"shipLabel\":\"سایر\",\"accRef\":\"\",\"accountSel\":\"\",\"docs\":[],\"status\":\"final\",\"savedAt\":\"\",\"saleUid\":\"SALEUID-000001\"}],\"magic\":\"SIRMAN_BACKUP\",\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[{\"id\":\"warranty-W9-0\",\"name\":\"فایل\",\"ref\":\"\",\"inline\":true,\"kind\":\"warranty\",\"parentId\":\"W9\"}],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":3,\"saleCtr\":10,\"invoiceUidCtr\":1,\"saleUidCtr\":1}"
+        "dataCanonical": "{\"schemaVersion\":1,\"warranties\":[{\"id\":\"W9\",\"name\":\"نمونه\",\"phone\":\"\",\"date\":\"\",\"addr\":\"\",\"socialContacts\":[],\"devices\":[],\"initialService\":\"\",\"model\":\"\",\"color\":\"\",\"buydate\":\"\",\"serial\":\"\",\"warrStatus\":\"no\",\"warrExp\":\"\",\"condition\":\"سالم\",\"problem\":\"\",\"expert\":\"\",\"refTo\":\"pending\",\"refName\":\"\",\"refDate\":\"\",\"refNote\":\"\",\"docs\":{\"other\":[{\"name\":\"فایل\",\"data\":\"x\"}]},\"companyReport\":null,\"accRef\":\"\",\"status\":\"open\",\"savedAt\":\"\",\"createdAt\":\"\"}],\"invoices\":[{\"num\":2,\"items\":[{\"name\":\"قطعهٔ فارسی\"}],\"id\":\"mig_inv_0_1700000000000\",\"invoiceId\":\"INVUID-000001\"}],\"sales\":[{\"id\":\"SL-9\",\"items\":[],\"total\":0,\"date\":\"\",\"note\":\"فروش\",\"name\":\"\",\"phone\":\"\",\"msg\":\"\",\"addr\":\"\",\"zip\":\"\",\"ship\":\"post\",\"shipLabel\":\"سایر\",\"accRef\":\"\",\"accountSel\":\"\",\"docs\":[],\"status\":\"final\",\"savedAt\":\"\",\"saleUid\":\"SALEUID-000001\"}],\"magic\":\"SIRMAN_BACKUP\",\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[{\"id\":\"warranty-W9-0\",\"name\":\"فایل\",\"ref\":\"\",\"inline\":true,\"kind\":\"warranty\",\"parentId\":\"W9\"}],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"invCtr\":3,\"saleCtr\":10,\"invoiceUidCtr\":1,\"saleUidCtr\":1}"
       },
       "validatorAfter": {
         "ok": true,
@@ -5062,8 +5004,6 @@
             "immutable": false,
             "documentedFormat": "JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است."
           },
-          "phonebook": [],
-          "pb": [],
           "services": [],
           "svcs": [],
           "tasks": [],
@@ -5080,7 +5020,7 @@
           "invoiceUidCtr": 0,
           "saleUidCtr": 0
         },
-        "dataCanonical": "{\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
+        "dataCanonical": "{\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}",
         "idempotentData": true,
         "idempotentLog": false,
         "second": {
@@ -5101,7 +5041,7 @@
             "📮 تاریخچه پستی: 0 مورد",
             "✅ آماده برای بارگذاری"
           ],
-          "dataCanonical": "{\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"phonebook\":[],\"pb\":[],\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}"
+          "dataCanonical": "{\"warranties\":[],\"invoices\":[],\"magic\":\"SIRMAN_BACKUP\",\"schemaVersion\":1,\"sales\":[],\"parts\":[],\"accounts\":[],\"attachmentsIndex\":[],\"manifest\":{\"magic\":\"SIRMAN_BACKUP\",\"format\":1,\"schemaVersion\":1,\"applicationVersion\":\"\",\"exportedAt\":\"\",\"origin\":\"unknown\",\"kind\":\"full\",\"itemCounts\":{},\"sections\":[],\"encrypted\":false,\"immutable\":false,\"documentedFormat\":\"JSON مستقل از نسخه برنامه: داده + تنظیمات + پیوست‌ها + Manifest + Checksum. Schema Version عدد صحیح جدا از applicationVersion است.\"},\"services\":[],\"svcs\":[],\"tasks\":[],\"defectiveStock\":[],\"daqi\":[],\"daqiWarehouse\":[],\"daqiVouchers\":[],\"postalHistory\":[],\"userAuditLog\":[],\"bgAuditLog\":[],\"inventory\":{},\"products\":[],\"saleCtr\":1,\"invoiceUidCtr\":0,\"saleUidCtr\":0}"
         }
       },
       "validatorAfter": {

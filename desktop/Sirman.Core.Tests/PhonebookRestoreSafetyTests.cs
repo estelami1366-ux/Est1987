@@ -47,17 +47,17 @@ public class PhonebookRestoreSafetyTests
         Assert.Equal(PhonebookRestoreSafety.AssemblerSha, ShaUtf8(ExtractFunction(html, "_buildFullBackupData")));
         Assert.Equal(PhonebookRestoreSafety.CollectPhonebookSnapshotSha, ShaUtf8(ExtractFunction(html, "collectPhonebookSnapshot")));
         Assert.Equal(PhonebookRestoreSafety.SavePbContactSha, ShaUtf8(ExtractFunction(html, "savePBContact")));
-        Assert.Equal(PhonebookRestoreSafety.MergeSha, ShaUtf8(ExtractFunction(html, "applyBackupMergeSections")));
-        Assert.Equal(PhonebookRestoreSafety.ReplaceSha, ShaUtf8(ExtractFunction(html, "applyBackupReplaceSections")));
+        Assert.Equal(PhonebookRestoreSafety.MergeSha, PhonebookRestoreContract.MergeShaPreArch25);
+        Assert.Equal(PhonebookRestoreSafety.ReplaceSha, PhonebookRestoreContract.ReplaceShaPreArch25);
+        Assert.Equal(PhonebookRestoreContract.MergeSha, ShaUtf8(ExtractFunction(html, "applyBackupMergeSections")));
+        Assert.Equal(PhonebookRestoreContract.ReplaceSha, ShaUtf8(ExtractFunction(html, "applyBackupReplaceSections")));
         var build = ExtractFunction(html, "_buildFullBackupData");
         Assert.DoesNotContain("collectPhonebookSnapshot()", build);
         Assert.Contains("phonebook: _safeArr(phonebook)", build);
         Assert.Contains("1405.6.3α", build);
         Assert.DoesNotContain("id:'PB-", ExtractFunction(html, "savePBContact"));
-        Assert.Contains(
-            "var exists = phonebook.find(function(p){ return entryPhone && (p.phones||[]).indexOf(entryPhone) !== -1; });",
-            ExtractFunction(html, "applyBackupMergeSections"));
-        Assert.Contains("else phonebook = [];", ExtractFunction(html, "applyBackupReplaceSections"));
+        Assert.Contains("_phonebookCanonicalFingerprint(entry)", ExtractFunction(html, "applyBackupMergeSections"));
+        Assert.Contains("دفترچه زنده حفظ شد", ExtractFunction(html, "applyBackupReplaceSections"));
     }
 
     [Fact]

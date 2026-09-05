@@ -14576,14 +14576,16 @@ function migrateBackup(d) {
         };
       });
       log.push('👥 مخاطبین: '+d.phonebook.length+' نفر (تبدیل از فرمت قدیمی pb)');
+    } else if (Array.isArray(d.phonebook)) {
+      // ARCH-25: explicit phonebook: [] stays []. No log (same as ARCH-24).
     } else {
-      d.phonebook = [];
+      // ARCH-25: missing/null/wrong-type must remain distinguishable from [].
     }
   } else {
     log.push('👥 مخاطبین: '+d.phonebook.length+' نفر');
   }
-  // pb را حذف می‌کنیم (دیگر استفاده نمی‌شود) — ولی برای سازگاری در فایل نگه می‌داریم = phonebook
-  d.pb = d.phonebook;
+  // pb را فقط وقتی phonebook آرایه است هم‌نام می‌کنیم. کلید غایب را به [] تبدیل نمی‌کنیم (ARCH-25).
+  if(Array.isArray(d.phonebook)) d.pb = d.phonebook;
 
   // === خدمات — services یا svcs ===
   if (!d.services && d.svcs) d.services = d.svcs;
@@ -14975,6 +14977,18 @@ function _restoreWants(selected, key){
   return selected.indexOf(key) !== -1;
 }
 
+function _phonebookCanonicalFingerprint(node){
+  if(node === null || node === undefined) return 'null';
+  if(typeof node === 'object'){
+    if(Array.isArray(node)){
+      return '['+node.map(_phonebookCanonicalFingerprint).join(',')+']';
+    }
+    var keys = Object.keys(node).sort();
+    return '{'+keys.map(function(k){ return JSON.stringify(k)+':'+_phonebookCanonicalFingerprint(node[k]); }).join(',')+'}';
+  }
+  return JSON.stringify(node);
+}
+
 function applyBackupSelective(d, selectedKeys, mode, migLog){
   migLog = migLog || [];
   selectedKeys = selectedKeys || [];
@@ -15023,7 +15037,12 @@ function applyBackupReplaceSections(d, selectedKeys){
         var parts2 = (c.name||'').split(' ');
         return { fn:parts2[0]||'', ln:parts2.slice(1).join(' ')||'', shop:c.shop||'', addr:c.address||c.addr||'', zip:c.zip||'', phones:c.phone?[c.phone]:[], ita:c.ita||'', tg:c.tg||'', wa:c.wa||'', ig:c.ig||'', note:c.note||'', cat:c.cat||'other' };
       });
-    } else phonebook = [];
+    } else if (Array.isArray(d.phonebook) && d.phonebook.length === 0) {
+      phonebook = [];
+    } else {
+      try{ if(typeof ntf==='function') ntf('دفترچه در بک‌آپ آرایه معتبر نداشت — مخاطبین فعلی حفظ شد','warn'); }catch(_pbKeep){}
+      try{ if(typeof addDbgEntry==='function') addDbgEntry('warn','بازگردانی','phonebook','دفترچه زنده حفظ شد (کلید غایب/نامعتبر)','جایگزینی دفترچه فقط با آرایه معتبر یا [] صریح'); }catch(_pbKeep2){}
+    }
   }
   if(_restoreWants(selectedKeys,'parts')) parts = Array.isArray(d.parts) ? d.parts : [];
   if(_restoreWants(selectedKeys,'services')){
@@ -15156,8 +15175,14 @@ function applyBackupMergeSections(d, selectedKeys){
         entry = { fn:parts3[0]||'', ln:parts3.slice(1).join(' ')||'', shop:x.shop||'', addr:x.address||x.addr||'', zip:x.zip||'', phones:x.phone?[x.phone]:[], ita:x.ita||'', tg:x.tg||'', wa:x.wa||'', ig:x.ig||'', note:x.note||'', cat:x.cat||'other' };
       }
       var entryPhone = (entry.phones&&entry.phones[0]) || '';
-      var exists = phonebook.find(function(p){ return entryPhone && (p.phones||[]).indexOf(entryPhone) !== -1; });
-      if (!exists) { phonebook.push(entry); added.pb++; } else skip.pb++;
+      var fp = _phonebookCanonicalFingerprint(entry);
+      var exact = phonebook.find(function(p){ return _phonebookCanonicalFingerprint(p) === fp; });
+      if (exact) { skip.pb++; return; }
+      if (entryPhone) {
+        var exists = phonebook.find(function(p){ return (p.phones||[]).indexOf(entryPhone) !== -1; });
+        if (exists) { skip.pb++; return; }
+      }
+      phonebook.push(entry); added.pb++;
     });
   }
   if(_restoreWants(selectedKeys,'parts') && Array.isArray(d.parts)) d.parts.forEach(function(x){ if(!parts.find(function(p){return p.id===x.id;})){ parts.push(x); added.parts++; } });
