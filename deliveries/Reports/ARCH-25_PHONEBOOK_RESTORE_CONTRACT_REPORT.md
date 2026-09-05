@@ -5,7 +5,7 @@ PRODUCT VERSION: `1405.6.3α` (unchanged)
 BASE: `cursor/arch-24-backup-recovery-closure-audit-fa01`  
 TARGET: `cursor/arch-25-phonebook-restore-contract-fa01`
 
-Status: **COMPLETED — PHONEBOOK RESTORE CONTRACT** (counts filled after suite)
+Status: **COMPLETED — PHONEBOOK RESTORE CONTRACT**
 
 This packet is production code/test verification only. No shop data was used. ARCH-26 is not started.
 
@@ -77,7 +77,7 @@ After:
 3. Else explicit `Array.isArray(d.phonebook) && length === 0` → CLEAR.
 4. Else KEEP LIVE + warn.
 
-Companion (Phonebook-only) in `migrateBackup`: missing/null/wrong-type no longer synthesizes `d.phonebook = []`. Explicit `[]` stays `[]`. Required so `importData` → migrate → Replace can still tell missing from intentional empty. Other Restore sections are unchanged.
+Companion (Phonebook-only) in `migrateBackup` and lockstep `BackupFieldMigrator.MigratePhonebook`: missing/null/wrong-type no longer synthesizes `d.phonebook = []`. Explicit `[]` stays `[]`. No extra migrate log line (ARCH-24 log parity). `d.pb` is assigned only when `phonebook` is an array. Required so `importData` → migrate → Replace can still tell missing from intentional empty. Other Restore sections are unchanged. ARCH-3/ARCH-4 HTML goldens were regenerated from current HTML so Core stays in lockstep.
 
 ## 5. Exact fingerprint model
 
@@ -196,23 +196,27 @@ Computed from actual `extractFunctionSource` UTF-8 SHA-256. Not predicted.
 
 ## 15. Regression results
 
-Recorded after the suite run in section 16.
-
-Locks that must remain unchanged all held before the suite: assembler, savePBContact, collectPhonebookSnapshot, collectAttachmentIndex, ARCH-17, ARCH-18.
+- HTML `node test_laegh.js Sirman_Final.html` — 1074/1074
+- C# `dotnet test desktop/Sirman.Core.Tests` — 838/838
 
 ARCH-23 Core `PhonebookRestoreSafety.MergeProduction` remains a **historical pre-ARCH-25 replica** and is not retargeted to Policy B.
 
 ## 16. HTML/Core totals
 
-- HTML `node test_laegh.js Sirman_Final.html`: **PENDING_SUITE**
-- Core `/home/ubuntu/.dotnet/dotnet test desktop/Sirman.Core.Tests`: **PENDING_SUITE**
-- Merge matrix: M1–M17 in HTML `ARCH-25 Merge matrix M1-M17` + Core `MergeMatrix_M1_To_M17`
-- Replace matrix: R1–R13 in HTML `ARCH-25 Replace matrix R1-R13` + Core `ReplaceMatrix_R1_To_R13`
-- Idempotency, 530 replay, 40-phone replay, daqi: dedicated tests in both suites
+- HTML `node test_laegh.js Sirman_Final.html`: **1074 / 1074 PASS** (ARCH-24 was 1063; +11 ARCH-25 tests)
+- Core `/home/ubuntu/.dotnet/dotnet test desktop/Sirman.Core.Tests`: **838 / 838 PASS** (ARCH-24 was 829; +9 ARCH-25 contract tests)
+- Merge matrix: M1–M17 PASS (HTML `ARCH-25 Merge matrix M1-M17` + Core `MergeMatrix_M1_To_M17`)
+- Replace matrix: R1–R13 PASS (HTML `ARCH-25 Replace matrix R1-R13` + Core `ReplaceMatrix_R1_To_R13`)
+- Idempotency: PASS
+- 530-row replay: `530 → 530 → 530 → 530 → 530` PASS
+- 40-phone replay: `40 → 40` PASS
+- daqi: PASS (`agencyPhonebookIdx` unchanged on Phonebook-only Merge/Replace)
 
 ## 17. Files changed
 
 - `Sirman_Final.html` / `Laegh_Final.html` (byte-identical): Phonebook Merge/Replace branches, `_phonebookCanonicalFingerprint`, Phonebook-only `migrateBackup` missing-key companion
+- `desktop/Sirman.Core/Backup/BackupFieldMigrator.cs`: Phonebook-only lockstep with HTML migrate (do not invent `[]`)
+- `desktop/Sirman.Core.Tests/BackupMigrationGolden.json` / `BackupDryRunGolden.json`: regenerated from current HTML
 - `test_laegh.js`: ARCH-25 group; live SHA/replay locks retargeted to the contract
 - `desktop/Sirman.Core.Tests/PhonebookRestoreContract.cs`
 - `desktop/Sirman.Core.Tests/PhonebookRestoreContractTests.cs`
@@ -245,14 +249,14 @@ ARCH-26 may start only after this packet’s production tests PASS and the gates
 
 Gates:
 
-1. ARCH-25 production tests PASS — pending suite record in this file after run
+1. ARCH-25 production tests PASS — HTML 1074/1074, Core 838/838
 2. Merge/Replace SHA changes documented — yes (section 14)
 3. Assembler SHA unchanged — yes
-4. Critical tests PASS — pending suite
-5. 530-row replay stays 530 — covered by tests
+4. Critical tests PASS — yes
+5. 530-row replay stays 530 — yes
 6. Different empty-phone contacts preserved — M6
 7. Missing Phonebook no longer clears selected Replace — R3 KEEP LIVE
 8. Explicit `[]` still clears — R2
 9. No production data repair — yes
 
-**Do not start ARCH-26 until section 16 totals are recorded as PASS.**
+**ARCH-26 may start after this packet is accepted. This packet stops here. Do not start ARCH-26 in this change.**
