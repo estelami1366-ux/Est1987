@@ -12107,6 +12107,59 @@ test('ARCH-23: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت 
 
 
 console.log('');
+console.log('📋 گروه: ARCH-24 حسابرسی بستن Backup/Recovery (بدون تغییر پروداکشن)');
+
+const ARCH24_ASSEMBLER_SHA256 = ARCH22_ASSEMBLER_SHA256;
+const ARCH24_SAVEPB_SHA256 = ARCH22_SAVEPB_SHA256;
+const ARCH24_MERGE_SHA256 = ARCH19_MERGE_SHA256;
+const ARCH24_REPLACE_SHA256 = ARCH19_REPLACE_SHA256;
+const ARCH24_ATTACHMENT_INDEX_SHA256 = ARCH19_COLLECT_ATTACHMENT_INDEX_SHA256;
+
+test('ARCH-24 G1: قفل SHA اسمبل/save/Merge/Replace/آداپترها/ایندکس پیوست', () => {
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  assertEqual(arch9cSha256(build), ARCH24_ASSEMBLER_SHA256, 'assembler');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'savePBContact')), ARCH24_SAVEPB_SHA256, 'savePBContact');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'applyBackupMergeSections')), ARCH24_MERGE_SHA256, 'Merge');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'applyBackupReplaceSections')), ARCH24_REPLACE_SHA256, 'Replace');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'collectAttachmentIndex')), ARCH24_ATTACHMENT_INDEX_SHA256, 'index');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'collectRequiredBusinessSnapshot')), ARCH17_REQUIRED_ADAPTER_SHA256, 'ARCH-17');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'collectOptionalBusinessSnapshot')), ARCH18_OPTIONAL_ADAPTER_SHA256, 'ARCH-18');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'collectPhonebookSnapshot')), ARCH22_PHONEBOOK_ADAPTER_SHA256, 'phonebook adapter unused');
+  assertTrue(build.indexOf('collectPhonebookSnapshot') < 0, 'اسمبل آداپتر دفترچه را صدا نمی‌زند');
+  assertContainsString(build, 'phonebook: _safeArr(phonebook)', 'RAM phonebook');
+  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+});
+
+test('ARCH-24: Restore هنوز HTML است؛ checksum قبل از migrate؛ rollback ایمنی', () => {
+  const imp = extractFunctionSource(html, 'importData');
+  assertContainsString(imp, 'verifyChecksum', 'checksum gate');
+  assertContainsString(imp, 'validateRequiredBackupCollections', 'required collections');
+  const sel = extractFunctionSource(html, 'applyBackupSelective');
+  assertContainsString(sel, 'saveSafetySnapshot', 'safety snapshot');
+  assertContainsString(sel, 'applyBackupReplaceSections(safety, null)', 'rollback');
+  assertContainsString(sel, 'applyBackupMergeSections', 'HTML merge apply');
+  assertTrue(sel.indexOf('BackupRestorePlanBuilder') < 0, 'Core plan not applied');
+  assertTrue(imp.indexOf('JsonBackupRepository') < 0, 'stub repo unused');
+});
+
+test('ARCH-24: بک‌آپ خودکفا جزئی است — ایندکس پیوست blob را کپی نمی‌کند', () => {
+  const idx = extractFunctionSource(html, 'collectAttachmentIndex');
+  assertContainsString(idx, "ref: isDisk ? data : ''", 'disk ref only');
+  assertContainsString(idx, 'inline: !isDisk && !!data', 'inline flag');
+  assertTrue(idx.indexOf('phonebook') < 0, 'دفترچه در ایندکس نیست');
+  assertContainsString(html, "window.DISK_REF_PREFIX = 'disk://'", 'external media prefix');
+  assertContainsString(extractFunctionSource(html, 'applyBackupReplaceSections'), 'else phonebook = [];', 'missing replace clears');
+});
+
+test('ARCH-24: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت یکی هستند', () => {
+  const sirman = fs.readFileSync(path.join(path.dirname(filePath), 'Sirman_Final.html'));
+  const laegh = fs.readFileSync(path.join(path.dirname(filePath), 'Laegh_Final.html'));
+  assertEqual(sirman.length, laegh.length, 'طول فایل');
+  assertEqual(Buffer.compare(sirman, laegh), 0, 'byte-identical');
+});
+
+
+console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
 
 
