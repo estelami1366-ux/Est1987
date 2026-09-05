@@ -11857,6 +11857,256 @@ test('ARCH-22: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت 
 
 
 console.log('');
+console.log('📋 گروه: ARCH-23 ایمنی Restore دفترچه (فقط تست؛ بدون تعمیر زنده)');
+
+const ARCH23_ASSEMBLER_SHA256 = ARCH22_ASSEMBLER_SHA256;
+const ARCH23_COLLECT_PHONEBOOK_SHA256 = ARCH22_PHONEBOOK_ADAPTER_SHA256;
+const ARCH23_SAVEPB_SHA256 = ARCH22_SAVEPB_SHA256;
+const ARCH23_MERGE_SHA256 = ARCH19_MERGE_SHA256;
+const ARCH23_REPLACE_SHA256 = ARCH19_REPLACE_SHA256;
+
+function arch23RunMergeBackup(state, backupObj) {
+  const ls = arch9cMakeLs({});
+  const ctx = {
+    phonebook: JSON.parse(JSON.stringify(state)),
+    localStorage: ls,
+    assertRequiredBackupCollections: function(){ return { ok:true }; },
+    sv: function(){ ls.setItem('lb', JSON.stringify(ctx.phonebook)); },
+    svParts: function(){}, svSvcs: function(){}, svSales: function(){}, svWarr: function(){},
+    svTasks: function(){}, svDefective: function(){}, svAccounts: function(){},
+    getNum: function(){}, renderSaved: function(){}, renderProds: function(){}, renderInv: function(){},
+    renderPB: function(){}, renderParts: function(){}, renderSvcs: function(){}, renderSales: function(){},
+    renderWarList: function(){}, renderDataStats: function(){}, renderTasks: function(){},
+    renderSidebarBadges: function(){}, renderAccounts: function(){}, renderDefective: function(){}
+  };
+  const src = extractFunctionSource(html, '_restoreWants') + '\n' + extractFunctionSource(html, 'applyBackupMergeSections') +
+    '\napplyBackupMergeSections(backup, ["phonebook"]);\nreturn phonebook;';
+  const next = new Function('ctx', 'backup', 'with(ctx){ ' + src + ' }')(ctx, JSON.parse(JSON.stringify(backupObj)));
+  return { phonebook: next, ls: ls };
+}
+
+function arch23RunReplaceBackup(state, backupObj) {
+  const ls = arch9cMakeLs({});
+  const ctx = {
+    phonebook: JSON.parse(JSON.stringify(state)),
+    localStorage: ls,
+    assertRequiredBackupCollections: function(){ return { ok:true }; },
+    sv: function(){ ls.setItem('lb', JSON.stringify(ctx.phonebook)); },
+    svParts: function(){}, svSvcs: function(){}, svSales: function(){}, svWarr: function(){},
+    svTasks: function(){}, svDefective: function(){}, svAccounts: function(){},
+    getNum: function(){}, renderSaved: function(){}, renderProds: function(){}, renderInv: function(){},
+    renderPB: function(){}, renderParts: function(){}, renderSvcs: function(){}, renderSales: function(){},
+    renderWarList: function(){}, renderDataStats: function(){}, renderTasks: function(){},
+    renderSidebarBadges: function(){}, renderAccounts: function(){}, renderDefective: function(){}
+  };
+  const src = extractFunctionSource(html, '_restoreWants') + '\n' + extractFunctionSource(html, 'applyBackupReplaceSections') +
+    '\napplyBackupReplaceSections(backup, ["phonebook"]);\nreturn phonebook;';
+  const next = new Function('ctx', 'backup', 'with(ctx){ ' + src + ' }')(ctx, JSON.parse(JSON.stringify(backupObj)));
+  return { phonebook: next, ls: ls };
+}
+
+function arch23CanonicalFingerprint(node) {
+  if (node === null || node === undefined) return 'null';
+  if (Array.isArray(node)) {
+    return '[' + node.map(arch23CanonicalFingerprint).join(',') + ']';
+  }
+  if (typeof node === 'object') {
+    const keys = Object.keys(node).sort();
+    return '{' + keys.map(function(k){
+      return JSON.stringify(k) + ':' + arch23CanonicalFingerprint(node[k]);
+    }).join(',') + '}';
+  }
+  return JSON.stringify(node);
+}
+
+function arch23EntryPhone(entry) {
+  return (entry && entry.phones && entry.phones[0]) || '';
+}
+
+function arch23LegacyConvert(x) {
+  if (!x || typeof x !== 'object') return x;
+  if (x.fn !== undefined || x.phones !== undefined) return JSON.parse(JSON.stringify(x));
+  var parts = String(x.name || '').split(' ');
+  return {
+    fn: parts[0] || '',
+    ln: parts.slice(1).join(' ') || '',
+    shop: x.shop || '',
+    addr: x.address || x.addr || '',
+    zip: x.zip || '',
+    phones: x.phone ? [x.phone] : [],
+    ita: x.ita || '',
+    tg: x.tg || '',
+    wa: x.wa || '',
+    ig: x.ig || '',
+    note: x.note || '',
+    cat: x.cat || 'other'
+  };
+}
+
+function arch23ClassifyCandidate(live, incoming) {
+  if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming)) return 'INVALID_INPUT';
+  var entry = arch23LegacyConvert(incoming);
+  var fp = arch23CanonicalFingerprint(entry);
+  for (var i = 0; i < live.length; i++) {
+    if (arch23CanonicalFingerprint(live[i]) === fp) return 'SKIP_EXACT_DUPLICATE';
+  }
+  var phone = arch23EntryPhone(entry);
+  if (phone) {
+    var matches = 0;
+    for (var j = 0; j < live.length; j++) {
+      var phones = live[j].phones || [];
+      if (phones.indexOf(phone) !== -1) matches++;
+    }
+    if (matches === 1) return 'SKIP_PHONE_MATCH';
+    if (matches > 1) return 'CONFLICT_IDENTITY_AMBIGUOUS';
+    return 'ADD';
+  }
+  return 'CONFLICT_EMPTY_PHONE';
+}
+
+function arch23MergeCandidate(live, incomingList) {
+  var state = JSON.parse(JSON.stringify(live));
+  var rows = [];
+  incomingList.forEach(function(item){
+    var outcome = arch23ClassifyCandidate(state, item);
+    var cloned = (item && typeof item === 'object' && !Array.isArray(item)) ? arch23LegacyConvert(item) : null;
+    if (outcome === 'ADD' && cloned) state.push(JSON.parse(JSON.stringify(cloned)));
+    rows.push({ outcome: outcome, incoming: cloned });
+  });
+  return { state: state, rows: rows };
+}
+
+test('ARCH-23 G1: قفل SHA اسمبل/آداپتر/save/Merge/Replace و نسخه محصول', () => {
+  assertEqual(arch9cSha256(extractFunctionSource(html, '_buildFullBackupData')), ARCH23_ASSEMBLER_SHA256, 'assembler');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'collectPhonebookSnapshot')), ARCH23_COLLECT_PHONEBOOK_SHA256, 'adapter');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'savePBContact')), ARCH23_SAVEPB_SHA256, 'savePBContact');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'applyBackupMergeSections')), ARCH23_MERGE_SHA256, 'Merge');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'applyBackupReplaceSections')), ARCH23_REPLACE_SHA256, 'Replace');
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  assertTrue(build.indexOf('collectPhonebookSnapshot') < 0, 'اسمبل آداپتر را صدا نمی‌زند');
+  assertContainsString(build, 'phonebook: _safeArr(phonebook)', 'مسیر RAM');
+  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+});
+
+test('ARCH-23 Phase1: Merge ده حالت ورودی دفترچه از کد واقعی', () => {
+  const keep = [{ fn:'موجود', phones:['09121111111'] }];
+  assertEqual(arch23RunMergeBackup(keep, {}).phonebook.length, 1, '1 missing → بدون درج/پاک');
+  assertEqual(arch23RunMergeBackup(keep, { phonebook: [] }).phonebook.length, 1, '2 empty array');
+  const n1 = arch23RunMergeBackup([], { phonebook: [{ fn:'علی', phones:['09120000001'] }] }).phonebook;
+  assertEqual(n1.length, 1, '3 normal insert');
+  const e1 = arch23RunMergeBackup([{ fn:'بی‌تلفن', ln:'0', phones:[] }], { phonebook: [{ fn:'بی‌تلفن', ln:'1', phones:[] }] }).phonebook;
+  assertEqual(e1.length, 2, '4 empty phone insert');
+  const clone = { fn:'علی', phones:['09120000001'], note:'same' };
+  assertEqual(arch23RunMergeBackup([clone], { phonebook: [JSON.parse(JSON.stringify(clone))] }).phonebook.length, 1, '5 exact clone skip');
+  const sn = arch23RunMergeBackup([{ fn:'مریم', phones:['09126666661'] }], { phonebook: [{ fn:'مریم', phones:['09126666662'] }] }).phonebook;
+  assertEqual(sn.length, 2, '6 same name different phone');
+  const multiSkip = arch23RunMergeBackup([{ fn:'نماینده', phones:['111','222'] }], { phonebook: [{ fn:'دیگر', phones:['222','333'] }] }).phonebook;
+  assertEqual(multiSkip.length, 1, '7 overlap phones[0] skip');
+  const multiAdd = arch23RunMergeBackup([{ fn:'نماینده', phones:['111','222'] }], { phonebook: [{ fn:'دیگر', phones:['333','222'] }] }).phonebook;
+  assertEqual(multiAdd.length, 2, '7 new phones[0] insert');
+  const miss = arch23RunMergeBackup([], { phonebook: [{ fn:'بدون‌فیلد' }] }).phonebook;
+  assertEqual(miss.length, 1, '8 missing phones insert');
+  assertTrue(miss[0].phones === undefined, '8 field absent');
+  const nul = arch23RunMergeBackup([], { phonebook: [{ fn:'نال', phones:null }] }).phonebook;
+  assertEqual(nul.length, 1, '9 null phones insert');
+  const extra = arch23RunMergeBackup([], { phonebook: [{ fn:'extra', phones:['09129999999'], xyz:7, nested:{ k:'v' } }] }).phonebook;
+  assertEqual(extra[0].xyz, 7, '10 extra field');
+  assertEqual(extra[0].nested.k, 'v', '10 nested');
+});
+
+test('ARCH-23 Phase1: phonebook خالی به alias قدیمی pb می‌افتد', () => {
+  const got = arch23RunMergeBackup([], { phonebook: [], pb: [{ fn:'از-alias', phones:['09120000009'] }] }).phonebook;
+  assertEqual(got.length, 1, 'pb fallback');
+  assertEqual(got[0].fn, 'از-alias', 'fn');
+});
+
+test('ARCH-23 candidate: یدمپوتنسی clone دقیق و تعارض تلفن خالی', () => {
+  const normal = [{ fn:'علی', phones:['09120000001'] }];
+  var n1 = arch23MergeCandidate(normal, normal);
+  var n2 = arch23MergeCandidate(n1.state, normal);
+  assertEqual(n1.state.length, 1, 'normal first');
+  assertEqual(n2.state.length, 1, 'normal second');
+  assertEqual(n1.rows[0].outcome, 'SKIP_EXACT_DUPLICATE', 'normal skip');
+
+  const empty = [{ fn:'بی‌تلفن', ln:'0', phones:[] }];
+  var e1 = arch23MergeCandidate(empty, empty);
+  var e2 = arch23MergeCandidate(e1.state, empty);
+  assertEqual(e1.rows[0].outcome, 'SKIP_EXACT_DUPLICATE', 'empty clone skip');
+  assertEqual(e2.state.length, 1, 'empty second');
+
+  const otherEmpty = { fn:'بی‌تلفن', ln:'1', phones:[] };
+  assertEqual(arch23MergeCandidate(empty, [otherEmpty]).rows[0].outcome, 'CONFLICT_EMPTY_PHONE', 'different empty');
+  assertEqual(arch23MergeCandidate([], [otherEmpty]).state.length, 0, 'unique empty not auto-added');
+
+  const nullRow = [{ fn:'نال', phones:null }];
+  assertEqual(arch23MergeCandidate(nullRow, [{ fn:'نال', phones:null }]).rows[0].outcome, 'SKIP_EXACT_DUPLICATE', 'null clone');
+  const missing = [{ fn:'بدون‌فیلد' }];
+  assertEqual(arch23MergeCandidate(missing, [{ fn:'بدون‌فیلد' }]).rows[0].outcome, 'SKIP_EXACT_DUPLICATE', 'missing clone');
+
+  assertEqual(arch23MergeCandidate([{ fn:'مریم', phones:['09126666661'] }], [{ fn:'مریم', phones:['09126666662'] }]).rows[0].outcome, 'ADD', 'name not identity');
+  assertEqual(arch23MergeCandidate([{ fn:'قدیمی', phones:['09120000001'] }], [{ fn:'جدید', phones:['09120000001'] }]).rows[0].outcome, 'SKIP_PHONE_MATCH', 'same phone');
+  assertEqual(arch23MergeCandidate([{ fn:'علی', phones:['09120000001'], note:'a' }], [{ fn:'علی', phones:['09120000001'], note:'b' }]).rows[0].outcome, 'SKIP_PHONE_MATCH', 'metadata');
+  assertEqual(arch23MergeCandidate([{ fn:'نماینده', phones:['111','222'] }], [{ fn:'دیگر', phones:['222','333'] }]).rows[0].outcome, 'SKIP_PHONE_MATCH', 'overlap');
+  assertEqual(arch23ClassifyCandidate([{ fn:'A', phones:['0912'] }, { fn:'B', phones:['0912'] }], { fn:'C', phones:['0912'] }), 'CONFLICT_IDENTITY_AMBIGUOUS', 'ambiguous');
+  assertEqual(arch23ClassifyCandidate([], 'x'), 'INVALID_INPUT', 'invalid');
+});
+
+test('ARCH-23 candidate: ورودی را جهش نمی‌دهد و UPDATE ندارد', () => {
+  const incoming = { fn:'علی', phones:['09120000001'], note:'orig', xyz:1 };
+  const before = JSON.stringify(incoming);
+  const got = arch23MergeCandidate([{ fn:'قدیمی', phones:['09120000001'], note:'keep' }], [incoming]);
+  assertEqual(JSON.stringify(incoming), before, 'incoming frozen');
+  assertEqual(got.state[0].fn, 'قدیمی', 'no update');
+  assertEqual(got.rows[0].outcome, 'SKIP_PHONE_MATCH', 'skip');
+  got.rows.forEach(function(r){ assertTrue(r.outcome !== 'UPDATE', 'no UPDATE'); });
+});
+
+test('ARCH-23 Replace: آرایه معتبر ترتیب/تکرار/خالی را نگه می‌دارد؛ missing پاک می‌کند', () => {
+  const live = [{ fn:'A', phones:['1'] }, { fn:'B', phones:['2'] }];
+  const incoming = [
+    { fn:'X', phones:['a'] },
+    { fn:'خالی', phones:[] },
+    { fn:'تکرار', phones:['9'] },
+    { fn:'تکرار', phones:['9'] }
+  ];
+  const got = arch23RunReplaceBackup(live, { phonebook: incoming }).phonebook;
+  assertEqual(JSON.stringify(got), JSON.stringify(incoming), 'full replace payload');
+  assertEqual(arch23RunReplaceBackup(live, {}).phonebook.length, 0, 'missing → []');
+  assertEqual(arch23RunReplaceBackup(live, { phonebook: null }).phonebook.length, 0, 'null → []');
+  assertEqual(arch23RunReplaceBackup(live, { phonebook: {} }).phonebook.length, 0, 'wrong type → []');
+  assertEqual(arch23RunReplaceBackup(live, { phonebook: [] }).phonebook.length, 0, 'empty → []');
+});
+
+test('ARCH-23 daqi: اندیس ۱ بعد از حذف B به C می‌افتد', () => {
+  const initial = [{ fn:'A', phones:['1'] }, { fn:'B', phones:['2'] }, { fn:'C', phones:['3'] }];
+  assertEqual(initial[1].fn, 'B', 'idx1 B');
+  const after = [initial[0], initial[2]];
+  assertEqual(after[1].fn, 'C', 'idx1 now C');
+  assertContainsString(extractFunctionSource(html, '_daqiAgencyName'), 'phonebook[d.agencyPhonebookIdx]', 'reader');
+  assertContainsString(extractFunctionSource(html, 'delPBContact'), 'phonebook.splice(idx,1)', 'splice');
+  const merge = extractFunctionSource(html, 'applyBackupMergeSections');
+  const replace = extractFunctionSource(html, 'applyBackupReplaceSections');
+  assertTrue(merge.indexOf('agencyPhonebookIdx') < 0, 'merge daqi untouched');
+  assertTrue(replace.indexOf('agencyPhonebookIdx') < 0, 'replace daqi untouched');
+});
+
+test('ARCH-23 تصمیم: کاندید هنوز برای پروداکشن امن نیست', () => {
+  const empty = { fn:'بی‌تلفن', ln:'unique', phones:[] };
+  const prod = arch23RunMergeBackup([], { phonebook: [empty] }).phonebook.length;
+  const cand = arch23MergeCandidate([], [empty]).state.length;
+  assertEqual(prod, 1, 'production inserts unique empty');
+  assertEqual(cand, 0, 'candidate withholds unique empty');
+});
+
+test('ARCH-23: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت یکی هستند', () => {
+  const sirman = fs.readFileSync(path.join(path.dirname(filePath), 'Sirman_Final.html'));
+  const laegh = fs.readFileSync(path.join(path.dirname(filePath), 'Laegh_Final.html'));
+  assertEqual(sirman.length, laegh.length, 'طول فایل');
+  assertEqual(Buffer.compare(sirman, laegh), 0, 'byte-identical');
+});
+
+
+console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
 
 
