@@ -137,6 +137,10 @@ function backupSettingsSliceSrc() {
   return (extractFunctionSource(html, 'collectBackupSettingsSnapshot') || '') + '\n' + (extractFunctionSource(html, '_buildFullBackupData') || '');
 }
 
+function requiredBusinessAdapterSrc() {
+  return extractFunctionSource(html, 'collectRequiredBusinessSnapshot') || '';
+}
+
 function p1cValidatorSrc(srcHtml) {
   const htmlSrc = srcHtml || html;
   const reg = htmlSrc.match(/var REQUIRED_BACKUP_COLLECTIONS = \[[^\]]*\];/);
@@ -1247,7 +1251,8 @@ test('شبیه‌سازی واقعی: doAutoSave() بدون force و با isDirt
     updateAutoSaveUI: () => {}, addDbgEntry: () => {}
   };
   const settingsSnapSrc = extractFunctionSource(html, 'collectBackupSettingsSnapshot');
-  const allSrc = (safeArrSrc||'') + '\n' + (safeObjSrc||'') + '\n' + (safeStrSrc||'') + '\n' + (settingsSnapSrc||'') + '\n' + fullBuildSrc + '\n' + buildSrc + '\n' + fnSrc;
+  const reqSnapSrc = requiredBusinessAdapterSrc();
+  const allSrc = (safeArrSrc||'') + '\n' + (safeObjSrc||'') + '\n' + (safeStrSrc||'') + '\n' + (settingsSnapSrc||'') + '\n' + (reqSnapSrc||'') + '\n' + fullBuildSrc + '\n' + buildSrc + '\n' + fnSrc;
   const runner = new Function('ctx',
     'return (async function(){ with(ctx){ ' + allSrc + '\nreturn await doAutoSave(); } })();');
   await runner(sandbox);
@@ -1297,7 +1302,8 @@ test('شبیه‌سازی واقعی: doAutoSave(true) باید حتی با isDi
   const dlSrc = extractFunctionSource(html, 'downloadAutoSaveFallback');
   // helperها + _buildFullBackupData + buildBackupObject + doAutoSave را در context قرار بده
   const settingsSnapSrc = extractFunctionSource(html, 'collectBackupSettingsSnapshot');
-  const allSrc = (safeArrSrc||'') + '\n' + (safeObjSrc||'') + '\n' + (safeStrSrc||'') + '\n' + (safeFsSrc||'') + '\n' + (stampSrc||'') + '\n' + (ensureSrc||'') + '\n' + (writeFileSrc||'') + '\n' + (writeSrc||'') + '\n' + (writeTargetSrc||'') + '\n' + (dlSrc||'') + '\n' + (settingsSnapSrc||'') + '\n' + fullBuildSrc + '\n' + buildSrc + '\n' + fnSrc;
+  const reqSnapSrc = requiredBusinessAdapterSrc();
+  const allSrc = (safeArrSrc||'') + '\n' + (safeObjSrc||'') + '\n' + (safeStrSrc||'') + '\n' + (safeFsSrc||'') + '\n' + (stampSrc||'') + '\n' + (ensureSrc||'') + '\n' + (writeFileSrc||'') + '\n' + (writeSrc||'') + '\n' + (writeTargetSrc||'') + '\n' + (dlSrc||'') + '\n' + (settingsSnapSrc||'') + '\n' + (reqSnapSrc||'') + '\n' + fullBuildSrc + '\n' + buildSrc + '\n' + fnSrc;
   const runner = new Function('ctx',
     'return (async function(){ with(ctx){ ' + allSrc + '\nreturn await doAutoSave(true); } })();');
   await runner(sandbox);
@@ -2597,7 +2603,8 @@ test('واقعی: _buildFullBackupData باید ۸ بخش گم‌شده (tasks, 
     localStorage:{getItem:()=>null, setItem:()=>{}, length:0, key:()=>null}
   };
   const settingsSnapSrc = extractFunctionSource(html, 'collectBackupSettingsSnapshot');
-  const allSrc = (safeArrSrc||'') + '\n' + (safeObjSrc||'') + '\n' + (safeStrSrc||'') + '\n' + (settingsSnapSrc||'') + '\n' + fullBuildSrc;
+  const reqSnapSrc = requiredBusinessAdapterSrc();
+  const allSrc = (safeArrSrc||'') + '\n' + (safeObjSrc||'') + '\n' + (safeStrSrc||'') + '\n' + (settingsSnapSrc||'') + '\n' + (reqSnapSrc||'') + '\n' + fullBuildSrc;
   const runner = new Function('ctx', 'with(ctx){ ' + allSrc + '\nreturn _buildFullBackupData(); }');
   let result;
   try { result = runner(sandbox); } catch(e){ throw new Error('اجرای _buildFullBackupData با خطا: ' + e.message); }
@@ -9104,7 +9111,8 @@ const ARCH9C_FN_SHA256 = {
   applyBackupSelective: '06a395a4e7e89e8d5a032e6210955b071a23c42e064063a86b7f6d0f97444637'
 };
 const ARCH9D_BUILD_SHA256_PRE_ARCH15 = 'f65d8f393d91de7e984540060ceec6deb14976d9dce4bd7b82261d2e69c5df5f';
-const ARCH9D_BUILD_SHA256 = '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6';
+const ARCH9D_BUILD_SHA256_PRE_ARCH20 = '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6';
+const ARCH9D_BUILD_SHA256 = '7d0b1651e535aa28ef4d558279d8d2424978619fd80073ae0bbe27b009a4b143';
 
 function arch9cSha256(s) {
   return require('crypto').createHash('sha256').update(s, 'utf8').digest('hex');
@@ -9234,6 +9242,7 @@ function arch9cLiveAssembly() {
     extractFunctionSource(html, '_safeStr'),
     extractFunctionSource(html, 'collectAttachmentIndex'),
     extractFunctionSource(html, 'collectBackupSettingsSnapshot'),
+    extractFunctionSource(html, 'collectRequiredBusinessSnapshot'),
     extractFunctionSource(html, '_buildFullBackupData')
   ].join('\n');
   const runner = new Function('ctx', 'with(ctx){ ' + allSrc + '\nreturn _buildFullBackupData(); }');
@@ -9470,7 +9479,8 @@ test('ARCH-9C G2: _safeArr/_safeObj هنوز ارجاع زنده برمی‌گر
   assertContainsString(safeArr, 'return Array.isArray(a)?a:[]', '_safeArr باید آرایه زنده برگرداند');
   assertContainsString(safeObj, "return (o && typeof o==='object')?o:{}", '_safeObj باید شیء زنده برگرداند');
   assertTrue(safeArr.indexOf('JSON.parse') < 0 && safeArr.indexOf('slice') < 0 && safeArr.indexOf('concat') < 0, '_safeArr نباید clone کند');
-  assertContainsString(build, 'invoices: _safeArr(invoices)', 'اسمبل باید همچنان _safeArr(invoices) باشد');
+  assertContainsString(build, 'invoices: b.invoices', 'برش REQUIRED فاکتور باید از آداپتر بیاید');
+  assertContainsString(build, 'invoices: _safeArr(invoices).length', 'itemCounts همچنان RAM زنده را می‌شمارد');
 });
 
 test('ARCH-9C G3: exportData / buildBackupObject / applyBackupSelective بدون تغییر مسیر', () => {
@@ -9601,6 +9611,7 @@ test('ARCH-9D: buildBackupObject همان محتوا را با هویت جدا �
     extractFunctionSource(html, '_safeStr'),
     extractFunctionSource(html, 'collectAttachmentIndex'),
     extractFunctionSource(html, 'collectBackupSettingsSnapshot'),
+    extractFunctionSource(html, 'collectRequiredBusinessSnapshot'),
     extractFunctionSource(html, '_buildFullBackupData'),
     buildSrc
   ].join('\n');
@@ -9836,7 +9847,7 @@ function arch14AssemblerAndAdapter(lsMap) {
     senderInfo: {}, logoSrc: '', acH: {}, SIRMAN_BACKUP_MAGIC: 'SIRMAN_BACKUP', SIRMAN_SCHEMA_VERSION: 1
   };
   const ctx = Object.assign({ localStorage: arch9cMakeLs(lsMap) }, ram);
-  const src = arch14HelperSrc() + '\n' + extractFunctionSource(html, 'collectAttachmentIndex') + '\n' + extractFunctionSource(html, '_buildFullBackupData');
+  const src = arch14HelperSrc() + '\n' + requiredBusinessAdapterSrc() + '\n' + extractFunctionSource(html, 'collectAttachmentIndex') + '\n' + extractFunctionSource(html, '_buildFullBackupData');
   return new Function('ctx', 'with(ctx){ ' + src + '\nreturn { adapter: collectBackupSettingsSnapshot(), full: _buildFullBackupData() }; }')(ctx);
 }
 
@@ -9986,7 +9997,7 @@ function arch15RunAssembler(lsMap) {
     senderInfo: {}, logoSrc: '', acH: {}, SIRMAN_BACKUP_MAGIC: 'SIRMAN_BACKUP', SIRMAN_SCHEMA_VERSION: 1
   };
   const ctx = Object.assign({ localStorage: arch9cMakeLs(lsMap) }, ram);
-  const src = arch14HelperSrc() + '\n' + extractFunctionSource(html, 'collectAttachmentIndex') + '\n' + extractFunctionSource(html, '_buildFullBackupData');
+  const src = arch14HelperSrc() + '\n' + requiredBusinessAdapterSrc() + '\n' + extractFunctionSource(html, 'collectAttachmentIndex') + '\n' + extractFunctionSource(html, '_buildFullBackupData');
   return new Function('ctx', 'with(ctx){ ' + src + '\nreturn _buildFullBackupData(); }')(ctx);
 }
 
@@ -10089,7 +10100,7 @@ test('ARCH-15: اسمبل هنگام ساخت localStorage/IndexedDB نمی‌ن
     localStorage: ls,
     indexedDB: { open: function(){ idbOpen++; return {}; } }
   }, ram);
-  const src = arch14HelperSrc() + '\n' + extractFunctionSource(html, 'collectAttachmentIndex') + '\n' + extractFunctionSource(html, '_buildFullBackupData');
+  const src = arch14HelperSrc() + '\n' + requiredBusinessAdapterSrc() + '\n' + extractFunctionSource(html, 'collectAttachmentIndex') + '\n' + extractFunctionSource(html, '_buildFullBackupData');
   const full = new Function('ctx', 'with(ctx){ ' + src + '\nreturn _buildFullBackupData(); }')(ctx);
   assertEqual(ls.stats.setItem, 0, 'setItem باید ۰ باشد');
   assertEqual(ls.stats.removeItem, 0, 'removeItem باید ۰ باشد');
@@ -10136,10 +10147,11 @@ const ARCH16_REMAINING_ALWAYS_KEYS = [
 const ARCH16_REQUIRED = ['invoices','sales','warranties','parts','accounts'];
 const ARCH16_PHONEBOOK_EXCLUDED = ['phonebook'];
 
-test('ARCH-16 G1: قفل SHA اسمبل ARCH-15 و مسیر export دست‌نخورده‌اند', () => {
+test('ARCH-16 G1: قفل SHA اسمبل ARCH-20 و مسیر export دست‌نخورده‌اند', () => {
   const build = extractFunctionSource(html, '_buildFullBackupData');
-  assertEqual(arch9cSha256(build), ARCH9D_BUILD_SHA256, 'SHA اسمبل باید همان ARCH-15 بماند');
-  assertEqual(ARCH9D_BUILD_SHA256, '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6', 'قفل ARCH-15');
+  assertEqual(arch9cSha256(build), ARCH9D_BUILD_SHA256, 'SHA اسمبل باید قفل ARCH-20 باشد');
+  assertEqual(ARCH9D_BUILD_SHA256_PRE_ARCH20, '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6', 'قفل تاریخی ARCH-15');
+  assertTrue(arch9cSha256(build) !== ARCH9D_BUILD_SHA256_PRE_ARCH20, 'cutover ARCH-20 باید SHA اسمبل را عوض کند');
   assertEqual(arch9cSha256(extractFunctionSource(html, 'exportData')), ARCH9C_FN_SHA256.exportData, 'exportData SHA');
   assertEqual(arch9cSha256(extractFunctionSource(html, 'buildBackupObject')), ARCH9C_FN_SHA256.buildBackupObject, 'buildBackupObject SHA');
   const exp = extractFunctionSource(html, 'exportData');
@@ -10163,8 +10175,13 @@ test('ARCH-16: فهرست فیلدهای باقی‌مانده غیرتنظیم�
     assertContainsString(build, k + ': s.' + k, 'تنظیمات باید از آداپتر بیاید: '+k);
   });
   ARCH16_REQUIRED.forEach(function(k){
-    assertContainsString(build, k + ': _safeArr(' + k + ')', k+' باید RAM زنده را با _safeArr بخواند');
+    assertContainsString(build, k + ': b.' + k, k+' باید از آداپتر REQUIRED بیاید');
+    assertTrue(build.indexOf(k + ': _safeArr(' + k + '),') < 0, k+' نباید انتساب مستقل _safeArr در سطح بالا داشته باشد');
   });
+  assertContainsString(build, 'invCtr: b.counters.invCtr', 'invCtr از آداپتر');
+  assertContainsString(build, 'invoiceUidCtr: b.counters.invoiceUidCtr', 'invoiceUidCtr از آداپتر');
+  assertContainsString(build, 'saleCtr: b.counters.saleCtr', 'saleCtr از آداپتر');
+  assertContainsString(build, 'saleUidCtr: b.counters.saleUidCtr', 'saleUidCtr از آداپتر');
   ARCH16_PHONEBOOK_EXCLUDED.forEach(function(k){
     assertContainsString(build, k + ': _safeArr(' + k + ')', k+' خارج از برش تنظیمات است و هنوز RAM است');
     assertTrue(build.indexOf(k + ': s.' + k) < 0, k+' نباید از آداپتر تنظیمات بیاید');
@@ -10344,15 +10361,18 @@ function arch17AssemblerAndAdapter(ram) {
   return new Function('ctx', 'with(ctx){ ' + src + '\nreturn { adapter: collectRequiredBusinessSnapshot(), full: _buildFullBackupData() }; }')(ctx);
 }
 
-test('ARCH-17 G1: قفل SHA اسمبل و مسیر تولید آداپتر را صدا نمی‌زنند', () => {
+test('ARCH-17 G1: آداپتر REQUIRED فقط داخل اسمبل و دقیقاً یک‌بار', () => {
   const build = extractFunctionSource(html, '_buildFullBackupData');
   const exp = extractFunctionSource(html, 'exportData');
   const buildObj = extractFunctionSource(html, 'buildBackupObject');
-  assertEqual(arch9cSha256(build), ARCH9D_BUILD_SHA256, 'SHA اسمبل باید همان ARCH-15 بماند');
-  assertEqual(ARCH9D_BUILD_SHA256, '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6', 'قفل ARCH-15');
+  assertEqual(arch9cSha256(build), ARCH9D_BUILD_SHA256, 'SHA اسمبل قفل ARCH-20');
+  assertEqual(ARCH9D_BUILD_SHA256_PRE_ARCH20, '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6', 'قفل تاریخی ARCH-15');
+  assertTrue(arch9cSha256(build) !== ARCH9D_BUILD_SHA256_PRE_ARCH20, 'cutover باید SHA اسمبل را عوض کند');
   assertEqual(arch9cSha256(exp), ARCH9C_FN_SHA256.exportData, 'exportData SHA');
   assertEqual(arch9cSha256(buildObj), ARCH9C_FN_SHA256.buildBackupObject, 'buildBackupObject SHA');
-  assertTrue(build.indexOf('collectRequiredBusinessSnapshot') < 0, 'اسمبل نباید آداپتر REQUIRED را صدا بزند');
+  const calls = build.match(/collectRequiredBusinessSnapshot\s*\(\s*\)/g) || [];
+  assertEqual(calls.length, 1, 'collectRequiredBusinessSnapshot باید دقیقاً یک‌بار صدا شود');
+  assertContainsString(build, 'var b = collectRequiredBusinessSnapshot();', 'یک فراخوانی در ابتدای اسمبل');
   assertTrue(exp.indexOf('collectRequiredBusinessSnapshot') < 0, 'exportData نباید آداپتر REQUIRED را صدا بزند');
   assertTrue(buildObj.indexOf('collectRequiredBusinessSnapshot') < 0, 'buildBackupObject نباید آداپتر REQUIRED را صدا بزند');
   assertContainsString(exp, 'var data = _buildFullBackupData();', 'exportData همچنان اسمبل است');
@@ -10534,8 +10554,9 @@ test('ARCH-18 G1: قفل SHA اسمبل و ARCH-17 و مسیر تولید', () =
   const exp = extractFunctionSource(html, 'exportData');
   const buildObj = extractFunctionSource(html, 'buildBackupObject');
   const req = extractFunctionSource(html, 'collectRequiredBusinessSnapshot');
-  assertEqual(arch9cSha256(build), ARCH9D_BUILD_SHA256, 'SHA اسمبل باید همان ARCH-15/17 بماند');
-  assertEqual(ARCH9D_BUILD_SHA256, '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6', 'قفل ARCH-15');
+  assertEqual(arch9cSha256(build), ARCH9D_BUILD_SHA256, 'SHA اسمبل قفل ARCH-20');
+  assertEqual(ARCH9D_BUILD_SHA256_PRE_ARCH20, '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6', 'قفل تاریخی ARCH-15');
+  assertTrue(arch9cSha256(build) !== ARCH9D_BUILD_SHA256_PRE_ARCH20, 'cutover باید SHA اسمبل را عوض کند');
   assertEqual(arch9cSha256(req), ARCH17_REQUIRED_ADAPTER_SHA256, 'آداپتر ARCH-17 نباید عوض شود');
   assertEqual(arch9cSha256(exp), ARCH9C_FN_SHA256.exportData, 'exportData SHA');
   assertEqual(arch9cSha256(buildObj), ARCH9C_FN_SHA256.buildBackupObject, 'buildBackupObject SHA');
@@ -10725,7 +10746,7 @@ function arch19AssemblerIndex(ram) {
     laegh_tz: 'Asia/Tehran'
   });
   const ctx = Object.assign({ localStorage: ls, window: { DISK_REF_PREFIX: 'disk://' } }, arch17BaseRam(ram));
-  const src = arch14HelperSrc() + '\n' + arch19HelperSrc() + '\n' + extractFunctionSource(html, '_buildFullBackupData');
+  const src = arch14HelperSrc() + '\n' + requiredBusinessAdapterSrc() + '\n' + arch19HelperSrc() + '\n' + extractFunctionSource(html, '_buildFullBackupData');
   return new Function('ctx', 'with(ctx){ ' + src + '\nreturn { full: _buildFullBackupData(), index: collectAttachmentIndex({warranties: warranties, sales: sales, invoices: invoices}) }; }')(ctx);
 }
 
@@ -10738,8 +10759,9 @@ test('ARCH-19 G1: قفل SHA اسمبل و ARCH-17/18 و Restore و collectAttac
   const idx = extractFunctionSource(html, 'collectAttachmentIndex');
   const replace = extractFunctionSource(html, 'applyBackupReplaceSections');
   const merge = extractFunctionSource(html, 'applyBackupMergeSections');
-  assertEqual(arch9cSha256(build), ARCH9D_BUILD_SHA256, 'SHA اسمبل باید همان ARCH-15 بماند');
-  assertEqual(ARCH9D_BUILD_SHA256, '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6', 'قفل ARCH-15');
+  assertEqual(arch9cSha256(build), ARCH9D_BUILD_SHA256, 'SHA اسمبل قفل ARCH-20');
+  assertEqual(ARCH9D_BUILD_SHA256_PRE_ARCH20, '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6', 'قفل تاریخی ARCH-15');
+  assertTrue(arch9cSha256(build) !== ARCH9D_BUILD_SHA256_PRE_ARCH20, 'cutover باید SHA اسمبل را عوض کند');
   assertEqual(arch9cSha256(req), ARCH17_REQUIRED_ADAPTER_SHA256, 'آداپتر ARCH-17 نباید عوض شود');
   assertEqual(arch9cSha256(opt), ARCH18_OPTIONAL_ADAPTER_SHA256, 'آداپتر ARCH-18 نباید عوض شود');
   assertEqual(arch9cSha256(idx), ARCH19_COLLECT_ATTACHMENT_INDEX_SHA256, 'collectAttachmentIndex نباید عوض شود');
@@ -10872,6 +10894,379 @@ test('ARCH-19: فایروال Restore / Phonebook / Print / SQLite / نسخه', 
 });
 
 test('ARCH-19: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت یکی هستند', () => {
+  const sirman = fs.readFileSync(path.join(path.dirname(filePath), 'Sirman_Final.html'));
+  const laegh = fs.readFileSync(path.join(path.dirname(filePath), 'Laegh_Final.html'));
+  assertEqual(sirman.length, laegh.length, 'طول فایل');
+  assertEqual(Buffer.compare(sirman, laegh), 0, 'byte-identical');
+});
+
+
+console.log('');
+console.log('📋 گروه: ARCH-20 cutover برش REQUIRED کسب‌وکار داخل _buildFullBackupData');
+
+const ARCH20_REQUIRED_TOP_KEYS = ['invoices','sales','warranties','parts','accounts'];
+const ARCH20_COUNTER_TOP_KEYS = ['invCtr','invoiceUidCtr','saleCtr','saleUidCtr'];
+const ARCH20_OLD_ASSEMBLER_SHA256 = '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6';
+const ARCH20_NEW_ASSEMBLER_SHA256 = '7d0b1651e535aa28ef4d558279d8d2424978619fd80073ae0bbe27b009a4b143';
+
+function arch20AssemblerRuntimeSrc() {
+  return arch14HelperSrc() + '\n' + arch17HelperSrc() + '\n' + extractFunctionSource(html, 'collectAttachmentIndex') + '\n' + extractFunctionSource(html, '_buildFullBackupData');
+}
+
+function arch20RunAssembler(ram, extras) {
+  extras = extras || {};
+  const idbStats = extras.idbStats || { open: 0 };
+  const ls = extras.ls || arch9cMakeLs({
+    laegh_printSettings: '{}',
+    laegh_company: '{}',
+    laegh_tz: 'Asia/Tehran'
+  });
+  const ctx = Object.assign({
+    localStorage: ls,
+    indexedDB: { open: function(){ idbStats.open++; return {}; } },
+    sirmanHost: extras.host || { ping: function(){ extras.hostCalled = true; } },
+    window: { DISK_REF_PREFIX: 'disk://' }
+  }, arch17BaseRam(ram));
+  const full = new Function('ctx', 'with(ctx){ ' + arch20AssemblerRuntimeSrc() + '\nreturn _buildFullBackupData(); }')(ctx);
+  return { full: full, ctx: ctx, ls: ls, idbStats: idbStats, extras: extras };
+}
+
+function arch20RunOldRequired(ram) {
+  const ctx = arch17BaseRam(ram);
+  const src = extractFunctionSource(html, '_safeArr') + `
+    var data = {
+      invoices: _safeArr(invoices),
+      sales: _safeArr(sales),
+      warranties: _safeArr(warranties),
+      parts: _safeArr(parts),
+      accounts: _safeArr(accounts),
+      counters: {
+        invCtr: invCtr||1,
+        invoiceUidCtr: (typeof invoiceUidCtr!=='undefined' && invoiceUidCtr>0) ? invoiceUidCtr : 0,
+        saleCtr: (typeof saleCtr!=='undefined' && saleCtr>0) ? saleCtr : 1,
+        saleUidCtr: (typeof saleUidCtr!=='undefined' && saleUidCtr>0) ? saleUidCtr : 0
+      }
+    };
+    return JSON.parse(JSON.stringify(data));
+  `;
+  return new Function('ctx', 'with(ctx){ ' + src + ' }')(ctx);
+}
+
+function arch20PickRequiredTop(full) {
+  return {
+    invoices: full.invoices,
+    sales: full.sales,
+    warranties: full.warranties,
+    parts: full.parts,
+    accounts: full.accounts,
+    invCtr: full.invCtr,
+    invoiceUidCtr: full.invoiceUidCtr,
+    saleCtr: full.saleCtr,
+    saleUidCtr: full.saleUidCtr
+  };
+}
+
+function arch20OldRequiredToTop(slice) {
+  return {
+    invoices: slice.invoices,
+    sales: slice.sales,
+    warranties: slice.warranties,
+    parts: slice.parts,
+    accounts: slice.accounts,
+    invCtr: slice.counters.invCtr,
+    invoiceUidCtr: slice.counters.invoiceUidCtr,
+    saleCtr: slice.counters.saleCtr,
+    saleUidCtr: slice.counters.saleUidCtr
+  };
+}
+
+test('ARCH-20 G1: آداپتر REQUIRED فقط داخل اسمبل و دقیقاً یک‌بار؛ SHA عوض شده', () => {
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  const exp = extractFunctionSource(html, 'exportData');
+  const buildObj = extractFunctionSource(html, 'buildBackupObject');
+  const req = extractFunctionSource(html, 'collectRequiredBusinessSnapshot');
+  const opt = extractFunctionSource(html, 'collectOptionalBusinessSnapshot');
+  const idx = extractFunctionSource(html, 'collectAttachmentIndex');
+  const sha = arch9cSha256(build);
+  assertEqual(ARCH20_OLD_ASSEMBLER_SHA256, ARCH9D_BUILD_SHA256_PRE_ARCH20, 'قفل SHA قدیم');
+  assertEqual(sha, ARCH20_NEW_ASSEMBLER_SHA256, 'قفل SHA جدید محاسبه‌شده');
+  assertEqual(sha, ARCH9D_BUILD_SHA256, 'ثابت مشترک');
+  assertTrue(sha !== ARCH20_OLD_ASSEMBLER_SHA256, 'SHA اسمبل باید عمداً عوض شود');
+  const calls = build.match(/collectRequiredBusinessSnapshot\s*\(\s*\)/g) || [];
+  assertEqual(calls.length, 1, 'collectRequiredBusinessSnapshot باید دقیقاً یک‌بار صدا شود');
+  assertContainsString(build, 'var b = collectRequiredBusinessSnapshot();', 'یک فراخوانی');
+  assertContainsString(build, 'var s = collectBackupSettingsSnapshot();', 'ARCH-15 بماند');
+  assertTrue(build.indexOf('collectOptionalBusinessSnapshot') < 0, 'ARCH-18 هنوز cutover نشده');
+  assertContainsString(build, 'collectAttachmentIndex(data)', 'attachmentsIndex همان تولید قبلی');
+  assertContainsString(build, 'return JSON.parse(JSON.stringify(data));', 'clone نهایی');
+  assertEqual((build.match(/return JSON\.parse\(JSON\.stringify\(data\)\);/g) || []).length, 1, 'یک clone');
+  assertTrue(exp.indexOf('collectRequiredBusinessSnapshot') < 0, 'exportData نباید آداپتر را صدا بزند');
+  assertTrue(buildObj.indexOf('collectRequiredBusinessSnapshot') < 0, 'buildBackupObject نباید آداپتر را صدا بزند');
+  assertEqual(arch9cSha256(req), ARCH17_REQUIRED_ADAPTER_SHA256, 'بدنه آداپتر ARCH-17 نباید عوض شود');
+  assertEqual(arch9cSha256(opt), ARCH18_OPTIONAL_ADAPTER_SHA256, 'آداپتر ARCH-18 نباید عوض شود');
+  assertEqual(arch9cSha256(idx), ARCH19_COLLECT_ATTACHMENT_INDEX_SHA256, 'collectAttachmentIndex نباید عوض شود');
+  assertEqual(arch9cSha256(exp), ARCH9C_FN_SHA256.exportData, 'exportData SHA');
+  assertEqual(arch9cSha256(buildObj), ARCH9C_FN_SHA256.buildBackupObject, 'buildBackupObject SHA');
+  assertTrue(build.indexOf('localStorage.setItem') < 0, 'بدون نوشتن LS');
+  assertTrue(build.indexOf('indexedDB') < 0, 'بدون IDB');
+  assertTrue(/\bcounters\s*:/.test(build) === false, 'نباید کلید تو در توی counters در اسمبل باشد');
+});
+
+test('ARCH-20 G2: فقط شش فیلد REQUIRED از b؛ ترتیب کلید حفظ شده', () => {
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  assertContainsString(build, 'invoices: b.invoices', 'invoices');
+  assertContainsString(build, 'sales: b.sales', 'sales');
+  assertContainsString(build, 'warranties: b.warranties', 'warranties');
+  assertContainsString(build, 'parts: b.parts', 'parts');
+  assertContainsString(build, 'accounts: b.accounts', 'accounts');
+  assertContainsString(build, 'invCtr: b.counters.invCtr', 'invCtr');
+  assertContainsString(build, 'invoiceUidCtr: b.counters.invoiceUidCtr', 'invoiceUidCtr');
+  assertContainsString(build, 'saleCtr: b.counters.saleCtr', 'saleCtr');
+  assertContainsString(build, 'saleUidCtr: b.counters.saleUidCtr', 'saleUidCtr');
+  ARCH20_REQUIRED_TOP_KEYS.forEach(function(k){
+    const assigns = build.match(new RegExp('\\b' + k + '\\s*:\\s*b\\.' + k, 'g')) || [];
+    assertEqual(assigns.length, 1, k+' باید یک انتساب از b داشته باشد');
+    assertTrue(build.indexOf(k + ': _safeArr(' + k + '),') < 0, k+' نباید انتساب مستقل سطح بالا داشته باشد');
+  });
+  ARCH20_COUNTER_TOP_KEYS.forEach(function(k){
+    const assigns = build.match(new RegExp('\\b' + k + '\\s*:\\s*b\\.counters\\.' + k, 'g')) || [];
+    assertEqual(assigns.length, 1, k+' باید یک انتساب از b.counters داشته باشد');
+  });
+  assertContainsString(build, 'phonebook: _safeArr(phonebook)', 'phonebook خارج از cutover');
+  assertContainsString(build, 'products: _safeArr(products)', 'optional products');
+  assertContainsString(build, 'svcs: _safeArr(services)', 'optional svcs');
+  const invAt = build.indexOf('invoices: b.invoices');
+  const prodAt = build.indexOf('products: _safeArr(products)');
+  const invCtrAt = build.indexOf('invCtr: b.counters.invCtr');
+  const pbAt = build.indexOf('phonebook: _safeArr(phonebook)');
+  const partsAt = build.indexOf('parts: b.parts');
+  const warAt = build.indexOf('warranties: b.warranties');
+  const salesAt = build.indexOf('sales: b.sales');
+  const accAt = build.indexOf('accounts: b.accounts');
+  assertTrue(invAt < prodAt && prodAt < invCtrAt && invCtrAt < pbAt && pbAt < partsAt, 'ترتیب invoices/products/invCtr/phonebook/parts');
+  assertTrue(partsAt < warAt && warAt < salesAt && salesAt < accAt, 'ترتیب parts/warranties/sales/accounts');
+});
+
+ARCH17_FIXTURES.cases.forEach(function(fx){
+  test('ARCH-20 '+fx.id+' equivalence: JSON.stringify(oldRequired)===JSON.stringify(newRequired)', () => {
+    const oldSlice = arch20RunOldRequired(fx.ram);
+    const run = arch20RunAssembler(fx.ram);
+    const newNested = arch17PickRequired(run.full);
+    const newTop = arch20PickRequiredTop(run.full);
+    assertEqual(JSON.stringify(oldSlice), JSON.stringify(fx.expected), fx.id+' old vs golden');
+    assertEqual(JSON.stringify(newNested), JSON.stringify(fx.expected), fx.id+' new nested vs golden');
+    assertEqual(JSON.stringify(newNested), JSON.stringify(oldSlice), fx.id+' nested exact');
+    assertEqual(JSON.stringify(newTop), JSON.stringify(arch20OldRequiredToTop(oldSlice)), fx.id+' top-level exact');
+    assertTrue(!('counters' in run.full), fx.id+' بدون کلید counters تو در تو در بک‌آپ');
+    assertTrue(Array.isArray(run.full.phonebook), fx.id+' phonebook در اسمبل مانده');
+  });
+});
+
+test('ARCH-20: شیء کامل بک‌آپ — settings/required/optional/attachmentsIndex/envelope', () => {
+  const t1 = ARCH17_FIXTURES.cases.find(function(c){ return c.id==='T1'; });
+  const ram = Object.assign({}, t1.ram, {
+    phonebook: [{ fn:'علی', phones:['۰۹۱۲'] }],
+    products: [{ code:'P-1', nested:{v:'keep'} }],
+    inventory: { 'P-1': { qty:2 } },
+    services: [{ code:'SVC-1' }],
+    tasks: [{ id:'TSK-1' }],
+    defectiveStock: [{ id:'DF-1' }],
+    warehouseDocs: [],
+    stockMoves: [],
+    warehouses: [{ id:'WH-PARTS' }],
+    daqi: [],
+    daqiWarehouse: [],
+    daqiVouchers: [],
+    postalHistory: [{ id:'PO-1' }]
+  });
+  const ls = arch9cMakeLs({
+    laegh_printSettings: JSON.stringify({ paper:'A4' }),
+    laegh_company: JSON.stringify({ name:'لایق الکترونیک پارسیان' }),
+    laegh_tz: 'Asia/Tehran'
+  });
+  const run = arch20RunAssembler(ram, { ls: ls });
+  const full = run.full;
+  const oldReq = arch20RunOldRequired(ram);
+  const settingsExp = arch14RunAdapter({
+    laegh_printSettings: JSON.stringify({ paper:'A4' }),
+    laegh_company: JSON.stringify({ name:'لایق الکترونیک پارسیان' }),
+    laegh_tz: 'Asia/Tehran'
+  });
+  assertEqual(JSON.stringify(arch17PickRequired(full)), JSON.stringify(oldReq), 'required vs old');
+  assertEqual(JSON.stringify(arch14PickSettings(full)), JSON.stringify(settingsExp), 'settings ARCH-15');
+  const opt = arch18RunAdapter(ram).got;
+  assertEqual(JSON.stringify(arch18PickOptional(full)), JSON.stringify(opt), 'optional ARCH-18 firewall');
+  assertEqual(JSON.stringify(full.phonebook), JSON.stringify([{ fn:'علی', phones:['۰۹۱۲'] }]), 'phonebook');
+  const idx = arch19RunCollector({ warranties: ram.warranties, sales: ram.sales, invoices: ram.invoices }).got;
+  assertEqual(JSON.stringify(full.attachmentsIndex), JSON.stringify(idx), 'attachmentsIndex');
+  assertEqual(full.magic, 'SIRMAN_BACKUP', 'envelope magic');
+  assertEqual(full.schemaVersion, 1, 'envelope schema');
+  assertEqual(full.version, '1405.6.3α', 'envelope version');
+  assertEqual(full.applicationVersion, '1405.6.3α', 'envelope app version');
+  assertTrue(typeof full.exportedAt === 'string' && full.exportedAt.length > 0, 'exportedAt');
+  assertTrue(Array.isArray(full.sections) && full.sections.indexOf('invoices') === 0, 'sections');
+});
+
+test('ARCH-20: ۱۲ مورد لبه — خالی/تو در تو/تکرار/ترتیب/null/یونیکد/بدون تعمیر', () => {
+  const t2 = ARCH17_FIXTURES.cases.find(function(c){ return c.id==='T2'; });
+  const t4 = ARCH17_FIXTURES.cases.find(function(c){ return c.id==='T4'; });
+  const t5 = ARCH17_FIXTURES.cases.find(function(c){ return c.id==='T5'; });
+  const t6 = ARCH17_FIXTURES.cases.find(function(c){ return c.id==='T6'; });
+  const t8 = ARCH17_FIXTURES.cases.find(function(c){ return c.id==='T8'; });
+  const t9 = ARCH17_FIXTURES.cases.find(function(c){ return c.id==='T9'; });
+  const t10 = ARCH17_FIXTURES.cases.find(function(c){ return c.id==='T10'; });
+  const empty = arch20RunAssembler(t2.ram).full;
+  assertEqual(empty.invoices.length, 0, '1 empty arrays');
+  assertEqual(JSON.stringify(arch20PickRequiredTop(empty)), JSON.stringify(arch20OldRequiredToTop(arch20RunOldRequired(t2.ram))), '2 empty counters');
+  const nested = arch20RunAssembler(t4.ram).full;
+  assertEqual(JSON.stringify(arch17PickRequired(nested)), JSON.stringify(t4.expected), '3 nested');
+  const dups = arch20RunAssembler(t8.ram).full;
+  assertEqual(dups.invoices.length, t8.ram.invoices.length, '4 duplicates remain');
+  assertEqual(JSON.stringify(dups.invoices), JSON.stringify(t8.expected.invoices), '4 duplicate bytes');
+  const ordered = arch20RunAssembler(t10.ram).full;
+  assertEqual(JSON.stringify(ordered.invoices.map(function(r){ return r.invoiceId || r.num; })), JSON.stringify(t10.expected.invoices.map(function(r){ return r.invoiceId || r.num; })), '5 order');
+  const nullRam = Object.assign({}, t2.ram, { invoices: [{ invoiceId:'INVUID-000001', note:null, extra:undefined }] });
+  const withNull = arch20RunAssembler(nullRam).full;
+  assertEqual(withNull.invoices[0].note, null, '6 null preserved');
+  assertTrue(!('extra' in withNull.invoices[0]), '6 undefined dropped by JSON clone same as before');
+  const persian = arch20RunAssembler(t5.ram).full;
+  assertEqual(JSON.stringify(arch17PickRequired(persian)), JSON.stringify(t5.expected), '7 Persian Unicode');
+  const missing = arch20RunAssembler(t9.ram).full;
+  assertEqual(JSON.stringify(arch17PickRequired(missing)), JSON.stringify(t9.expected), '8 missing identity');
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  assertTrue(build.indexOf('nextInvoiceId') < 0 && build.indexOf('ensureInvoiceIdentity') < 0, '9 no generated IDs');
+  const nums = arch20RunAssembler(t6.ram).full;
+  assertEqual(nums.parts[0].qty, 0, '10 no normalize qty');
+  assertEqual(nums.parts[0].price, 1.5, '10 no normalize float');
+  assertEqual(nums.invoices[0].flag, '0', '10 string 0 stays string');
+  assertEqual(dups.invoices.length, t8.expected.invoices.length, '11 no dedup');
+  assertEqual(JSON.stringify(missing.invoices), JSON.stringify(t9.expected.invoices), '12 no repair');
+});
+
+test('ARCH-20: جهش قبل از clone نهایی از طریق نتیجه آداپتر RAM را عوض نمی‌کند', () => {
+  const invoices = [{ invoiceId:'INVUID-000001', nested:{v:'live'}, items:[{code:'A'}] }];
+  const sales = [{ saleUid:'SALEUID-000001', nested:{t:1} }];
+  const warranties = [{ id:'W-1', nested:{s:'x'} }];
+  const parts = [{ id:'P-1', nested:{bin:'A'} }];
+  const accounts = [{ id:'ACC-1', nested:{bal:1}, transactions:[{amount:2}] }];
+  const order = invoices.map(function(r){ return r.invoiceId; }).join(',');
+  const extras = { hostCalled: false, idbStats: { open: 0 }, ls: arch9cMakeLs({}) };
+  const ctx = Object.assign({
+    localStorage: extras.ls,
+    indexedDB: { open: function(){ extras.idbStats.open++; return {}; } },
+    sirmanHost: { ping: function(){ extras.hostCalled = true; } }
+  }, arch17BaseRam({
+    invoices: invoices, sales: sales, warranties: warranties, parts: parts, accounts: accounts,
+    invCtr: 3, invoiceUidCtr: 1, saleCtr: 2, saleUidCtr: 1
+  }));
+  const src = arch14HelperSrc() + '\n' + arch17HelperSrc() + '\n' + extractFunctionSource(html, 'collectAttachmentIndex') + `
+    var s = collectBackupSettingsSnapshot();
+    var b = collectRequiredBusinessSnapshot();
+    var data = {
+      invoices: b.invoices,
+      sales: b.sales,
+      warranties: b.warranties,
+      parts: b.parts,
+      accounts: b.accounts,
+      invCtr: b.counters.invCtr,
+      invoiceUidCtr: b.counters.invoiceUidCtr,
+      saleCtr: b.counters.saleCtr,
+      saleUidCtr: b.counters.saleUidCtr
+    };
+    data.invoices.push({ invoiceId:'FORGED' });
+    data.invoices[0].nested.v = 'mut';
+    data.invoices[0].items[0].code = 'Z';
+    data.sales[0].nested.t = 9;
+    data.warranties[0].nested.s = 'mut';
+    data.parts[0].nested.bin = 'X';
+    data.accounts[0].nested.bal = 8;
+    data.accounts[0].transactions[0].amount = 99;
+    data.invCtr = 0;
+    data.saleUidCtr = 99;
+    return {
+      dataLen: data.invoices.length,
+      ramLen: invoices.length,
+      ramNested: invoices[0].nested.v,
+      ramItem: invoices[0].items[0].code,
+      ramSale: sales[0].nested.t,
+      ramWar: warranties[0].nested.s,
+      ramPart: parts[0].nested.bin,
+      ramAcc: accounts[0].nested.bal,
+      ramTrx: accounts[0].transactions[0].amount,
+      ramInvCtr: invCtr,
+      ramSaleUidCtr: saleUidCtr,
+      ramOrder: invoices.map(function(r){ return r.invoiceId; }).join(',')
+    };
+  `;
+  const probe = new Function('ctx', 'with(ctx){ ' + src + ' }')(ctx);
+  assertEqual(probe.dataLen, 2, 'جهش data قبل از clone');
+  assertEqual(probe.ramLen, 1, 'طول منبع invoices');
+  assertEqual(probe.ramNested, 'live', 'nested invoice');
+  assertEqual(probe.ramItem, 'A', 'invoice item');
+  assertEqual(probe.ramSale, 1, 'nested sale');
+  assertEqual(probe.ramWar, 'x', 'nested warranty');
+  assertEqual(probe.ramPart, 'A', 'nested part');
+  assertEqual(probe.ramAcc, 1, 'nested account');
+  assertEqual(probe.ramTrx, 2, 'nested trx');
+  assertEqual(probe.ramInvCtr, 3, 'invCtr منبع');
+  assertEqual(probe.ramSaleUidCtr, 1, 'saleUidCtr منبع');
+  assertEqual(probe.ramOrder, order, 'ترتیب منبع');
+  const run = arch20RunAssembler({
+    invoices: invoices, sales: sales, warranties: warranties, parts: parts, accounts: accounts,
+    invCtr: 3, invoiceUidCtr: 1, saleCtr: 2, saleUidCtr: 1
+  }, extras);
+  run.full.invoices.push({ invoiceId:'AFTER' });
+  run.full.invoices[0].nested.v = 'after';
+  assertEqual(invoices.length, 1, 'خروجی نهایی هم RAM را عوض نمی‌کند');
+  assertEqual(invoices[0].nested.v, 'live', 'nested پس از خروجی');
+  assertEqual(extras.ls.stats.setItem, 0, 'بدون LS');
+  assertEqual(extras.idbStats.open, 0, 'بدون IDB');
+  assertTrue(!extras.hostCalled, 'بدون Host');
+});
+
+test('ARCH-20: فایروال optional / attachmentsIndex / Phonebook / Restore / Print', () => {
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  assertContainsString(build, 'phonebook: _safeArr(phonebook)', 'phonebook خارج');
+  assertContainsString(build, 'products: _safeArr(products)', 'optional products خارج');
+  assertContainsString(build, 'tasks: _safeArr(tasks)', 'optional tasks خارج');
+  assertTrue(build.indexOf('collectOptionalBusinessSnapshot') < 0, 'بدون ARCH-18 cutover');
+  assertContainsString(build, 'if(typeof collectAttachmentIndex===\'function\') data.attachmentsIndex = collectAttachmentIndex(data);', 'attachmentsIndex همان');
+  const savePB = extractFunctionSource(html, 'savePBContact');
+  assertTrue(savePB.indexOf("id:'PB-") < 0, 'savePBContact شناسه نمی‌سازد');
+  ['applyBackupMergeSections','applyBackupReplaceSections','importData','savePBContact','resetAll','getPrintCenterState','getPrintSettings','collectOptionalBusinessSnapshot','collectAttachmentIndex'].forEach(function(name){
+    assertTrue(extractFunctionSource(html, name) !== null, name+' باید بماند');
+  });
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'applyBackupMergeSections')), ARCH19_MERGE_SHA256, 'Merge SHA');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'applyBackupReplaceSections')), ARCH19_REPLACE_SHA256, 'Replace SHA');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'collectOptionalBusinessSnapshot')), ARCH18_OPTIONAL_ADAPTER_SHA256, 'optional adapter');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'collectAttachmentIndex')), ARCH19_COLLECT_ATTACHMENT_INDEX_SHA256, 'attachment walker');
+  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+  const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
+  assertContainsString(repo, 'html-backup-engine', 'TbdMarker');
+  const sqlite = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Persistence.Sqlite', 'Sirman.Persistence.Sqlite.csproj'), 'utf8');
+  assertTrue(sqlite.length > 0, 'SQLite');
+  const printHost = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'WindowsPrintHost.cs'), 'utf8');
+  assertTrue(printHost.length > 0, 'WindowsPrintHost');
+  const diag = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'PrintHardwareDiagnostic.cs'), 'utf8');
+  assertContainsString(diag, 'internal sealed class PrintHardwareDiagnostic', 'PrintHardwareDiagnostic');
+});
+
+test('ARCH-20: اسمبل هنگام ساخت localStorage/IndexedDB نمی‌نویسد', () => {
+  const t1 = ARCH17_FIXTURES.cases.find(function(c){ return c.id==='T1'; });
+  const extras = { hostCalled: false, idbStats: { open: 0 }, ls: arch9cMakeLs({
+    laegh_printSettings: '{}',
+    laegh_company: '{}',
+    laegh_tz: 'Asia/Tehran'
+  }) };
+  const run = arch20RunAssembler(t1.ram, extras);
+  assertEqual(extras.ls.stats.setItem, 0, 'setItem');
+  assertEqual(extras.ls.stats.removeItem, 0, 'removeItem');
+  assertEqual(extras.idbStats.open, 0, 'idb');
+  assertTrue(!extras.hostCalled, 'host');
+  assertEqual(run.full.invoices[0].invoiceId, 'INVUID-000007', 'محتوا');
+});
+
+test('ARCH-20: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت یکی هستند', () => {
   const sirman = fs.readFileSync(path.join(path.dirname(filePath), 'Sirman_Final.html'));
   const laegh = fs.readFileSync(path.join(path.dirname(filePath), 'Laegh_Final.html'));
   assertEqual(sirman.length, laegh.length, 'طول فایل');

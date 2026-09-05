@@ -8,7 +8,7 @@ namespace Sirman.Core.Tests;
 
 /// <summary>
 /// ARCH-17 — BusinessDataSnapshot is a pure REQUIRED-collections transport DTO.
-/// HTML adapter is the RAM reader. No live backup cutover.
+/// HTML adapter is the RAM reader. ARCH-20 wires it into _buildFullBackupData.
 /// </summary>
 public class BusinessDataSnapshotTests
 {
@@ -277,7 +277,7 @@ public class BusinessDataSnapshotTests
     }
 
     [Fact]
-    public void RegressionLocks_NoLiveCutover()
+    public void RegressionLocks_RequiredSliceCutover()
     {
         Assert.Equal("html-backup-engine", JsonBackupRepository.TbdMarker);
         Assert.Equal(5, BusinessDataSnapshotCatalog.CollectionKeys.Count);
@@ -292,10 +292,26 @@ public class BusinessDataSnapshotTests
         var sqlite = File.ReadAllText(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Sirman.Persistence.Sqlite", "Sirman.Persistence.Sqlite.csproj")));
         Assert.Contains("Sirman.Persistence.Sqlite", sqlite);
         var html = File.ReadAllText(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Sirman_Final.html")));
-        Assert.DoesNotContain("collectRequiredBusinessSnapshot()", ExtractFunction(html, "_buildFullBackupData"));
+        var build = ExtractFunction(html, "_buildFullBackupData");
+        Assert.Contains("var b = collectRequiredBusinessSnapshot();", build);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(build, @"collectRequiredBusinessSnapshot\s*\(\s*\)"));
+        Assert.Contains("invoices: b.invoices", build);
+        Assert.Contains("sales: b.sales", build);
+        Assert.Contains("warranties: b.warranties", build);
+        Assert.Contains("parts: b.parts", build);
+        Assert.Contains("accounts: b.accounts", build);
+        Assert.Contains("invCtr: b.counters.invCtr", build);
+        Assert.Contains("invoiceUidCtr: b.counters.invoiceUidCtr", build);
+        Assert.Contains("saleCtr: b.counters.saleCtr", build);
+        Assert.Contains("saleUidCtr: b.counters.saleUidCtr", build);
+        Assert.DoesNotContain("counters:", build);
+        Assert.Contains("phonebook: _safeArr(phonebook)", build);
+        Assert.Contains("collectAttachmentIndex(data)", build);
+        Assert.Contains("return JSON.parse(JSON.stringify(data));", build);
         Assert.DoesNotContain("collectRequiredBusinessSnapshot()", ExtractFunction(html, "exportData"));
         Assert.DoesNotContain("collectRequiredBusinessSnapshot()", ExtractFunction(html, "buildBackupObject"));
-        Assert.Contains("1405.6.3α", ExtractFunction(html, "_buildFullBackupData"));
+        Assert.DoesNotContain("collectOptionalBusinessSnapshot()", build);
+        Assert.Contains("1405.6.3α", build);
     }
 
     private static string ExtractFunction(string html, string fnName)

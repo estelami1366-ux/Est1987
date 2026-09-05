@@ -8472,6 +8472,7 @@ var BackupEngine = {
 
 function _buildFullBackupData(){
   var s = collectBackupSettingsSnapshot();
+  var b = collectRequiredBusinessSnapshot();
   var data = {
     magic: (typeof SIRMAN_BACKUP_MAGIC!=='undefined'?SIRMAN_BACKUP_MAGIC:'SIRMAN_BACKUP'),
     schemaVersion: (typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1),
@@ -8479,21 +8480,21 @@ function _buildFullBackupData(){
     applicationVersion: '1405.6.3α',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
-    invoices: _safeArr(invoices),
+    invoices: b.invoices,
     products: _safeArr(products),
     inventory: _safeObj(inventory),
-    invCtr: invCtr||1,
-    invoiceUidCtr: (typeof invoiceUidCtr!=='undefined' && invoiceUidCtr>0) ? invoiceUidCtr : 0,
-    saleCtr: (typeof saleCtr!=='undefined' && saleCtr>0) ? saleCtr : 1,
-    saleUidCtr: (typeof saleUidCtr!=='undefined' && saleUidCtr>0) ? saleUidCtr : 0,
+    invCtr: b.counters.invCtr,
+    invoiceUidCtr: b.counters.invoiceUidCtr,
+    saleCtr: b.counters.saleCtr,
+    saleUidCtr: b.counters.saleUidCtr,
     phonebook: _safeArr(phonebook), // (pb حذف شد — فقط phonebook)
-    parts: _safeArr(parts),
+    parts: b.parts,
     services: _safeArr(services),
     svcs: _safeArr(services), // alias برای سازگاری قدیمی
-    warranties: _safeArr(warranties),
-    sales: _safeArr(sales),
+    warranties: b.warranties,
+    sales: b.sales,
     tasks: _safeArr(tasks),
-    accounts: _safeArr(accounts),
+    accounts: b.accounts,
     defectiveStock: _safeArr(defectiveStock),
     warehouseDocs: _safeArr(warehouseDocs),
     stockMoves: _safeArr(stockMoves),
@@ -8622,10 +8623,10 @@ function collectBackupSettingsSnapshot(){
   return JSON.parse(JSON.stringify(data));
 }
 
-// ARCH-17 — REQUIRED business snapshot transport only.
-// Reads the same RAM globals as _buildFullBackupData for invoices/sales/warranties/parts/accounts/counters.
+// ARCH-17 — REQUIRED business snapshot transport.
+// Reads the same RAM globals for invoices/sales/warranties/parts/accounts/counters.
 // Clone-on-return. No localStorage/IndexedDB write. No ID generation. No phonebook.
-// NOT called from _buildFullBackupData / exportData / buildBackupObject.
+// ARCH-20: called exactly once from _buildFullBackupData. Not called from exportData / buildBackupObject.
 function collectRequiredBusinessSnapshot(){
   var data = {
     invoices: _safeArr(invoices),
