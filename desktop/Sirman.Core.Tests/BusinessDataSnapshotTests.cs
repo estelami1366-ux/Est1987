@@ -310,7 +310,10 @@ public class BusinessDataSnapshotTests
         Assert.Contains("return JSON.parse(JSON.stringify(data));", build);
         Assert.DoesNotContain("collectRequiredBusinessSnapshot()", ExtractFunction(html, "exportData"));
         Assert.DoesNotContain("collectRequiredBusinessSnapshot()", ExtractFunction(html, "buildBackupObject"));
-        Assert.DoesNotContain("collectOptionalBusinessSnapshot()", build);
+        Assert.Contains("var o = collectOptionalBusinessSnapshot();", build);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(build, @"collectOptionalBusinessSnapshot\s*\(\s*\)"));
+        Assert.DoesNotContain("collectOptionalBusinessSnapshot()", ExtractFunction(html, "exportData"));
+        Assert.DoesNotContain("collectOptionalBusinessSnapshot()", ExtractFunction(html, "buildBackupObject"));
         Assert.Contains("1405.6.3α", build);
     }
 
