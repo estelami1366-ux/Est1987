@@ -10487,6 +10487,204 @@ test('ARCH-17: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت 
 
 
 console.log('');
+console.log('📋 گروه: ARCH-18 آداپتر OPTIONAL کسب‌وکار (بدون cutover)');
+
+const ARCH17_REQUIRED_ADAPTER_SHA256 = '92dd552685fce56b5cff75a41c4a767d658233affc6d3870d015dc379199c631';
+const ARCH18_OPTIONAL_KEYS = ['products','inventory','services','svcs','tasks','defectiveStock','warehouseDocs','stockMoves','warehouses','daqi','daqiWarehouse','daqiVouchers','postalHistory'];
+const ARCH18_FIXTURES = JSON.parse(fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', 'OptionalBusinessFixtures.json'), 'utf8'));
+const ARCH18_BANNED = ['phonebook','invoices','sales','warranties','parts','accounts','attachmentsIndex','printSettings','localStorage','indexedDB','sirmanHost','savePBContact'];
+
+function arch18HelperSrc() {
+  return ['_safeArr','_safeObj','_safeStr','collectOptionalBusinessSnapshot']
+    .map(function(n){ const s = extractFunctionSource(html, n); if(!s) throw new Error('fn '+n); return s; })
+    .join('\n');
+}
+
+function arch18RunAdapter(ram, extras) {
+  extras = extras || {};
+  const idbStats = extras.idbStats || { open: 0 };
+  const ctx = Object.assign({
+    localStorage: extras.ls || arch9cMakeLs({}),
+    indexedDB: { open: function(){ idbStats.open++; return {}; } },
+    sirmanHost: extras.host || { ping: function(){ extras.hostCalled = true; } }
+  }, arch17BaseRam(ram));
+  const got = new Function('ctx', 'with(ctx){ ' + arch18HelperSrc() + '\nreturn collectOptionalBusinessSnapshot(); }')(ctx);
+  return { got: got, ctx: ctx, idbStats: idbStats, extras: extras };
+}
+
+function arch18PickOptional(full) {
+  const o = {};
+  ARCH18_OPTIONAL_KEYS.forEach(function(k){ o[k] = full[k]; });
+  return o;
+}
+
+function arch18AssemblerAndAdapter(ram) {
+  const ls = arch9cMakeLs({
+    laegh_printSettings: '{}',
+    laegh_company: '{}',
+    laegh_tz: 'Asia/Tehran'
+  });
+  const ctx = Object.assign({ localStorage: ls }, arch17BaseRam(ram));
+  const src = arch14HelperSrc() + '\n' + arch17HelperSrc() + '\n' + arch18HelperSrc() + '\n' + extractFunctionSource(html, 'collectAttachmentIndex') + '\n' + extractFunctionSource(html, '_buildFullBackupData');
+  return new Function('ctx', 'with(ctx){ ' + src + '\nreturn { adapter: collectOptionalBusinessSnapshot(), required: collectRequiredBusinessSnapshot(), full: _buildFullBackupData() }; }')(ctx);
+}
+
+test('ARCH-18 G1: قفل SHA اسمبل و ARCH-17 و مسیر تولید', () => {
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  const exp = extractFunctionSource(html, 'exportData');
+  const buildObj = extractFunctionSource(html, 'buildBackupObject');
+  const req = extractFunctionSource(html, 'collectRequiredBusinessSnapshot');
+  assertEqual(arch9cSha256(build), ARCH9D_BUILD_SHA256, 'SHA اسمبل باید همان ARCH-15/17 بماند');
+  assertEqual(ARCH9D_BUILD_SHA256, '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6', 'قفل ARCH-15');
+  assertEqual(arch9cSha256(req), ARCH17_REQUIRED_ADAPTER_SHA256, 'آداپتر ARCH-17 نباید عوض شود');
+  assertEqual(arch9cSha256(exp), ARCH9C_FN_SHA256.exportData, 'exportData SHA');
+  assertEqual(arch9cSha256(buildObj), ARCH9C_FN_SHA256.buildBackupObject, 'buildBackupObject SHA');
+  assertTrue(build.indexOf('collectOptionalBusinessSnapshot') < 0, 'اسمبل نباید آداپتر OPTIONAL را صدا بزند');
+  assertTrue(exp.indexOf('collectOptionalBusinessSnapshot') < 0, 'exportData نباید آداپتر OPTIONAL را صدا بزند');
+  assertTrue(buildObj.indexOf('collectOptionalBusinessSnapshot') < 0, 'buildBackupObject نباید آداپتر OPTIONAL را صدا بزند');
+  assertTrue(req.indexOf('collectOptionalBusinessSnapshot') < 0, 'آداپتر REQUIRED نباید OPTIONAL را صدا بزند');
+});
+
+test('ARCH-18 G2: آداپتر فقط RAM OPTIONAL را می‌خواند؛ svcs از services است', () => {
+  const src = extractFunctionSource(html, 'collectOptionalBusinessSnapshot');
+  assertTrue(src !== null, 'collectOptionalBusinessSnapshot باید موجود باشد');
+  ARCH18_OPTIONAL_KEYS.forEach(function(k){
+    assertContainsString(src, k + ':', 'کلید '+k);
+  });
+  assertContainsString(src, 'services: _safeArr(services)', 'services از RAM services');
+  assertContainsString(src, 'svcs: _safeArr(services)', 'svcs همان منبع services');
+  assertTrue(src.indexOf('_safeArr(svcs)') < 0, 'svcs نباید از متغیر svcs خوانده شود');
+  assertContainsString(src, 'inventory: _safeObj(inventory)', 'inventory همان اسمبل');
+  assertContainsString(src, "warehouses: _safeArr(typeof warehouses!=='undefined'?warehouses:[])", 'warehouses همان اسمبل');
+  assertContainsString(src, "daqiWarehouse: (typeof daqiWarehouse!=='undefined'?daqiWarehouse:[])", 'daqiWarehouse بدون _safeArr');
+  assertContainsString(src, 'return JSON.parse(JSON.stringify(data));', 'clone نهایی');
+  ARCH18_BANNED.forEach(function(tok){
+    assertTrue(src.indexOf(tok) < 0, 'آداپتر نباید '+tok+' داشته باشد');
+  });
+  assertTrue(src.indexOf('setItem') < 0, 'بدون setItem');
+});
+
+ARCH18_FIXTURES.cases.forEach(function(fx){
+  test('ARCH-18 '+fx.id+' '+fx.note+': خروجی آداپتر با فیکسچر طلایی یکی است', () => {
+    const run = arch18RunAdapter(fx.ram);
+    assertEqual(JSON.stringify(run.got), JSON.stringify(fx.expected), fx.id+' semantic match');
+    ARCH18_OPTIONAL_KEYS.forEach(function(k){
+      assertTrue(Object.prototype.hasOwnProperty.call(run.got, k), fx.id+' key '+k);
+    });
+    assertTrue(!('phonebook' in run.got), fx.id+' بدون phonebook');
+    assertTrue(!('attachmentsIndex' in run.got), fx.id+' بدون attachmentsIndex');
+  });
+});
+
+test('ARCH-18: برش OPTIONAL اسمبل با آداپتر یکی است (T1)', () => {
+  const t1 = ARCH18_FIXTURES.cases.find(function(c){ return c.id==='T1'; });
+  const both = arch18AssemblerAndAdapter(t1.ram);
+  assertEqual(JSON.stringify(arch18PickOptional(both.full)), JSON.stringify(both.adapter), 'optional slice');
+  assertEqual(JSON.stringify(both.adapter), JSON.stringify(t1.expected), 'adapter vs golden');
+  assertTrue(Array.isArray(both.full.phonebook), 'اسمبل هنوز phonebook دارد');
+  assertTrue(!('phonebook' in both.adapter), 'آداپتر phonebook ندارد');
+  assertTrue(Array.isArray(both.required.invoices), 'ARCH-17 هنوز invoices دارد');
+  assertTrue(!('products' in both.required), 'ARCH-17 products ندارد');
+});
+
+ARCH18_FIXTURES.cases.forEach(function(fx){
+  test('ARCH-18 '+fx.id+': برش اسمبل ≡ آداپتر', () => {
+    const both = arch18AssemblerAndAdapter(fx.ram);
+    assertEqual(JSON.stringify(arch18PickOptional(both.full)), JSON.stringify(both.adapter), fx.id);
+  });
+});
+
+test('ARCH-18 T10: services و svcs هر دو از RAM services هستند', () => {
+  const t10 = ARCH18_FIXTURES.cases.find(function(c){ return c.id==='T10'; });
+  const run = arch18RunAdapter(t10.ram);
+  assertEqual(run.got.services[0].code, 'LIVE', 'services از منبع زنده');
+  assertEqual(run.got.svcs[0].code, 'LIVE', 'svcs از همان منبع نه آرایه stale');
+  assertTrue(run.got.services !== run.got.svcs, 'بعد از clone دو کپی مستقل');
+  run.got.svcs[0].code = 'MUT';
+  assertEqual(run.got.services[0].code, 'LIVE', 'جهش svcs خدمات را عوض نمی‌کند');
+  assertEqual(t10.ram.services[0].code, 'LIVE', 'RAM services دست‌نخورده');
+  assertEqual(t10.ram.svcs[0].code, 'STALE', 'RAM svcs جدا دست‌نخورده');
+});
+
+test('ARCH-18: جهش خروجی آداپتر RAM را عوض نمی‌کند', () => {
+  const products = [{ code:'P-1', nested:{v:'live'} }];
+  const inventory = { 'P-1': { qty:1, nested:{bin:'A'} } };
+  const services = [{ code:'S1', nested:{p:1} }];
+  const tasks = [{ id:'TSK-1', link:{type:'warranty',id:'W-1'} }];
+  const defectiveStock = [{ id:'DF-1', nested:{w:'W-1'} }];
+  const warehouseDocs = [{ id:'WH-IN-0001', items:[{code:'A'}] }];
+  const stockMoves = [{ id:'SM-1', nested:{q:1} }];
+  const warehouses = [{ id:'WH-PARTS' }];
+  const daqi = [{ id:'DQ-1', agencyPhonebookIdx: 2 }];
+  const order = products.map(function(r){ return r.code; }).join(',');
+  const ls = arch9cMakeLs({});
+  const extras = { ls: ls, hostCalled: false, idbStats: { open: 0 } };
+  const run = arch18RunAdapter({
+    products: products, inventory: inventory, services: services, svcs: [{code:'STALE'}],
+    tasks: tasks, defectiveStock: defectiveStock, warehouseDocs: warehouseDocs,
+    stockMoves: stockMoves, warehouses: warehouses, daqi: daqi
+  }, extras);
+  const got = run.got;
+  got.products.push({ code:'FORGED' });
+  got.products[0].nested.v = 'mut';
+  got.inventory['P-1'].nested.bin = 'X';
+  got.services[0].nested.p = 9;
+  got.svcs[0].code = 'MUT';
+  got.tasks[0].link.id = 'ZZ';
+  got.defectiveStock[0].nested.w = 'mut';
+  got.warehouseDocs[0].items[0].code = 'Z';
+  got.stockMoves[0].nested.q = 8;
+  got.warehouses.push({ id:'FORGED' });
+  got.daqi[0].agencyPhonebookIdx = 99;
+  assertEqual(products.length, 1, 'طول products');
+  assertEqual(services.length, 1, 'طول services');
+  assertEqual(tasks.length, 1, 'طول tasks');
+  assertEqual(defectiveStock.length, 1, 'طول defective');
+  assertEqual(warehouseDocs.length, 1, 'طول warehouseDocs');
+  assertEqual(stockMoves.length, 1, 'طول stockMoves');
+  assertEqual(warehouses.length, 1, 'طول warehouses');
+  assertEqual(daqi.length, 1, 'طول daqi');
+  assertEqual(products[0].nested.v, 'live', 'nested product');
+  assertEqual(inventory['P-1'].nested.bin, 'A', 'nested inventory');
+  assertEqual(services[0].nested.p, 1, 'nested service');
+  assertEqual(tasks[0].link.id, 'W-1', 'task link');
+  assertEqual(defectiveStock[0].nested.w, 'W-1', 'defective nested');
+  assertEqual(warehouseDocs[0].items[0].code, 'A', 'wh item');
+  assertEqual(stockMoves[0].nested.q, 1, 'stock nested');
+  assertEqual(daqi[0].agencyPhonebookIdx, 2, 'daqi idx opaque');
+  assertEqual(products.map(function(r){ return r.code; }).join(','), order, 'ترتیب منبع');
+  assertEqual(ls.stats.setItem, 0, 'بدون نوشتن LS');
+  assertEqual(extras.idbStats.open, 0, 'بدون IDB');
+  assertTrue(!extras.hostCalled, 'بدون Host');
+});
+
+test('ARCH-18: فایروال Phonebook / attachmentsIndex / Restore / Print / SQLite', () => {
+  const src = extractFunctionSource(html, 'collectOptionalBusinessSnapshot');
+  assertTrue(src.indexOf('phonebook') < 0, 'آداپتر phonebook نمی‌خواند');
+  assertTrue(src.indexOf('attachmentsIndex') < 0, 'آداپتر attachmentsIndex ندارد');
+  const savePB = extractFunctionSource(html, 'savePBContact');
+  assertTrue(savePB.indexOf("id:'PB-") < 0, 'savePBContact شناسه نمی‌سازد');
+  ['applyBackupMergeSections','applyBackupReplaceSections','importData','savePBContact','resetAll','getPrintCenterState','getPrintSettings','collectRequiredBusinessSnapshot'].forEach(function(name){
+    assertTrue(extractFunctionSource(html, name) !== null, name+' باید بماند');
+  });
+  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+  const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
+  assertContainsString(repo, 'html-backup-engine', 'TbdMarker');
+  const sqlite = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Persistence.Sqlite', 'Sirman.Persistence.Sqlite.csproj'), 'utf8');
+  assertTrue(sqlite.length > 0, 'SQLite');
+  const printHost = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Desktop', 'WindowsPrintHost.cs'), 'utf8');
+  assertTrue(printHost.length > 0, 'WindowsPrintHost');
+});
+
+test('ARCH-18: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت یکی هستند', () => {
+  const sirman = fs.readFileSync(path.join(path.dirname(filePath), 'Sirman_Final.html'));
+  const laegh = fs.readFileSync(path.join(path.dirname(filePath), 'Laegh_Final.html'));
+  assertEqual(sirman.length, laegh.length, 'طول فایل');
+  assertEqual(Buffer.compare(sirman, laegh), 0, 'byte-identical');
+});
+
+
+console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
 
 
