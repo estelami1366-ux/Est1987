@@ -410,14 +410,14 @@ Non-blockers (parked): Core apply, SQLite, Print, id minting, adapter leftover i
 
 ## 16. Test results
 
-Filled after the suite run on this packet:
+Recorded on this VM after ARCH-24 tests landed:
 
 | Suite | Result |
 |---|---|
-| `node test_laegh.js Sirman_Final.html` | *pending run* |
-| `/home/ubuntu/.dotnet/dotnet test desktop/Sirman.Core.Tests` | *pending run* |
+| `node test_laegh.js Sirman_Final.html` | **1063 / 1063** (ARCH-23 was 1059; this packet added 4 HTML tests) |
+| `/home/ubuntu/.dotnet/dotnet test desktop/Sirman.Core.Tests` | **829 / 829** (ARCH-23 was 822; this packet added 7 Core tests) |
 
-New tests: ARCH-24 SHA/restore-path/self-contained locks only. No production behavior tests that require source edits.
+All new tests are regression locks. Production behavior is unchanged.
 
 ---
 
