@@ -1,0 +1,952 @@
+{
+  "generatedAt": "ARCH-22",
+  "storageKey": "lb",
+  "sourceGlobal": "phonebook",
+  "backupKey": "phonebook",
+  "cases": [
+    {
+      "id": "T1",
+      "note": "empty phonebook",
+      "ram": {
+        "phonebook": []
+      },
+      "expected": {
+        "phonebook": []
+      }
+    },
+    {
+      "id": "T2",
+      "note": "one normal contact",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "علی",
+            "ln": "محمدی",
+            "shop": "فروشگاه الف",
+            "addr": "تهران",
+            "zip": "12345",
+            "phones": [
+              "09120000001"
+            ],
+            "ita": "",
+            "tg": "",
+            "wa": "",
+            "ig": "",
+            "socials": [],
+            "note": "ok",
+            "cat": "customer"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "علی",
+            "ln": "محمدی",
+            "shop": "فروشگاه الف",
+            "addr": "تهران",
+            "zip": "12345",
+            "phones": [
+              "09120000001"
+            ],
+            "ita": "",
+            "tg": "",
+            "wa": "",
+            "ig": "",
+            "socials": [],
+            "note": "ok",
+            "cat": "customer"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T3",
+      "note": "multiple contacts",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "A",
+            "ln": "1",
+            "phones": [
+              "09121111111"
+            ],
+            "cat": "shop"
+          },
+          {
+            "fn": "B",
+            "ln": "2",
+            "phones": [
+              "09122222222"
+            ],
+            "cat": "agency"
+          },
+          {
+            "fn": "C",
+            "ln": "3",
+            "phones": [
+              "09123333333"
+            ],
+            "cat": "other"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "A",
+            "ln": "1",
+            "phones": [
+              "09121111111"
+            ],
+            "cat": "shop"
+          },
+          {
+            "fn": "B",
+            "ln": "2",
+            "phones": [
+              "09122222222"
+            ],
+            "cat": "agency"
+          },
+          {
+            "fn": "C",
+            "ln": "3",
+            "phones": [
+              "09123333333"
+            ],
+            "cat": "other"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T4",
+      "note": "duplicate exact clone",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "کپی",
+            "ln": "یکسان",
+            "shop": "X",
+            "phones": [
+              "09124444444"
+            ],
+            "note": "dup",
+            "cat": "customer"
+          },
+          {
+            "fn": "کپی",
+            "ln": "یکسان",
+            "shop": "X",
+            "phones": [
+              "09124444444"
+            ],
+            "note": "dup",
+            "cat": "customer"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "کپی",
+            "ln": "یکسان",
+            "shop": "X",
+            "phones": [
+              "09124444444"
+            ],
+            "note": "dup",
+            "cat": "customer"
+          },
+          {
+            "fn": "کپی",
+            "ln": "یکسان",
+            "shop": "X",
+            "phones": [
+              "09124444444"
+            ],
+            "note": "dup",
+            "cat": "customer"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T5",
+      "note": "many empty-phone contacts",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "بی‌شماره",
+            "ln": "0",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "بی‌شماره",
+            "ln": "1",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "بی‌شماره",
+            "ln": "2",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "بی‌شماره",
+            "ln": "3",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "بی‌شماره",
+            "ln": "4",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "بی‌شماره",
+            "ln": "5",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "بی‌شماره",
+            "ln": "6",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "بی‌شماره",
+            "ln": "7",
+            "phones": [],
+            "cat": "other"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "بی‌شماره",
+            "ln": "0",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "بی‌شماره",
+            "ln": "1",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "بی‌شماره",
+            "ln": "2",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "بی‌شماره",
+            "ln": "3",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "بی‌شماره",
+            "ln": "4",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "بی‌شماره",
+            "ln": "5",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "بی‌شماره",
+            "ln": "6",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "بی‌شماره",
+            "ln": "7",
+            "phones": [],
+            "cat": "other"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T6",
+      "note": "same raw phone, different names",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "مریم",
+            "ln": "احمدی",
+            "phones": [
+              "09125555555"
+            ],
+            "cat": "customer"
+          },
+          {
+            "fn": "رضا",
+            "ln": "کاظمی",
+            "phones": [
+              "09125555555"
+            ],
+            "cat": "shop"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "مریم",
+            "ln": "احمدی",
+            "phones": [
+              "09125555555"
+            ],
+            "cat": "customer"
+          },
+          {
+            "fn": "رضا",
+            "ln": "کاظمی",
+            "phones": [
+              "09125555555"
+            ],
+            "cat": "shop"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T7",
+      "note": "same name, different phones",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "سعید",
+            "ln": "نوری",
+            "phones": [
+              "09126666661"
+            ],
+            "cat": "customer"
+          },
+          {
+            "fn": "سعید",
+            "ln": "نوری",
+            "phones": [
+              "09126666662"
+            ],
+            "cat": "customer"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "سعید",
+            "ln": "نوری",
+            "phones": [
+              "09126666661"
+            ],
+            "cat": "customer"
+          },
+          {
+            "fn": "سعید",
+            "ln": "نوری",
+            "phones": [
+              "09126666662"
+            ],
+            "cat": "customer"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T8",
+      "note": "null/missing phone",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "نال",
+            "ln": "یک",
+            "phones": null,
+            "cat": "other"
+          },
+          {
+            "fn": "مفقود",
+            "ln": "دو",
+            "cat": "other"
+          },
+          {
+            "fn": "خالی",
+            "ln": "سه",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "تهی",
+            "ln": "چهار",
+            "phones": [
+              ""
+            ],
+            "cat": "other"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "نال",
+            "ln": "یک",
+            "phones": null,
+            "cat": "other"
+          },
+          {
+            "fn": "مفقود",
+            "ln": "دو",
+            "cat": "other"
+          },
+          {
+            "fn": "خالی",
+            "ln": "سه",
+            "phones": [],
+            "cat": "other"
+          },
+          {
+            "fn": "تهی",
+            "ln": "چهار",
+            "phones": [
+              ""
+            ],
+            "cat": "other"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T9",
+      "note": "Persian/Arabic Unicode",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "سلام علی",
+            "ln": "لایق",
+            "shop": "لایق الکترونیک پارسیان",
+            "addr": "یاسوج",
+            "phones": [
+              "۰۹۱۲۱۱۱۱۱۱۱"
+            ],
+            "note": "یاتاقان جلو",
+            "cat": "company"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "سلام علی",
+            "ln": "لایق",
+            "shop": "لایق الکترونیک پارسیان",
+            "addr": "یاسوج",
+            "phones": [
+              "۰۹۱۲۱۱۱۱۱۱۱"
+            ],
+            "note": "یاتاقان جلو",
+            "cat": "company"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T10",
+      "note": "Persian/Arabic digits if supported by source",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "رقم",
+            "ln": "فارسی",
+            "phones": [
+              "۰۹۱۲۷۷۷۷۷۷۷"
+            ],
+            "cat": "customer"
+          },
+          {
+            "fn": "رقم",
+            "ln": "عربی",
+            "phones": [
+              "٠٩١٢٧٧٧٧٧٧٨"
+            ],
+            "cat": "customer"
+          },
+          {
+            "fn": "رقم",
+            "ln": "لاتین",
+            "phones": [
+              "09127777777"
+            ],
+            "cat": "customer"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "رقم",
+            "ln": "فارسی",
+            "phones": [
+              "۰۹۱۲۷۷۷۷۷۷۷"
+            ],
+            "cat": "customer"
+          },
+          {
+            "fn": "رقم",
+            "ln": "عربی",
+            "phones": [
+              "٠٩١٢٧٧٧٧٧٧٨"
+            ],
+            "cat": "customer"
+          },
+          {
+            "fn": "رقم",
+            "ln": "لاتین",
+            "phones": [
+              "09127777777"
+            ],
+            "cat": "customer"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T11",
+      "note": "extra unknown contact fields",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "اضافه",
+            "ln": "فیلد",
+            "phones": [
+              "09128888888"
+            ],
+            "cat": "other",
+            "mystery": "keep-me",
+            "nested": {
+              "a": {
+                "b": 1
+              }
+            },
+            "id": "NOT-A-STABLE-ID"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "اضافه",
+            "ln": "فیلد",
+            "phones": [
+              "09128888888"
+            ],
+            "cat": "other",
+            "mystery": "keep-me",
+            "nested": {
+              "a": {
+                "b": 1
+              }
+            },
+            "id": "NOT-A-STABLE-ID"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T12",
+      "note": "exact order preservation",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "O",
+            "ln": "00",
+            "phones": [
+              "09100000000"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "01",
+            "phones": [
+              "09100000001"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "02",
+            "phones": [
+              "09100000002"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "03",
+            "phones": [
+              "09100000003"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "04",
+            "phones": [
+              "09100000004"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "05",
+            "phones": [
+              "09100000005"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "06",
+            "phones": [
+              "09100000006"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "07",
+            "phones": [
+              "09100000007"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "08",
+            "phones": [
+              "09100000008"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "09",
+            "phones": [
+              "09100000009"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "10",
+            "phones": [
+              "09100000010"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "11",
+            "phones": [
+              "09100000011"
+            ],
+            "cat": "other"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "O",
+            "ln": "00",
+            "phones": [
+              "09100000000"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "01",
+            "phones": [
+              "09100000001"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "02",
+            "phones": [
+              "09100000002"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "03",
+            "phones": [
+              "09100000003"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "04",
+            "phones": [
+              "09100000004"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "05",
+            "phones": [
+              "09100000005"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "06",
+            "phones": [
+              "09100000006"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "07",
+            "phones": [
+              "09100000007"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "08",
+            "phones": [
+              "09100000008"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "09",
+            "phones": [
+              "09100000009"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "10",
+            "phones": [
+              "09100000010"
+            ],
+            "cat": "other"
+          },
+          {
+            "fn": "O",
+            "ln": "11",
+            "phones": [
+              "09100000011"
+            ],
+            "cat": "other"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T13",
+      "note": "object/nested field preservation",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "تو",
+            "ln": "درتو",
+            "phones": [
+              "09129999999"
+            ],
+            "socials": [
+              {
+                "kind": "tg",
+                "handle": "@x",
+                "nested": {
+                  "deep": true
+                }
+              }
+            ],
+            "bag": {
+              "a": {
+                "b": {
+                  "c": "keep"
+                }
+              }
+            },
+            "cat": "agency"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "تو",
+            "ln": "درتو",
+            "phones": [
+              "09129999999"
+            ],
+            "socials": [
+              {
+                "kind": "tg",
+                "handle": "@x",
+                "nested": {
+                  "deep": true
+                }
+              }
+            ],
+            "bag": {
+              "a": {
+                "b": {
+                  "c": "keep"
+                }
+              }
+            },
+            "cat": "agency"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T14",
+      "note": "mutation isolation fixture (payload only)",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "ایزوله",
+            "ln": "جهش",
+            "phones": [
+              "09120000009"
+            ],
+            "nested": {
+              "v": "live"
+            },
+            "cat": "other"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "ایزوله",
+            "ln": "جهش",
+            "phones": [
+              "09120000009"
+            ],
+            "nested": {
+              "v": "live"
+            },
+            "cat": "other"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T15",
+      "note": "zero localStorage writes fixture",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "LS",
+            "ln": "zero",
+            "phones": [
+              "09120000010"
+            ],
+            "cat": "other"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "LS",
+            "ln": "zero",
+            "phones": [
+              "09120000010"
+            ],
+            "cat": "other"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T16",
+      "note": "zero IndexedDB writes fixture",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "IDB",
+            "ln": "zero",
+            "phones": [
+              "09120000011"
+            ],
+            "cat": "other"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "IDB",
+            "ln": "zero",
+            "phones": [
+              "09120000011"
+            ],
+            "cat": "other"
+          }
+        ]
+      }
+    },
+    {
+      "id": "T17",
+      "note": "zero Host calls fixture",
+      "ram": {
+        "phonebook": [
+          {
+            "fn": "Host",
+            "ln": "zero",
+            "phones": [
+              "09120000012"
+            ],
+            "cat": "other"
+          }
+        ]
+      },
+      "expected": {
+        "phonebook": [
+          {
+            "fn": "Host",
+            "ln": "zero",
+            "phones": [
+              "09120000012"
+            ],
+            "cat": "other"
+          }
+        ]
+      }
+    }
+  ]
+}
