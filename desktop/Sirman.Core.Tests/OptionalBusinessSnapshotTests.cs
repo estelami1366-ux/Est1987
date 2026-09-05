@@ -254,7 +254,7 @@ public class OptionalBusinessSnapshotTests
     }
 
     [Fact]
-    public void RegressionLocks_NoLiveCutover()
+    public void RegressionLocks_OptionalSliceCutover()
     {
         Assert.Equal("html-backup-engine", JsonBackupRepository.TbdMarker);
         Assert.Equal(13, OptionalBusinessSnapshotCatalog.AllOptionalKeys.Count);
@@ -264,11 +264,21 @@ public class OptionalBusinessSnapshotTests
         Assert.Contains("svcs", OptionalBusinessSnapshotCatalog.AllOptionalKeys);
         Assert.DoesNotContain("svcs", OptionalBusinessSnapshotCatalog.SourceGlobals);
         var html = File.ReadAllText(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Sirman_Final.html")));
-        Assert.DoesNotContain("collectOptionalBusinessSnapshot()", ExtractFunction(html, "_buildFullBackupData"));
+        var build = ExtractFunction(html, "_buildFullBackupData");
+        Assert.Contains("var o = collectOptionalBusinessSnapshot();", build);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(build, @"collectOptionalBusinessSnapshot\s*\(\s*\)"));
+        Assert.Contains("var s = collectBackupSettingsSnapshot();", build);
+        Assert.Contains("var b = collectRequiredBusinessSnapshot();", build);
+        Assert.Contains("products: o.products", build);
+        Assert.Contains("svcs: o.svcs", build);
+        Assert.Contains("daqiWarehouse: o.daqiWarehouse", build);
+        Assert.Contains("phonebook: _safeArr(phonebook)", build);
+        Assert.Contains("collectAttachmentIndex(data)", build);
+        Assert.Contains("return JSON.parse(JSON.stringify(data));", build);
         Assert.DoesNotContain("collectOptionalBusinessSnapshot()", ExtractFunction(html, "exportData"));
         Assert.DoesNotContain("collectOptionalBusinessSnapshot()", ExtractFunction(html, "buildBackupObject"));
         Assert.DoesNotContain("collectOptionalBusinessSnapshot()", ExtractFunction(html, "collectRequiredBusinessSnapshot"));
-        Assert.Contains("1405.6.3α", ExtractFunction(html, "_buildFullBackupData"));
+        Assert.Contains("1405.6.3α", build);
         var printHost = File.ReadAllText(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Sirman.Desktop", "WindowsPrintHost.cs")));
         Assert.Contains("internal sealed class WindowsPrintHost", printHost);
         var sqlite = File.ReadAllText(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Sirman.Persistence.Sqlite", "Sirman.Persistence.Sqlite.csproj")));
