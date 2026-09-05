@@ -31,5 +31,6 @@
     <None Include="BackupSnapshotGolden.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="BackupSettingsFixtures.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="BusinessDataFixtures.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="OptionalBusinessFixtures.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

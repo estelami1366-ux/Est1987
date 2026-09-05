@@ -8643,6 +8643,31 @@ function collectRequiredBusinessSnapshot(){
   return JSON.parse(JSON.stringify(data));
 }
 
+// ARCH-18 — OPTIONAL business snapshot transport only.
+// Reads the same RAM globals as _buildFullBackupData for products/inventory/services+svcs/tasks/
+// defectiveStock/warehouseDocs/stockMoves/warehouses/daqi*/postalHistory.
+// svcs is _safeArr(services) — same source as services, not a second RAM array.
+// Clone-on-return. No localStorage/IndexedDB write. No ID generation. No phonebook. No attachmentsIndex.
+// NOT called from _buildFullBackupData / exportData / buildBackupObject / collectRequiredBusinessSnapshot.
+function collectOptionalBusinessSnapshot(){
+  var data = {
+    products: _safeArr(products),
+    inventory: _safeObj(inventory),
+    services: _safeArr(services),
+    svcs: _safeArr(services),
+    tasks: _safeArr(tasks),
+    defectiveStock: _safeArr(defectiveStock),
+    warehouseDocs: _safeArr(warehouseDocs),
+    stockMoves: _safeArr(stockMoves),
+    warehouses: _safeArr(typeof warehouses!=='undefined'?warehouses:[]),
+    daqi: _safeArr(typeof daqi!=='undefined'?daqi:[]),
+    daqiWarehouse: (typeof daqiWarehouse!=='undefined'?daqiWarehouse:[]),
+    daqiVouchers: (typeof daqiVouchers!=='undefined'?daqiVouchers:[]),
+    postalHistory: (typeof postalHistory!=='undefined'?postalHistory:[])
+  };
+  return JSON.parse(JSON.stringify(data));
+}
+
 // ─── Checksum (SHA-256) برای سلامت فایل بک‌آپ ───
 // نکته: crypto.subtle فقط در secure context (localhost HTTPS) موجود است، نه file://.
 // در file://، checksum خالی می‌ماند و checksumAlgo='none' — برنامه همچنان کار می‌کند.
