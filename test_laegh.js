@@ -10723,8 +10723,13 @@ console.log('📋 گروه: ARCH-19 مرز پیوست/ارجاع (فقط ممی�
 
 const ARCH18_OPTIONAL_ADAPTER_SHA256 = 'd885fa4c4c5f128f36db7799a5732adc3765025b9bebe204779a77c01a79b508';
 const ARCH19_COLLECT_ATTACHMENT_INDEX_SHA256 = 'ed781c62b8a0da9e80b458339cf3bf36bbabd38183ee5f5c1b81b9e686877d8f';
-const ARCH19_REPLACE_SHA256 = '8391119460561bc591b346c17bead9bdd75317828dd14a1b3636421e5cedc81b';
-const ARCH19_MERGE_SHA256 = 'd01ee56106db3d5389ac3e7dc9ecec3c242965fb7aee7e2ba7e04835951d6b9d';
+const ARCH19_REPLACE_SHA256_PRE_ARCH25 = '8391119460561bc591b346c17bead9bdd75317828dd14a1b3636421e5cedc81b';
+const ARCH19_MERGE_SHA256_PRE_ARCH25 = 'd01ee56106db3d5389ac3e7dc9ecec3c242965fb7aee7e2ba7e04835951d6b9d';
+const ARCH25_REPLACE_SHA256 = 'b067f92b2e1bbf60c9d6edcc77dba68b5e839b44c8d0d61ab95967e47426b7af';
+const ARCH25_MERGE_SHA256 = '0505b31f8f46e96dd097294e37c17549c79810b422073f2cc33111cdab90dc49';
+const ARCH25_FINGERPRINT_SHA256 = '32eb8b515ee874e7e4eb89568e1293cbd54196e56667e863383f62add453dc15';
+const ARCH19_REPLACE_SHA256 = ARCH25_REPLACE_SHA256;
+const ARCH19_MERGE_SHA256 = ARCH25_MERGE_SHA256;
 const ARCH19_FIXTURES = JSON.parse(fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', 'AttachmentReferenceFixtures.json'), 'utf8'));
 
 function arch19HelperSrc() {
@@ -11692,7 +11697,7 @@ function arch22RunMerge(state, payload) {
     renderWarList: function(){}, renderDataStats: function(){}, renderTasks: function(){},
     renderSidebarBadges: function(){}, renderAccounts: function(){}, renderDefective: function(){}
   };
-  const src = extractFunctionSource(html, '_restoreWants') + '\n' + extractFunctionSource(html, 'applyBackupMergeSections') +
+  const src = extractFunctionSource(html, '_restoreWants') + '\n' + extractFunctionSource(html, '_phonebookCanonicalFingerprint') + '\n' + extractFunctionSource(html, 'applyBackupMergeSections') +
     '\napplyBackupMergeSections({phonebook: payload}, ["phonebook"]);\nreturn phonebook;';
   const next = new Function('ctx', 'payload', 'with(ctx){ ' + src + ' }')(ctx, JSON.parse(JSON.stringify(payload)));
   return { phonebook: next, ls: ls };
@@ -11738,8 +11743,11 @@ test('ARCH-22 G2: منبع ذخیره lb و فقدان هویت پایدار د�
   assertTrue(savePB.indexOf("id:'PB-") < 0, 'شناسه نمی‌سازد');
   assertContainsString(savePB, 'if(idx===-1)phonebook.push(c);else phonebook[idx]=c;', 'push بدون id');
   assertContainsString(extractFunctionSource(html, 'applyBackupMergeSections'),
-    "var exists = phonebook.find(function(p){ return entryPhone && (p.phones||[]).indexOf(entryPhone) !== -1; });",
-    'merge فقط تلفن خام اول');
+    '_phonebookCanonicalFingerprint(entry)',
+    'merge اثرانگشت کانونیکال');
+  assertContainsString(extractFunctionSource(html, 'applyBackupMergeSections'),
+    "var exists = phonebook.find(function(p){ return (p.phones||[]).indexOf(entryPhone) !== -1; });",
+    'merge تلفن خام فقط بعد از اثرانگشت');
 });
 
 ARCH22_FIXTURES.cases.forEach(function(fx){
@@ -11777,7 +11785,7 @@ test('ARCH-22 classifier: A/C/D/E/F و B رقم فارسی', () => {
   assertTrue(arch22ClassesOf(t10, 0).indexOf('C') < 0, 'B is not C');
 });
 
-test('ARCH-22 replay: ۵۳۰ ردیف بدون تلفن چهار ادغام → ۲۶۵۰', () => {
+test('ARCH-22 replay: ۵۳۰ ردیف بدون تلفن چهار ادغام → ۵۳۰ (قفل ARCH-25)', () => {
   const payload = [];
   for (var i = 0; i < 530; i++) payload.push({ fn:'بی‌تلفن', ln:String(i), phones:[], cat:'other' });
   var state = JSON.parse(JSON.stringify(payload));
@@ -11786,7 +11794,7 @@ test('ARCH-22 replay: ۵۳۰ ردیف بدون تلفن چهار ادغام → 
     state = arch22RunMerge(state, payload).phonebook;
     counts.push(state.length);
   }
-  assertEqual(JSON.stringify(counts), JSON.stringify([530,1060,1590,2120,2650]), 'empty-phone doubling');
+  assertEqual(JSON.stringify(counts), JSON.stringify([530,530,530,530,530]), 'empty-phone no doubling');
 });
 
 test('ARCH-22 replay: ردیف با تلفن خام یکسان تکراری نمی‌شود', () => {
@@ -11798,11 +11806,11 @@ test('ARCH-22 replay: ردیف با تلفن خام یکسان تکراری نم
   assertEqual(twice.length, 40, 'second merge idempotent');
 });
 
-test('ARCH-22 idempotency: خالی غیریدمپوتنت؛ تلفن خام یدمپوتنت', () => {
+test('ARCH-22 idempotency: خالی و تلفن خام هر دو یدمپوتنت (قفل ARCH-25)', () => {
   const empty = ARCH22_FIXTURES.cases.find(function(c){ return c.id==='T5'; }).ram.phonebook;
   var e1 = arch22RunMerge([], empty).phonebook;
   var e2 = arch22RunMerge(e1, empty).phonebook;
-  assertTrue(e2.length > e1.length, 'non-idempotent empty');
+  assertEqual(e2.length, e1.length, 'idempotent empty');
   const clones = ARCH22_FIXTURES.cases.find(function(c){ return c.id==='T4'; }).ram.phonebook;
   var c1 = arch22RunMerge([], clones).phonebook;
   var c2 = arch22RunMerge(c1, clones).phonebook;
@@ -11879,7 +11887,7 @@ function arch23RunMergeBackup(state, backupObj) {
     renderWarList: function(){}, renderDataStats: function(){}, renderTasks: function(){},
     renderSidebarBadges: function(){}, renderAccounts: function(){}, renderDefective: function(){}
   };
-  const src = extractFunctionSource(html, '_restoreWants') + '\n' + extractFunctionSource(html, 'applyBackupMergeSections') +
+  const src = extractFunctionSource(html, '_restoreWants') + '\n' + extractFunctionSource(html, '_phonebookCanonicalFingerprint') + '\n' + extractFunctionSource(html, 'applyBackupMergeSections') +
     '\napplyBackupMergeSections(backup, ["phonebook"]);\nreturn phonebook;';
   const next = new Function('ctx', 'backup', 'with(ctx){ ' + src + ' }')(ctx, JSON.parse(JSON.stringify(backupObj)));
   return { phonebook: next, ls: ls };
@@ -12061,7 +12069,7 @@ test('ARCH-23 candidate: ورودی را جهش نمی‌دهد و UPDATE ندا
   got.rows.forEach(function(r){ assertTrue(r.outcome !== 'UPDATE', 'no UPDATE'); });
 });
 
-test('ARCH-23 Replace: آرایه معتبر ترتیب/تکرار/خالی را نگه می‌دارد؛ missing پاک می‌کند', () => {
+test('ARCH-23 Replace: آرایه معتبر ترتیب/تکرار/خالی را نگه می‌دارد؛ missing زنده می‌ماند (قفل ARCH-25)', () => {
   const live = [{ fn:'A', phones:['1'] }, { fn:'B', phones:['2'] }];
   const incoming = [
     { fn:'X', phones:['a'] },
@@ -12071,9 +12079,9 @@ test('ARCH-23 Replace: آرایه معتبر ترتیب/تکرار/خالی را
   ];
   const got = arch23RunReplaceBackup(live, { phonebook: incoming }).phonebook;
   assertEqual(JSON.stringify(got), JSON.stringify(incoming), 'full replace payload');
-  assertEqual(arch23RunReplaceBackup(live, {}).phonebook.length, 0, 'missing → []');
-  assertEqual(arch23RunReplaceBackup(live, { phonebook: null }).phonebook.length, 0, 'null → []');
-  assertEqual(arch23RunReplaceBackup(live, { phonebook: {} }).phonebook.length, 0, 'wrong type → []');
+  assertEqual(arch23RunReplaceBackup(live, {}).phonebook.length, 2, 'missing → KEEP LIVE');
+  assertEqual(arch23RunReplaceBackup(live, { phonebook: null }).phonebook.length, 2, 'null → KEEP LIVE');
+  assertEqual(arch23RunReplaceBackup(live, { phonebook: {} }).phonebook.length, 2, 'wrong type → KEEP LIVE');
   assertEqual(arch23RunReplaceBackup(live, { phonebook: [] }).phonebook.length, 0, 'empty → []');
 });
 
@@ -12148,10 +12156,296 @@ test('ARCH-24: بک‌آپ خودکفا جزئی است — ایندکس پیو�
   assertContainsString(idx, 'inline: !isDisk && !!data', 'inline flag');
   assertTrue(idx.indexOf('phonebook') < 0, 'دفترچه در ایندکس نیست');
   assertContainsString(html, "window.DISK_REF_PREFIX = 'disk://'", 'external media prefix');
-  assertContainsString(extractFunctionSource(html, 'applyBackupReplaceSections'), 'else phonebook = [];', 'missing replace clears');
+  assertContainsString(extractFunctionSource(html, 'applyBackupReplaceSections'), 'دفترچه زنده حفظ شد', 'missing replace KEEP LIVE');
 });
 
 test('ARCH-24: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت یکی هستند', () => {
+  const sirman = fs.readFileSync(path.join(path.dirname(filePath), 'Sirman_Final.html'));
+  const laegh = fs.readFileSync(path.join(path.dirname(filePath), 'Laegh_Final.html'));
+  assertEqual(sirman.length, laegh.length, 'طول فایل');
+  assertEqual(Buffer.compare(sirman, laegh), 0, 'byte-identical');
+});
+
+
+console.log('');
+console.log('📋 گروه: ARCH-25 قرارداد Restore دفترچه (Policy B + KEEP LIVE)');
+
+function arch25RunPhonebook(mode, state, backupObj, extra) {
+  extra = extra || {};
+  const ls = arch9cMakeLs({});
+  const warns = extra.warns || [];
+  const ctx = {
+    phonebook: JSON.parse(JSON.stringify(state)),
+    daqi: extra.daqi ? JSON.parse(JSON.stringify(extra.daqi)) : [{ id:'Q1', agencyPhonebookIdx:1 }],
+    localStorage: ls,
+    assertRequiredBackupCollections: function(){ return { ok:true }; },
+    sv: function(){ ls.setItem('lb', JSON.stringify(ctx.phonebook)); },
+    svDaqi: function(){ ls.setItem('daqi', JSON.stringify(ctx.daqi)); },
+    svParts: function(){}, svSvcs: function(){}, svSales: function(){}, svWarr: function(){},
+    svTasks: function(){}, svDefective: function(){}, svAccounts: function(){},
+    getNum: function(){}, renderSaved: function(){}, renderProds: function(){}, renderInv: function(){},
+    renderPB: function(){}, renderParts: function(){}, renderSvcs: function(){}, renderSales: function(){},
+    renderWarList: function(){}, renderDataStats: function(){}, renderTasks: function(){},
+    renderSidebarBadges: function(){}, renderAccounts: function(){}, renderDefective: function(){},
+    ntf: function(msg, kind){ warns.push({ msg: msg, kind: kind }); },
+    addDbgEntry: function(){ warns.push({ dbg: true, args: Array.prototype.slice.call(arguments) }); }
+  };
+  const fn = mode === 'replace' ? 'applyBackupReplaceSections' : 'applyBackupMergeSections';
+  const src = extractFunctionSource(html, '_restoreWants') + '\n' +
+    extractFunctionSource(html, '_phonebookCanonicalFingerprint') + '\n' +
+    extractFunctionSource(html, fn) +
+    '\n' + fn + '(backup, ["phonebook"]);\nreturn {phonebook:phonebook, daqi:daqi};';
+  const got = new Function('ctx', 'backup', 'with(ctx){ ' + src + ' }')(ctx, JSON.parse(JSON.stringify(backupObj)));
+  got.warns = warns;
+  got.ls = ls;
+  return got;
+}
+
+test('ARCH-25 G1: قفل SHA اسمبل/save/آداپترها؛ Merge/Replace عوض شده‌اند', () => {
+  const build = extractFunctionSource(html, '_buildFullBackupData');
+  assertEqual(arch9cSha256(build), ARCH9D_BUILD_SHA256, 'assembler');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'savePBContact')), ARCH22_SAVEPB_SHA256, 'savePBContact');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'collectPhonebookSnapshot')), ARCH22_PHONEBOOK_ADAPTER_SHA256, 'adapter unused');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'collectAttachmentIndex')), ARCH19_COLLECT_ATTACHMENT_INDEX_SHA256, 'index');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'collectRequiredBusinessSnapshot')), ARCH17_REQUIRED_ADAPTER_SHA256, 'ARCH-17');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'collectOptionalBusinessSnapshot')), ARCH18_OPTIONAL_ADAPTER_SHA256, 'ARCH-18');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'applyBackupMergeSections')), ARCH25_MERGE_SHA256, 'Merge new');
+  assertEqual(arch9cSha256(extractFunctionSource(html, 'applyBackupReplaceSections')), ARCH25_REPLACE_SHA256, 'Replace new');
+  assertEqual(arch9cSha256(extractFunctionSource(html, '_phonebookCanonicalFingerprint')), ARCH25_FINGERPRINT_SHA256, 'fingerprint');
+  assertTrue(ARCH25_MERGE_SHA256 !== ARCH19_MERGE_SHA256_PRE_ARCH25, 'Merge SHA must change');
+  assertTrue(ARCH25_REPLACE_SHA256 !== ARCH19_REPLACE_SHA256_PRE_ARCH25, 'Replace SHA must change');
+  assertTrue(build.indexOf('collectPhonebookSnapshot') < 0, 'اسمبل آداپتر دفترچه را صدا نمی‌زند');
+  assertContainsString(build, 'phonebook: _safeArr(phonebook)', 'RAM phonebook');
+  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+  const merge = extractFunctionSource(html, 'applyBackupMergeSections');
+  assertTrue(merge.indexOf('agencyPhonebookIdx') < 0, 'merge daqi untouched');
+  const replace = extractFunctionSource(html, 'applyBackupReplaceSections');
+  assertTrue(replace.indexOf('agencyPhonebookIdx') < 0, 'replace daqi untouched');
+  assertTrue(extractFunctionSource(html, 'savePBContact').indexOf("id:'PB-") < 0, 'no PB ids');
+});
+
+test('ARCH-25 fingerprint: مدل کانونیکال ARCH-23 بدون نرمال‌سازی', () => {
+  const src = extractFunctionSource(html, '_phonebookCanonicalFingerprint');
+  const fp = new Function(src + '\nreturn _phonebookCanonicalFingerprint;')();
+  const a = { fn:'علی', z:1, a:2, phones:['0912'] };
+  const b = { a:2, phones:['0912'], fn:'علی', z:1 };
+  assertEqual(fp(a), fp(b), 'key order independent');
+  assertEqual(fp(a), arch23CanonicalFingerprint(a), 'matches ARCH-23 helper');
+  assertEqual(fp(null), 'null', 'null');
+  assertEqual(fp(undefined), 'null', 'undefined');
+  assertEqual(fp({ phones:null }), arch23CanonicalFingerprint({ phones:null }), 'null phones');
+  assertEqual(fp('۰۹۱۲'), JSON.stringify('۰۹۱۲'), 'raw digits');
+  assertTrue(fp({ fn:'علی' }) !== fp({ fn:'علی', phones:[] }), 'missing ≠ empty array');
+});
+
+test('ARCH-25 Merge matrix M1-M17', () => {
+  const m1 = arch25RunPhonebook('merge', [], { phonebook: [{ fn:'علی', phones:['09120000001'] }] }).phonebook;
+  assertEqual(m1.length, 1, 'M1 ADD unique phone');
+
+  const clone = { fn:'علی', phones:['09120000001'], note:'same' };
+  const m2 = arch25RunPhonebook('merge', [JSON.parse(JSON.stringify(clone))], { phonebook: [JSON.parse(JSON.stringify(clone))] }).phonebook;
+  assertEqual(m2.length, 1, 'M2 exact phone clone skip');
+  assertEqual(m2[0].fn, 'علی', 'M2 no update');
+
+  const empty = { fn:'بی‌تلفن', ln:'0', phones:[] };
+  const m3 = arch25RunPhonebook('merge', [JSON.parse(JSON.stringify(empty))], { phonebook: [JSON.parse(JSON.stringify(empty))] }).phonebook;
+  assertEqual(m3.length, 1, 'M3 empty exact skip');
+
+  const missing = { fn:'بدون‌فیلد' };
+  const m4 = arch25RunPhonebook('merge', [JSON.parse(JSON.stringify(missing))], { phonebook: [JSON.parse(JSON.stringify(missing))] }).phonebook;
+  assertEqual(m4.length, 1, 'M4 missing phones exact skip');
+
+  const nul = { fn:'نال', phones:null };
+  const m5 = arch25RunPhonebook('merge', [JSON.parse(JSON.stringify(nul))], { phonebook: [JSON.parse(JSON.stringify(nul))] }).phonebook;
+  assertEqual(m5.length, 1, 'M5 null phones exact skip');
+
+  const m6 = arch25RunPhonebook('merge', [{ fn:'بی‌تلفن', ln:'0', phones:[] }], { phonebook: [{ fn:'بی‌تلفن', ln:'1', phones:[] }] }).phonebook;
+  assertEqual(m6.length, 2, 'M6 different empty ADD');
+
+  const m7 = arch25RunPhonebook('merge', [{ fn:'مریم', phones:['09126666661'] }], { phonebook: [{ fn:'مریم', phones:['09126666662'] }] }).phonebook;
+  assertEqual(m7.length, 2, 'M7 same name different phone ADD');
+
+  const m8 = arch25RunPhonebook('merge', [{ fn:'قدیمی', phones:['09120000001'], note:'keep' }], { phonebook: [{ fn:'جدید', phones:['09120000001'], note:'drop' }] }).phonebook;
+  assertEqual(m8.length, 1, 'M8 same phone skip');
+  assertEqual(m8[0].fn, 'قدیمی', 'M8 no name rewrite');
+  assertEqual(m8[0].note, 'keep', 'M8 no metadata update');
+
+  const m9 = arch25RunPhonebook('merge', [{ fn:'علی', phones:['09120000001'], note:'a' }], { phonebook: [{ fn:'علی', phones:['09120000001'], note:'b' }] }).phonebook;
+  assertEqual(m9.length, 1, 'M9 metadata skip');
+  assertEqual(m9[0].note, 'a', 'M9 live kept');
+
+  const m10 = arch25RunPhonebook('merge', [{ fn:'نماینده', phones:['111','222'] }], { phonebook: [{ fn:'دیگر', phones:['222','333'] }] }).phonebook;
+  assertEqual(m10.length, 1, 'M10 first slot matches any live slot');
+
+  const m11 = arch25RunPhonebook('merge', [{ fn:'موجود', phones:['09120000002'] }], { phonebook: [{ fn:'نال‌اول', phones:['','09120000002'] }] }).phonebook;
+  assertEqual(m11.length, 2, 'M11 empty phones[0] ADD (identity is phones[0] only)');
+
+  const emptyX = { fn:'خالی', ln:'x', phones:[] };
+  const m12 = arch25RunPhonebook('merge', [], { phonebook: [emptyX, JSON.parse(JSON.stringify(emptyX))] }).phonebook;
+  assertEqual(m12.length, 1, 'M12 repeated exact empty no growth');
+
+  const emptyA = { fn:'خالی', ln:'a', phones:[] };
+  const emptyB = { fn:'خالی', ln:'b', phones:[] };
+  const m13 = arch25RunPhonebook('merge', [], { phonebook: [emptyA, emptyB, JSON.parse(JSON.stringify(emptyA)), JSON.parse(JSON.stringify(emptyB))] }).phonebook;
+  assertEqual(m13.length, 2, 'M13 distinct empty grows once each');
+
+  const m14 = arch25RunPhonebook('merge', [{ fn:'A', phones:['1'] }, { fn:'B', phones:['2'] }], { phonebook: [{ fn:'C', phones:['3'] }, { fn:'D', phones:['4'] }] }).phonebook;
+  assertEqual(m14.map(function(x){ return x.fn; }).join(','), 'A,B,C,D', 'M14 order');
+
+  const m15 = arch25RunPhonebook('merge', [], { phonebook: [{ fn:'extra', phones:['09129999999'], xyz:7, nested:{ k:'v' } }] }).phonebook;
+  assertEqual(m15[0].xyz, 7, 'M15 unknown field');
+  assertEqual(m15[0].nested.k, 'v', 'M15 nested');
+
+  const m16 = arch25RunPhonebook('merge', [], { phonebook: [{ fn:'علی', ln:'رضایی', phones:['۰۹۱۲۱۱۱۱۱۱۱'], note:'العربية' }] }).phonebook;
+  assertEqual(m16[0].fn, 'علی', 'M16 persian');
+  assertEqual(m16[0].phones[0], '۰۹۱۲۱۱۱۱۱۱۱', 'M16 raw phone');
+  assertEqual(m16[0].note, 'العربية', 'M16 arabic');
+
+  const m17 = arch25RunPhonebook('merge', [], { phonebook: [], pb: [{ fn:'از-alias', phones:['09120000009'] }] }).phonebook;
+  assertEqual(m17.length, 1, 'M17 legacy pb');
+  assertEqual(m17[0].fn, 'از-alias', 'M17 fn');
+});
+
+test('ARCH-25 Replace matrix R1-R13', () => {
+  const live = [{ fn:'A', phones:['1'] }, { fn:'B', phones:['2'] }];
+  const daqi = [{ id:'Q1', agencyPhonebookIdx:1 }];
+
+  const r1 = arch25RunPhonebook('replace', live, { phonebook: [{ fn:'X', phones:['a'] }, { fn:'Y', phones:['b'] }] }, { daqi: daqi });
+  assertEqual(r1.phonebook.length, 2, 'R1 replace');
+  assertEqual(r1.phonebook[0].fn, 'X', 'R1 first');
+  assertEqual(r1.daqi[0].agencyPhonebookIdx, 1, 'R13 daqi after replace');
+
+  const r2 = arch25RunPhonebook('replace', live, { phonebook: [] }, { daqi: daqi });
+  assertEqual(r2.phonebook.length, 0, 'R2 explicit [] CLEAR');
+  assertEqual(r2.daqi[0].agencyPhonebookIdx, 1, 'R13 daqi after clear');
+
+  const r3 = arch25RunPhonebook('replace', live, {}, { daqi: daqi });
+  assertEqual(r3.phonebook.length, 2, 'R3 missing KEEP LIVE');
+  assertEqual(r3.phonebook[0].fn, 'A', 'R3 live A');
+  assertTrue(r3.warns.some(function(w){ return w.kind==='warn'; }), 'R3 warn toast');
+
+  const r4 = arch25RunPhonebook('replace', live, { phonebook: null }, { daqi: daqi });
+  assertEqual(r4.phonebook.length, 2, 'R4 null KEEP LIVE');
+
+  const r5 = arch25RunPhonebook('replace', live, { phonebook: {} }, { daqi: daqi });
+  assertEqual(r5.phonebook.length, 2, 'R5 {} KEEP LIVE');
+
+  const r6 = arch25RunPhonebook('replace', live, { phonebook: 'bad' }, { daqi: daqi });
+  assertEqual(r6.phonebook.length, 2, 'R6 string KEEP LIVE');
+
+  const r7 = arch25RunPhonebook('replace', live, { pb: [{ name:'نام خانوادگی', phone:'09120000008' }] }, { daqi: daqi });
+  assertEqual(r7.phonebook.length, 1, 'R7 legacy pb');
+  assertEqual(r7.phonebook[0].fn, 'نام', 'R7 convert');
+  assertEqual(r7.phonebook[0].phones[0], '09120000008', 'R7 phone');
+
+  const r8a = arch25RunPhonebook('replace', live, { pb: [] }, { daqi: daqi });
+  assertEqual(r8a.phonebook.length, 2, 'R8 empty pb KEEP LIVE');
+  const r8b = arch25RunPhonebook('replace', live, {}, { daqi: daqi });
+  assertEqual(r8b.phonebook.length, 2, 'R8 missing pb KEEP LIVE');
+
+  const incoming = [
+    { fn:'X', phones:['a'], xyz:1 },
+    { fn:'خالی', phones:[] },
+    { fn:'تکرار', phones:['9'] },
+    { fn:'تکرار', phones:['9'] }
+  ];
+  const r9 = arch25RunPhonebook('replace', live, { phonebook: incoming }, { daqi: daqi });
+  assertEqual(JSON.stringify(r9.phonebook), JSON.stringify(incoming), 'R9-R12 order/dups/empty/unknown');
+  assertEqual(r9.daqi[0].agencyPhonebookIdx, 1, 'R13 daqi unchanged');
+  assertEqual(live[1].fn, 'B', 'incoming replace does not mutate caller live fixture after clone');
+});
+
+test('ARCH-25 idempotency: duplicate / distinct empty / mixed', () => {
+  const exact = [{ fn:'علی', phones:['09120000001'] }];
+  const e1 = arch25RunPhonebook('merge', exact, { phonebook: JSON.parse(JSON.stringify(exact)) }).phonebook;
+  const e2 = arch25RunPhonebook('merge', e1, { phonebook: JSON.parse(JSON.stringify(exact)) }).phonebook;
+  assertEqual(e1.length, 1, 'exact first');
+  assertEqual(e2.length, 1, 'exact second');
+
+  const distinct = [{ fn:'بی‌تلفن', ln:'0', phones:[] }, { fn:'بی‌تلفن', ln:'1', phones:[] }];
+  const d1 = arch25RunPhonebook('merge', [], { phonebook: distinct }).phonebook;
+  const d2 = arch25RunPhonebook('merge', d1, { phonebook: distinct }).phonebook;
+  assertEqual(d1.length, 2, 'distinct first adds both');
+  assertEqual(d2.length, 2, 'distinct second adds none');
+
+  const mixedLive = [{ fn:'قدیمی', phones:['0912'] }, { fn:'خالی', ln:'z', phones:[] }];
+  const mixedPayload = [
+    { fn:'قدیمی', phones:['0912'] },
+    { fn:'خالی', ln:'z', phones:[] },
+    { fn:'جدید', phones:['0913'] },
+    { fn:'خالی', ln:'new', phones:[] }
+  ];
+  const mix1 = arch25RunPhonebook('merge', mixedLive, { phonebook: mixedPayload }).phonebook;
+  const mix2 = arch25RunPhonebook('merge', mix1, { phonebook: mixedPayload }).phonebook;
+  assertEqual(mix1.length, 4, 'mixed first adds two');
+  assertEqual(mix2.length, mix1.length, 'mixed second no clone growth');
+});
+
+test('ARCH-25 replay: ۵۳۰ ردیف خالی چهار ادغام → ۵۳۰', () => {
+  const payload = [];
+  for (var i = 0; i < 530; i++) payload.push({ fn:'بی‌تلفن', ln:String(i), phones:[], cat:'other' });
+  var state = JSON.parse(JSON.stringify(payload));
+  var counts = [state.length];
+  for (var r = 0; r < 4; r++) {
+    state = arch25RunPhonebook('merge', state, { phonebook: payload }).phonebook;
+    counts.push(state.length);
+  }
+  assertEqual(JSON.stringify(counts), JSON.stringify([530,530,530,530,530]), '530 stays 530');
+});
+
+test('ARCH-25 replay: ۴۰ تلفن یکتا → ۴۰', () => {
+  const payload = [];
+  for (var i = 0; i < 40; i++) payload.push({ fn:'باشماره', ln:String(i), phones:['0912'+String(1000000+i)], cat:'customer' });
+  var once = arch25RunPhonebook('merge', [], { phonebook: payload }).phonebook;
+  var twice = arch25RunPhonebook('merge', once, { phonebook: payload }).phonebook;
+  assertEqual(once.length, 40, 'first');
+  assertEqual(twice.length, 40, 'second');
+});
+
+test('ARCH-25 no-data-loss: Merge حذف/بازنویسی نمی‌کند؛ فقط [] صریح پاک می‌کند', () => {
+  const live = [{ fn:'A', phones:['1'] }, { fn:'B', phones:['2'] }, { fn:'C', phones:['3'] }];
+  const daqi = [{ id:'Q1', agencyPhonebookIdx:1 }];
+  const merged = arch25RunPhonebook('merge', live, { phonebook: [{ fn:'D', phones:['4'] }, { fn:'A', phones:['1'] }] }, { daqi: daqi });
+  assertEqual(merged.phonebook.length, 4, 'existing kept + one add');
+  assertEqual(merged.phonebook[0].fn, 'A', 'A stays');
+  assertEqual(merged.phonebook[1].fn, 'B', 'B stays');
+  assertEqual(merged.phonebook[0].phones[0], '1', 'phone not rewritten');
+  assertEqual(merged.daqi[0].agencyPhonebookIdx, 1, 'daqi merge');
+  assertEqual(merged.phonebook[merged.daqi[0].agencyPhonebookIdx].fn, 'B', 'idx still B');
+
+  const emptyLive = [{ fn:'بی‌تلفن', ln:'0', phones:[] }];
+  const uniqueEmpty = arch25RunPhonebook('merge', emptyLive, { phonebook: [{ fn:'بی‌تلفن', ln:'1', phones:[] }] }).phonebook;
+  assertEqual(uniqueEmpty.length, 2, 'different empty not suppressed');
+  const cloneEmpty = arch25RunPhonebook('merge', emptyLive, { phonebook: [{ fn:'بی‌تلفن', ln:'0', phones:[] }] }).phonebook;
+  assertEqual(cloneEmpty.length, 1, 'exact empty clone skipped');
+
+  const keep = arch25RunPhonebook('replace', live, {}, { daqi: daqi });
+  assertEqual(keep.phonebook.length, 3, 'missing does not clear');
+  const cleared = arch25RunPhonebook('replace', live, { phonebook: [] }, { daqi: daqi });
+  assertEqual(cleared.phonebook.length, 0, 'explicit [] is the only new clear');
+  assertEqual(cleared.daqi[0].agencyPhonebookIdx, 1, 'daqi after []');
+});
+
+test('ARCH-25 migrateBackup: کلید غایب از [] صریح جدا می‌ماند', () => {
+  const migrate = loadMigrateBackupFn();
+  const missing = migrate({ version:'10.4.3', invoices:[], products:[], inventory:{} });
+  assertEqual(Object.prototype.hasOwnProperty.call(missing.data, 'phonebook'), false, 'missing stays missing');
+  const explicit = migrate({ version:'10.4.3', invoices:[], products:[], inventory:{}, phonebook:[] });
+  assertTrue(Array.isArray(explicit.data.phonebook), 'explicit array');
+  assertEqual(explicit.data.phonebook.length, 0, 'explicit []');
+  const afterMissing = arch25RunPhonebook('replace', [{ fn:'keep', phones:['1'] }], missing.data).phonebook;
+  assertEqual(afterMissing.length, 1, 'migrate+replace missing KEEP LIVE');
+  const afterEmpty = arch25RunPhonebook('replace', [{ fn:'keep', phones:['1'] }], explicit.data).phonebook;
+  assertEqual(afterEmpty.length, 0, 'migrate+replace explicit [] CLEAR');
+});
+
+test('ARCH-25: Restore UI بخش خالی را تیک‌نخورده و غیرفعال می‌گذارد', () => {
+  assertContainsString(extractFunctionSource(html, 'openRestorePreviewModal'), "var dis = r.has ? '' : ' disabled';", 'disabled empty');
+  assertContainsString(extractFunctionSource(html, 'openRestorePreviewModal'), "var chk = r.has ? ' checked' : '';", 'unchecked empty');
+  assertContainsString(extractFunctionSource(html, 'describeBackupValue'), "if(def.key === 'phonebook'){", 'phonebook has from array length');
+});
+
+test('ARCH-25: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت یکی هستند', () => {
   const sirman = fs.readFileSync(path.join(path.dirname(filePath), 'Sirman_Final.html'));
   const laegh = fs.readFileSync(path.join(path.dirname(filePath), 'Laegh_Final.html'));
   assertEqual(sirman.length, laegh.length, 'طول فایل');

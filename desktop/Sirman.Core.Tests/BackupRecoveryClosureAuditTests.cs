@@ -15,8 +15,8 @@ public class BackupRecoveryClosureAuditTests
 {
     public const string AssemblerSha = PhonebookRestoreSafety.AssemblerSha;
     public const string SavePbSha = PhonebookRestoreSafety.SavePbContactSha;
-    public const string MergeSha = PhonebookRestoreSafety.MergeSha;
-    public const string ReplaceSha = PhonebookRestoreSafety.ReplaceSha;
+    public const string MergeSha = PhonebookRestoreContract.MergeSha;
+    public const string ReplaceSha = PhonebookRestoreContract.ReplaceSha;
     public const string AttachmentIndexSha = "ed781c62b8a0da9e80b458339cf3bf36bbabd38183ee5f5c1b81b9e686877d8f";
     public const string RequiredAdapterSha = "92dd552685fce56b5cff75a41c4a767d658233affc6d3870d015dc379199c631";
     public const string OptionalAdapterSha = "d885fa4c4c5f128f36db7799a5732adc3765025b9bebe204779a77c01a79b508";
@@ -107,9 +107,11 @@ public class BackupRecoveryClosureAuditTests
         Assert.DoesNotContain("phonebook", index);
         Assert.Contains("walk(d && d.warranties, 'warranty')", index);
         var replace = ExtractFunction(html, "applyBackupReplaceSections");
-        Assert.Contains("else phonebook = [];", replace);
+        Assert.Contains("دفترچه زنده حفظ شد", replace);
+        Assert.Contains("d.phonebook.length === 0", replace);
         var merge = ExtractFunction(html, "applyBackupMergeSections");
-        Assert.Contains("entryPhone && (p.phones||[]).indexOf(entryPhone) !== -1", merge);
+        Assert.Contains("_phonebookCanonicalFingerprint(entry)", merge);
+        Assert.Contains("(p.phones||[]).indexOf(entryPhone) !== -1", merge);
         Assert.Contains("DISK_REF_PREFIX", html);
     }
 
