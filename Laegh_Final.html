@@ -8473,6 +8473,7 @@ var BackupEngine = {
 function _buildFullBackupData(){
   var s = collectBackupSettingsSnapshot();
   var b = collectRequiredBusinessSnapshot();
+  var o = collectOptionalBusinessSnapshot();
   var data = {
     magic: (typeof SIRMAN_BACKUP_MAGIC!=='undefined'?SIRMAN_BACKUP_MAGIC:'SIRMAN_BACKUP'),
     schemaVersion: (typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1),
@@ -8481,28 +8482,28 @@ function _buildFullBackupData(){
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
     invoices: b.invoices,
-    products: _safeArr(products),
-    inventory: _safeObj(inventory),
+    products: o.products,
+    inventory: o.inventory,
     invCtr: b.counters.invCtr,
     invoiceUidCtr: b.counters.invoiceUidCtr,
     saleCtr: b.counters.saleCtr,
     saleUidCtr: b.counters.saleUidCtr,
     phonebook: _safeArr(phonebook), // (pb حذف شد — فقط phonebook)
     parts: b.parts,
-    services: _safeArr(services),
-    svcs: _safeArr(services), // alias برای سازگاری قدیمی
+    services: o.services,
+    svcs: o.svcs, // alias برای سازگاری قدیمی
     warranties: b.warranties,
     sales: b.sales,
-    tasks: _safeArr(tasks),
+    tasks: o.tasks,
     accounts: b.accounts,
-    defectiveStock: _safeArr(defectiveStock),
-    warehouseDocs: _safeArr(warehouseDocs),
-    stockMoves: _safeArr(stockMoves),
-    warehouses: _safeArr(typeof warehouses!=='undefined'?warehouses:[]), // فاز ۲ — انبارهای نام‌گذاری‌شده
-    daqi: _safeArr(typeof daqi!=='undefined'?daqi:[]), // داغی (پیگیری رسید نمایندگی),
-    daqiWarehouse: (typeof daqiWarehouse!=='undefined'?daqiWarehouse:[]),
-    daqiVouchers: (typeof daqiVouchers!=='undefined'?daqiVouchers:[]),
-    postalHistory: (typeof postalHistory!=='undefined'?postalHistory:[]),
+    defectiveStock: o.defectiveStock,
+    warehouseDocs: o.warehouseDocs,
+    stockMoves: o.stockMoves,
+    warehouses: o.warehouses, // فاز ۲ — انبارهای نام‌گذاری‌شده
+    daqi: o.daqi, // داغی (پیگیری رسید نمایندگی),
+    daqiWarehouse: o.daqiWarehouse,
+    daqiVouchers: o.daqiVouchers,
+    postalHistory: o.postalHistory,
     appliedUpdates: s.appliedUpdates,
     updatePackages: s.updatePackages,
     // ── لاگ‌ها و امنیت ──
@@ -8644,12 +8645,12 @@ function collectRequiredBusinessSnapshot(){
   return JSON.parse(JSON.stringify(data));
 }
 
-// ARCH-18 — OPTIONAL business snapshot transport only.
-// Reads the same RAM globals as _buildFullBackupData for products/inventory/services+svcs/tasks/
+// ARCH-18 — OPTIONAL business snapshot transport.
+// Reads the same RAM globals for products/inventory/services+svcs/tasks/
 // defectiveStock/warehouseDocs/stockMoves/warehouses/daqi*/postalHistory.
 // svcs is _safeArr(services) — same source as services, not a second RAM array.
 // Clone-on-return. No localStorage/IndexedDB write. No ID generation. No phonebook. No attachmentsIndex.
-// NOT called from _buildFullBackupData / exportData / buildBackupObject / collectRequiredBusinessSnapshot.
+// ARCH-21: called exactly once from _buildFullBackupData. Not called from exportData / buildBackupObject / collectRequiredBusinessSnapshot.
 function collectOptionalBusinessSnapshot(){
   var data = {
     products: _safeArr(products),
