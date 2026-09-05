@@ -12452,6 +12452,27 @@ test('ARCH-25: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت 
   assertEqual(Buffer.compare(sirman, laegh), 0, 'byte-identical');
 });
 
+require('./test_arch26_rah').register({
+  test,
+  html,
+  filePath,
+  repoRoot: path.dirname(path.resolve(filePath)),
+  assertTrue,
+  assertEqual,
+  assertContainsString,
+  extractFunctionSource,
+  p1cValidatorSrc,
+  loadP1CValidator,
+  loadMigrateBackupFn,
+  loadArch5FinalizeOracle,
+  arch5AttachChecksum,
+  arch14HelperSrc,
+  requiredBusinessAdapterSrc,
+  optionalBusinessAdapterSrc,
+  arch9cSha256,
+  arch9cMakeLs
+});
+
 
 console.log('');
 console.log('📋 گروه: موتور عیب‌یابی (AppError / کاتالوگ / پاسخ UI)');
