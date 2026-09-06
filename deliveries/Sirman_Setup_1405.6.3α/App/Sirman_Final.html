@@ -4131,6 +4131,14 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
       <div style="font-size:12px;font-weight:800;margin:8px 0 4px">Diagnostic Result</div>
       <div class="phd-log" id="phd-result">هنوز اجرا نشده. فقط در Sirman.exe و چاپگر واقعی ویندوز معنا دارد.</div>
       <table class="phd-matrix" id="phd-matrix"></table>
+      <div style="font-size:12px;font-weight:800;margin:10px 0 4px">Diagnostic History</div>
+      <div class="phd-actions" style="margin-top:0">
+        <button type="button" class="btn" onclick="phdHistory()">📋 تاریخچه تشخیص</button>
+      </div>
+      <div id="phd-history">
+        <div class="phd-log" id="phd-history-status">تاریخچه هنوز بارگذاری نشده. هر اجرا یک شناسه جلسه جدید می‌سازد و رکورد قبلی را پاک نمی‌کند.</div>
+        <table class="phd-matrix" id="phd-history-table"></table>
+      </div>
     </div>
   </div>
 
@@ -4592,7 +4600,8 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
       </div>
       <div style="background:var(--blue-l);border:1px solid var(--blue);border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--blue2);line-height:1.9">
         📌 <b>نصب میانبر ویندوز (جایگزین منوی نصب قدیمی):</b>
-        فایل <code>نصب_میانبر_سیرمان.bat</code> را کنار برنامه دابل‌کلیک کنید — میانبر Start و دسکتاپ ساخته می‌شود.
+        فایل <code>نصب_میانبر_سیرمان.bat</code> را کنار برنامه دابل‌کلیک کنید — میانبر Start (<code>SIRMAN.lnk</code>) و دسکتاپ (<code>Sirman.lnk</code>) ساخته می‌شود.
+        حذف سالم سطح ۱ داده را پاک نمی‌کند. پاک‌سازی کامل سطح ۲ جداست و فقط با تایپ CONFIRM داده را حذف می‌کند.
         <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn btn-sm btn-p" type="button" onclick="downloadShortcutInstaller('bat')">دانلود نصب_میانبر_سیرمان.bat</button>
           <button class="btn btn-sm btn-o" type="button" onclick="downloadShortcutInstaller('ps1')">دانلود Sirman_Install_Shortcuts.ps1</button>
@@ -5048,6 +5057,15 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <li><b>فایل چاپی از صفر:</b> در کیت و پوشه برنامه <b>راهنمای_نصب_از_صفر.txt</b> یا <b>راهنمای_نصب_و_آپدیت.docx</b> را باز کنید.</li>
   </ol>
 </div>
+<div class="card help-card help-collapsed" data-help-id="uninstall-cleanup-guide">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>حذف سالم و پاک‌سازی کامل</span><span class="help-chev">▾</span></div>
+  <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>سطح ۱ — حذف سالم (Uninstall):</b> میانبر Start با نام <code>Uninstall SIRMAN</code> یا فایل <code>Uninstall-Sirman.bat</code> داخل پوشه نصب. فقط خود برنامه و میانبرهای نصب‌کننده پاک می‌شوند.</li>
+    <li><b>پوشه Start:</b> <code>Programs\Sirman</code> با <code>SIRMAN.lnk</code> و <code>Uninstall SIRMAN.lnk</code>. میانبر فارسی جدا ساخته نمی‌شود.</li>
+    <li><b>سطح ۱ داده را نگه می‌دارد:</b> فاکتور داخل WebView2، بک‌آپ <code>%APPDATA%\Sirman\backup</code>، پوشه بک‌آپ انتخابی شما، <code>sirman_media</code>، رمزها و تاریخچه تشخیص پاک نمی‌شوند.</li>
+    <li><b>سطح ۲ — پاک‌سازی کامل:</b> میانبر جدا <code>SIRMAN Full Cleanup</code>. این حذف عادی نیست. مسیرها نمایش داده می‌شوند و فقط اگر کلمه <b>CONFIRM</b> را تایپ کنید داده کسب‌وکار پاک می‌شود. بدون این کلمه هیچ فایلی حذف نمی‌شود.</li>
+  </ul>
+</div>
 <div class="card help-card help-collapsed">
   <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>⬆️ مرکز آپدیت — بارگذاری فایل به‌روزرسانی</span><span class="help-chev">▾</span></div>
   <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
@@ -5108,7 +5126,8 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <li><b>Direct Windows Print:</b> یک برگه آزمایشی با متن SIRMAN / PRINT HARDWARE TEST می‌فرستد — بدون فاکتور و بدون PDF.</li>
     <li><b>WebView2 Print:</b> همان متن آزمایشی را از مسیر جداگانه PrintAsync می‌فرستد تا با مسیر مستقیم مقایسه شود.</li>
     <li><b>نتیجه:</b> ارسال به صف = PRINT SUBMITTED. چاپ موفق فقط وقتی است که دکمه «برگه آمد» را بزنید. موفقیت PDF چاپ نیست.</li>
-    <li><b>لاگ:</b> فایل PRINT_DIAGNOSTIC.log در پوشه داده برنامه (AppData\Sirman\print).</li>
+    <li><b>تاریخچه:</b> هر اجرای تشخیص یک شناسه جلسه جدید می‌سازد و روی نتیجه قبلی بازنویسی نمی‌شود. دکمه «تاریخچه تشخیص» فهرست را از جدید به قدیم نشان می‌دهد. «برگه آمد» رکورد ارسال را عوض نمی‌کند؛ یک رویداد تأیید جدا می‌نویسد.</li>
+    <li><b>لاگ:</b> فایل PRINT_DIAGNOSTIC.log در پوشه داده برنامه (AppData\Sirman\print). تاریخچه تشخیص جدا در AppData\Sirman\diagnostics\history.jsonl است — نه در sqlite کسب‌وکار.</li>
   </ul>
 </div>
 <div class="help-cat-header">🧾 فاکتور</div>
@@ -7282,7 +7301,7 @@ function downloadTextFile(filename, text, mime){
 }
 function downloadShortcutInstaller(kind){
   var bat = "@echo off\nsetlocal EnableExtensions\ncd /d \"%~dp0\"\ntitle Sirman Install Shortcuts\necho.\necho ===============================================\necho   Sirman — نصب میانبر (جایگزین منوی نصب .NET)\necho ===============================================\necho.\necho  [1] نصب در این کاربر + میانبر Start\necho  [2] نصب + میانبر Start و دسکتاپ   (پیشنهادی)\necho  [3] باز کردن پوشه برنامه\necho  [4] باز کردن پوشه میانبر Start\necho  [0] انصراف\necho.\nset /p CHOICE=انتخاب (1-4): \nif \"%CHOICE%\"==\"1\" (\n  powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"%~dp0Sirman_Install_Shortcuts.ps1\" -Mode user-start\n) else if \"%CHOICE%\"==\"2\" (\n  powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"%~dp0Sirman_Install_Shortcuts.ps1\" -Mode user-start-desktop\n) else if \"%CHOICE%\"==\"3\" (\n  powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"%~dp0Sirman_Install_Shortcuts.ps1\" -Mode open-install\n) else if \"%CHOICE%\"==\"4\" (\n  powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"%~dp0Sirman_Install_Shortcuts.ps1\" -Mode open-start-folder\n) else (\n  echo Cancelled.\n)\necho.\npause\nendlocal\n";
-  var ps1 = "# Sirman_Install_Shortcuts.ps1 — میانبر Start Menu و دسکتاپ برای سیرمان\n# جایگزین منوی «نصب» پوسته قدیمی .NET\nparam(\n  [ValidateSet('user-start','user-start-desktop','open-install','open-start-folder')]\n  [string]$Mode = 'user-start-desktop'\n)\n\n$ErrorActionPreference = 'Stop'\ntry { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}\n\n$Root = Split-Path -Parent $MyInvocation.MyCommand.Path\n$StartBat = Join-Path $Root 'Sirman_Start.bat'\nif (-not (Test-Path -LiteralPath $StartBat)) {\n  Write-Host \"[ERROR] Sirman_Start.bat not found next to this script:\"\n  Write-Host \"  $Root\"\n  Start-Sleep -Seconds 4\n  exit 1\n}\n\n$Programs = Join-Path $env:APPDATA 'Microsoft\\Windows\\Start Menu\\Programs\\Sirman'\n$Desktop = [Environment]::GetFolderPath('Desktop')\n$InstallNoteDir = Join-Path $env:LOCALAPPDATA 'Sirman'\n\nfunction New-SirmanShortcut([string]$LinkPath, [string]$Target, [string]$WorkDir, [string]$Desc) {\n  $w = New-Object -ComObject WScript.Shell\n  $sc = $w.CreateShortcut($LinkPath)\n  $sc.TargetPath = $Target\n  $sc.WorkingDirectory = $WorkDir\n  $sc.WindowStyle = 1\n  $sc.Description = $Desc\n  $sc.Save()\n}\n\nfunction Ensure-Dirs {\n  New-Item -ItemType Directory -Force -Path $Programs | Out-Null\n  New-Item -ItemType Directory -Force -Path $InstallNoteDir | Out-Null\n}\n\nswitch ($Mode) {\n  'open-install' {\n    Ensure-Dirs\n    Start-Process explorer.exe $Root\n    exit 0\n  }\n  'open-start-folder' {\n    Ensure-Dirs\n    Start-Process explorer.exe $Programs\n    exit 0\n  }\n  'user-start' {\n    Ensure-Dirs\n    $link = Join-Path $Programs 'سیرمان.lnk'\n    New-SirmanShortcut $link $StartBat $Root 'سیرمان — خدمات پس از فروش'\n    Set-Content -LiteralPath (Join-Path $InstallNoteDir 'install_path.txt') -Value $Root -Encoding UTF8\n    Write-Host \"[OK] Start Menu shortcut created:\"\n    Write-Host \"  $link\"\n  }\n  'user-start-desktop' {\n    Ensure-Dirs\n    $link1 = Join-Path $Programs 'سیرمان.lnk'\n    $link2 = Join-Path $Desktop 'سیرمان.lnk'\n    New-SirmanShortcut $link1 $StartBat $Root 'سیرمان — خدمات پس از فروش'\n    New-SirmanShortcut $link2 $StartBat $Root 'سیرمان — خدمات پس از فروش'\n    Set-Content -LiteralPath (Join-Path $InstallNoteDir 'install_path.txt') -Value $Root -Encoding UTF8\n    Write-Host \"[OK] Start Menu + Desktop shortcuts created:\"\n    Write-Host \"  $link1\"\n    Write-Host \"  $link2\"\n  }\n}\n\nWrite-Host \"\"\nWrite-Host \"From Start Menu / Desktop, open «سیرمان».\"\nWrite-Host \"That runs Sirman_Start.bat (local server + notify).\"\nStart-Sleep -Seconds 3\n";
+  var ps1 = "# Sirman_Install_Shortcuts.ps1 — canonical Start Menu + desktop shortcuts\n# Folder: Programs\\Sirman\n# Launch: SIRMAN.lnk   Uninstall: Uninstall SIRMAN.lnk\n# Desktop: Sirman.lnk\n# Persian is Description metadata only — not a second folder.\nparam(\n  [ValidateSet('user-start','user-start-desktop','open-install','open-start-folder')]\n  [string]$Mode = 'user-start-desktop'\n)\n\n$ErrorActionPreference = 'Stop'\ntry { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}\n\n$Root = Split-Path -Parent $MyInvocation.MyCommand.Path\n$StartBat = Join-Path $Root 'Sirman_Start.bat'\n$Exe = Join-Path $Root 'Sirman.exe'\nif (Test-Path -LiteralPath $Exe) {\n  $Launch = $Exe\n} elseif (Test-Path -LiteralPath $StartBat) {\n  $Launch = $StartBat\n} else {\n  Write-Host \"[ERROR] Sirman.exe / Sirman_Start.bat not found next to this script:\"\n  Write-Host \"  $Root\"\n  Start-Sleep -Seconds 4\n  exit 1\n}\n\n$life = Join-Path $Root 'Sirman-InstallLifecycle.ps1'\nif (-not (Test-Path -LiteralPath $life)) {\n  $life = Join-Path (Split-Path -Parent $Root) 'scripts\\setup-kit\\Sirman-InstallLifecycle.ps1'\n}\n\nif (Test-Path -LiteralPath $life) {\n  . $life\n  switch ($Mode) {\n    'open-install' {\n      Start-Process explorer.exe $Root\n      exit 0\n    }\n    'open-start-folder' {\n      $dir = Get-SirmanCanonicalStartMenuDir\n      New-Item -ItemType Directory -Force -Path $dir | Out-Null\n      Start-Process explorer.exe $dir\n      exit 0\n    }\n    'user-start' {\n      New-SirmanCanonicalShortcuts -LaunchTarget $Launch -WorkDir $Root\n      Write-SirmanInstallLocation -Dest $Root\n      Write-Host \"[OK] Start Menu: SIRMAN.lnk + Uninstall SIRMAN.lnk\"\n    }\n    'user-start-desktop' {\n      New-SirmanCanonicalShortcuts -LaunchTarget $Launch -WorkDir $Root -Desktop\n      Write-SirmanInstallLocation -Dest $Root\n      Write-Host \"[OK] Start Menu + Desktop (Sirman.lnk)\"\n    }\n  }\n  Start-Sleep -Seconds 2\n  exit 0\n}\n\n# Fallback if lifecycle script is missing: still use the same canonical names.\n$Programs = Join-Path $env:APPDATA 'Microsoft\\Windows\\Start Menu\\Programs\\Sirman'\n$Desktop = [Environment]::GetFolderPath('DesktopDirectory')\n$InstallNoteDir = Join-Path $env:LOCALAPPDATA 'Sirman'\n\nfunction New-SirmanShortcut([string]$LinkPath, [string]$Target, [string]$WorkDir, [string]$Desc) {\n  $w = New-Object -ComObject WScript.Shell\n  $sc = $w.CreateShortcut($LinkPath)\n  $sc.TargetPath = $Target\n  $sc.WorkingDirectory = $WorkDir\n  $sc.WindowStyle = 1\n  $sc.Description = $Desc\n  $sc.Save()\n}\n\nfunction Ensure-Dirs {\n  New-Item -ItemType Directory -Force -Path $Programs | Out-Null\n  New-Item -ItemType Directory -Force -Path $InstallNoteDir | Out-Null\n}\n\nswitch ($Mode) {\n  'open-install' {\n    Ensure-Dirs\n    Start-Process explorer.exe $Root\n    exit 0\n  }\n  'open-start-folder' {\n    Ensure-Dirs\n    Start-Process explorer.exe $Programs\n    exit 0\n  }\n  'user-start' {\n    Ensure-Dirs\n    $link = Join-Path $Programs 'SIRMAN.lnk'\n    New-SirmanShortcut $link $Launch $Root 'سیرمان — خدمات پس از فروش'\n    $unBat = Join-Path $Root 'Uninstall-Sirman.bat'\n    if (Test-Path -LiteralPath $unBat) {\n      New-SirmanShortcut (Join-Path $Programs 'Uninstall SIRMAN.lnk') $unBat $Root 'حذف سالم سیرمان (سطح ۱ — برنامه، نه داده کسب‌وکار)'\n    }\n    Set-Content -LiteralPath (Join-Path $InstallNoteDir 'install-location.txt') -Value $Root -Encoding UTF8\n    Write-Host \"[OK] Start Menu shortcut created:\"\n    Write-Host \"  $link\"\n  }\n  'user-start-desktop' {\n    Ensure-Dirs\n    $link1 = Join-Path $Programs 'SIRMAN.lnk'\n    $link2 = Join-Path $Desktop 'Sirman.lnk'\n    New-SirmanShortcut $link1 $Launch $Root 'سیرمان — خدمات پس از فروش'\n    New-SirmanShortcut $link2 $Launch $Root 'سیرمان — خدمات پس از فروش'\n    $unBat2 = Join-Path $Root 'Uninstall-Sirman.bat'\n    if (Test-Path -LiteralPath $unBat2) {\n      New-SirmanShortcut (Join-Path $Programs 'Uninstall SIRMAN.lnk') $unBat2 $Root 'حذف سالم سیرمان (سطح ۱ — برنامه، نه داده کسب‌وکار)'\n    }\n    $fcBat = Join-Path $Root 'Sirman-Full-Cleanup.bat'\n    if (Test-Path -LiteralPath $fcBat) {\n      New-SirmanShortcut (Join-Path $Programs 'SIRMAN Full Cleanup.lnk') $fcBat $Root 'پاک‌سازی کامل داده سیرمان (سطح ۲ — type CONFIRM)'\n    }\n    Set-Content -LiteralPath (Join-Path $InstallNoteDir 'install-location.txt') -Value $Root -Encoding UTF8\n    Write-Host \"[OK] Start Menu + Desktop shortcuts created:\"\n    Write-Host \"  $link1\"\n    Write-Host \"  $link2\"\n  }\n}\n\nWrite-Host \"\"\nWrite-Host \"Start Menu folder: Programs\\Sirman\"\nWrite-Host \"Launch: SIRMAN.lnk\"\nStart-Sleep -Seconds 3\n";
   if(kind==='ps1'){
     downloadTextFile('Sirman_Install_Shortcuts.ps1', ps1, 'text/plain;charset=utf-8');
     if(typeof ntf==='function') ntf('دانلود شد: Sirman_Install_Shortcuts.ps1');
@@ -7729,6 +7748,79 @@ function finalizeBackupPackage(data, origin, kind){
   data.manifest = buildBackupManifest(data, origin, kind);
   return data;
 }
+function backupFinalizerMode(){
+  var forced = '';
+  try { if(typeof window !== 'undefined' && window.SIRMAN_BACKUP_FINALIZER_MODE) forced = String(window.SIRMAN_BACKUP_FINALIZER_MODE); } catch(_m){}
+  if(forced === 'html') return 'html';
+  var h = (typeof getSirmanHostSync === 'function') ? getSirmanHostSync() : null;
+  var hasCore = !!(h && h.FinalizeBackup);
+  if(forced === 'core'){
+    if(!hasCore) throw new Error('BackupFinalizer Core در دسترس نیست');
+    return 'core';
+  }
+  return hasCore ? 'core' : 'html';
+}
+function replaceBackupObjectInPlace(target, src){
+  if(!target || typeof target !== 'object') return src;
+  Object.keys(target).forEach(function(k){ delete target[k]; });
+  Object.keys(src || {}).forEach(function(k){ target[k] = src[k]; });
+  return target;
+}
+var SIRMAN_CORE_CHECKSUM_ATTACHED = typeof WeakMap === 'function' ? new WeakMap() : null;
+function markCoreChecksumAttached(data){
+  if(SIRMAN_CORE_CHECKSUM_ATTACHED && data && typeof data === 'object') SIRMAN_CORE_CHECKSUM_ATTACHED.set(data, true);
+}
+function coreChecksumAlreadyAttached(data){
+  return !!(SIRMAN_CORE_CHECKSUM_ATTACHED && data && SIRMAN_CORE_CHECKSUM_ATTACHED.get(data));
+}
+function applyCoreBackupFinalizer(data, origin, kind, checksumMode){
+  var h = (typeof getSirmanHostSync === 'function') ? getSirmanHostSync() : null;
+  if(!h || !h.FinalizeBackup) throw new Error('BackupFinalizer Core در دسترس نیست');
+  var payload = JSON.stringify({
+    data: data,
+    origin: origin || (data && data.origin) || 'manual',
+    kind: kind || (data && data.partial ? 'partial' : 'full'),
+    checksumMode: checksumMode || 'sha256'
+  });
+  var raw = h.FinalizeBackup(payload);
+  var res = (typeof raw === 'string') ? JSON.parse(raw) : raw;
+  if(!res || res.ok !== true || !res.data){
+    var msg = (res && (res.message || res.error)) || 'نهایی‌سازی پشتیبان ناموفق بود';
+    throw new Error(msg);
+  }
+  replaceBackupObjectInPlace(data, res.data);
+  markCoreChecksumAttached(data);
+  return data;
+}
+function applyBackupFinalizer(data, origin, kind){
+  var mode = backupFinalizerMode();
+  if(mode === 'core'){
+    applyCoreBackupFinalizer(data, origin, kind, 'sha256');
+    return { engine: 'core', checksumAttached: true };
+  }
+  if(typeof finalizeBackupPackage === 'function') finalizeBackupPackage(data, origin, kind);
+  return { engine: 'html', checksumAttached: false };
+}
+function consumeBackupSnapshot(snapshot){
+  var payload = snapshot && typeof snapshot === 'object' ? snapshot : {};
+  var json = JSON.stringify({ data: payload });
+  var h = (typeof getSirmanHostSync === 'function') ? getSirmanHostSync() : null;
+  if(!h || typeof h.ConsumeBackupSnapshot !== 'function'){
+    return { ok:false, engine:'html-unavailable', applied:false, wrote:false, error:'host-unavailable', message:'مصرف snapshot فقط در exe با Core است' };
+  }
+  var raw = h.ConsumeBackupSnapshot(json);
+  var res = (typeof raw === 'string') ? JSON.parse(raw) : raw;
+  if(!res || typeof res !== 'object'){
+    return { ok:false, engine:'core', applied:false, wrote:false, error:'invalid-json', message:'پاسخ میزبان نامعتبر است' };
+  }
+  res.applied = false;
+  res.wrote = false;
+  return res;
+}
+async function attachChecksumUnlessCore(data){
+  if(typeof coreChecksumAlreadyAttached === 'function' && coreChecksumAlreadyAttached(data)) return;
+  if(typeof attachChecksum === 'function') await attachChecksum(data);
+}
 function cloneBackupData(d){
   try { return JSON.parse(JSON.stringify(d || {})); }
   catch(_e){ return d || {}; }
@@ -7741,10 +7833,19 @@ function validateBackupPackage(d){
   }
   var has = d.invoices||d.products||d.phonebook||d.pb||d.parts||d.warranties||d.sales||d.accounts||d.tasks||d.services||d.svcs||d.company||d.appearance||d.inventory||d.warehouses;
   if(!has) errors.push('کلید داده شناخته‌شده نیست');
-  if(d.itemCounts){
+  if(typeof validateBackupItemCounts==='function'){
+    var c = validateBackupItemCounts(d);
+    (c.errors||[]).forEach(function(e){ errors.push(e); });
+    (c.warnings||[]).forEach(function(w){ warnings.push(w); });
+  } else if(d.itemCounts){
     Object.keys(d.itemCounts).forEach(function(k){
-      if(Array.isArray(d[k]) && d[k].length !== d.itemCounts[k]) warnings.push('شمارش '+k+' ناهماهنگ است');
+      if(Array.isArray(d[k]) && d[k].length !== d.itemCounts[k]) errors.push('شمارش '+k+' ناهماهنگ است');
     });
+  }
+  if(typeof validateBackupAttachmentIndex==='function'){
+    var a = validateBackupAttachmentIndex(d);
+    (a.errors||[]).forEach(function(e){ errors.push(e); });
+    (a.warnings||[]).forEach(function(w){ warnings.push(w); });
   }
   if(d.sectionChecksums){
     Object.keys(d.sectionChecksums).forEach(function(k){
@@ -7757,10 +7858,344 @@ function validateBackupPackage(d){
   });
   return { ok: errors.length===0, errors:errors, warnings:warnings };
 }
+// P1C fail-closed: required collections. MISSING ≠ EMPTY. Do not coerce absent keys to [].
+var REQUIRED_BACKUP_COLLECTIONS = ['warranties', 'invoices'];
+var REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA = { 1: ['sales', 'parts', 'accounts'] };
+function backupHasOwnCollection(d, key){
+  return !!(d && typeof d === 'object' && !Array.isArray(d) && Object.prototype.hasOwnProperty.call(d, key));
+}
+function inferRequiredBackupSchemaVersion(d){
+  if(typeof inferBackupSchemaVersion==='function') return inferBackupSchemaVersion(d);
+  if(!d || typeof d !== 'object') return 0;
+  if(d.schemaVersion != null && d.schemaVersion !== ''){
+    var n = parseInt(d.schemaVersion, 10);
+    if(!isNaN(n)) return n;
+  }
+  if(d.manifest && d.manifest.schemaVersion != null){
+    var m = parseInt(d.manifest.schemaVersion, 10);
+    if(!isNaN(m)) return m;
+  }
+  return 0;
+}
+function requiredBackupCollectionsFor(d){
+  var keys = (typeof REQUIRED_BACKUP_COLLECTIONS !== 'undefined' && REQUIRED_BACKUP_COLLECTIONS && REQUIRED_BACKUP_COLLECTIONS.length)
+    ? REQUIRED_BACKUP_COLLECTIONS.slice() : ['warranties','invoices'];
+  var ver = inferRequiredBackupSchemaVersion(d);
+  var fromSchema = (typeof REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA !== 'undefined') ? REQUIRED_BACKUP_COLLECTIONS_FROM_SCHEMA : { 1: ['sales', 'parts', 'accounts'] };
+  Object.keys(fromSchema).forEach(function(sv){
+    if(ver >= parseInt(sv, 10)){
+      (fromSchema[sv]||[]).forEach(function(k){ if(keys.indexOf(k) < 0) keys.push(k); });
+    }
+  });
+  return keys;
+}
+function validateRequiredBackupCollections(d){
+  var errors = [];
+  var warnings = [];
+  var missingRequiredCollections = [];
+  var invalidCollections = [];
+  var required = requiredBackupCollectionsFor(d);
+  if(!d || typeof d !== 'object' || Array.isArray(d)){
+    errors.push('بستهٔ پشتیبان نامعتبر است');
+    return { ok:false, errors:errors, warnings:warnings, missingRequiredCollections:missingRequiredCollections, invalidCollections:invalidCollections };
+  }
+  for(var i=0;i<required.length;i++){
+    var key = required[i];
+    if(!Object.prototype.hasOwnProperty.call(d, key)){
+      missingRequiredCollections.push(key);
+      errors.push('مجموعهٔ الزامی «'+key+'» در فایل پشتیبان وجود ندارد (MISSING ≠ EMPTY)');
+      continue;
+    }
+    var val = d[key];
+    if(val === null){
+      invalidCollections.push(key);
+      errors.push('مجموعهٔ الزامی «'+key+'» مقدار null دارد و قابل بازگردانی نیست');
+      continue;
+    }
+    if(!Array.isArray(val)){
+      invalidCollections.push(key);
+      errors.push('مجموعهٔ الزامی «'+key+'» باید آرایه باشد، نه '+(typeof val));
+      continue;
+    }
+    for(var j=0;j<val.length;j++){
+      var rec = val[j];
+      if(rec == null || typeof rec !== 'object' || Array.isArray(rec)){
+        invalidCollections.push(key);
+        errors.push('مجموعهٔ الزامی «'+key+'» در اندیس '+j+' رکورد ساختاری نامعتبر دارد');
+        break;
+      }
+    }
+  }
+  return { ok: errors.length===0, errors:errors, warnings:warnings, missingRequiredCollections:missingRequiredCollections, invalidCollections:invalidCollections };
+}
+function assertRequiredBackupCollections(d, opLabel){
+  var v = validateRequiredBackupCollections(d);
+  if(!v.ok){
+    throw new Error((opLabel ? (opLabel + ': ') : '') + v.errors.join('؛ '));
+  }
+  if(typeof validateBackupItemCounts==='function'){
+    var c = validateBackupItemCounts(d);
+    if(!c.ok){
+      throw new Error((opLabel ? (opLabel + ': ') : '') + c.errors.join('؛ '));
+    }
+  }
+  if(typeof validateBackupAttachmentIndex==='function'){
+    var a = validateBackupAttachmentIndex(d);
+    if(!a.ok){
+      throw new Error((opLabel ? (opLabel + ': ') : '') + a.errors.join('؛ '));
+    }
+  }
+  if(typeof validateBackupPortableIntegrity==='function'){
+    var p = validateBackupPortableIntegrity(d);
+    if(!p.ok){
+      throw new Error((opLabel ? (opLabel + ': ') : '') + p.errors.join('؛ '));
+    }
+  }
+  return v;
+}
+function backupValidationStatus(v){
+  if(!v || v.ok === false) return 'INVALID';
+  if(v.warnings && v.warnings.length) return 'VALID_WITH_WARNINGS';
+  return 'VALID';
+}
+// P1C-6: itemCounts is optional (schema 0 and 0→1 do not require it). When present, declared === actual or FAIL.
+function validateBackupItemCounts(d){
+  var errors = [];
+  var warnings = [];
+  var countMismatches = [];
+  if(!d || typeof d !== 'object' || Array.isArray(d)){
+    return { ok:true, errors:errors, warnings:warnings, countMismatches:countMismatches };
+  }
+  if(!Object.prototype.hasOwnProperty.call(d, 'itemCounts')){
+    return { ok:true, errors:errors, warnings:warnings, countMismatches:countMismatches };
+  }
+  var ic = d.itemCounts;
+  if(ic === null || typeof ic !== 'object' || Array.isArray(ic)){
+    errors.push('itemCounts باید شیء شمارش باشد، نه '+(ic===null?'null':(Array.isArray(ic)?'array':typeof ic)));
+    return { ok:false, errors:errors, warnings:warnings, countMismatches:countMismatches };
+  }
+  Object.keys(ic).forEach(function(k){
+    var declared = ic[k];
+    if(typeof declared !== 'number' || !isFinite(declared)){
+      errors.push('itemCounts.'+k+' نوع نامعتبر است');
+      countMismatches.push(k);
+      return;
+    }
+    if(!Object.prototype.hasOwnProperty.call(d, k) || !Array.isArray(d[k])){
+      errors.push('شمارش '+k+' ناهماهنگ است: اعلام '+declared+' ولی مجموعه آرایه نیست');
+      countMismatches.push(k);
+      return;
+    }
+    if(d[k].length !== declared){
+      errors.push('شمارش '+k+' ناهماهنگ است: اعلام '+declared+' ولی واقعیت '+d[k].length);
+      countMismatches.push(k);
+    }
+  });
+  return { ok: errors.length===0, errors:errors, warnings:warnings, countMismatches:countMismatches };
+}
+// P1C-6: attachmentsIndex is derived (kind/parentId from rec.id). Missing index is compatible.
+// Present non-array → FAIL. Entry with kind+parentId whose parent rec.id is absent → FAIL.
+function validateBackupAttachmentIndex(d){
+  var errors = [];
+  var warnings = [];
+  var brokenAttachmentRefs = [];
+  if(!d || typeof d !== 'object' || Array.isArray(d)){
+    return { ok:true, errors:errors, warnings:warnings, brokenAttachmentRefs:brokenAttachmentRefs };
+  }
+  if(!Object.prototype.hasOwnProperty.call(d, 'attachmentsIndex')){
+    return { ok:true, errors:errors, warnings:warnings, brokenAttachmentRefs:brokenAttachmentRefs };
+  }
+  var idx = d.attachmentsIndex;
+  if(!Array.isArray(idx)){
+    errors.push('attachmentsIndex باید آرایه باشد، نه '+(idx===null?'null':typeof idx));
+    return { ok:false, errors:errors, warnings:warnings, brokenAttachmentRefs:brokenAttachmentRefs };
+  }
+  var kindToSection = { warranty:'warranties', sale:'sales', invoice:'invoices' };
+  idx.forEach(function(entry, i){
+    if(!entry || typeof entry !== 'object' || Array.isArray(entry)) return;
+    var section = kindToSection[entry.kind];
+    var pid = String(entry.parentId == null ? '' : entry.parentId).trim();
+    if(!section || !pid) return;
+    if(!Array.isArray(d[section])){
+      brokenAttachmentRefs.push({ index:i, kind:entry.kind, parentId:pid });
+      errors.push('پیوست به والد ناموجود: '+entry.kind+' '+pid);
+      return;
+    }
+    var found = d[section].some(function(rec){ return rec && String(rec.id || '') === pid; });
+    if(!found){
+      brokenAttachmentRefs.push({ index:i, kind:entry.kind, parentId:pid });
+      errors.push('پیوست به والد ناموجود: '+entry.kind+' '+pid);
+    }
+  });
+  return { ok: errors.length===0, errors:errors, warnings:warnings, brokenAttachmentRefs:brokenAttachmentRefs };
+}
+// Detect only; do not mutate. Duplicate invoice num is historically allowed. Phonebook frozen.
+function detectBackupDuplicateIdentities(d){
+  var warnings = [];
+  var duplicateIdentities = [];
+  function scan(arr, keyFn, collection, field){
+    if(!Array.isArray(arr)) return;
+    var seen = {};
+    arr.forEach(function(rec, i){
+      var id = keyFn(rec);
+      if(!id) return;
+      if(Object.prototype.hasOwnProperty.call(seen, id)){
+        duplicateIdentities.push({ collection:collection, field:field, value:id, index:i });
+      } else {
+        seen[id] = i;
+      }
+    });
+  }
+  scan(d && d.invoices, function(r){ return r && String(r.invoiceId || r.InvoiceId || '').trim(); }, 'invoices', 'invoiceId');
+  scan(d && d.sales, function(r){ return r && String(r.saleUid || r.SaleUid || '').trim(); }, 'sales', 'saleUid');
+  scan(d && d.warranties, function(r){ return r && String(r.id || '').trim(); }, 'warranties', 'id');
+  scan(d && d.accounts, function(r){ return r && String(r.id || '').trim(); }, 'accounts', 'id');
+  scan(d && d.parts, function(r){ return r && String(r.id || '').trim(); }, 'parts', 'id');
+  if(duplicateIdentities.length){
+    warnings.push('شناسه تکراری اعلام‌شده: '+duplicateIdentities.length+' مورد (بدون تغییر داده)');
+  }
+  return { ok:true, errors:[], warnings:warnings, duplicateIdentities:duplicateIdentities };
+}
+function validateBackupStructuralIntegrity(d){
+  var req = (typeof validateRequiredBackupCollections==='function')
+    ? validateRequiredBackupCollections(d)
+    : { ok:true, errors:[], warnings:[], missingRequiredCollections:[], invalidCollections:[] };
+  var counts = (typeof validateBackupItemCounts==='function')
+    ? validateBackupItemCounts(d)
+    : { ok:true, errors:[], warnings:[], countMismatches:[] };
+  var atts = (typeof validateBackupAttachmentIndex==='function')
+    ? validateBackupAttachmentIndex(d)
+    : { ok:true, errors:[], warnings:[], brokenAttachmentRefs:[] };
+  var dups = (typeof detectBackupDuplicateIdentities==='function')
+    ? detectBackupDuplicateIdentities(d)
+    : { ok:true, errors:[], warnings:[], duplicateIdentities:[] };
+  var errors = [].concat(req.errors||[], counts.errors||[], atts.errors||[], dups.errors||[]);
+  var warnings = [].concat(req.warnings||[], counts.warnings||[], atts.warnings||[], dups.warnings||[]);
+  var result = {
+    ok: errors.length===0,
+    errors: errors,
+    warnings: warnings,
+    missingRequiredCollections: req.missingRequiredCollections || [],
+    invalidCollections: req.invalidCollections || [],
+    countMismatches: counts.countMismatches || [],
+    brokenAttachmentRefs: atts.brokenAttachmentRefs || [],
+    duplicateIdentities: dups.duplicateIdentities || []
+  };
+  result.status = backupValidationStatus(result);
+  return result;
+}
+// P1C-7: portable integrity. SHA-256 is over canonical JSON.stringify of parsed object keys
+// except exportedAt/checksum/checksumAlgo — NOT over pretty-printed disk bytes.
+// sectionChecksums (djb2 of JSON.stringify(section)) FAIL when present and mismatched.
+// Missing checksum / checksumAlgo none remain compatible. backupId is not in this format.
+function backupChecksumExcludedKey(k){
+  return k === 'exportedAt' || k === 'checksum' || k === 'checksumAlgo';
+}
+function backupChecksumPayload(data){
+  var payload = {};
+  if(!data || typeof data !== 'object' || Array.isArray(data)) return payload;
+  Object.keys(data).forEach(function(k){
+    if(backupChecksumExcludedKey(k)) return;
+    payload[k] = data[k];
+  });
+  return payload;
+}
+function backupChecksumCanonicalString(data){
+  return JSON.stringify(backupChecksumPayload(data));
+}
+function backupCryptoSubtle(){
+  try {
+    if(typeof crypto !== 'undefined' && crypto && crypto.subtle) return crypto.subtle;
+  } catch(_c){}
+  try {
+    if(typeof window !== 'undefined' && window.crypto && window.crypto.subtle) return window.crypto.subtle;
+  } catch(_w){}
+  try {
+    if(typeof globalThis !== 'undefined' && globalThis.crypto && globalThis.crypto.subtle) return globalThis.crypto.subtle;
+  } catch(_g){}
+  return null;
+}
+function classifyBackupChecksumClaim(d){
+  if(!d || typeof d !== 'object') return { claimed:false, algo:'', skipped:true };
+  var algo = String(d.checksumAlgo || '');
+  var sum = String(d.checksum || '');
+  if(!sum || !algo || algo === 'none') return { claimed:false, algo: algo || 'none', skipped:true };
+  return { claimed:true, algo:algo, skipped:false };
+}
+function validateBackupSectionChecksums(d){
+  var errors = [];
+  var warnings = [];
+  var sectionChecksumMismatches = [];
+  if(!d || typeof d !== 'object' || Array.isArray(d)){
+    return { ok:true, errors:errors, warnings:warnings, sectionChecksumMismatches:sectionChecksumMismatches };
+  }
+  if(!Object.prototype.hasOwnProperty.call(d, 'sectionChecksums')){
+    return { ok:true, errors:errors, warnings:warnings, sectionChecksumMismatches:sectionChecksumMismatches };
+  }
+  var sc = d.sectionChecksums;
+  if(sc === null || typeof sc !== 'object' || Array.isArray(sc)){
+    errors.push('sectionChecksums باید شیء باشد، نه '+(sc===null?'null':(Array.isArray(sc)?'array':typeof sc)));
+    return { ok:false, errors:errors, warnings:warnings, sectionChecksumMismatches:sectionChecksumMismatches };
+  }
+  if(typeof backupSectionHash !== 'function'){
+    return { ok:true, errors:errors, warnings:warnings, sectionChecksumMismatches:sectionChecksumMismatches };
+  }
+  Object.keys(sc).forEach(function(k){
+    if(d[k] === undefined) return;
+    if(backupSectionHash(d[k]) !== sc[k]){
+      sectionChecksumMismatches.push(k);
+      errors.push('هش بخش '+k+' مطابقت ندارد');
+    }
+  });
+  return { ok: errors.length===0, errors:errors, warnings:warnings, sectionChecksumMismatches:sectionChecksumMismatches };
+}
+function validateBackupPortableIntegrity(d){
+  var sections = (typeof validateBackupSectionChecksums==='function')
+    ? validateBackupSectionChecksums(d)
+    : { ok:true, errors:[], warnings:[], sectionChecksumMismatches:[] };
+  var claim = (typeof classifyBackupChecksumClaim==='function')
+    ? classifyBackupChecksumClaim(d)
+    : { claimed:false, algo:'', skipped:true };
+  var errors = [].concat(sections.errors || []);
+  var warnings = [].concat(sections.warnings || []);
+  if(claim.claimed && claim.algo !== 'SHA-256'){
+    errors.push('الگوریتم checksum پشتیبانی نمی‌شود: '+claim.algo);
+  }
+  var result = {
+    ok: errors.length===0,
+    errors: errors,
+    warnings: warnings,
+    sectionChecksumMismatches: sections.sectionChecksumMismatches || [],
+    checksumClaimed: !!claim.claimed,
+    checksumAlgo: claim.algo,
+    checksumSkipped: !!claim.skipped,
+    hasBackupId: !!(d && (d.backupId || (d.manifest && d.manifest.backupId)))
+  };
+  result.status = (typeof backupValidationStatus==='function') ? backupValidationStatus(result) : (result.ok ? 'VALID' : 'INVALID');
+  return result;
+}
 var SCHEMA_MIGRATIONS = [
   { from:0, to:1, id:'add-package-manifest', run:function(d, log){
       d.magic = d.magic || SIRMAN_BACKUP_MAGIC;
       d.schemaVersion = 1;
+      // P1C-3 Decision B: Schema 0 may omit sales (collection predates schema 1).
+      // This conversion runs ONLY on 0→1. Files that already declare schemaVersion≥1 never enter this step,
+      // so a missing schema≥1 sales key cannot be manufactured into [].
+      if (!d.sales) {
+        d.sales = [];
+        log.push('Schema ۰→۱: فروش غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)');
+      }
+      // P1C-4 Decision B: Schema 0 may omit parts. Same 0→1-only conversion as sales.
+      if (!d.parts) {
+        d.parts = [];
+        log.push('Schema ۰→۱: قطعات غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)');
+      }
+      // P1C-5 Decision B: Schema 0 / v2.0 may omit accounts (explicit test: missing → []).
+      // This conversion runs ONLY on 0→1. Schema ≥1 files never enter this step.
+      if (!d.accounts) {
+        d.accounts = [];
+        log.push('Schema ۰→۱: حساب‌ها غایب → [] (سازگاری نسخه قدیمی؛ Schema ≥۱ این تبدیل را ندارد)');
+      }
       if(!d.attachmentsIndex) d.attachmentsIndex = collectAttachmentIndex(d);
       if(!d.manifest) d.manifest = buildBackupManifest(d, d.origin||'unknown', d.partial?'partial':'full');
       log.push('Schema ۰→۱: Manifest و فهرست پیوست اضافه شد');
@@ -7892,10 +8327,76 @@ function unwrapBackupEnvelope(rawObj){
   }
   return rawObj;
 }
+function restoreDryRunMode(){
+  var forced = '';
+  try { if(typeof window !== 'undefined' && window.SIRMAN_RESTORE_DRYRUN_MODE) forced = String(window.SIRMAN_RESTORE_DRYRUN_MODE); } catch(_m){}
+  if(forced === 'html') return 'html';
+  var h = (typeof getSirmanHostSync === 'function') ? getSirmanHostSync() : null;
+  var hasCore = !!(h && h.TestRestoreBackup);
+  if(forced === 'core'){
+    if(!hasCore) throw new Error('TestRestoreBackup Core در دسترس نیست');
+    return 'core';
+  }
+  return hasCore ? 'core' : 'html';
+}
+function mapCoreDryRunToPreview(res){
+  res = res || {};
+  var status = res.status || '';
+  var invalid = (status === 'INVALID') || (res.ok === false);
+  var errors = (res.errors && res.errors.length) ? res.errors
+    : (res.validation && res.validation.errors && res.validation.errors.length) ? res.validation.errors
+    : (res.message ? [res.message] : []);
+  return {
+    ok: !invalid,
+    applied: false,
+    wrote: false,
+    mode: 'DRY_RUN_ONLY',
+    engine: res.engine || 'core',
+    status: status || (invalid ? 'INVALID' : ''),
+    integrityStatus: res.integrityStatus || '',
+    migrationStatus: res.migrationStatus || '',
+    migrationRequired: !!res.migrationRequired,
+    migrationPerformed: !!res.migrationPerformed,
+    log: res.log || errors,
+    validation: res.validation || { ok: !invalid, errors: errors, warnings: res.warnings || [] },
+    schemaFrom: res.sourceSchema,
+    schemaTo: res.targetSchema,
+    data: res.data
+  };
+}
+function applyCoreRestoreDryRun(d){
+  var h = (typeof getSirmanHostSync === 'function') ? getSirmanHostSync() : null;
+  if(!h || !h.TestRestoreBackup) throw new Error('TestRestoreBackup Core در دسترس نیست');
+  var payload = JSON.stringify({ data: d });
+  var raw = h.TestRestoreBackup(payload);
+  var res = (typeof raw === 'string') ? JSON.parse(raw) : raw;
+  if(!res || typeof res !== 'object') throw new Error('پیش‌نمایش پشتیبان نامعتبر بود');
+  return mapCoreDryRunToPreview(res);
+}
 function testRestoreBackup(d){
+  var _dryMode = (typeof restoreDryRunMode==='function') ? restoreDryRunMode() : 'html';
+  if(_dryMode === 'core'){
+    return applyCoreRestoreDryRun(d);
+  }
   var cloned = cloneBackupData(d);
   cloned = unwrapBackupEnvelope(cloned);
   var fileVer = inferBackupSchemaVersion(cloned);
+  var req = validateRequiredBackupCollections(cloned);
+  if(!req.ok){
+    return { ok:false, applied:false, log: req.errors.slice(), validation: req, schemaFrom:fileVer, schemaTo:SIRMAN_SCHEMA_VERSION };
+  }
+  if(typeof validateBackupStructuralIntegrity==='function'){
+    var struct = validateBackupStructuralIntegrity(cloned);
+    if(!struct.ok){
+      return { ok:false, applied:false, log: struct.errors.slice(), validation: struct, schemaFrom:fileVer, schemaTo:SIRMAN_SCHEMA_VERSION };
+    }
+  }
+  if(typeof validateBackupPortableIntegrity==='function'){
+    var port = validateBackupPortableIntegrity(cloned);
+    if(!port.ok){
+      return { ok:false, applied:false, log: port.errors.slice(), validation: port, schemaFrom:fileVer, schemaTo:SIRMAN_SCHEMA_VERSION };
+    }
+  }
   var gate = canRestoreSchema(fileVer, SIRMAN_SCHEMA_VERSION);
   if(!gate.ok) return { ok:false, applied:false, log:[gate.reason], validation:{ok:false, errors:[gate.reason], warnings:[]}, schemaFrom:fileVer, schemaTo:SIRMAN_SCHEMA_VERSION };
   var mig = applySchemaMigrations(cloned);
@@ -7931,7 +8432,31 @@ var BackupEngine = {
   canRestore: canRestoreSchema,
   manifest: buildBackupManifest,
   finalize: finalizeBackupPackage,
-  validate: validateBackupPackage,
+  validate: function(d){
+    var struct = (typeof validateBackupStructuralIntegrity==='function')
+      ? validateBackupStructuralIntegrity(d)
+      : validateRequiredBackupCollections(d);
+    if(!struct.ok) return struct;
+    var port = (typeof validateBackupPortableIntegrity==='function')
+      ? validateBackupPortableIntegrity(d)
+      : { ok:true, errors:[], warnings:[] };
+    if(!port.ok) return port;
+    var wrap = validateBackupPackage(d);
+    return {
+      ok: wrap.ok,
+      status: (typeof backupValidationStatus==='function') ? backupValidationStatus({ ok: wrap.ok, warnings: [].concat(struct.warnings||[], port.warnings||[], wrap.warnings||[]) }) : undefined,
+      errors: wrap.errors,
+      warnings: [].concat(struct.warnings||[], port.warnings||[], wrap.warnings||[]),
+      missingRequiredCollections: struct.missingRequiredCollections,
+      invalidCollections: struct.invalidCollections,
+      countMismatches: struct.countMismatches,
+      brokenAttachmentRefs: struct.brokenAttachmentRefs,
+      duplicateIdentities: struct.duplicateIdentities,
+      sectionChecksumMismatches: port.sectionChecksumMismatches,
+      checksumClaimed: port.checksumClaimed,
+      checksumAlgo: port.checksumAlgo
+    };
+  },
   migrateSchema: applySchemaMigrations,
   testRestore: testRestoreBackup,
   unwrap: unwrapBackupEnvelope,
@@ -7946,6 +8471,9 @@ var BackupEngine = {
 };
 
 function _buildFullBackupData(){
+  var s = collectBackupSettingsSnapshot();
+  var b = collectRequiredBusinessSnapshot();
+  var o = collectOptionalBusinessSnapshot();
   var data = {
     magic: (typeof SIRMAN_BACKUP_MAGIC!=='undefined'?SIRMAN_BACKUP_MAGIC:'SIRMAN_BACKUP'),
     schemaVersion: (typeof SIRMAN_SCHEMA_VERSION!=='undefined'?SIRMAN_SCHEMA_VERSION:1),
@@ -7953,45 +8481,101 @@ function _buildFullBackupData(){
     applicationVersion: '1405.6.3α',
     exportedAt: new Date().toISOString(),
     // ── آرایه‌های اصلی داده‌ها ──
-    invoices: _safeArr(invoices),
-    products: _safeArr(products),
-    inventory: _safeObj(inventory),
-    invCtr: invCtr||1,
-    invoiceUidCtr: (typeof invoiceUidCtr!=='undefined' && invoiceUidCtr>0) ? invoiceUidCtr : 0,
-    saleCtr: (typeof saleCtr!=='undefined' && saleCtr>0) ? saleCtr : 1,
-    saleUidCtr: (typeof saleUidCtr!=='undefined' && saleUidCtr>0) ? saleUidCtr : 0,
+    invoices: b.invoices,
+    products: o.products,
+    inventory: o.inventory,
+    invCtr: b.counters.invCtr,
+    invoiceUidCtr: b.counters.invoiceUidCtr,
+    saleCtr: b.counters.saleCtr,
+    saleUidCtr: b.counters.saleUidCtr,
     phonebook: _safeArr(phonebook), // (pb حذف شد — فقط phonebook)
-    parts: _safeArr(parts),
-    services: _safeArr(services),
-    svcs: _safeArr(services), // alias برای سازگاری قدیمی
-    warranties: _safeArr(warranties),
-    sales: _safeArr(sales),
-    tasks: _safeArr(tasks),
-    accounts: _safeArr(accounts),
-    defectiveStock: _safeArr(defectiveStock),
-    warehouseDocs: _safeArr(warehouseDocs),
-    stockMoves: _safeArr(stockMoves),
-    warehouses: _safeArr(typeof warehouses!=='undefined'?warehouses:[]), // فاز ۲ — انبارهای نام‌گذاری‌شده
-    daqi: _safeArr(typeof daqi!=='undefined'?daqi:[]), // داغی (پیگیری رسید نمایندگی),
-    daqiWarehouse: (typeof daqiWarehouse!=='undefined'?daqiWarehouse:[]),
-    daqiVouchers: (typeof daqiVouchers!=='undefined'?daqiVouchers:[]),
-    postalHistory: (typeof postalHistory!=='undefined'?postalHistory:[]),
-    appliedUpdates: (typeof getAppliedUpdatesMeta==='function'?getAppliedUpdatesMeta():[]),
-    updatePackages: (typeof collectUpdatePackagesForBackup==='function'?collectUpdatePackagesForBackup():[]),
+    parts: b.parts,
+    services: o.services,
+    svcs: o.svcs, // alias برای سازگاری قدیمی
+    warranties: b.warranties,
+    sales: b.sales,
+    tasks: o.tasks,
+    accounts: b.accounts,
+    defectiveStock: o.defectiveStock,
+    warehouseDocs: o.warehouseDocs,
+    stockMoves: o.stockMoves,
+    warehouses: o.warehouses, // فاز ۲ — انبارهای نام‌گذاری‌شده
+    daqi: o.daqi, // داغی (پیگیری رسید نمایندگی),
+    daqiWarehouse: o.daqiWarehouse,
+    daqiVouchers: o.daqiVouchers,
+    postalHistory: o.postalHistory,
+    appliedUpdates: s.appliedUpdates,
+    updatePackages: s.updatePackages,
     // ── لاگ‌ها و امنیت ──
     userAuditLog: _safeArr(userAuditLog),
     bgAuditLog: _safeArr(bgAuditLog),
     userRoles: _safeArr(userRoles),
     loginPw: _safeStr(loginPw),
     // ── تنظیمات ──
-    printSettings: _safeObj(JSON.parse(localStorage.getItem('laegh_printSettings')||'{}')),
-    company: _safeObj(JSON.parse(localStorage.getItem('laegh_company')||'{}')),
-    serviceCenter: _safeObj(JSON.parse(localStorage.getItem('laegh_service_center')||'{}')),
-    starredAlarms: (typeof getStarredAlarms==='function' ? getStarredAlarms() : _safeArr(JSON.parse(localStorage.getItem('laegh_starred_alarms')||'[]'))),
+    printSettings: s.printSettings,
+    company: s.company,
+    serviceCenter: s.serviceCenter,
+    starredAlarms: s.starredAlarms,
     senderInfo: _safeObj(senderInfo),
     logoSrc: _safeStr(logoSrc),
     acH: _safeObj(acH), // تاریخچه حسابداری (قبلاً گم می‌شد)
     // ── تنظیمات ظاهر (قبلاً همه‌اش گم می‌شد) ──
+    appearance: s.appearance,
+    // ── SMS و timezone ──
+    sms: s.sms,
+    tz: s.tz,
+    networkSettings: s.networkSettings,
+    prefs: s.prefs,
+    // ── کلیدهای AI ──
+    aiKeys: s.aiKeys,
+    // ── متادیتا سلامت ──
+    itemCounts: {
+      invoices: _safeArr(invoices).length,
+      products: _safeArr(products).length,
+      phonebook: _safeArr(phonebook).length,
+      parts: _safeArr(parts).length,
+      services: _safeArr(services).length,
+      warranties: _safeArr(warranties).length,
+      sales: _safeArr(sales).length,
+      tasks: _safeArr(tasks).length,
+      accounts: _safeArr(accounts).length,
+      defectiveStock: _safeArr(defectiveStock).length,
+      warehouses: _safeArr(typeof warehouses!=='undefined'?warehouses:[]).length,
+      daqi: _safeArr(typeof daqi!=='undefined'?daqi:[]).length,
+      daqiWarehouse: _safeArr(typeof daqiWarehouse!=='undefined'?daqiWarehouse:[]).length,
+      daqiVouchers: _safeArr(typeof daqiVouchers!=='undefined'?daqiVouchers:[]).length,
+      postalHistory: _safeArr(typeof postalHistory!=='undefined'?postalHistory:[]).length
+    },
+    sections: ['invoices','products','inventory','phonebook','parts','services','warranties','sales','tasks','accounts','defectiveStock','userAuditLog','bgAuditLog','userRoles','loginPw','printSettings','company','serviceCenter','starredAlarms','senderInfo','logoSrc','acH','appearance','sms','tz','networkSettings','aiKeys','warehouses','daqi','daqiWarehouse','daqiVouchers','postalHistory']
+  };
+  if(s.printCenter) data.printCenter = s.printCenter;
+  if(data.printCenter && data.sections && data.sections.indexOf('printCenter')<0) data.sections.push('printCenter');
+  if(typeof collectAttachmentIndex==='function') data.attachmentsIndex = collectAttachmentIndex(data);
+  return JSON.parse(JSON.stringify(data));
+}
+
+// autosave از همین تابع مشترک استفاده می‌کند (دیگر لیست دستی ناقص ندارد)
+function buildBackupObject(){
+  var d = _buildFullBackupData();
+  d.autoSave = true;
+  d.origin = 'autosave';
+  if(typeof applyBackupFinalizer==='function') applyBackupFinalizer(d, 'autosave', 'full');
+  else if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(d, 'autosave', 'full');
+  return d;
+}
+
+// ARCH-14/15 — LS-only settings snapshot adapter.
+// Reads the same localStorage keys / helpers as the pre-ARCH-15 settings slice.
+// Wired into _buildFullBackupData only. exportData / buildBackupObject must not call this.
+// Must not read invoices/sales/warranties/phonebook/parts/accounts or other business RAM.
+function collectBackupSettingsSnapshot(){
+  var data = {
+    appliedUpdates: (typeof getAppliedUpdatesMeta==='function'?getAppliedUpdatesMeta():[]),
+    updatePackages: (typeof collectUpdatePackagesForBackup==='function'?collectUpdatePackagesForBackup():[]),
+    printSettings: _safeObj(JSON.parse(localStorage.getItem('laegh_printSettings')||'{}')),
+    company: _safeObj(JSON.parse(localStorage.getItem('laegh_company')||'{}')),
+    serviceCenter: _safeObj(JSON.parse(localStorage.getItem('laegh_service_center')||'{}')),
+    starredAlarms: (typeof getStarredAlarms==='function' ? getStarredAlarms() : _safeArr(JSON.parse(localStorage.getItem('laegh_starred_alarms')||'[]'))),
     appearance: {
       skin: localStorage.getItem('laegh_skin')||'',
       depth3d: localStorage.getItem('laegh_depth3d')||'',
@@ -8018,12 +8602,10 @@ function _buildFullBackupData(){
       dashShortcuts: localStorage.getItem('laegh_dash_shortcuts')||'',
       dashHideWidgets: localStorage.getItem('laegh_dash_hide_widgets')||''
     },
-    // ── SMS و timezone ──
     sms: _safeObj(JSON.parse(localStorage.getItem('laegh_sms')||'{}')),
     tz: localStorage.getItem('laegh_tz')||'Asia/Tehran',
     networkSettings: (typeof loadNetworkSettings==='function' ? loadNetworkSettings() : _safeObj(JSON.parse(localStorage.getItem('laegh_network')||'{}'))),
     prefs: (typeof collectPrefsBundle==='function' ? collectPrefsBundle() : {}),
-    // ── کلیدهای AI ──
     aiKeys: (function(){
       var keys = {};
       try {
@@ -8036,40 +8618,68 @@ function _buildFullBackupData(){
         }
       } catch(e){}
       return keys;
-    })(),
-    // ── متادیتا سلامت ──
-    itemCounts: {
-      invoices: _safeArr(invoices).length,
-      products: _safeArr(products).length,
-      phonebook: _safeArr(phonebook).length,
-      parts: _safeArr(parts).length,
-      services: _safeArr(services).length,
-      warranties: _safeArr(warranties).length,
-      sales: _safeArr(sales).length,
-      tasks: _safeArr(tasks).length,
-      accounts: _safeArr(accounts).length,
-      defectiveStock: _safeArr(defectiveStock).length,
-      warehouses: _safeArr(typeof warehouses!=='undefined'?warehouses:[]).length,
-      daqi: _safeArr(typeof daqi!=='undefined'?daqi:[]).length,
-      daqiWarehouse: _safeArr(typeof daqiWarehouse!=='undefined'?daqiWarehouse:[]).length,
-      daqiVouchers: _safeArr(typeof daqiVouchers!=='undefined'?daqiVouchers:[]).length,
-      postalHistory: _safeArr(typeof postalHistory!=='undefined'?postalHistory:[]).length
-    },
-    sections: ['invoices','products','inventory','phonebook','parts','services','warranties','sales','tasks','accounts','defectiveStock','userAuditLog','bgAuditLog','userRoles','loginPw','printSettings','company','serviceCenter','starredAlarms','senderInfo','logoSrc','acH','appearance','sms','tz','networkSettings','aiKeys','warehouses','daqi','daqiWarehouse','daqiVouchers','postalHistory']
+    })()
   };
   try{ if(typeof getPrintCenterState==='function') data.printCenter = getPrintCenterState(); }catch(_pc){}
-  if(data.printCenter && data.sections && data.sections.indexOf('printCenter')<0) data.sections.push('printCenter');
-  if(typeof collectAttachmentIndex==='function') data.attachmentsIndex = collectAttachmentIndex(data);
-  return data;
+  return JSON.parse(JSON.stringify(data));
 }
 
-// autosave از همین تابع مشترک استفاده می‌کند (دیگر لیست دستی ناقص ندارد)
-function buildBackupObject(){
-  var d = _buildFullBackupData();
-  d.autoSave = true;
-  d.origin = 'autosave';
-  if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(d, 'autosave', 'full');
-  return d;
+// ARCH-17 — REQUIRED business snapshot transport.
+// Reads the same RAM globals for invoices/sales/warranties/parts/accounts/counters.
+// Clone-on-return. No localStorage/IndexedDB write. No ID generation. No phonebook.
+// ARCH-20: called exactly once from _buildFullBackupData. Not called from exportData / buildBackupObject.
+function collectRequiredBusinessSnapshot(){
+  var data = {
+    invoices: _safeArr(invoices),
+    sales: _safeArr(sales),
+    warranties: _safeArr(warranties),
+    parts: _safeArr(parts),
+    accounts: _safeArr(accounts),
+    counters: {
+      invCtr: invCtr||1,
+      invoiceUidCtr: (typeof invoiceUidCtr!=='undefined' && invoiceUidCtr>0) ? invoiceUidCtr : 0,
+      saleCtr: (typeof saleCtr!=='undefined' && saleCtr>0) ? saleCtr : 1,
+      saleUidCtr: (typeof saleUidCtr!=='undefined' && saleUidCtr>0) ? saleUidCtr : 0
+    }
+  };
+  return JSON.parse(JSON.stringify(data));
+}
+
+// ARCH-18 — OPTIONAL business snapshot transport.
+// Reads the same RAM globals for products/inventory/services+svcs/tasks/
+// defectiveStock/warehouseDocs/stockMoves/warehouses/daqi*/postalHistory.
+// svcs is _safeArr(services) — same source as services, not a second RAM array.
+// Clone-on-return. No localStorage/IndexedDB write. No ID generation. No phonebook. No attachmentsIndex.
+// ARCH-21: called exactly once from _buildFullBackupData. Not called from exportData / buildBackupObject / collectRequiredBusinessSnapshot.
+function collectOptionalBusinessSnapshot(){
+  var data = {
+    products: _safeArr(products),
+    inventory: _safeObj(inventory),
+    services: _safeArr(services),
+    svcs: _safeArr(services),
+    tasks: _safeArr(tasks),
+    defectiveStock: _safeArr(defectiveStock),
+    warehouseDocs: _safeArr(warehouseDocs),
+    stockMoves: _safeArr(stockMoves),
+    warehouses: _safeArr(typeof warehouses!=='undefined'?warehouses:[]),
+    daqi: _safeArr(typeof daqi!=='undefined'?daqi:[]),
+    daqiWarehouse: (typeof daqiWarehouse!=='undefined'?daqiWarehouse:[]),
+    daqiVouchers: (typeof daqiVouchers!=='undefined'?daqiVouchers:[]),
+    postalHistory: (typeof postalHistory!=='undefined'?postalHistory:[])
+  };
+  return JSON.parse(JSON.stringify(data));
+}
+
+// ARCH-22 — Phonebook snapshot transport only. TEST/boundary adapter.
+// Reads the current RAM global `phonebook` (localStorage key `lb` via sv()).
+// Clone-on-return. No localStorage/IndexedDB write. No ID generation.
+// No dedup, no phone normalization, no daqi touch, no Restore.
+// NOT called from _buildFullBackupData / exportData / buildBackupObject.
+function collectPhonebookSnapshot(){
+  var data = {
+    phonebook: _safeArr(phonebook)
+  };
+  return JSON.parse(JSON.stringify(data));
 }
 
 // ─── Checksum (SHA-256) برای سلامت فایل بک‌آپ ───
@@ -8077,19 +8687,28 @@ function buildBackupObject(){
 // در file://، checksum خالی می‌ماند و checksumAlgo='none' — برنامه همچنان کار می‌کند.
 async function attachChecksum(data){
   try {
-    if(!window.crypto || !crypto.subtle){
+    if(typeof window !== 'undefined' && !window.crypto){
       data.checksum = '';
       data.checksumAlgo = 'none';
       return;
     }
-    // payload برای checksum: همه چیز به‌جز exportedAt و خود checksum (که هنوز set نشده)
-    var payload = {};
-    Object.keys(data).forEach(function(k){
-      if(k === 'exportedAt' || k === 'checksum' || k === 'checksumAlgo') return;
-      payload[k] = data[k];
-    });
-    var jsonStr = JSON.stringify(payload);
-    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(jsonStr));
+    var subtle = (typeof backupCryptoSubtle==='function') ? backupCryptoSubtle() : ((typeof crypto!=='undefined' && crypto.subtle) || (typeof window!=='undefined' && window.crypto && window.crypto.subtle) || null);
+    if(!subtle){
+      data.checksum = '';
+      data.checksumAlgo = 'none';
+      return;
+    }
+    var jsonStr = (typeof backupChecksumCanonicalString==='function')
+      ? backupChecksumCanonicalString(data)
+      : (function(){
+          var payload = {};
+          Object.keys(data||{}).forEach(function(k){
+            if(k === 'exportedAt' || k === 'checksum' || k === 'checksumAlgo') return;
+            payload[k] = data[k];
+          });
+          return JSON.stringify(payload);
+        })();
+    var buf = await subtle.digest('SHA-256', new TextEncoder().encode(jsonStr));
     data.checksum = Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
     data.checksumAlgo = 'SHA-256';
   } catch(e){
@@ -8098,30 +8717,39 @@ async function attachChecksum(data){
     if(typeof addDbgEntry==='function') addDbgEntry('warn','checksum','خطا در محاسبه checksum', e.message, '');
   }
 }
-// تأیید checksum یک فایل بک‌آپ (برای import)
+// P1C-7: verify from parsed JSON after disk read. Hash is canonical stringify, not raw file bytes.
 async function verifyChecksum(data){
-  if(!data.checksum || !data.checksumAlgo || data.checksumAlgo === 'none'){
-    return { ok: true, msg: 'بدون checksum (نسخه قدیمی یا file://)' };
+  var claim = (typeof classifyBackupChecksumClaim==='function')
+    ? classifyBackupChecksumClaim(data)
+    : { claimed:!!(data && data.checksum && data.checksumAlgo && data.checksumAlgo !== 'none'), algo: data && data.checksumAlgo, skipped:!(data && data.checksum) };
+  if(!claim.claimed){
+    return { ok: true, skipped: true, msg: 'بدون checksum (نسخه قدیمی یا file://)' };
   }
-  if(data.checksumAlgo !== 'SHA-256'){
-    return { ok: true, msg: 'الگوریتم checksum ناشناخته: ' + data.checksumAlgo };
+  if(claim.algo !== 'SHA-256'){
+    return { ok: false, skipped: false, msg: 'الگوریتم checksum پشتیبانی نمی‌شود: ' + claim.algo };
   }
-  if(!window.crypto || !crypto.subtle){
-    return { ok: true, msg: 'crypto.subtle موجود نیست — تأیید checksum نادیده گرفته شد' };
+  var subtle = (typeof backupCryptoSubtle==='function') ? backupCryptoSubtle() : ((typeof crypto!=='undefined' && crypto.subtle) || (typeof window!=='undefined' && window.crypto && window.crypto.subtle) || null);
+  if(!subtle){
+    return { ok: true, skipped: true, unverifiable: true, msg: 'crypto.subtle موجود نیست — تأیید checksum نادیده گرفته شد' };
   }
   try {
-    var stored = data.checksum;
-    var payload = {};
-    Object.keys(data).forEach(function(k){
-      if(k === 'exportedAt' || k === 'checksum' || k === 'checksumAlgo') return;
-      payload[k] = data[k];
-    });
-    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(payload)));
+    var stored = String(data.checksum);
+    var jsonStr = (typeof backupChecksumCanonicalString==='function')
+      ? backupChecksumCanonicalString(data)
+      : (function(){
+          var payload = {};
+          Object.keys(data||{}).forEach(function(k){
+            if(k === 'exportedAt' || k === 'checksum' || k === 'checksumAlgo') return;
+            payload[k] = data[k];
+          });
+          return JSON.stringify(payload);
+        })();
+    var buf = await subtle.digest('SHA-256', new TextEncoder().encode(jsonStr));
     var computed = Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
-    if(computed === stored){ return { ok: true, msg: 'checksum ✓ تأیید شد' }; }
-    return { ok: false, msg: 'checksum مطابقت ندارد — فایل ممکن است خراب باشد!' };
+    if(computed === stored){ return { ok: true, skipped: false, msg: 'checksum ✓ تأیید شد' }; }
+    return { ok: false, skipped: false, msg: 'checksum مطابقت ندارد — فایل ممکن است خراب باشد!' };
   } catch(e){
-    return { ok: true, msg: 'خطا در تأیید checksum: ' + e.message };
+    return { ok: false, skipped: false, msg: 'خطا در تأیید checksum: ' + e.message };
   }
 }
 
@@ -9532,7 +10160,8 @@ async function doAutoSave(force){
   if (!isDirty && !force) return; // چیزی تغییر نکرده و درخواست اجباری هم نبوده، لازم نیست ذخیره شود
   try {
     var data = buildBackupObject();
-    if(typeof attachChecksum==='function'){ await attachChecksum(data); }
+    if(typeof attachChecksumUnlessCore==='function'){ await attachChecksumUnlessCore(data); }
+    else if(typeof attachChecksum==='function'){ await attachChecksum(data); }
     var json = JSON.stringify(data, null, 2);
     // mirror در IndexedDB (کپی امن اضافی — قانون ۳-۲-۱)
     if(typeof mirrorBackupToIDB==='function'){ try{ await mirrorBackupToIDB(json); }catch(idbErr){} }
@@ -13088,7 +13717,26 @@ function saveInvItem(){
   const min=parseInt(document.getElementById('im-min').value)||0;
   const reorderEl=document.getElementById('im-reorder');
   const reorder=reorderEl?(parseInt(reorderEl.value)||min):((parseInt(prev.reorder)||min));
-  inventory[code]=Object.assign({}, prev, {qty:qty, min:min, reorder:reorder, note:document.getElementById('im-note').value});
+  const note=document.getElementById('im-note').value;
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var item=Object.assign({code:code}, prev);
+    var adj=(typeof invAdjustOnItem==='function') ? invAdjustOnItem(item, qty, '') : {ok:false, err:'محاسبه انجام نشد'};
+    if(!adj || adj.ok===false){
+      ntf((adj && (adj.err||adj.error)) || 'محاسبه انجام نشد','err');
+      return;
+    }
+    item.min=min;
+    item.reorder=reorder;
+    item.note=note;
+    if(!item.byWh) item.byWh={};
+    inventory[code]=item;
+    if(typeof persistCoreSnapshot==='function') persistCoreSnapshot(adj.persistKeys||['inventory']);
+    else sv();
+    closeMod('inv-modal');renderInv();renderProds();ntf('موجودی ذخیره شد');
+    return;
+  }
+  inventory[code]=Object.assign({}, prev, {qty:qty, min:min, reorder:reorder, note:note});
   if(!inventory[code].byWh) inventory[code].byWh={};
   sv();closeMod('inv-modal');renderInv();renderProds();ntf('موجودی ذخیره شد');
 }
@@ -13564,17 +14212,26 @@ function printPostalNative(){
   if(typeof recordPostalHistory==='function') try{ recordPostalHistory(); }catch(_e){}
   var ps=(typeof getPrintSettings==='function')?getPrintSettings():{};
   var pp=ps.postal||{};
-  var job=(typeof printEngineJob==='function')?printEngineJob('postal'):{};
+  var overrideJob=(typeof printEngineOverrideJob==='function')?printEngineOverrideJob('postalLabel'):null;
   var data=(typeof readPostalLabelData==='function')?readPostalLabelData():{sender:{},recipient:{}};
+  var paperExplicit=!!(overrideJob && overrideJob.paper);
+  var paper=paperExplicit ? overrideJob.paper : (pp.paper || 'A5');
   var model=printEngineBuildPostalLabelModel({
     data:data,
-    paper:job.paper||pp.paper||'A5',
-    copies:job.copies||1,
-    printerName:job.printer||'',
-    widthMm:job.widthMm,
-    heightMm:job.heightMm
+    paper:paper,
+    copies:(overrideJob && overrideJob.copies) || 1,
+    printerName:(overrideJob && overrideJob.printer) || '',
+    widthMm:overrideJob && overrideJob.widthMm,
+    heightMm:overrideJob && overrideJob.heightMm,
+    paperExplicit:paperExplicit
   });
-  return printEnginePrintNative(model, {docId:'postalLabel', title:'برچسب پستی بومی', printer:job.printer||''});
+  return printEnginePrintNative(model, {
+    docId:'postalLabel',
+    title:'برچسب پستی بومی',
+    printer:(overrideJob && overrideJob.printer) || '',
+    paper: paperExplicit ? paper : undefined,
+    paperExplicit:paperExplicit
+  });
 }
 function clearPostal(){['rcv-name','rcv-addr','rcv-zip','rcv-tel','rcv-note'].forEach(id=>document.getElementById(id).value='');updatePostalPreview();}
 
@@ -13764,7 +14421,15 @@ async function exportData(selectedKeys, opts){
     selectedKeys.forEach(function(k){ if(Array.isArray(data[k])) data.itemCounts[k] = data[k].length; });
   }
   var kind = (data.partial ? 'partial' : 'full');
-  if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(data, data.origin, kind);
+  try {
+    if(typeof applyBackupFinalizer==='function') applyBackupFinalizer(data, data.origin, kind);
+    else if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(data, data.origin, kind);
+  } catch(finErr){
+    if(typeof ntf==='function') ntf('نهایی‌سازی پشتیبان ناموفق بود','err');
+    if(typeof logBackupAudit==='function') logBackupAudit('backup', 'fail', {detail: String(finErr && finErr.message || finErr)});
+    if(typeof addDbgEntry==='function') addDbgEntry('err','بک‌آپ','', String(finErr && finErr.message || finErr), '');
+    return;
+  }
   var encPw = ((document.getElementById('bk-encrypt-pw')||{}).value||'').trim();
   if(!opts.skipEncryptPrompt){
     var preferEnc = (typeof isBackupEncryptPreferred==='function') ? isBackupEncryptPreferred() : true;
@@ -13778,6 +14443,8 @@ async function exportData(selectedKeys, opts){
   }
   if(encPw && typeof encryptBackupPackage==='function'){
     try{
+      if(typeof attachChecksumUnlessCore==='function'){ await attachChecksumUnlessCore(data); }
+      else if(typeof attachChecksum==='function'){ await attachChecksum(data); }
       var env = await encryptBackupPackage(data, encPw);
       var blobEnc = new Blob([JSON.stringify(env,null,2)],{type:'application/json'});
       var aEnc = document.createElement('a');
@@ -13795,8 +14462,9 @@ async function exportData(selectedKeys, opts){
       ntf('رمزنگاری ناموفق بود — فایل عادی ذخیره می‌شود','err');
     }
   }
-  // checksum محاسبه کن (اگر crypto.subtle موجود باشد)
-  if(typeof attachChecksum==='function'){ await attachChecksum(data); }
+  // checksum محاسبه کن (اگر crypto.subtle موجود باشد و Core قبلاً نزده باشد)
+  if(typeof attachChecksumUnlessCore==='function'){ await attachChecksumUnlessCore(data); }
+  else if(typeof attachChecksum==='function'){ await attachChecksum(data); }
   var blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -13837,8 +14505,16 @@ async function exportArchiveBackup(){
   var data = _buildFullBackupData();
   data.origin = 'archive';
   data.immutable = true;
-  if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(data, 'archive', 'archive');
-  if(typeof attachChecksum==='function') await attachChecksum(data);
+  try {
+    if(typeof applyBackupFinalizer==='function') applyBackupFinalizer(data, 'archive', 'archive');
+    else if(typeof finalizeBackupPackage==='function') finalizeBackupPackage(data, 'archive', 'archive');
+  } catch(finErr){
+    if(typeof ntf==='function') ntf('نهایی‌سازی پشتیبان ناموفق بود','err');
+    if(typeof logBackupAudit==='function') logBackupAudit('archive', 'fail', {detail: String(finErr && finErr.message || finErr)});
+    return;
+  }
+  if(typeof attachChecksumUnlessCore==='function') await attachChecksumUnlessCore(data);
+  else if(typeof attachChecksum==='function') await attachChecksum(data);
   var blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -13919,14 +14595,16 @@ function migrateBackup(d) {
         };
       });
       log.push('👥 مخاطبین: '+d.phonebook.length+' نفر (تبدیل از فرمت قدیمی pb)');
+    } else if (Array.isArray(d.phonebook)) {
+      // ARCH-25: explicit phonebook: [] stays []. No log (same as ARCH-24).
     } else {
-      d.phonebook = [];
+      // ARCH-25: missing/null/wrong-type must remain distinguishable from [].
     }
   } else {
     log.push('👥 مخاطبین: '+d.phonebook.length+' نفر');
   }
-  // pb را حذف می‌کنیم (دیگر استفاده نمی‌شود) — ولی برای سازگاری در فایل نگه می‌داریم = phonebook
-  d.pb = d.phonebook;
+  // pb را فقط وقتی phonebook آرایه است هم‌نام می‌کنیم. کلید غایب را به [] تبدیل نمی‌کنیم (ARCH-25).
+  if(Array.isArray(d.phonebook)) d.pb = d.phonebook;
 
   // === خدمات — services یا svcs ===
   if (!d.services && d.svcs) d.services = d.svcs;
@@ -13934,34 +14612,84 @@ function migrateBackup(d) {
   if (!d.services) { d.services = []; d.svcs = []; }
   log.push('🔧 خدمات: '+d.services.length+' مورد');
 
-  // === بخش‌های که ممکنه نباشن (نسخه‌های قدیمی) ===
-  if (!d.parts)      { d.parts = [];      log.push('🔩 قطعات: خالی (نسخه قدیمی)'); }
-  else log.push('🔩 قطعات: '+d.parts.length+' مورد');
+  // P1C-4: parts is required from schemaVersion >= 1. Schema 0 (قدیمی) may omit it.
+  var partsSchemaVer = (typeof inferRequiredBackupSchemaVersion==='function') ? inferRequiredBackupSchemaVersion(d) : (parseInt(d && d.schemaVersion,10)||0);
+  if (partsSchemaVer >= 1) {
+    if (!Object.prototype.hasOwnProperty.call(d, 'parts')) {
+      log.push('🔩 قطعات: غایب — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else if (d.parts === null) {
+      log.push('🔩 قطعات: null — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else if (!Array.isArray(d.parts)) {
+      log.push('🔩 قطعات: نوع نامعتبر ('+(typeof d.parts)+') — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else {
+      log.push('🔩 قطعات: '+d.parts.length+' مورد');
+    }
+  } else {
+    if (!d.parts)      { d.parts = [];      log.push('🔩 قطعات: خالی (نسخه قدیمی)'); }
+    else log.push('🔩 قطعات: '+d.parts.length+' مورد');
+  }
 
-  if (!d.warranties) { d.warranties = []; log.push('🛡 گارانتی: خالی (نسخه قدیمی)'); }
-  else log.push('🛡 گارانتی: '+d.warranties.length+' مورد');
+  // P1C: warranties is required. MISSING/null/non-array must NOT become [].
+  if (!Object.prototype.hasOwnProperty.call(d, 'warranties')) {
+    log.push('🛡 گارانتی: غایب — بدون جایگزینی [] (fail-closed)');
+  } else if (d.warranties === null) {
+    log.push('🛡 گارانتی: null — بدون جایگزینی [] (fail-closed)');
+  } else if (!Array.isArray(d.warranties)) {
+    log.push('🛡 گارانتی: نوع نامعتبر ('+(typeof d.warranties)+') — بدون جایگزینی [] (fail-closed)');
+  } else {
+    log.push('🛡 گارانتی: '+d.warranties.length+' مورد');
+    d.warranties.forEach(function(w){ if(w && w.accRef === undefined) w.accRef = ''; });
+  }
 
-  if (!d.sales)      { d.sales = [];      log.push('🛒 فروش: خالی (نسخه قدیمی)'); }
-  else log.push('🛒 فروش: '+d.sales.length+' مورد');
+  // P1C-3: sales is required from schemaVersion >= 1. Schema 0 (قدیمی) may omit it.
+  var salesSchemaVer = (typeof inferRequiredBackupSchemaVersion==='function') ? inferRequiredBackupSchemaVersion(d) : (parseInt(d && d.schemaVersion,10)||0);
+  if (salesSchemaVer >= 1) {
+    if (!Object.prototype.hasOwnProperty.call(d, 'sales')) {
+      log.push('🛒 فروش: غایب — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else if (d.sales === null) {
+      log.push('🛒 فروش: null — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else if (!Array.isArray(d.sales)) {
+      log.push('🛒 فروش: نوع نامعتبر ('+(typeof d.sales)+') — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else {
+      log.push('🛒 فروش: '+d.sales.length+' مورد');
+    }
+  } else {
+    if (!d.sales)      { d.sales = [];      log.push('🛒 فروش: خالی (نسخه قدیمی)'); }
+    else log.push('🛒 فروش: '+d.sales.length+' مورد');
+  }
 
   // === migration فروش: فروش‌های قدیمی بدون فیلد status → فرض 'final' ===
   // (نسخه‌های قبل از 10.5.9 فیلد status نداشتند؛ همه باید نهایی فرض شوند)
   var migratedSales = 0;
-  d.sales.forEach(function(s){
-    if(!s.status){ s.status = 'final'; migratedSales++; }
-    if(s.accRef === undefined) s.accRef = '';
-    if(s.accountSel === undefined) s.accountSel = '';
-  });
+  if (Array.isArray(d.sales)) {
+    d.sales.forEach(function(s){
+      if(!s.status){ s.status = 'final'; migratedSales++; }
+      if(s.accRef === undefined) s.accRef = '';
+      if(s.accountSel === undefined) s.accountSel = '';
+    });
+  }
   if(migratedSales > 0) log.push('🛒 '+migratedSales+' فروش قدیمی بدون وضعیت → به «نهایی» تبدیل شد');
-
-  // === migration گارانتی: اطمینان از فیلد accRef ===
-  d.warranties.forEach(function(w){ if(w.accRef === undefined) w.accRef = ''; });
 
   if (!d.tasks)      { d.tasks = [];      log.push('🗓 وظایف: خالی (نسخه قدیمی)'); }
   else log.push('🗓 وظایف: '+d.tasks.length+' مورد');
 
-  if (!d.accounts)   { d.accounts = [];   log.push('💰 حساب‌ها: خالی (نسخه قدیمی)'); }
-  else log.push('💰 حساب‌ها: '+d.accounts.length+' مورد');
+  // P1C-5: accounts is required from schemaVersion >= 1.
+  // Schema 0 / v2.0 may omit it; migrateBackup must still produce accounts=[] (existing compatibility test).
+  var accountsSchemaVer = (typeof inferRequiredBackupSchemaVersion==='function') ? inferRequiredBackupSchemaVersion(d) : (parseInt(d && d.schemaVersion,10)||0);
+  if (accountsSchemaVer >= 1) {
+    if (!Object.prototype.hasOwnProperty.call(d, 'accounts')) {
+      log.push('💰 حساب‌ها: غایب — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else if (d.accounts === null) {
+      log.push('💰 حساب‌ها: null — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else if (!Array.isArray(d.accounts)) {
+      log.push('💰 حساب‌ها: نوع نامعتبر ('+(typeof d.accounts)+') — بدون جایگزینی [] (fail-closed, Schema ≥۱)');
+    } else {
+      log.push('💰 حساب‌ها: '+d.accounts.length+' مورد');
+    }
+  } else {
+    if (!d.accounts)   { d.accounts = [];   log.push('💰 حساب‌ها: خالی (نسخه قدیمی)'); }
+    else log.push('💰 حساب‌ها: '+d.accounts.length+' مورد');
+  }
 
   if (!d.defectiveStock) { d.defectiveStock = []; log.push('⚠️ انبار معیوب: خالی (نسخه قدیمی)'); }
   else log.push('⚠️ انبار معیوب: '+d.defectiveStock.length+' مورد');
@@ -13980,11 +14708,15 @@ function migrateBackup(d) {
 
   if (!d.inventory)  { d.inventory = {}; }
   if (!d.products)   { d.products = []; }
-  if (!d.invoices)   { d.invoices = []; }
 
-  // === شماره فاکتور ===
-  if (!d.invCtr && d.invoices.length > 0) {
-    // حدس از روی بزرگترین شماره
+  // P1C-2: invoices is required. MISSING/null/non-array must NOT become [].
+  if (!Object.prototype.hasOwnProperty.call(d, 'invoices')) {
+    log.push('📋 فاکتورها: غایب — بدون جایگزینی [] (fail-closed)');
+  } else if (d.invoices === null) {
+    log.push('📋 فاکتورها: null — بدون جایگزینی [] (fail-closed)');
+  } else if (!Array.isArray(d.invoices)) {
+    log.push('📋 فاکتورها: نوع نامعتبر ('+(typeof d.invoices)+') — بدون جایگزینی [] (fail-closed)');
+  } else if (!d.invCtr && d.invoices.length > 0) {
     var maxNum = 0;
     d.invoices.forEach(function(inv){ var n=parseInt(inv.num)||0; if(n>maxNum)maxNum=n; });
     d.invCtr = maxNum + 1;
@@ -14007,10 +14739,10 @@ function migrateBackup(d) {
 
   // === ID های missing ===
   var fixedIds = 0;
-  d.invoices.forEach(function(inv,i){ if(!inv.id){ inv.id='mig_inv_'+i+'_'+Date.now(); fixedIds++; } });
-  d.parts.forEach(function(p,i){ if(!p.id){ p.id='mig_part_'+i+'_'+Date.now(); fixedIds++; } });
-  d.warranties.forEach(function(w,i){ if(!w.id){ w.id='mig_war_'+i+'_'+Date.now(); fixedIds++; } });
-  d.sales.forEach(function(s,i){ if(!s.id){ s.id='mig_sale_'+i+'_'+Date.now(); fixedIds++; } });
+  if (Array.isArray(d.invoices)) d.invoices.forEach(function(inv,i){ if(!inv.id){ inv.id='mig_inv_'+i+'_'+Date.now(); fixedIds++; } });
+  if (Array.isArray(d.parts)) d.parts.forEach(function(p,i){ if(!p.id){ p.id='mig_part_'+i+'_'+Date.now(); fixedIds++; } });
+  if (Array.isArray(d.warranties)) d.warranties.forEach(function(w,i){ if(!w.id){ w.id='mig_war_'+i+'_'+Date.now(); fixedIds++; } });
+  if (Array.isArray(d.sales)) d.sales.forEach(function(s,i){ if(!s.id){ s.id='mig_sale_'+i+'_'+Date.now(); fixedIds++; } });
   d.tasks.forEach(function(t,i){ if(!t.id){ t.id='mig_task_'+i+'_'+Date.now(); fixedIds++; } if(!t.kind) t.kind='do'; if(!t.priority) t.priority='normal'; if(!t.status) t.status='open'; });
   if (fixedIds > 0) log.push('🔧 '+fixedIds+' آیتم بدون ID اصلاح شد');
 
@@ -14245,10 +14977,18 @@ function confirmRestorePreview(){
 
 function runPendingTestRestore(){
   if(!_pendingRestore || !_pendingRestore.data){ ntf('فایلی برای تست نیست','err'); return; }
-  var r = (typeof testRestoreBackup==='function') ? testRestoreBackup(_pendingRestore.data) : {ok:false, log:['تابع تست نیست']};
-  if(typeof logBackupAudit==='function') logBackupAudit('test-restore', r.ok?'ok':'err', {detail:(r.log||[]).join(' | '), error: r.ok?'':((r.validation&&r.validation.errors)||[]).join(',')});
-  var extra = r.ok ? 'اعتبارسنجی موفق — هیچ داده‌ای اعمال نشد.' : ('ناموفق: '+((r.validation&&r.validation.errors)||r.log||[]).join('\n'));
-  alert((r.ok?'✅ ':'❌ ')+'تست بازگردانی (بدون اعمال)\nSchema '+(r.schemaFrom)+' → '+(r.schemaTo)+'\n\n'+(r.log||[]).join('\n')+'\n\n'+extra);
+  var r;
+  try {
+    r = (typeof testRestoreBackup==='function') ? testRestoreBackup(_pendingRestore.data) : {ok:false, applied:false, mode:'DRY_RUN_ONLY', log:['تابع تست نیست']};
+  } catch(e) {
+    r = { ok:false, applied:false, mode:'DRY_RUN_ONLY', log:[String(e && e.message || e)], validation:{ok:false, errors:[String(e && e.message || e)], warnings:[]}, schemaFrom:'?', schemaTo:'?' };
+  }
+  r.applied = false;
+  if(typeof logBackupAudit==='function') logBackupAudit('test-restore', r.ok?'ok':'err', {detail:(r.log||[]).join(' | '), error: r.ok?'':((r.validation&&r.validation.errors)||[]).join(','), mode: r.mode||'DRY_RUN_ONLY'});
+  var extra = r.ok
+    ? 'تحلیل فقط‌خواندنی — هیچ داده‌ای اعمال نشد (DRY_RUN_ONLY).'
+    : ('نامعتبر: '+((r.validation&&r.validation.errors)||r.log||[]).join('\n'));
+  alert((r.ok?'✅ ':'❌ ')+'تست بازگردانی (بدون اعمال / DRY_RUN_ONLY)\nSchema '+(r.schemaFrom)+' → '+(r.schemaTo)+'\n\n'+(r.log||[]).join('\n')+'\n\n'+extra);
 }
 
 function _restoreWants(selected, key){
@@ -14256,9 +14996,22 @@ function _restoreWants(selected, key){
   return selected.indexOf(key) !== -1;
 }
 
+function _phonebookCanonicalFingerprint(node){
+  if(node === null || node === undefined) return 'null';
+  if(typeof node === 'object'){
+    if(Array.isArray(node)){
+      return '['+node.map(_phonebookCanonicalFingerprint).join(',')+']';
+    }
+    var keys = Object.keys(node).sort();
+    return '{'+keys.map(function(k){ return JSON.stringify(k)+':'+_phonebookCanonicalFingerprint(node[k]); }).join(',')+'}';
+  }
+  return JSON.stringify(node);
+}
+
 function applyBackupSelective(d, selectedKeys, mode, migLog){
   migLog = migLog || [];
   selectedKeys = selectedKeys || [];
+  assertRequiredBackupCollections(d, 'restore');
   var safety = null;
   try { if(typeof _buildFullBackupData==='function') safety = _buildFullBackupData(); } catch(_s){}
   if(safety){
@@ -14291,7 +15044,8 @@ function applyBackupSelective(d, selectedKeys, mode, migLog){
 }
 
 function applyBackupReplaceSections(d, selectedKeys){
-  if(_restoreWants(selectedKeys,'invoices')) invoices = Array.isArray(d.invoices) ? d.invoices : [];
+  assertRequiredBackupCollections(d, 'replace');
+  if(_restoreWants(selectedKeys,'invoices')) invoices = d.invoices;
   if(_restoreWants(selectedKeys,'products')) products = Array.isArray(d.products) ? d.products : [];
   if(_restoreWants(selectedKeys,'inventory')) inventory = (d.inventory && typeof d.inventory==='object' && !Array.isArray(d.inventory)) ? d.inventory : {};
   if(_restoreWants(selectedKeys,'phonebook')){
@@ -14302,15 +15056,23 @@ function applyBackupReplaceSections(d, selectedKeys){
         var parts2 = (c.name||'').split(' ');
         return { fn:parts2[0]||'', ln:parts2.slice(1).join(' ')||'', shop:c.shop||'', addr:c.address||c.addr||'', zip:c.zip||'', phones:c.phone?[c.phone]:[], ita:c.ita||'', tg:c.tg||'', wa:c.wa||'', ig:c.ig||'', note:c.note||'', cat:c.cat||'other' };
       });
-    } else phonebook = [];
+    } else if (Array.isArray(d.phonebook) && d.phonebook.length === 0) {
+      phonebook = [];
+    } else {
+      try{ if(typeof ntf==='function') ntf('دفترچه در بک‌آپ آرایه معتبر نداشت — مخاطبین فعلی حفظ شد','warn'); }catch(_pbKeep){}
+      try{ if(typeof addDbgEntry==='function') addDbgEntry('warn','بازگردانی','phonebook','دفترچه زنده حفظ شد (کلید غایب/نامعتبر)','جایگزینی دفترچه فقط با آرایه معتبر یا [] صریح'); }catch(_pbKeep2){}
+    }
   }
   if(_restoreWants(selectedKeys,'parts')) parts = Array.isArray(d.parts) ? d.parts : [];
   if(_restoreWants(selectedKeys,'services')){
     services = Array.isArray(d.services) ? d.services : (Array.isArray(d.svcs) ? d.svcs : []);
     svcs = services;
   }
-  if(_restoreWants(selectedKeys,'warranties')) warranties = Array.isArray(d.warranties) ? d.warranties : [];
-  if(_restoreWants(selectedKeys,'sales')) sales = Array.isArray(d.sales) ? d.sales : [];
+  if(_restoreWants(selectedKeys,'warranties')) warranties = d.warranties;
+  if(_restoreWants(selectedKeys,'sales')){
+    if(Array.isArray(d.sales)) sales = d.sales;
+    else sales = [];
+  }
   if(_restoreWants(selectedKeys,'sales') || _restoreWants(selectedKeys,'saleCtr')){
     if (d.saleCtr && d.saleCtr > 0) saleCtr = d.saleCtr;
     if(typeof ensureSaleCtr==='function') ensureSaleCtr();
@@ -14417,10 +15179,11 @@ function applyAll(){
 
 function applyBackupMergeSections(d, selectedKeys){
   // ادغام — فقط رکوردهای جدید بخش‌های انتخاب‌شده
+  assertRequiredBackupCollections(d, 'merge');
   var added = {inv:0,prod:0,pb:0,parts:0,svc:0,sale:0,war:0,task:0};
   var skip  = {inv:0,prod:0,pb:0};
   var addedAcc = 0;
-  if(_restoreWants(selectedKeys,'invoices')) (d.invoices||[]).forEach(function(x){ if(!invoices.find(function(i){return (x.invoiceId && i.invoiceId===x.invoiceId) || i.id===x.id || i.num===x.num;})){ invoices.push(x); added.inv++; } else skip.inv++; });
+  if(_restoreWants(selectedKeys,'invoices')) d.invoices.forEach(function(x){ if(!invoices.find(function(i){return (x.invoiceId && i.invoiceId===x.invoiceId) || i.id===x.id || i.num===x.num;})){ invoices.push(x); added.inv++; } else skip.inv++; });
   if(_restoreWants(selectedKeys,'products')) (d.products||[]).forEach(function(x){ if(!products.find(function(p){return p.code===x.code;})){ products.push(x); added.prod++; } else skip.prod++; });
   if(_restoreWants(selectedKeys,'phonebook')){
     var pbSource = (Array.isArray(d.phonebook) && d.phonebook.length>0) ? d.phonebook : (d.pb||[]);
@@ -14431,14 +15194,20 @@ function applyBackupMergeSections(d, selectedKeys){
         entry = { fn:parts3[0]||'', ln:parts3.slice(1).join(' ')||'', shop:x.shop||'', addr:x.address||x.addr||'', zip:x.zip||'', phones:x.phone?[x.phone]:[], ita:x.ita||'', tg:x.tg||'', wa:x.wa||'', ig:x.ig||'', note:x.note||'', cat:x.cat||'other' };
       }
       var entryPhone = (entry.phones&&entry.phones[0]) || '';
-      var exists = phonebook.find(function(p){ return entryPhone && (p.phones||[]).indexOf(entryPhone) !== -1; });
-      if (!exists) { phonebook.push(entry); added.pb++; } else skip.pb++;
+      var fp = _phonebookCanonicalFingerprint(entry);
+      var exact = phonebook.find(function(p){ return _phonebookCanonicalFingerprint(p) === fp; });
+      if (exact) { skip.pb++; return; }
+      if (entryPhone) {
+        var exists = phonebook.find(function(p){ return (p.phones||[]).indexOf(entryPhone) !== -1; });
+        if (exists) { skip.pb++; return; }
+      }
+      phonebook.push(entry); added.pb++;
     });
   }
-  if(_restoreWants(selectedKeys,'parts')) (d.parts||[]).forEach(function(x){ if(!parts.find(function(p){return p.id===x.id;})){ parts.push(x); added.parts++; } });
+  if(_restoreWants(selectedKeys,'parts') && Array.isArray(d.parts)) d.parts.forEach(function(x){ if(!parts.find(function(p){return p.id===x.id;})){ parts.push(x); added.parts++; } });
   if(_restoreWants(selectedKeys,'services')) (d.services||d.svcs||[]).forEach(function(x){ if(!services.find(function(p){return p.id===x.id||p.code===x.code;})){ services.push(x); svcs=services; added.svc++; } });
-  if(_restoreWants(selectedKeys,'warranties')) (d.warranties||[]).forEach(function(x){ if(!warranties.find(function(p){return p.id===x.id;})){ warranties.push(x); added.war++; } });
-  if(_restoreWants(selectedKeys,'sales')) (d.sales||[]).forEach(function(x){ if(!sales.find(function(p){return (x.saleUid && p.saleUid===x.saleUid) || p.id===x.id;})){ sales.push(x); added.sale++; } });
+  if(_restoreWants(selectedKeys,'warranties')) d.warranties.forEach(function(x){ if(!warranties.find(function(p){return p.id===x.id;})){ warranties.push(x); added.war++; } });
+  if(_restoreWants(selectedKeys,'sales') && Array.isArray(d.sales)) d.sales.forEach(function(x){ if(!sales.find(function(p){return (x.saleUid && p.saleUid===x.saleUid) || p.id===x.id;})){ sales.push(x); added.sale++; } });
   if(_restoreWants(selectedKeys,'sales') || _restoreWants(selectedKeys,'saleCtr')){
     if(d.saleCtr && d.saleCtr > (saleCtr||0)) saleCtr = d.saleCtr;
     if(typeof d.saleUidCtr!=='undefined' && (parseInt(d.saleUidCtr,10)||0) > (saleUidCtr||0)) saleUidCtr = parseInt(d.saleUidCtr,10);
@@ -14546,6 +15315,32 @@ async function importData(inp) {
       addDbgEntry('err','بازگردانی','invalid','فایل خالی یا نامعتبر است','یک فایل JSON معتبر انتخاب کنید');
       inp.value=''; return;
     }
+    // P1C: required collections BEFORE migrate/normalization (MISSING ≠ EMPTY)
+    var reqCol = validateRequiredBackupCollections(d);
+    if(!reqCol.ok){
+      addDbgEntry('err','بازگردانی','required_collection', (reqCol.errors||[]).join('; '), 'MISSING ≠ EMPTY — بازگردانی متوقف شد');
+      if(typeof logBackupAudit==='function') logBackupAudit('restore', 'err', {reason:'required_collection', errors:reqCol.errors, missing:reqCol.missingRequiredCollections, invalid:reqCol.invalidCollections});
+      alert('❌ بازگردانی انجام نشد — اعتبارسنجی ناموفق\n\n'+(reqCol.errors||[]).join('\n')+'\n\nوجودنداشتن مجموعهٔ الزامی با آرایهٔ خالی [] یکی نیست و به‌صورت خودکار پر نمی‌شود.');
+      inp.value=''; return;
+    }
+    if(typeof validateBackupStructuralIntegrity==='function'){
+      var structCol = validateBackupStructuralIntegrity(d);
+      if(!structCol.ok){
+        addDbgEntry('err','بازگردانی','structural_integrity', (structCol.errors||[]).join('; '), 'بازگردانی قبل از migrate/preview متوقف شد');
+        if(typeof logBackupAudit==='function') logBackupAudit('restore', 'err', {reason:'structural_integrity', errors:structCol.errors, counts:structCol.countMismatches, attachments:structCol.brokenAttachmentRefs});
+        alert('❌ بازگردانی انجام نشد — یکپارچگی ساختاری نامعتبر\n\n'+(structCol.errors||[]).join('\n'));
+        inp.value=''; return;
+      }
+    }
+    if(typeof validateBackupPortableIntegrity==='function'){
+      var portCol = validateBackupPortableIntegrity(d);
+      if(!portCol.ok){
+        addDbgEntry('err','بازگردانی','portable_integrity', (portCol.errors||[]).join('; '), 'بازگردانی قبل از migrate/preview متوقف شد');
+        if(typeof logBackupAudit==='function') logBackupAudit('restore', 'err', {reason:'portable_integrity', errors:portCol.errors, sections:portCol.sectionChecksumMismatches});
+        alert('❌ بازگردانی انجام نشد — یکپارچگی قابل‌حمل نامعتبر\n\n'+(portCol.errors||[]).join('\n'));
+        inp.value=''; return;
+      }
+    }
     var hasData = d.invoices||d.products||d.pb||d.phonebook||d.parts||d.warranties||d.sales||d.accounts||d.tasks||d.services||d.svcs||d.daqi||d.company||d.appearance||d.database;
     if (!hasData) {
       addDbgEntry('err','بازگردانی','no known keys','این فایل بک‌اپ لایق نیست — کلیدهای موجود: '+Object.keys(d).join(', '),'فایل بک‌اپ باید با نرم‌افزار سیرمان ساخته شده باشد');
@@ -14563,13 +15358,15 @@ async function importData(inp) {
       }
     }
 
-    // مرحله ۲.۵: تأیید checksum (تشخیص خرابی فایل)
+    // مرحله ۲.۵: تأیید checksum از JSON پارس‌شده پس از خواندن فایل — mismatch مسدود است، confirm ندارد
     var chkInfo = { ok:true, msg:'بدون checksum' };
     if(typeof verifyChecksum==='function'){
       chkInfo = await verifyChecksum(d);
       if(!chkInfo.ok){
         addDbgEntry('err','بازگردانی','checksum mismatch', chkInfo.msg, 'فایل ممکن است خراب یا دستکاری شده باشد');
-        if(!confirm('⚠️ هشدار سلامت فایل:\n'+chkInfo.msg+'\n\nبازگردانی ادامه یابد؟')){ inp.value=''; return; }
+        if(typeof logBackupAudit==='function') logBackupAudit('restore', 'err', {reason:'checksum', msg:chkInfo.msg});
+        alert('❌ بازگردانی انجام نشد — یکپارچگی checksum نامعتبر\n\n'+chkInfo.msg);
+        inp.value=''; return;
       }
     }
 
@@ -14583,8 +15380,16 @@ async function importData(inp) {
     d = migResult.data;
     var migLog = migResult.log;
 
-    // مرحله ۳.۵: تأیید itemCounts (تشخیص truncation)
-    if(d.itemCounts){
+    // مرحله ۳.۵: تأیید itemCounts (تشخیص truncation) — mismatch is FAIL, never repair
+    if(typeof validateBackupItemCounts==='function'){
+      var countGate = validateBackupItemCounts(d);
+      if(!countGate.ok){
+        addDbgEntry('err','بازگردانی','itemCounts mismatch', (countGate.errors||[]).join('; '), 'شمارش اعلام‌شده با طول آرایه یکی نیست — بدون تعمیر خودکار');
+        if(typeof logBackupAudit==='function') logBackupAudit('restore', 'err', {reason:'itemCounts', errors:countGate.errors});
+        alert('❌ بازگردانی انجام نشد — ناهماهنگی شمارش\n\n'+(countGate.errors||[]).join('\n'));
+        inp.value=''; return;
+      }
+    } else if(d.itemCounts){
       var countWarns = [];
       Object.keys(d.itemCounts).forEach(function(k){
         if(Array.isArray(d[k]) && d[k].length !== d.itemCounts[k]){
@@ -14592,7 +15397,9 @@ async function importData(inp) {
         }
       });
       if(countWarns.length){
-        addDbgEntry('warn','بازگردانی','itemCounts mismatch', countWarns.join('; '), 'برخی بخش‌ها ممکن است ناقص باشند');
+        addDbgEntry('err','بازگردانی','itemCounts mismatch', countWarns.join('; '), 'برخی بخش‌ها ممکن است ناقص باشند');
+        alert('❌ بازگردانی انجام نشد — ناهماهنگی شمارش\n\n'+countWarns.join('\n'));
+        inp.value=''; return;
       }
     }
 
@@ -14601,7 +15408,9 @@ async function importData(inp) {
       var val = validateBackupPackage(d);
       if(!val.ok){
         addDbgEntry('err','بازگردانی','validate', (val.errors||[]).join('; '), '');
-        if(!confirm('⚠️ اعتبارسنجی بسته:\n'+(val.errors||[]).join('\n')+'\n\nادامه؟')){ inp.value=''; return; }
+        if(typeof logBackupAudit==='function') logBackupAudit('restore', 'err', {reason:'validateBackupPackage', errors:val.errors});
+        alert('❌ بازگردانی انجام نشد — اعتبارسنجی بسته نامعتبر\n\n'+(val.errors||[]).join('\n'));
+        inp.value=''; return;
       } else if(val.warnings && val.warnings.length){
         chkInfo.msg = (chkInfo.msg?chkInfo.msg+' — ':'') + val.warnings.join('؛ ');
       }
@@ -14751,18 +15560,37 @@ function importProducts(inp){
       const wb=XLSX.read(e.target.result,{type:'binary'});
       const ws=wb.Sheets[wb.SheetNames[0]];
       const rows=XLSX.utils.sheet_to_json(ws,{header:1}).slice(1);
-      let added=0, skipped=0;
+      let added=0, skipped=0, qtyFail=0;
+      var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
       rows.forEach(row=>{
         if(!row[0]||!row[1])return;
         const code=String(row[0]).trim(),name=String(row[1]).trim();
         if(!products.find(p=>p.code===code)){
+          if(hostOn && !inventory[code]){
+            const qty=parseInt(row[7])||0;
+            const min=parseInt(row[8])||0;
+            var item={code:code, qty:0, min:min, note:''};
+            var adj=(typeof invAdjustOnItem==='function') ? invAdjustOnItem(item, qty, '') : {ok:false, err:'محاسبه انجام نشد'};
+            if(!adj || adj.ok===false){
+              qtyFail++;
+              return;
+            }
+            item.min=min;
+            item.note='';
+            inventory[code]=item;
+            products.push({code,name,cat:row[2]||'',brand:row[3]||'',supplier:row[4]||'',price:parseFloat(row[5])||0,desc:row[6]||'',img:''});
+            added++;
+            return;
+          }
           products.push({code,name,cat:row[2]||'',brand:row[3]||'',supplier:row[4]||'',price:parseFloat(row[5])||0,desc:row[6]||'',img:''});
           if(!inventory[code]) inventory[code]={qty:parseInt(row[7])||0,min:parseInt(row[8])||0,note:''};
           added++;
         } else skipped++;
       });
       sv();renderProds();renderInv();updateCats();
-      ntf(added+' کالای جدید اضافه شد'+(skipped?(' — '+skipped+' کد تکراری رد شد'):''));
+      var msg=added+' کالای جدید اضافه شد'+(skipped?(' — '+skipped+' کد تکراری رد شد'):'');
+      if(qtyFail) ntf(msg+' — موجودی '+qtyFail+' ردیف اعمال نشد','err');
+      else ntf(msg);
     }catch(err){ntf('خطا در خواندن فایل Excel — مطمئن شوید ستون‌ها مثل فایل نمونه‌اند','err');}
   };r.readAsBinaryString(f);inp.value='';
 }
@@ -18165,31 +18993,68 @@ function applyStocktakeAdjustments(){
   if(!reason){ ntf('علت کسری/اضافی را بنویسید','err'); return; }
   var conf = document.getElementById('st-confirm');
   if(conf && !conf.checked){ ntf('تأیید مسئول انبار برای ثبت تعدیل لازم است','err'); return; }
-  var count = 0;
+  var okCount = 0;
+  var failCount = 0;
   var meta = {reason:reason, user:(typeof invCurrentUser==='function'?invCurrentUser():'')};
-  adjustments.forEach(function(code){
-    var counted = parseInt(_stCounts[code]);
-    var sysQty = 0;
-    var partIdx = (typeof parts!=='undefined') ? parts.findIndex(function(p){return p.code===code;}) : -1;
-    if(partIdx !== -1){ sysQty = parts[partIdx].qty||0; }
-    else if(typeof inventory!=='undefined' && inventory[code]){ sysQty = inventory[code].qty||0; }
-    var diff = counted - sysQty;
-    if(diff === 0) return;
-    var type = diff > 0 ? 'in' : 'out';
-    _applyStockMovement(type, code, _stNames[code]||code, Math.abs(diff), 'stocktake', 'انبارگردانی');
-    if(stockMoves.length){
-      stockMoves[stockMoves.length-1].reason = reason;
-      stockMoves[stockMoves.length-1].user = meta.user;
-      if(typeof svStockMoves==='function') svStockMoves();
-    }
-    count++;
-  });
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    adjustments.forEach(function(code){
+      var counted = parseInt(_stCounts[code]);
+      if(!isFinite(counted)){ failCount++; return; }
+      var found = (typeof invFindStockItem==='function') ? invFindStockItem(code) : null;
+      var item = found ? found.item : null;
+      var kind = found ? found.kind : '';
+      if(!item && typeof defectiveStock!=='undefined' && Array.isArray(defectiveStock) && code && String(code).indexOf('DEF-')===0){
+        var di = defectiveStock.findIndex(function(d){ return d && (d.id===code || d.code===code); });
+        if(di !== -1){ item = defectiveStock[di]; kind = 'defective'; }
+      }
+      if(!item){ failCount++; return; }
+      var snap = (typeof invStockSnapshot==='function') ? invStockSnapshot(item, '') : null;
+      if(typeof stockDataAvailable==='function' && !stockDataAvailable(snap)){ failCount++; return; }
+      var sysQty = snap.qty;
+      if(counted === sysQty) return;
+      var adj = (typeof invAdjustOnItem==='function') ? invAdjustOnItem(item, counted, '') : {ok:false, err:'محاسبه انجام نشد'};
+      if(!adj || adj.ok===false){ failCount++; return; }
+      if(kind==='part' && typeof svParts==='function') svParts();
+      else if(kind==='defective' && typeof svDefective==='function') svDefective();
+      else if(typeof sv==='function') sv();
+      var absDiff = Math.abs(counted - sysQty);
+      var type = counted > sysQty ? 'in' : 'out';
+      if(typeof recordStockMove==='function') recordStockMove(type, code, _stNames[code]||item.name||item.model||code, absDiff, 'stocktake', 'انبارگردانی', '', {reason:reason, user:meta.user});
+      if(typeof stockMoves!=='undefined' && stockMoves.length){
+        stockMoves[stockMoves.length-1].reason = reason;
+        stockMoves[stockMoves.length-1].user = meta.user;
+        if(typeof svStockMoves==='function') svStockMoves();
+      }
+      okCount++;
+    });
+  } else {
+    adjustments.forEach(function(code){
+      var counted = parseInt(_stCounts[code]);
+      var sysQty = 0;
+      var partIdx = (typeof parts!=='undefined') ? parts.findIndex(function(p){return p.code===code;}) : -1;
+      if(partIdx !== -1){ sysQty = parts[partIdx].qty||0; }
+      else if(typeof inventory!=='undefined' && inventory[code]){ sysQty = inventory[code].qty||0; }
+      var diff = counted - sysQty;
+      if(diff === 0) return;
+      var type = diff > 0 ? 'in' : 'out';
+      _applyStockMovement(type, code, _stNames[code]||code, Math.abs(diff), 'stocktake', 'انبارگردانی');
+      if(typeof stockMoves!=='undefined' && stockMoves.length){
+        stockMoves[stockMoves.length-1].reason = reason;
+        stockMoves[stockMoves.length-1].user = meta.user;
+        if(typeof svStockMoves==='function') svStockMoves();
+      }
+      okCount++;
+    });
+  }
   _stCounts = {}; _stNames = {};
   var confEl = document.getElementById('st-confirm'); if(confEl) confEl.checked = false;
   var rs = document.getElementById('st-reason'); if(rs) rs.value = '';
   closeMod('stocktake-modal');
-  ntf(count+' آیتم تعدیل شد ✅');
-  auditUser('انبارگردانی', count+' تعدیل — '+reason);
+  if(failCount && !okCount) ntf('تعدیل انبارگردانی ناموفق ('+failCount+' ردیف)','err');
+  else if(failCount) ntf(okCount+' آیتم تعدیل شد — '+failCount+' ناموفق','err');
+  else ntf(okCount+' آیتم تعدیل شد ✅');
+  auditUser('انبارگردانی', okCount+' تعدیل — '+reason);
   if(typeof renderWarehouseDocs==='function') renderWarehouseDocs();
 }
 
@@ -18572,6 +19437,78 @@ function invReleaseReserveOnItem(item, qty, whId){
     item.reserved = (typeof _sumByWh==='function') ? _sumByWh(item.reservedByWh) : Math.max(0,(parseInt(item.reserved)||0)-qty);
   } else {
     item.reserved = Math.max(0, (parseInt(item.reserved)||0) - qty);
+  }
+  return {ok:true, stock:invStockSnapshot(item, whId)};
+}
+function invAdjustOnItem(item, qty, whId){
+  qty = parseInt(qty);
+  if(!isFinite(qty)) qty = 0;
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var preAdj = (typeof invStockSnapshot==='function') ? invStockSnapshot(item, whId) : null;
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(preAdj)) return {ok:false, err:'محاسبه انجام نشد'};
+    var core = takeBusinessCore('inventory.adjust', {item:item, qty:qty, whId:whId||''});
+    if(!core) return {ok:false, err:'محاسبه انجام نشد'};
+    if(core.ok===false) return {ok:false, err: core.err||core.error||'موجودی تنظیم نشد'};
+    if(typeof applyCoreItemOnto==='function') applyCoreItemOnto(item, core.item);
+    var stockAdj = core.stock;
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(stockAdj)) stockAdj = {ok:false, reason:'INVENTORY_UNAVAILABLE'};
+    return {ok:true, stock: stockAdj, persistKeys: core.persistKeys||core.PersistKeys};
+  }
+  if(!item) return {ok:false, err:'مقدار نامعتبر'};
+  if(qty < 0) return {ok:false, err:'مقدار نامعتبر'};
+  var snapAdj = (typeof invStockSnapshot==='function') ? invStockSnapshot(item, whId) : null;
+  if(typeof stockDataAvailable==='function' && !stockDataAvailable(snapAdj)) return {ok:false, err:'محاسبه انجام نشد'};
+  var current = snapAdj.qty;
+  var diff = qty - current;
+  if(diff === 0) return {ok:true, stock: snapAdj};
+  var n = Math.abs(diff);
+  if(diff < 0){
+    if(snapAdj.available < n) return {ok:false, err:'موجودی قابل‌استفاده کافی نیست (قابل استفاده: '+snapAdj.available+'، درخواست: '+n+')'};
+    if(whId){
+      if(!item.byWh || typeof item.byWh!=='object') item.byWh = {};
+      item.byWh[whId] = Math.max(0, (parseInt(item.byWh[whId])||0) - n);
+      item.qty = (typeof _sumByWh==='function') ? _sumByWh(item.byWh) : Math.max(0,(parseInt(item.qty)||0)-n);
+    } else {
+      item.qty = Math.max(0, (parseInt(item.qty)||0) - n);
+    }
+    return {ok:true, stock:invStockSnapshot(item, whId)};
+  }
+  if(whId){
+    if(!item.byWh || typeof item.byWh!=='object') item.byWh = {};
+    item.byWh[whId] = (parseInt(item.byWh[whId])||0) + n;
+    item.qty = (typeof _sumByWh==='function') ? _sumByWh(item.byWh) : ((parseInt(item.qty)||0)+n);
+  } else {
+    item.qty = (parseInt(item.qty)||0) + n;
+  }
+  return {ok:true, stock:invStockSnapshot(item, whId)};
+}
+function invRemoveStockOnItem(item, qty, whId){
+  qty = parseInt(qty);
+  if(!isFinite(qty)) qty = 0;
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    var preRm = (typeof invStockSnapshot==='function') ? invStockSnapshot(item, whId) : null;
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(preRm)) return {ok:false, err:'محاسبه انجام نشد'};
+    var core = takeBusinessCore('inventory.removeStock', {item:item, qty:qty, whId:whId||''});
+    if(!core) return {ok:false, err:'محاسبه انجام نشد'};
+    if(core.ok===false) return {ok:false, err: core.err||core.error||'موجودی کسر نشد'};
+    if(typeof applyCoreItemOnto==='function') applyCoreItemOnto(item, core.item);
+    var stockRm = core.stock;
+    if(typeof stockDataAvailable==='function' && !stockDataAvailable(stockRm)) stockRm = {ok:false, reason:'INVENTORY_UNAVAILABLE'};
+    return {ok:true, stock: stockRm, persistKeys: core.persistKeys||core.PersistKeys};
+  }
+  if(!item || qty<=0) return {ok:false, err:'مقدار نامعتبر'};
+  var snapRm = (typeof invStockSnapshot==='function') ? invStockSnapshot(item, whId) : null;
+  if(typeof stockDataAvailable==='function' && !stockDataAvailable(snapRm)) return {ok:false, err:'محاسبه انجام نشد'};
+  if(whId){
+    if(snapRm.available < qty) return {ok:false, err:'موجودی قابل‌استفاده کافی نیست (قابل استفاده: '+snapRm.available+'، درخواست: '+qty+')'};
+    if(!item.byWh || typeof item.byWh!=='object') item.byWh = {};
+    item.byWh[whId] = Math.max(0, (parseInt(item.byWh[whId])||0) - qty);
+    item.qty = (typeof _sumByWh==='function') ? _sumByWh(item.byWh) : Math.max(0,(parseInt(item.qty)||0)-qty);
+  } else {
+    if(snapRm.available < qty) return {ok:false, err:'موجودی قابل‌استفاده کافی نیست (قابل استفاده: '+snapRm.available+')'};
+    item.qty = Math.max(0, (parseInt(item.qty)||0) - qty);
   }
   return {ok:true, stock:invStockSnapshot(item, whId)};
 }
@@ -24102,6 +25039,35 @@ function printEngineJob(docId){
   job.pageRange = job.pageRange || 'all';
   return job;
 }
+function printEngineDocumentDefaultPaper(kind){
+  var k = String(kind||'');
+  if(k==='postalLabel' || k==='postal') return 'A5';
+  if(k==='invoice') return 'A4 landscape';
+  return 'A4';
+}
+function printEnginePaperDocIds(kind){
+  var k = String(kind||'');
+  if(k==='postalLabel' || k==='postal') return ['postalLabel','postal'];
+  if(k==='testPage') return ['testPage'];
+  if(k==='invoice') return ['invoice'];
+  return k ? [k] : [];
+}
+function printEngineOverrideJob(kind){
+  if(typeof getPrintCenterState!=='function') return null;
+  var st = getPrintCenterState();
+  if(!st) return null;
+  var ids = printEnginePaperDocIds(kind);
+  var i, id;
+  for(i=0;i<ids.length;i++){
+    id = ids[i];
+    if(st.lastDocId!==id) continue;
+    if(st.lastByDoc && st.lastByDoc[id] && st.lastByDoc[id].paper)
+      return st.lastByDoc[id];
+    if(st.job && st.job.paper)
+      return st.job;
+  }
+  return null;
+}
 function printEngineSaveJob(job, docId){
   var st = getPrintCenterState();
   st.job = Object.assign({}, printEngineJob(docId), job||{});
@@ -24796,6 +25762,8 @@ function printEngineBuildPostalLabelModel(opt){
     copies: opt.copies || 1,
     documentId: opt.documentId || 'postal-label',
     documentType: 'postalLabel',
+    paperExplicit: !!opt.paperExplicit,
+    printCenterExplicit: !!opt.printCenterExplicit,
     sender: data.sender || {},
     recipient: data.recipient || {},
     logoSrc: opt.logoSrc || (typeof logoSrc!=='undefined' ? logoSrc : ''),
@@ -24818,10 +25786,17 @@ function printEnginePrintNative(model, opt){
   var job = Object.assign({}, (typeof printEngineJob==='function' ? printEngineJob(docId) : {}), opt.job||{});
   if(opt.printer) job.printer = opt.printer;
   if(opt.printerName) job.printer = opt.printerName;
-  if(opt.paper) job.paper = opt.paper;
   if(opt.copies) job.copies = opt.copies;
-  var split = printEngineSplitPaper(job.paper || model.paper || 'A4');
-  if(typeof model.landscape==='boolean' && !opt.paper && !job.paper){
+  var overrideJob = (typeof printEngineOverrideJob==='function') ? printEngineOverrideJob(docId) : null;
+  var paperExplicit = !!(opt.paperExplicit || opt.paper || (overrideJob && overrideJob.paper) || model.paperExplicit);
+  var printCenterExplicit = !!(opt.printCenterExplicit || model.printCenterExplicit);
+  if(overrideJob && overrideJob.paper){ paperExplicit = true; printCenterExplicit = true; }
+  var paperToken = opt.paper
+    || (overrideJob && overrideJob.paper)
+    || model.paper
+    || printEngineDocumentDefaultPaper(docId);
+  var split = printEngineSplitPaper(paperToken);
+  if(typeof model.landscape==='boolean' && !opt.paper && !(overrideJob && overrideJob.paper)){
     split = {paper: split.paper, landscape: model.landscape, orientation: model.landscape ? 'landscape' : 'portrait'};
   }
   var printer = job.printer || (typeof getPrintCenterState==='function' ? (getPrintCenterState().selectedPrinter||'') : '');
@@ -24829,7 +25804,8 @@ function printEnginePrintNative(model, opt){
     var failPdf = printEngineFailResult('PDF_NOT_PRINT','این چاپگر فایل/PDF است. چاپ کاغذ فقط با چاپگر واقعی انجام می‌شود.',{printer:printer, documentId:documentId, documentType:docId});
     return printEngineApplyResult(failPdf, {docId:docId, title:opt.title, printer:printer, documentId:documentId});
   }
-  if(typeof printEngineSaveJob==='function') printEngineSaveJob(job, docId);
+  if(typeof printEngineSaveJob==='function' && (paperExplicit || printCenterExplicit || docId==='invoice' || docId==='testPage'))
+    printEngineSaveJob(job, docId);
   var host = printEngineHost();
   if(!host || !host.PrintDocument){
     var fail = printEngineFailResult('NO_HOST','چاپ واقعی فقط در Sirman.exe و چاپگر ویندوز انجام می‌شود.',{printer:printer, documentId:documentId, documentType:docId});
@@ -24845,6 +25821,8 @@ function printEnginePrintNative(model, opt){
     copies: parseInt(job.copies,10)||1,
     documentId: documentId,
     documentType: docId,
+    paperExplicit: paperExplicit,
+    printCenterExplicit: printCenterExplicit,
     user: (typeof getAuditActor==='function' && getAuditActor()) ? (getAuditActor().username||'') : ''
   });
   try{ delete payload.html; }catch(_d){ payload.html = undefined; }
@@ -24885,7 +25863,7 @@ function pcDoNativeTestPage(){
     paper: jobUi.paper || 'A4',
     landscape: jobUi.orientation==='landscape',
     copies: jobUi.copies || 1
-  }), {docId:'testPage', title:'صفحه آزمایش بومی', printer: jobUi.printer});
+  }), {docId:'testPage', title:'صفحه آزمایش بومی', printer: jobUi.printer, printCenterExplicit:true, paperExplicit:true});
 }
 function pcDoPrint(){
   var st = getPrintCenterState();
@@ -24915,7 +25893,7 @@ function pcDoPrint(){
       paper: jobUi.paper || 'A4 landscape',
       copies: jobUi.copies || 1,
       printerName: jobUi.printer || ''
-    }), {docId:'invoice', documentId:documentIdInv, title:printDocById('invoice').title, printer:jobUi.printer});
+    }), {docId:'invoice', documentId:documentIdInv, title:printDocById('invoice').title, printer:jobUi.printer, printCenterExplicit:true, paperExplicit:true});
   }
   var html = '';
   var documentId = '';
@@ -25019,13 +25997,13 @@ function phdPick(name){
 function phdDirectPrint(){
   var res = phdCall('directPrint', {printerName:_phdSelected});
   phdShowJob('Direct Windows Print', res);
-  setTimeout(function(){ phdQueue(); }, 800);
+  setTimeout(function(){ phdQueue(); phdHistory(); }, 800);
   return res;
 }
 function phdWebViewPrint(){
   var res = phdCall('webviewPrint', {printerName:_phdSelected});
   phdShowJob('WebView2 PrintAsync', res);
-  setTimeout(function(){ phdQueue(); }, 1200);
+  setTimeout(function(){ phdQueue(); phdHistory(); }, 1200);
   return res;
 }
 function phdQueue(){
@@ -25040,7 +26018,56 @@ function phdConfirmPaper(came){
   var res = phdCall('confirmPaper', {paperCameOut:!!came});
   _phdLast = res;
   phdRender(res);
+  phdHistory();
   return res;
+}
+function phdHistory(){
+  var r = phdCall('history');
+  phdRenderHistory(r);
+  return r;
+}
+function phdVerifySession(sessionId, came){
+  var r = phdCall('historyEvent', {sessionId:sessionId||'', physicalCameOutCorrectly:!!came});
+  phdRenderHistory(r);
+  return r;
+}
+function phdEsc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
+  });
+}
+function phdRenderHistory(res){
+  var status = document.getElementById('phd-history-status');
+  var table = document.getElementById('phd-history-table');
+  if(!status && !table) return;
+  if(res && res.errorCode==='NO_HOST'){
+    if(status) status.textContent = 'تاریخچه تشخیص فقط در Sirman.exe ذخیره می‌شود. مرورگر یا HTML-only رکوردی نمی‌نویسد.';
+    if(table) table.innerHTML = '';
+    return;
+  }
+  if(res && res.historyReadFailed){
+    if(status) status.textContent = 'خواندن تاریخچه شکست خورد — نتیجه جاری حفظ شد. '+(res.historyWriteError||'');
+    return;
+  }
+  var events = (res && res.events) || [];
+  if(res && res.historyWriteFailed){
+    if(status) status.textContent = 'نوشتن تاریخچه شکست خورد — چاپ و نتیجه جاری ادامه یافت. '+(res.historyWriteError||'');
+  } else if(!events.length){
+    if(status) status.textContent = 'تاریخچه‌ای ثبت نشده. هر اجرا یک جلسه جدید می‌سازد.';
+  } else {
+    if(status) status.textContent = events.length+' رویداد (جدیدترین بالا). PRINT SUBMITTED یعنی کاغذ هنوز تأیید نشده.'+(res.path? '\n'+res.path:'');
+  }
+  if(!table) return;
+  if(!events.length){ table.innerHTML = ''; return; }
+  table.innerHTML = '<tr><th>زمان</th><th>جلسه</th><th>نوع</th><th>چاپگر</th><th>کاغذ</th><th>وضعیت</th></tr>'+events.map(function(ev){
+    var ts = phdEsc(ev.timestampLocal||ev.timestampUtc||'');
+    var sid = phdEsc(ev.sessionId||'');
+    var typ = phdEsc(ev.testType||ev.documentKind||'');
+    var prn = phdEsc(ev.printerName||'');
+    var paper = phdEsc(ev.resolvedPaper||ev.requestedPaper||'');
+    var st = phdEsc(ev.eventType||ev.physicalVerification||ev.submissionStatus||'UNKNOWN');
+    return '<tr><td>'+ts+'</td><td>'+sid+'</td><td>'+typ+'</td><td>'+prn+'</td><td>'+paper+'</td><td>'+st+'</td></tr>';
+  }).join('');
 }
 function phdShowJob(title, res){
   var box = document.getElementById('phd-result');
@@ -25096,7 +26123,7 @@ function phdRender(res){
   }
   var box = document.getElementById('phd-result');
   if(box && (res.failureCode||res.status||res.message)){
-    box.textContent = 'Diagnostic Result: '+(res.failureCode||res.status||'')+'\n'+(res.message||res.resolveMessage||'')+'\nlog: '+(res.logPath||'')+'\nکاغذ: '+(res.paperNote||'PHYSICAL_PRINT_NOT_VERIFIED');
+    box.textContent = 'Diagnostic Result: '+(res.failureCode||res.status||'')+'\n'+(res.message||res.resolveMessage||'')+'\nlog: '+(res.logPath||'')+'\nکاغذ: '+(res.paperNote||'PHYSICAL_PRINT_NOT_VERIFIED')+(res.historyWriteFailed?'\nتاریخچه: نوشتن شکست خورد — '+ (res.historyWriteError||''):'');
   }
   var noHost = res.errorCode==='NO_HOST';
   ['phd-btn-direct','phd-btn-webview'].forEach(function(id){
@@ -27636,6 +28663,35 @@ function prepareNetworkWorkspacePull(raw){
   }
   try { data = JSON.parse(JSON.stringify(data)); }
   catch(_c){ return {ok:false, error:'فایل فضای کاری نامعتبر است'}; }
+  if(typeof validateRequiredBackupCollections==='function'){
+    var reqCol = validateRequiredBackupCollections(data);
+    if(!reqCol.ok){
+      return {ok:false, error:(reqCol.errors||[]).join('؛ '), validation:reqCol};
+    }
+  } else {
+    var reqKeys = (typeof requiredBackupCollectionsFor==='function')
+      ? requiredBackupCollectionsFor(data)
+      : ((typeof REQUIRED_BACKUP_COLLECTIONS!=='undefined' && REQUIRED_BACKUP_COLLECTIONS && REQUIRED_BACKUP_COLLECTIONS.length)
+        ? REQUIRED_BACKUP_COLLECTIONS.slice() : ['warranties','invoices']);
+    for(var ri=0;ri<reqKeys.length;ri++){
+      var rk = reqKeys[ri];
+      if(!Object.prototype.hasOwnProperty.call(data,rk) || data[rk]===null || !Array.isArray(data[rk])){
+        return {ok:false, error:'مجموعهٔ الزامی «'+rk+'» غایب یا نامعتبر است (MISSING ≠ EMPTY)'};
+      }
+    }
+  }
+  if(typeof validateBackupStructuralIntegrity==='function'){
+    var structCol = validateBackupStructuralIntegrity(data);
+    if(!structCol.ok){
+      return {ok:false, error:(structCol.errors||[]).join('؛ '), validation:structCol};
+    }
+  }
+  if(typeof validateBackupPortableIntegrity==='function'){
+    var portCol = validateBackupPortableIntegrity(data);
+    if(!portCol.ok){
+      return {ok:false, error:(portCol.errors||[]).join('؛ '), validation:portCol};
+    }
+  }
   var migLog = ['network-workspace'];
   if(typeof migrateBackup==='function'){
     try {

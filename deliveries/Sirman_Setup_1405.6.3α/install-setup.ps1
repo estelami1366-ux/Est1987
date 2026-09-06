@@ -77,6 +77,31 @@ New-Item -ItemType Directory -Force -Path $Dest | Out-Null
 Write-Host 'Copying files...'
 Copy-Item -Path (Join-Path $App '*') -Destination $Dest -Recurse -Force
 
+# Lifecycle engine lives at kit root and/or App. Copy into Dest so uninstall can run.
+foreach ($extra in @(
+  'Sirman-InstallLifecycle.ps1',
+  'sirman-install-contract.json',
+  'Uninstall-Sirman.ps1',
+  'Uninstall-Sirman.bat',
+  'Sirman-Full-Cleanup.bat'
+)) {
+  foreach ($base in @($Root, $App)) {
+    $srcExtra = Join-Path $base $extra
+    if (Test-Path -LiteralPath $srcExtra) {
+      Copy-Item -LiteralPath $srcExtra -Destination (Join-Path $Dest $extra) -Force
+    }
+  }
+}
+
+$life = Join-Path $Root 'Sirman-InstallLifecycle.ps1'
+if (-not (Test-Path -LiteralPath $life)) { $life = Join-Path $App 'Sirman-InstallLifecycle.ps1' }
+if (-not (Test-Path -LiteralPath $life)) { $life = Join-Path $Dest 'Sirman-InstallLifecycle.ps1' }
+if (Test-Path -LiteralPath $life) {
+  . $life
+  Write-SirmanInstallManifest -SourceDir $App -DestDir $Dest
+  Remove-SirmanStaleOwnedFiles -DestDir $Dest -SourceDir $App
+}
+
 # Old installs often left a 1KB Sirman_Pending_Update.json. That file is not
 # the program and must not stay next to the new HTML.
 $srcPending = Join-Path $App 'Sirman_Pending_Update.json'
@@ -127,35 +152,44 @@ if (-not (Test-Path -LiteralPath $destExe)) {
   if (Test-Path -LiteralPath $destStart) { $target = $destStart } else { $target = $destHtml }
 }
 
-$appRoot = Join-Path $env:LOCALAPPDATA 'Sirman'
-New-Item -ItemType Directory -Force -Path $appRoot | Out-Null
-Set-Content -LiteralPath (Join-Path $appRoot 'install-location.txt') -Value $Dest -Encoding UTF8
-
-$shell = New-Object -ComObject WScript.Shell
-$startDir = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Sirman'
-New-Item -ItemType Directory -Force -Path $startDir | Out-Null
-
-$l = $shell.CreateShortcut((Join-Path $startDir 'Sirman.lnk'))
-$l.TargetPath = $target
-$l.WorkingDirectory = $work
-$l.Description = 'Sirman'
-$l.Save()
-
-if (Test-Path -LiteralPath $destUn) {
-  $u = $shell.CreateShortcut((Join-Path $startDir 'Uninstall Sirman.lnk'))
-  $u.TargetPath = $destUn
-  $u.WorkingDirectory = $work
-  $u.Description = 'Uninstall Sirman'
-  $u.Save()
-}
-
-if ($makeDesktop) {
-  $dd = [Environment]::GetFolderPath('DesktopDirectory')
-  $d = $shell.CreateShortcut((Join-Path $dd 'Sirman.lnk'))
-  $d.TargetPath = $target
-  $d.WorkingDirectory = $work
-  $d.Description = 'Sirman'
-  $d.Save()
+if (Get-Command Write-SirmanInstallLocation -ErrorAction SilentlyContinue) {
+  Write-SirmanInstallLocation -Dest $Dest
+  New-SirmanCanonicalShortcuts -LaunchTarget $target -WorkDir $work -Desktop:$makeDesktop
+} else {
+  $appRoot = Join-Path $env:LOCALAPPDATA 'Sirman'
+  New-Item -ItemType Directory -Force -Path $appRoot | Out-Null
+  Set-Content -LiteralPath (Join-Path $appRoot 'install-location.txt') -Value $Dest -Encoding UTF8
+  $shell = New-Object -ComObject WScript.Shell
+  $startDir = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Sirman'
+  New-Item -ItemType Directory -Force -Path $startDir | Out-Null
+  $l = $shell.CreateShortcut((Join-Path $startDir 'SIRMAN.lnk'))
+  $l.TargetPath = $target
+  $l.WorkingDirectory = $work
+  $l.Description = 'سیرمان — خدمات پس از فروش'
+  $l.Save()
+  if (Test-Path -LiteralPath $destUn) {
+    $u = $shell.CreateShortcut((Join-Path $startDir 'Uninstall SIRMAN.lnk'))
+    $u.TargetPath = $destUn
+    $u.WorkingDirectory = $work
+    $u.Description = 'حذف سالم سیرمان (سطح ۱ — برنامه، نه داده کسب‌وکار)'
+    $u.Save()
+  }
+  $destFc = Join-Path $Dest 'Sirman-Full-Cleanup.bat'
+  if (Test-Path -LiteralPath $destFc) {
+    $fc = $shell.CreateShortcut((Join-Path $startDir 'SIRMAN Full Cleanup.lnk'))
+    $fc.TargetPath = $destFc
+    $fc.WorkingDirectory = $work
+    $fc.Description = 'پاک‌سازی کامل داده سیرمان (سطح ۲ — type CONFIRM)'
+    $fc.Save()
+  }
+  if ($makeDesktop) {
+    $dd = [Environment]::GetFolderPath('DesktopDirectory')
+    $d = $shell.CreateShortcut((Join-Path $dd 'Sirman.lnk'))
+    $d.TargetPath = $target
+    $d.WorkingDirectory = $work
+    $d.Description = 'سیرمان — خدمات پس از فروش'
+    $d.Save()
+  }
 }
 
 Write-Host ''
@@ -163,7 +197,10 @@ Write-Host '==============================================='
 Write-Host '  Nasb tamam shod'
 Write-Host '==============================================='
 Write-Host ('Path: ' + $Dest)
-Write-Host 'Start Menu: Sirman'
+Write-Host 'Start Menu: Programs\Sirman'
+Write-Host '  SIRMAN.lnk'
+Write-Host '  Uninstall SIRMAN.lnk'
+Write-Host '  SIRMAN Full Cleanup.lnk'
 Write-Host ''
 
 $run = [System.Windows.Forms.MessageBox]::Show(
