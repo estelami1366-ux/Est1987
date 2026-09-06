@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "packet": "P0c-runtime-ownership-2026-09-02",
+  "canonical": {
+    "startMenuFolderName": "Sirman",
+    "startMenuLaunchShortcut": "SIRMAN.lnk",
+    "startMenuUninstallShortcut": "Uninstall SIRMAN.lnk",
+    "startMenuFullCleanupShortcut": "SIRMAN Full Cleanup.lnk",
+    "desktopShortcut": "Sirman.lnk",
+    "installLocationFileName": "install-location.txt",
+    "legacyInstallPathFileName": "install_path.txt",
+    "manifestFileName": "sirman-install-manifest.json",
+    "level2ConfirmationWord": "CONFIRM",
+    "launchDescription": "سیرمان — خدمات پس از فروش",
+    "uninstallDescription": "حذف سالم سیرمان (سطح ۱ — برنامه، نه داده کسب‌وکار)",
+    "fullCleanupDescription": "پاک‌سازی کامل داده سیرمان (سطح ۲ — type CONFIRM)"
+  },
+  "legacyStartMenuFolderNames": ["سیرمان"],
+  "legacyStartMenuLaunchNames": ["سیرمان.lnk"],
+  "legacyStartMenuUninstallNames": ["حذف سیرمان.lnk", "Uninstall Sirman.lnk"],
+  "legacyDesktopNames": ["سیرمان.lnk"],
+  "preserveDirNames": ["sirman_media"],
+  "ownedExactFiles": [
+    "Sirman.exe",
+    "Sirman.dll",
+    "Sirman.deps.json",
+    "Sirman.runtimeconfig.json",
+    "Sirman.Core.dll",
+    "createdump.exe",
+    "Sirman_Final.html",
+    "Uninstall-Sirman.bat",
+    "Uninstall-Sirman.ps1",
+    "Sirman-Full-Cleanup.bat",
+    "Sirman-InstallLifecycle.ps1",
+    "sirman-install-contract.json",
+    "sirman-install-manifest.json",
+    "Sirman_Start.bat",
+    "OPEN_SIRMAN.bat",
+    "sirman_run.ps1",
+    "apply_sirman_update.ps1",
+    "Sirman_Pending_Update.json",
+    "SIRMAN_VERSION.json",
+    "Sirman_Install_Shortcuts.ps1",
+    "نصب_میانبر_سیرمان.bat",
+    "WebView2Loader.dll",
+    "Laegh_Final.html",
+    "coreclr.dll",
+    "clrjit.dll",
+    "clrgc.dll",
+    "clretwrc.dll",
+    "hostfxr.dll",
+    "hostpolicy.dll",
+    "PresentationCore.dll",
+    "PresentationUI.dll",
+    "PresentationNative_cor3.dll",
+    "Accessibility.dll",
+    "PenImc_cor3.dll",
+    "DirectWriteForwarder.dll",
+    "D3DCompiler_47_cor3.dll",
+    "wpfgfx_cor3.dll",
+    "WindowsBase.dll",
+    "WindowsFormsIntegration.dll",
+    "ReachFramework.dll",
+    "mscorlib.dll",
+    "mscordaccore.dll",
+    "mscordbi.dll",
+    "mscorrc.dll",
+    "msquic.dll",
+    "netstandard.dll",
+    "vcruntime140_cor3.dll",
+    "راهنمای_نصب_از_صفر.txt",
+    "راهنمای_نصب_و_آپدیت.docx"
+  ],
+  "ownedNamePrefixes": [
+    "Sirman_Final_",
+    "Laegh_Final_",
+    "Sirman_Update_",
+    "System.",
+    "Microsoft.",
+    "runtime",
+    "coreclr",
+    "clrjit",
+    "clrgc",
+    "clretw",
+    "hostfxr",
+    "hostpolicy",
+    "Presentation",
+    "Accessibility",
+    "PenImc",
+    "DirectWrite",
+    "WindowsBase",
+    "WindowsForms",
+    "UIAutomation",
+    "ReachFramework",
+    "wpfgfx",
+    "D3DCompiler",
+    "mscor",
+    "netstandard",
+    "msquic",
+    "vcruntime",
+    "msvcp"
+  ],
+  "ownedNameSuffixes": [
+    ".pdb",
+    ".resources.dll"
+  ],
+  "ownedExactDirs": ["runtimes"],
+  "ownedLanguageDirectories": [
+    "cs", "de", "es", "fr", "it", "ja", "ko", "pl", "pt-BR", "ru", "tr", "zh-Hans", "zh-Hant"
+  ],
+  "level1RemovalRetries": 5,
+  "level1RetryDelayMs": 400,
+  "processStop": {
+    "processNames": ["Sirman"],
+    "childCommandLinePatterns": ["Sirman-Server-", "sirman_run.ps1"],
+    "waitExitSeconds": 8
+  },
+  "ownedPruneFilePatterns": [
+    { "dir": ".", "match": "Sirman_Final_*.html", "keepIfCopiedFromSource": true },
+    { "dir": ".", "match": "Sirman_Pending_Update.json", "maxBytes": 100000, "alwaysOwned": true },
+    { "dir": ".", "match": "*.pdb", "alwaysOwned": true },
+    { "dir": ".", "match": "createdump.exe", "alwaysOwned": true },
+    { "dir": "updates", "match": "Sirman_Update_*.json", "maxBytes": 100000, "alwaysOwned": true }
+  ],
+  "level1NeverDelete": {
+    "localAppDataSirmanChildren": ["WebView2"],
+    "roamingSirmanChildren": ["backup"],
+    "wholesaleForbidden": [
+      "%LOCALAPPDATA%\\Sirman",
+      "%APPDATA%\\Sirman"
+    ]
+  },
+  "level2Categories": [
+    {
+      "id": "A",
+      "name": "WebView2 business data",
+      "paths": ["%LOCALAPPDATA%\\Sirman\\WebView2"]
+    },
+    {
+      "id": "B",
+      "name": "backup data",
+      "paths": [
+        "%APPDATA%\\Sirman\\backup",
+        "%LOCALAPPDATA%\\Sirman\\Backups",
+        "<user-selected BackupFolder from desktop-settings.json>"
+      ]
+    },
+    {
+      "id": "C",
+      "name": "media",
+      "paths": [
+        "<BackupFolder>\\sirman_media",
+        "%APPDATA%\\Sirman\\backup\\sirman_media",
+        "%LOCALAPPDATA%\\Sirman\\Backups\\sirman_media"
+      ]
+    },
+    {
+      "id": "D",
+      "name": "prefs/config",
+      "paths": [
+        "%APPDATA%\\Sirman\\prefs.json",
+        "%LOCALAPPDATA%\\Sirman\\desktop-settings.json",
+        "%APPDATA%\\Sirman\\secrets"
+      ]
+    },
+    {
+      "id": "E",
+      "name": "diagnostic history",
+      "paths": ["%LOCALAPPDATA%\\Sirman\\diagnostics\\history.jsonl"]
+    },
+    {
+      "id": "F",
+      "name": "candidate SQLite",
+      "paths": ["%APPDATA%\\Sirman\\data\\sirman.sqlite"]
+    },
+    {
+      "id": "G",
+      "name": "update state/cache",
+      "paths": [
+        "%LOCALAPPDATA%\\Sirman\\WebView2-print",
+        "%LOCALAPPDATA%\\Sirman\\WebView2-print-diag"
+      ]
+    }
+  ]
+}
