@@ -15560,18 +15560,37 @@ function importProducts(inp){
       const wb=XLSX.read(e.target.result,{type:'binary'});
       const ws=wb.Sheets[wb.SheetNames[0]];
       const rows=XLSX.utils.sheet_to_json(ws,{header:1}).slice(1);
-      let added=0, skipped=0;
+      let added=0, skipped=0, qtyFail=0;
+      var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
       rows.forEach(row=>{
         if(!row[0]||!row[1])return;
         const code=String(row[0]).trim(),name=String(row[1]).trim();
         if(!products.find(p=>p.code===code)){
+          if(hostOn && !inventory[code]){
+            const qty=parseInt(row[7])||0;
+            const min=parseInt(row[8])||0;
+            var item={code:code, qty:0, min:min, note:''};
+            var adj=(typeof invAdjustOnItem==='function') ? invAdjustOnItem(item, qty, '') : {ok:false, err:'محاسبه انجام نشد'};
+            if(!adj || adj.ok===false){
+              qtyFail++;
+              return;
+            }
+            item.min=min;
+            item.note='';
+            inventory[code]=item;
+            products.push({code,name,cat:row[2]||'',brand:row[3]||'',supplier:row[4]||'',price:parseFloat(row[5])||0,desc:row[6]||'',img:''});
+            added++;
+            return;
+          }
           products.push({code,name,cat:row[2]||'',brand:row[3]||'',supplier:row[4]||'',price:parseFloat(row[5])||0,desc:row[6]||'',img:''});
           if(!inventory[code]) inventory[code]={qty:parseInt(row[7])||0,min:parseInt(row[8])||0,note:''};
           added++;
         } else skipped++;
       });
       sv();renderProds();renderInv();updateCats();
-      ntf(added+' کالای جدید اضافه شد'+(skipped?(' — '+skipped+' کد تکراری رد شد'):''));
+      var msg=added+' کالای جدید اضافه شد'+(skipped?(' — '+skipped+' کد تکراری رد شد'):'');
+      if(qtyFail) ntf(msg+' — موجودی '+qtyFail+' ردیف اعمال نشد','err');
+      else ntf(msg);
     }catch(err){ntf('خطا در خواندن فایل Excel — مطمئن شوید ستون‌ها مثل فایل نمونه‌اند','err');}
   };r.readAsBinaryString(f);inp.value='';
 }

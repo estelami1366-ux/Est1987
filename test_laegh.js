@@ -17055,6 +17055,201 @@ test('P0: صفر، افزایش، کاهش، کالای جدید و ذخیره �
 });
 
 console.log('');
+console.log('📋 گروه: P1 cutover ورود اکسل موجودی کالا از طریق Core');
+
+function makeExcelProductImportHarness(opts) {
+  opts = opts || {};
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const itemSrc = extractFunctionSource(html, 'applyCoreItemOnto');
+  const persistSrc = extractFunctionSource(html, 'persistCoreSnapshot');
+  const adjSrc = extractFunctionSource(html, 'invAdjustOnItem');
+  const impSrc = extractFunctionSource(html, 'importProducts');
+  assertTrue(!!impSrc && !!adjSrc && !!runSrc && !!hasSrc, 'توابع ورود اکسل کالا / تنظیم موجودی پیدا نشد');
+  const hostOn = opts.hostOn !== false;
+  const startProducts = opts.products || [];
+  const startInv = opts.inventory || {};
+  const sheetRows = opts.rows || [];
+  return new Function('runImpl', 'hostOn', 'startProducts', 'startInv', 'sheetRows',
+    runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + (sumSrc || '') + '\n' + recSrc + '\n' + itemSrc + '\n' + snapSrc + '\n' + persistSrc + '\n' + adjSrc + '\n' + impSrc + `
+    var calls = [];
+    var ntfCalls = [];
+    var ls = {};
+    var products = JSON.parse(JSON.stringify(startProducts));
+    var inventory = JSON.parse(JSON.stringify(startInv));
+    function FileReader(){
+      this.onload = null;
+      this.readAsBinaryString = function(){
+        var self = this;
+        if (typeof self.onload === 'function') self.onload({target:{result:'x'}});
+      };
+    }
+    var XLSX = {
+      read: function(){ return {SheetNames:['S'], Sheets:{S:{}}}; },
+      utils: { sheet_to_json: function(){
+        return [['کد','نام','دسته','برند','تأمین‌کننده','قیمت','توضیحات','موجودی','حداقل']].concat(sheetRows);
+      }}
+    };
+    function getSirmanHostSync(){
+      if (!hostOn) return null;
+      return { RunBusiness: function(name, json){
+        calls.push(name);
+        return runImpl(name, json);
+      }};
+    }
+    function ntf(msg, k){ ntfCalls.push({msg:msg, k:k||''}); }
+    function sv(){ ls.lv = JSON.stringify(inventory); ls.lp = JSON.stringify(products); }
+    function renderProds(){}
+    function renderInv(){}
+    function updateCats(){}
+    importProducts({files:[{}], value:''});
+    return {
+      calls: calls,
+      ntfCalls: ntfCalls,
+      ls: ls,
+      products: products,
+      inventory: inventory
+    };
+  `)(opts.runImpl || makeManualInvAdjustCoreImpl(), hostOn, startProducts, startInv, sheetRows);
+}
+
+test('P1: ورود اکسل مقدار مطلق باید در EXE از inventory.adjust هسته برود نه نوشتن مستقیم qty', () => {
+  const src = extractFunctionSource(html, 'importProducts');
+  assertContainsString(src, 'invAdjustOnItem', 'ورود اکسل EXE باید invAdjustOnItem باشد');
+  assertContainsString(src, 'hasBusinessCore', 'ورود اکسل باید مرز Host داشته باشد');
+  let seenItemQty = null;
+  const api = makeExcelProductImportHarness({
+    hostOn:true,
+    runImpl: makeManualInvAdjustCoreImpl(function(name, json){
+      if (name === 'inventory.adjust') {
+        const p = JSON.parse(json);
+        seenItemQty = p.item ? p.item.qty : null;
+        return JSON.stringify({ok:true, result:{ok:true, item:Object.assign({}, p.item, {qty:99}), stock:{qty:99, reserved:0, available:99}, persistKeys:['inventory']}});
+      }
+      return null;
+    }),
+    rows: [['P-100','کالای نو','قطعات','ب','ت',250000,'د',10,3]]
+  });
+  assertEqual(seenItemQty, 0, 'آیتم جدید باید از صفر ساخته شود نه موجودی قبلی');
+  assertTrue(api.calls.indexOf('inventory.adjust') >= 0, 'باید inventory.adjust صدا شود');
+  assertTrue(api.calls.indexOf('inventory.removeStock') < 0, 'ورود اکسل کالا دلتا/removeStock نیست');
+  assertEqual(api.inventory['P-100'].qty, 99, 'qty باید از نتیجه هسته بیاید نه row[7]');
+  assertEqual(api.inventory['P-100'].min, 3, 'min فرم اکسل باید overlay شود');
+  assertEqual(api.products.length, 1, 'کالای جدید باید اضافه شود');
+  assertEqual(api.products[0].code, 'P-100', 'کد کالا باید از اکسل بیاید');
+});
+
+test('P1: کد موجودی جدید باید رکورد بسازد و کد موجود در products را جهش ندهد', () => {
+  const apiNew = makeExcelProductImportHarness({
+    hostOn:true,
+    rows: [['NEW-1','جدید','','','',0,'',4,1]]
+  });
+  assertEqual(apiNew.inventory['NEW-1'].qty, 4, 'کد جدید باید موجودی مطلق ۴ بگیرد');
+  assertEqual(apiNew.products[0].name, 'جدید', 'کالای جدید باید ثبت شود');
+  const apiExist = makeExcelProductImportHarness({
+    hostOn:true,
+    products: [{code:'P-1', name:'قدیمی'}],
+    inventory: {'P-1': {code:'P-1', qty:10, min:1, note:''}},
+    rows: [['P-1','تلاش برای تغییر', '', '', '', 0, '', 99, 9]]
+  });
+  assertEqual(apiExist.calls.indexOf('inventory.adjust') < 0, true, 'کد تکراری کالا نباید adjust شود');
+  assertEqual(apiExist.inventory['P-1'].qty, 10, 'qty کالای موجود نباید عوض شود');
+  assertEqual(apiExist.products.length, 1, 'نباید ردیف تکراری به products اضافه شود');
+  const apiOrphan = makeExcelProductImportHarness({
+    hostOn:true,
+    products: [],
+    inventory: {'ORPH': {qty:7, min:1, note:'keep'}},
+    rows: [['ORPH','کالا','','','',0,'',99,9]]
+  });
+  assertEqual(apiOrphan.calls.indexOf('inventory.adjust') < 0, true, 'موجودی یتیم نباید adjust شود');
+  assertEqual(apiOrphan.inventory['ORPH'].qty, 7, 'qty موجود از قبل نباید صفر فرض شود');
+  assertEqual(apiOrphan.products.length, 1, 'کالا باید به کاتالوگ اضافه شود');
+});
+
+test('P1: ردیف تکراری در همان فایل فقط بار اول اضافه شود', () => {
+  const api = makeExcelProductImportHarness({
+    hostOn:true,
+    rows: [
+      ['DUP-1','اول','','','',0,'',5,0],
+      ['DUP-1','دوم','','','',0,'',8,0]
+    ]
+  });
+  assertEqual(api.products.length, 1, 'باید یک کالا بماند');
+  assertEqual(api.inventory['DUP-1'].qty, 5, 'qty باید از ردیف اول باشد');
+  assertEqual(api.calls.filter(function(n){ return n === 'inventory.adjust'; }).length, 1, 'adjust فقط برای ردیف اول');
+  assertTrue(api.ntfCalls.some(function(n){ return String(n.msg).indexOf('کد تکراری') >= 0; }), 'باید شمارش رد تکراری بماند');
+});
+
+test('P1: مقدار نامعتبر صفر می‌شود و مقدار منفی در EXE رد fail-closed است', () => {
+  const apiBad = makeExcelProductImportHarness({
+    hostOn:true,
+    rows: [['BAD-1','بد','','','',0,'','abc',0]]
+  });
+  assertEqual(apiBad.inventory['BAD-1'].qty, 0, 'qty نامعتبر باید مثل قبل ۰ شود');
+  const apiNeg = makeExcelProductImportHarness({
+    hostOn:true,
+    rows: [['NEG-1','منفی','','','',0,'',-3,0]]
+  });
+  assertEqual(apiNeg.products.length, 0, 'رد هسته نباید کالا را نیمه وارد کند');
+  assertEqual(apiNeg.inventory['NEG-1'] == null, true, 'موجودی منفی نباید ساخته شود');
+  assertTrue(apiNeg.ntfCalls.some(function(n){ return n.k === 'err'; }), 'باید خطای موجودی نشان داده شود');
+});
+
+test('P1: شکست Host و رد کسب‌وکار هسته نباید qty را با fallback HTML بنویسد', () => {
+  const apiDown = makeExcelProductImportHarness({
+    hostOn:true,
+    runImpl: function(){ return JSON.stringify({ok:false}); },
+    rows: [['X-1','خراب','','','',0,'',7,1]]
+  });
+  assertEqual(apiDown.products.length, 0, 'شکست Host نباید کالا اضافه کند');
+  assertEqual(apiDown.inventory['X-1'] == null, true, 'شکست Host نباید inventory بسازد');
+  assertTrue(apiDown.calls.indexOf('inventory.adjust') < 0, 'بدون snapshot معتبر نباید adjust صدا شود');
+  const apiRej = makeExcelProductImportHarness({
+    hostOn:true,
+    runImpl: makeManualInvAdjustCoreImpl(function(name){
+      if (name === 'inventory.adjust') return JSON.stringify({ok:true, result:{ok:false, err:'مقدار نامعتبر', persistKeys:[]}});
+      return null;
+    }),
+    rows: [['X-2','رد','','','',0,'',5,0]]
+  });
+  assertTrue(apiRej.calls.indexOf('inventory.adjust') >= 0, 'با snapshot معتبر باید adjust صدا شود');
+  assertEqual(apiRej.products.length, 0, 'رد هسته نباید کالا اضافه کند');
+  assertEqual(apiRej.inventory['X-2'] == null, true, 'رد هسته نباید qty بنویسد');
+});
+
+test('P1: HTML-only باید رفتار قبلی Object.assign ایجاد رکورد را نگه دارد', () => {
+  const api = makeExcelProductImportHarness({
+    hostOn:false,
+    rows: [['H-1','آفلاین','','','',0,'',12,2], ['H-1','تکراری','','','',0,'',99,0]]
+  });
+  assertEqual(api.calls.length, 0, 'HTML-only نباید RunBusiness صدا بزند');
+  assertEqual(api.inventory['H-1'].qty, 12, 'HTML-only باید qty مطلق را مستقیم بنویسد');
+  assertEqual(api.inventory['H-1'].min, 2, 'min باید از اکسل بیاید');
+  assertEqual(api.products.length, 1, 'تکراری HTML-only باید رد شود');
+  const apiNeg = makeExcelProductImportHarness({
+    hostOn:false,
+    rows: [['H-2','منفی آفلاین','','','',0,'',-3,0]]
+  });
+  assertEqual(apiNeg.inventory['H-2'].qty, -3, 'HTML-only منفی را مثل قبل می‌نویسد');
+});
+
+test('P1: موفقیت ورود اکسل باید بعد از reload در lv بماند', () => {
+  const api = makeExcelProductImportHarness({
+    hostOn:true,
+    rows: [['R-1','پایدار','','','',0,'',6,1]]
+  });
+  assertTrue(!!api.ls.lv, 'باید lv نوشته شود');
+  const reloaded = JSON.parse(api.ls.lv);
+  assertEqual(reloaded['R-1'].qty, 6, 'بعد از reload باید qty هسته بماند');
+  assertEqual(JSON.parse(api.ls.lp)[0].code, 'R-1', 'کالا هم باید persist شود');
+});
+
+console.log('');
 console.log('📋 گروه: تکمیل فاز ۲ (C# منبع حقیقت عملیات حساس)');
 
 test('در exe جمع فاکتور و فروش نباید بعد از هسته دوباره با JS بازنویسی شود', () => {
