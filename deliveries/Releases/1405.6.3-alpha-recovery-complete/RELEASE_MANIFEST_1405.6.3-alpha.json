@@ -1,0 +1,50 @@
+{
+  "productName": "SIRMAN",
+  "releaseName": "SIRMAN-1405.6.3-alpha-recovery-complete",
+  "version": "1405.6.3α",
+  "assemblyVersion": "1405.6.3.1",
+  "gitCommit": "9fb9f6d3d08e1a7f8c46755d49c115934eb97f83",
+  "gitTag": "release-1405.6.3-alpha-recovery-complete",
+  "packagingCommit": "f79d80a73a1186d1673dd687845e389b043598b1",
+  "packagingNote": "packagingCommit only refreshes same-version update JSON replaceAppFile payload to the freeze HTML. Application source at gitCommit is unchanged.",
+  "branch": "cursor/release-1405-6-3-alpha-recovery-complete-fa01",
+  "buildConfiguration": "Release",
+  "targetFramework": "net8.0-windows",
+  "runtimeIdentifier": "win-x64",
+  "runtimeType": "self-contained",
+  "includedFrameworks": [
+    "Microsoft.NETCore.App 8.0.30",
+    "Microsoft.WindowsDesktop.App 8.0.30"
+  ],
+  "webview2Package": "Microsoft.Web.WebView2 1.0.2903.40",
+  "installerTechnology": "existing ZIP setup kit + PowerShell 5.1 FolderBrowserDialog (scripts/pack_sirman_setup.py, scripts/setup-kit)",
+  "installerFilename": "Sirman_Setup_1405.6.3α-recovery-complete.zip",
+  "portableZipFilename": "Sirman_Portable_1405.6.3α-recovery-complete.zip",
+  "buildTimestamp": "2026-09-06T08:27:34Z",
+  "peProductVersion": "1405.6.3α+f79d80a73a1186d1673dd687845e389b043598b1",
+  "executable": {
+    "path": "App/Sirman.exe",
+    "sizeBytes": 152064,
+    "sha256": "d68f2c8f34ca171dcb5617e5ac27d0c10100fa0a1ade574b151fadf6421c9891"
+  },
+  "files": {
+    "Sirman.exe": "d68f2c8f34ca171dcb5617e5ac27d0c10100fa0a1ade574b151fadf6421c9891",
+    "Sirman.dll": "451f8f9bef9412e9d53371f789dc6feff2ab4a67d9517cb285e5bc48efec9613",
+    "Sirman.Core.dll": "aff348dd9002bc1f510f6393f4d31aa7b6f8af2686a042c69863307a7645aa7c",
+    "Sirman_Final.html": "817cf16c9b3c668f290b9754686cfced36178ceeab66dcead67b0f6cce6935c8",
+    "WebView2Loader.dll": "462b36fd1be6ca9f7563466a89e57c41ef4a4def3e0a84fa885d203aea4a3aaf"
+  },
+  "installerSha256": "59ba82ab159c0b161660cf2b8384b3c267812c9f7ef545c6a97487985d861815",
+  "portableZipSha256": "77cc67b26f7adf497a9fee3251b6b3d6c040636acb055200228ba7c9653dc29c",
+  "installerSizeBytes": 72618482,
+  "portableZipSizeBytes": 72093598,
+  "htmlSha256": "817cf16c9b3c668f290b9754686cfced36178ceeab66dcead67b0f6cce6935c8",
+  "arch26AcceptanceReport": "deliveries/Reports/ARCH-26_RECOVERY_ACCEPTANCE_REPORT.md",
+  "arch26Verdict": "BACKUP / RECOVERY = COMPLETE",
+  "testTotals": {
+    "html": { "command": "node test_laegh.js Sirman_Final.html", "passed": 1094, "failed": 0, "total": 1094 },
+    "core": { "command": "dotnet test desktop/Sirman.Core.Tests", "passed": 844, "failed": 0, "total": 844 },
+    "installerLifecycle": { "command": "node test_installer_lifecycle.js", "passed": 21, "failed": 0, "total": 21 }
+  },
+  "liveWindowsInstall": "NOT VERIFIED on Linux packer host"
+}
