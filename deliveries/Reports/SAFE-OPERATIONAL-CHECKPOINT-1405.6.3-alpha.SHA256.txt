@@ -1,0 +1,13 @@
+# SIRMAN 1405.6.3α SAFE OPERATIONAL CHECKPOINT checksums
+# Generated 2026-09-06 from HEAD base ad2311d + pack
+
+317ec82f7e48f9b6c72c39278e5ba635d08cf6e53e8597075d676cede3e46850  /workspace/Sirman_Final.html
+317ec82f7e48f9b6c72c39278e5ba635d08cf6e53e8597075d676cede3e46850  /workspace/Laegh_Final.html
+e426326724904c10494b467637f40a9f7fee2d46ba32c8443885faf5b2964671  /workspace/SIRMAN_VERSION.json
+87a43c0f767c5962fa0a967de6cca7fd629fdfda95adbfb7c968620958229bc8  /workspace/Sirman_Pending_Update.json
+87a43c0f767c5962fa0a967de6cca7fd629fdfda95adbfb7c968620958229bc8  /workspace/updates/Sirman_Update_1405.6.3α.json
+317ec82f7e48f9b6c72c39278e5ba635d08cf6e53e8597075d676cede3e46850  /workspace/deliveries/Sirman_Setup_1405.6.3α/App/Sirman_Final.html
+d1ee673a8395a7a414f86564301d86c2abc30cc9ecb39c18d0cbf57231136d75  /workspace/deliveries/Sirman_Setup_1405.6.3α/App/Sirman.exe
+f54239a2ca5d05db3ca260a14ce79ce3be5d8e08337e760bb22fef160c932d6a  /workspace/deliveries/Sirman_Setup_1405.6.3α/App/Sirman.dll
+f126300e15adc88870bfdc02e77d4b9eef6ab42af54df830a49be598971446d2  /workspace/deliveries/Sirman_Setup_1405.6.3α/sirman-install-contract.json
+2594381d52c3e1ae037a7d44e1edf58732535feaf347f270620aaf9e0abe6d9b  /workspace/Sirman_Setup_1405.6.3α.zip
