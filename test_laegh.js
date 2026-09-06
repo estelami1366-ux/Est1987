@@ -16827,6 +16827,234 @@ test('R3: جهش موفق با stock نامعتبر نباید عدد تفسیر
 });
 
 console.log('');
+console.log('📋 گروه: P0 cutover تنظیم دستی موجودی از طریق Core');
+
+function makeManualInvAdjustCoreImpl(runImpl) {
+  return function(name, json) {
+    if (typeof runImpl === 'function') {
+      const custom = runImpl(name, json);
+      if (custom != null) return custom;
+    }
+    const p = (typeof json === 'string') ? JSON.parse(json) : (json || {});
+    const item = p.item || {};
+    const current = parseInt(item.qty, 10);
+    const qtyNow = isFinite(current) ? current : 0;
+    const reserved = parseInt(item.reserved, 10) || 0;
+    const available = Math.max(0, qtyNow - reserved);
+    if (name === 'inventory.stock') {
+      return JSON.stringify({ok:true, result:{qty:qtyNow, reserved:reserved, available:available, min:parseInt(item.min,10)||0, reorder:parseInt(item.reorder,10)||0, price:0}});
+    }
+    if (name === 'inventory.adjust') {
+      const target = parseInt(p.qty, 10);
+      const t = isFinite(target) ? target : 0;
+      if (t < 0) return JSON.stringify({ok:true, result:{ok:false, err:'مقدار نامعتبر', error:'مقدار نامعتبر', persistKeys:[]}});
+      const diff = t - qtyNow;
+      if (diff < 0 && available < Math.abs(diff)) {
+        return JSON.stringify({ok:true, result:{ok:false, err:'موجودی قابل‌استفاده کافی نیست (قابل استفاده: '+available+'، درخواست: '+Math.abs(diff)+')', error:'موجودی قابل‌استفاده کافی نیست (قابل استفاده: '+available+'، درخواست: '+Math.abs(diff)+')', persistKeys:[]}});
+      }
+      const next = Object.assign({}, item, {qty:t});
+      return JSON.stringify({ok:true, result:{ok:true, item:next, stock:{qty:t, reserved:reserved, available:Math.max(0, t-reserved)}, persistKeys:['inventory']}});
+    }
+    if (name === 'inventory.removeStock') {
+      const n = parseInt(p.qty, 10);
+      const qty = isFinite(n) ? n : 0;
+      if (qty <= 0) return JSON.stringify({ok:true, result:{ok:false, err:'مقدار نامعتبر', error:'مقدار نامعتبر', persistKeys:[]}});
+      if (available < qty) return JSON.stringify({ok:true, result:{ok:false, err:'موجودی قابل‌استفاده کافی نیست (قابل استفاده: '+available+')', error:'موجودی قابل‌استفاده کافی نیست (قابل استفاده: '+available+')', persistKeys:[]}});
+      const nextQty = Math.max(0, qtyNow - qty);
+      const next = Object.assign({}, item, {qty:nextQty});
+      return JSON.stringify({ok:true, result:{ok:true, item:next, stock:{qty:nextQty, reserved:reserved, available:Math.max(0, nextQty-reserved)}, persistKeys:['inventory']}});
+    }
+    return JSON.stringify({ok:false});
+  };
+}
+
+function makeManualInvAdjustHarness(opts) {
+  opts = opts || {};
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const itemSrc = extractFunctionSource(html, 'applyCoreItemOnto');
+  const persistSrc = extractFunctionSource(html, 'persistCoreSnapshot');
+  const adjSrc = extractFunctionSource(html, 'invAdjustOnItem');
+  const rmSrc = extractFunctionSource(html, 'invRemoveStockOnItem');
+  const saveSrc = extractFunctionSource(html, 'saveInvItem');
+  assertTrue(!!runSrc && !!takeSrc && !!hasSrc && !!adjSrc && !!rmSrc && !!saveSrc && !!persistSrc, 'توابع cutover تنظیم دستی موجودی پیدا نشد');
+  const hostOn = opts.hostOn !== false;
+  const fields = Object.assign({
+    'im-code': {value: 'P-1'},
+    'im-qty': {value: '15'},
+    'im-min': {value: '1'},
+    'im-reorder': {value: '2'},
+    'im-note': {value: 'یادداشت'}
+  }, opts.fields || {});
+  const startInv = opts.inventory || { 'P-1': {code:'P-1', qty:10, min:1, reorder:1, note:'old', reserved:0} };
+  return new Function('runImpl', 'hostOn', 'fields', 'startInv',
+    runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + (sumSrc || '') + '\n' + recSrc + '\n' + itemSrc + '\n' + snapSrc + '\n' + persistSrc + '\n' + adjSrc + '\n' + rmSrc + '\n' + saveSrc + `
+    var calls = [];
+    var ntfCalls = [];
+    var ls = {};
+    var inventory = JSON.parse(JSON.stringify(startInv));
+    var document = { getElementById: function(id){ return fields[id] || {value:''}; } };
+    function getSirmanHostSync(){
+      if (!hostOn) return null;
+      return { RunBusiness: function(name, json){
+        calls.push(name);
+        return runImpl(name, json);
+      }};
+    }
+    function ntf(msg, k){ ntfCalls.push({msg:msg, k:k||''}); }
+    function closeMod(){}
+    function renderInv(){}
+    function renderProds(){}
+    function sv(){ ls.lv = JSON.stringify(inventory); ls.li='[]'; ls.lp='[]'; ls.lb='[]'; ls.la='[]'; ls.lc='0'; }
+    function svParts(){}
+    function svWars(){}
+    function svAccounts(){}
+    function svSales(){}
+    function svWarehouse(){}
+    function svStockMoves(){}
+    return {
+      calls: calls,
+      ntfCalls: ntfCalls,
+      ls: ls,
+      inventory: inventory,
+      save: saveInvItem,
+      adjust: invAdjustOnItem,
+      remove: invRemoveStockOnItem
+    };
+  `)(opts.runImpl || makeManualInvAdjustCoreImpl(), hostOn, fields, startInv);
+}
+
+test('P0: تنظیم دستی موجودی در EXE باید inventory.adjust هسته را صدا بزند', () => {
+  const api = makeManualInvAdjustHarness({ hostOn:true, fields:{ 'im-code':{value:'P-1'}, 'im-qty':{value:'15'}, 'im-min':{value:'1'}, 'im-reorder':{value:'2'}, 'im-note':{value:'یادداشت'} } });
+  api.save();
+  assertTrue(api.calls.indexOf('inventory.adjust') >= 0, 'EXE باید inventory.adjust را صدا بزند');
+  assertEqual(api.inventory['P-1'].qty, 15, 'qty باید از نتیجه هسته ۱۵ شود');
+  assertEqual(api.inventory['P-1'].min, 1, 'min فرم باید بعد از هسته overlay شود');
+  assertEqual(api.inventory['P-1'].note, 'یادداشت', 'note فرم باید overlay شود');
+  assertEqual(api.ntfCalls.some(function(n){ return n.msg === 'موجودی ذخیره شد'; }), true, 'باید پیام ذخیره موفق بماند');
+});
+
+test('P0: کسر موجودی در EXE باید inventory.removeStock هسته را صدا بزند', () => {
+  const api = makeManualInvAdjustHarness({ hostOn:true });
+  const item = api.inventory['P-1'];
+  const r = api.remove(item, 3, '');
+  assertEqual(r.ok, true, 'کسر موفق باید ok باشد');
+  assertTrue(api.calls.indexOf('inventory.removeStock') >= 0, 'باید inventory.removeStock صدا شود');
+  assertEqual(item.qty, 7, 'qty باید ۷ شود');
+});
+
+test('P0: شکست Core روی EXE نباید qty را با fallback HTML عوض کند', () => {
+  const api = makeManualInvAdjustHarness({
+    hostOn:true,
+    runImpl: function(){ return JSON.stringify({ok:false}); }
+  });
+  api.save();
+  assertEqual(api.inventory['P-1'].qty, 10, 'qty زنده نباید عوض شود');
+  assertEqual(api.ls.lv == null, true, 'نباید persist شود');
+  assertTrue(api.ntfCalls.some(function(n){ return n.k === 'err'; }), 'باید خطای موجود را نشان دهد');
+  assertTrue(api.calls.indexOf('inventory.adjust') < 0, 'بدون snapshot معتبر نباید adjust صدا شود');
+});
+
+test('P0: رد کسب‌وکار هسته روی EXE باید fail-closed بماند', () => {
+  const api = makeManualInvAdjustHarness({
+    hostOn:true,
+    runImpl: makeManualInvAdjustCoreImpl(function(name){
+      if (name === 'inventory.adjust') return JSON.stringify({ok:true, result:{ok:false, err:'موجودی قابل‌استفاده کافی نیست (قابل استفاده: 0)', persistKeys:[]}});
+      return null;
+    })
+  });
+  api.save();
+  assertTrue(api.calls.indexOf('inventory.adjust') >= 0, 'با snapshot معتبر باید adjust صدا شود');
+  assertEqual(api.inventory['P-1'].qty, 10, 'qty نباید با رد هسته عوض شود');
+  assertEqual(api.ls.lv == null, true, 'رد هسته نباید persist کند');
+  assertTrue(api.ntfCalls.some(function(n){ return n.k === 'err' && String(n.msg).indexOf('موجودی قابل‌استفاده') >= 0; }), 'باید خطای هسته نشان داده شود');
+});
+
+test('P0: HTML-only باید رفتار قبلی Object.assign را نگه دارد و هسته را صدا نزند', () => {
+  const api = makeManualInvAdjustHarness({
+    hostOn:false,
+    inventory: { 'P-1': {code:'P-1', qty:10, reserved:4, min:1, reorder:1, note:'old'} },
+    fields: { 'im-code':{value:'P-1'}, 'im-qty':{value:'2'}, 'im-min':{value:'1'}, 'im-reorder':{value:'1'}, 'im-note':{value:'n'} }
+  });
+  api.save();
+  assertEqual(api.calls.length, 0, 'HTML-only نباید RunBusiness صدا بزند');
+  assertEqual(api.inventory['P-1'].qty, 2, 'HTML-only باید qty را مستقیم بنویسد');
+  assertEqual(JSON.parse(api.ls.lv)['P-1'].qty, 2, 'HTML-only باید با sv در lv بماند');
+});
+
+test('P0: موفقیت EXE باید بعد از reload از lv همان qty را بخواند', () => {
+  const api = makeManualInvAdjustHarness({ hostOn:true });
+  api.save();
+  assertTrue(!!api.ls.lv, 'باید lv نوشته شود');
+  const reloaded = JSON.parse(api.ls.lv);
+  assertEqual(reloaded['P-1'].qty, 15, 'بعد از reload باید qty هسته بماند');
+  assertEqual(reloaded['P-1'].note, 'یادداشت', 'metadata فرم باید persist شود');
+});
+
+test('P0: مقدار نامعتبر و منفی در EXE باید رد هسته باشد', () => {
+  const apiNeg = makeManualInvAdjustHarness({
+    hostOn:true,
+    fields: { 'im-code':{value:'P-1'}, 'im-qty':{value:'-3'}, 'im-min':{value:'0'}, 'im-reorder':{value:'0'}, 'im-note':{value:''} }
+  });
+  apiNeg.save();
+  assertEqual(apiNeg.inventory['P-1'].qty, 10, 'qty منفی نباید نوشته شود');
+  assertTrue(apiNeg.ntfCalls.some(function(n){ return n.k === 'err'; }), 'منفی باید خطا بدهد');
+  const apiBad = makeManualInvAdjustHarness({
+    hostOn:true,
+    fields: { 'im-code':{value:'P-1'}, 'im-qty':{value:'abc'}, 'im-min':{value:'0'}, 'im-reorder':{value:'0'}, 'im-note':{value:''} }
+  });
+  apiBad.save();
+  assertEqual(apiBad.inventory['P-1'].qty, 0, 'parseInt نامعتبر مثل قبل ۰ می‌شود و هسته صفر را می‌پذیرد');
+});
+
+test('P0: کمبود موجودی رزروشده در EXE باید تنظیم دستی را رد کند', () => {
+  const api = makeManualInvAdjustHarness({
+    hostOn:true,
+    inventory: { 'P-1': {code:'P-1', qty:10, reserved:8, min:0, reorder:0, note:''} },
+    fields: { 'im-code':{value:'P-1'}, 'im-qty':{value:'1'}, 'im-min':{value:'0'}, 'im-reorder':{value:'0'}, 'im-note':{value:''} }
+  });
+  api.save();
+  assertEqual(api.inventory['P-1'].qty, 10, 'نباید زیر رزرو برود');
+  assertTrue(api.ntfCalls.some(function(n){ return n.k === 'err' && String(n.msg).indexOf('موجودی قابل‌استفاده') >= 0; }), 'باید کمبود موجودی نشان داده شود');
+});
+
+test('P0: صفر، افزایش، کاهش، کالای جدید و ذخیره تکراری همان مقدار باید از قرارداد هسته پیروی کنند', () => {
+  const apiZero = makeManualInvAdjustHarness({
+    hostOn:true,
+    fields: { 'im-code':{value:'P-1'}, 'im-qty':{value:'0'}, 'im-min':{value:'0'}, 'im-reorder':{value:'0'}, 'im-note':{value:''} }
+  });
+  apiZero.save();
+  assertEqual(apiZero.inventory['P-1'].qty, 0, 'qty صفر باید مجاز باشد');
+  const apiDown = makeManualInvAdjustHarness({
+    hostOn:true,
+    fields: { 'im-code':{value:'P-1'}, 'im-qty':{value:'7'}, 'im-min':{value:'0'}, 'im-reorder':{value:'0'}, 'im-note':{value:''} }
+  });
+  apiDown.save();
+  assertEqual(apiDown.inventory['P-1'].qty, 7, 'کاهش مثبت باید اعمال شود');
+  const apiNew = makeManualInvAdjustHarness({
+    hostOn:true,
+    inventory: {},
+    fields: { 'im-code':{value:'NEW-1'}, 'im-qty':{value:'4'}, 'im-min':{value:'0'}, 'im-reorder':{value:'0'}, 'im-note':{value:''} }
+  });
+  apiNew.save();
+  assertEqual(apiNew.inventory['NEW-1'].qty, 4, 'کد ناموجود باید پس از موفقیت هسته ساخته شود');
+  const apiDup = makeManualInvAdjustHarness({ hostOn:true });
+  apiDup.save();
+  apiDup.save();
+  assertEqual(apiDup.inventory['P-1'].qty, 15, 'ذخیره تکراری همان مقدار باید موفق بماند');
+  assertTrue(apiDup.calls.filter(function(n){ return n === 'inventory.adjust'; }).length >= 2, 'ذخیره دوم هم باید adjust هسته باشد');
+  const item = {code:'P-1', qty:10, reserved:0};
+  const over = apiDup.remove(item, 99, '');
+  assertEqual(over.ok, false, 'کسر بیش از موجود باید رد شود');
+  assertEqual(item.qty, 10, 'کسر ناموفق نباید qty را عوض کند');
+});
+
+console.log('');
 console.log('📋 گروه: تکمیل فاز ۲ (C# منبع حقیقت عملیات حساس)');
 
 test('در exe جمع فاکتور و فروش نباید بعد از هسته دوباره با JS بازنویسی شود', () => {
