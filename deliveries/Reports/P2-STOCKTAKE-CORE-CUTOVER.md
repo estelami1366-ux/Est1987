@@ -186,8 +186,8 @@ Not changed: `InventoryCore.cs`, `BusinessFacade.cs`, `applyStockByWarehouse`, B
 
 | Suite | Command | Result |
 |---|---|---|
-| HTML | `node test_laegh.js Sirman_Final.html` | **pending official run** |
-| Core | `dotnet test desktop/Sirman.Core.Tests` | **pending official run** |
+| HTML | `node test_laegh.js Sirman_Final.html` | **1118 / 1118** (was 1110; +8 P2) |
+| Core | `dotnet test desktop/Sirman.Core.Tests` | **859 / 859** (was 855; +4 P2) |
 
 Focused HTML coverage: product / parts / defective; count > / < / = Core qty; zero; negative; invalid; Core rejection; Host failure; duplicate object key; multi-row mixed batch; reason on successful move only; persist reload; failed row unchanged; HTML-only `_applyStockMovement`; stale HTML `.qty` is not EXE authority.
 
