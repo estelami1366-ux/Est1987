@@ -18993,31 +18993,68 @@ function applyStocktakeAdjustments(){
   if(!reason){ ntf('علت کسری/اضافی را بنویسید','err'); return; }
   var conf = document.getElementById('st-confirm');
   if(conf && !conf.checked){ ntf('تأیید مسئول انبار برای ثبت تعدیل لازم است','err'); return; }
-  var count = 0;
+  var okCount = 0;
+  var failCount = 0;
   var meta = {reason:reason, user:(typeof invCurrentUser==='function'?invCurrentUser():'')};
-  adjustments.forEach(function(code){
-    var counted = parseInt(_stCounts[code]);
-    var sysQty = 0;
-    var partIdx = (typeof parts!=='undefined') ? parts.findIndex(function(p){return p.code===code;}) : -1;
-    if(partIdx !== -1){ sysQty = parts[partIdx].qty||0; }
-    else if(typeof inventory!=='undefined' && inventory[code]){ sysQty = inventory[code].qty||0; }
-    var diff = counted - sysQty;
-    if(diff === 0) return;
-    var type = diff > 0 ? 'in' : 'out';
-    _applyStockMovement(type, code, _stNames[code]||code, Math.abs(diff), 'stocktake', 'انبارگردانی');
-    if(stockMoves.length){
-      stockMoves[stockMoves.length-1].reason = reason;
-      stockMoves[stockMoves.length-1].user = meta.user;
-      if(typeof svStockMoves==='function') svStockMoves();
-    }
-    count++;
-  });
+  var hostOn = (typeof hasBusinessCore==='function') && hasBusinessCore();
+  if(hostOn){
+    adjustments.forEach(function(code){
+      var counted = parseInt(_stCounts[code]);
+      if(!isFinite(counted)){ failCount++; return; }
+      var found = (typeof invFindStockItem==='function') ? invFindStockItem(code) : null;
+      var item = found ? found.item : null;
+      var kind = found ? found.kind : '';
+      if(!item && typeof defectiveStock!=='undefined' && Array.isArray(defectiveStock) && code && String(code).indexOf('DEF-')===0){
+        var di = defectiveStock.findIndex(function(d){ return d && (d.id===code || d.code===code); });
+        if(di !== -1){ item = defectiveStock[di]; kind = 'defective'; }
+      }
+      if(!item){ failCount++; return; }
+      var snap = (typeof invStockSnapshot==='function') ? invStockSnapshot(item, '') : null;
+      if(typeof stockDataAvailable==='function' && !stockDataAvailable(snap)){ failCount++; return; }
+      var sysQty = snap.qty;
+      if(counted === sysQty) return;
+      var adj = (typeof invAdjustOnItem==='function') ? invAdjustOnItem(item, counted, '') : {ok:false, err:'محاسبه انجام نشد'};
+      if(!adj || adj.ok===false){ failCount++; return; }
+      if(kind==='part' && typeof svParts==='function') svParts();
+      else if(kind==='defective' && typeof svDefective==='function') svDefective();
+      else if(typeof sv==='function') sv();
+      var absDiff = Math.abs(counted - sysQty);
+      var type = counted > sysQty ? 'in' : 'out';
+      if(typeof recordStockMove==='function') recordStockMove(type, code, _stNames[code]||item.name||item.model||code, absDiff, 'stocktake', 'انبارگردانی', '', {reason:reason, user:meta.user});
+      if(typeof stockMoves!=='undefined' && stockMoves.length){
+        stockMoves[stockMoves.length-1].reason = reason;
+        stockMoves[stockMoves.length-1].user = meta.user;
+        if(typeof svStockMoves==='function') svStockMoves();
+      }
+      okCount++;
+    });
+  } else {
+    adjustments.forEach(function(code){
+      var counted = parseInt(_stCounts[code]);
+      var sysQty = 0;
+      var partIdx = (typeof parts!=='undefined') ? parts.findIndex(function(p){return p.code===code;}) : -1;
+      if(partIdx !== -1){ sysQty = parts[partIdx].qty||0; }
+      else if(typeof inventory!=='undefined' && inventory[code]){ sysQty = inventory[code].qty||0; }
+      var diff = counted - sysQty;
+      if(diff === 0) return;
+      var type = diff > 0 ? 'in' : 'out';
+      _applyStockMovement(type, code, _stNames[code]||code, Math.abs(diff), 'stocktake', 'انبارگردانی');
+      if(typeof stockMoves!=='undefined' && stockMoves.length){
+        stockMoves[stockMoves.length-1].reason = reason;
+        stockMoves[stockMoves.length-1].user = meta.user;
+        if(typeof svStockMoves==='function') svStockMoves();
+      }
+      okCount++;
+    });
+  }
   _stCounts = {}; _stNames = {};
   var confEl = document.getElementById('st-confirm'); if(confEl) confEl.checked = false;
   var rs = document.getElementById('st-reason'); if(rs) rs.value = '';
   closeMod('stocktake-modal');
-  ntf(count+' آیتم تعدیل شد ✅');
-  auditUser('انبارگردانی', count+' تعدیل — '+reason);
+  if(failCount && !okCount) ntf('تعدیل انبارگردانی ناموفق ('+failCount+' ردیف)','err');
+  else if(failCount) ntf(okCount+' آیتم تعدیل شد — '+failCount+' ناموفق','err');
+  else ntf(okCount+' آیتم تعدیل شد ✅');
+  auditUser('انبارگردانی', okCount+' تعدیل — '+reason);
   if(typeof renderWarehouseDocs==='function') renderWarehouseDocs();
 }
 
