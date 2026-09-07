@@ -7,7 +7,8 @@
 **Kind:** Windows release / packaging only — no business-logic change  
 **Base:** post–Inventory P2 + Safe Operational Checkpoint (`d499b6f` on `cursor/safe-operational-checkpoint-fa01`)  
 **Branch:** `cursor/release-1405-6-16-alpha-fa01`  
-**Tag:** `release-1405.6.16-alpha`
+**Tag:** `release-1405.6.16-alpha`  
+**Release commit:** `307c5dd480ae4756491bfc66af5ab03b1e8695c2`
 
 ---
 

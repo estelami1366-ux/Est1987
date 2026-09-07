@@ -9,7 +9,7 @@
 |---|---|
 | Branch | `cursor/release-1405-6-16-alpha-fa01` |
 | Base checkpoint | `d499b6f` (`docs: record final 1405.6.3α checkpoint after Inventory P2`) |
-| Release commit | recorded after `git commit` in this packet (message `release: 1405.6.16-alpha`) |
+| Release commit | `307c5dd480ae4756491bfc66af5ab03b1e8695c2` (`release: 1405.6.16-alpha`) |
 | Release tag | `release-1405.6.16-alpha` |
 
 ## Version locations
