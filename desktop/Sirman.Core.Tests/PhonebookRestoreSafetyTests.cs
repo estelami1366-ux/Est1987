@@ -54,7 +54,7 @@ public class PhonebookRestoreSafetyTests
         var build = ExtractFunction(html, "_buildFullBackupData");
         Assert.DoesNotContain("collectPhonebookSnapshot()", build);
         Assert.Contains("phonebook: _safeArr(phonebook)", build);
-        Assert.Contains("1405.6.3α", build);
+        Assert.Contains("1405.6.16α", build);
         Assert.DoesNotContain("id:'PB-", ExtractFunction(html, "savePBContact"));
         Assert.Contains("_phonebookCanonicalFingerprint(entry)", ExtractFunction(html, "applyBackupMergeSections"));
         Assert.Contains("دفترچه زنده حفظ شد", ExtractFunction(html, "applyBackupReplaceSections"));

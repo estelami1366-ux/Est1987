@@ -278,7 +278,7 @@ public class OptionalBusinessSnapshotTests
         Assert.DoesNotContain("collectOptionalBusinessSnapshot()", ExtractFunction(html, "exportData"));
         Assert.DoesNotContain("collectOptionalBusinessSnapshot()", ExtractFunction(html, "buildBackupObject"));
         Assert.DoesNotContain("collectOptionalBusinessSnapshot()", ExtractFunction(html, "collectRequiredBusinessSnapshot"));
-        Assert.Contains("1405.6.3α", build);
+        Assert.Contains("1405.6.16α", build);
         var printHost = File.ReadAllText(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Sirman.Desktop", "WindowsPrintHost.cs")));
         Assert.Contains("internal sealed class WindowsPrintHost", printHost);
         var sqlite = File.ReadAllText(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Sirman.Persistence.Sqlite", "Sirman.Persistence.Sqlite.csproj")));

@@ -4104,13 +4104,13 @@ test('حاکمیت توسعه باید موجود باشد و قانون ماد�
   assertContainsString(g, 'NEEDS HUMAN VERIFICATION', 'وضعیت صادقانه باید تعریف شده باشد');
 });
 
-test('نسخه ۱۴۰۵.۶.۳α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
+test('نسخه ۱۴۰۵.۶.۱۶α باید Year.Month.Day شمسی با حرف یونانی همان روز باشد و در meta/سایدبار/بک‌آپ یکسان باشد', () => {
   const verPath = path.join(path.dirname(filePath), 'SIRMAN_VERSION.json');
   assertTrue(fs.existsSync(verPath), 'SIRMAN_VERSION.json منبع واحد شماره نسخه است');
   const ver = JSON.parse(fs.readFileSync(verPath, 'utf8'));
-  assertEqual(ver.app, '1405.6.3α', 'نسخه محصول باید 1405.6.3α باشد');
-  assertEqual(ver.assembly, '1405.6.3.1', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (α=1)');
-  assertEqual(ver.appFa, '۱۴۰۵.۶.۳α', 'نسخه فارسی باید با HTML یکی باشد');
+  assertEqual(ver.app, '1405.6.16α', 'نسخه محصول باید 1405.6.16α باشد');
+  assertEqual(ver.assembly, '1405.6.16.1', 'نسخه اسمبلی باید همان روز با شماره حرف یونانی باشد (α=1)');
+  assertEqual(ver.appFa, '۱۴۰۵.۶.۱۶α', 'نسخه فارسی باید با HTML یکی باشد');
   const metaVer = (html.match(/<meta name="app-version" content="([^"]+)">/) || [])[1];
   assertEqual(metaVer, ver.app, 'نسخه meta باید با SIRMAN_VERSION.json یکی باشد');
   const metaDate = (html.match(/<meta name="app-date" content="([^"]+)">/) || [])[1];
@@ -9120,7 +9120,7 @@ const ARCH9C_FN_SHA256 = {
 const ARCH9D_BUILD_SHA256_PRE_ARCH15 = 'f65d8f393d91de7e984540060ceec6deb14976d9dce4bd7b82261d2e69c5df5f';
 const ARCH9D_BUILD_SHA256_PRE_ARCH20 = '17f08840ecb3e6ecc9d72082d27eeeb6736daa97a1f06819df4f4f04a998cfa6';
 const ARCH9D_BUILD_SHA256_PRE_ARCH21 = '7d0b1651e535aa28ef4d558279d8d2424978619fd80073ae0bbe27b009a4b143';
-const ARCH9D_BUILD_SHA256 = 'f354ba9875b25c3160581b6f06a62e991c11fb7a6181f9172db0db93c78cbd41';
+const ARCH9D_BUILD_SHA256 = '35be3af64a8fe17673c923a3a6d5512db66a23b1a076f48dcb38dc4cda366ad9';
 
 function arch9cSha256(s) {
   return require('crypto').createHash('sha256').update(s, 'utf8').digest('hex');
@@ -10498,7 +10498,7 @@ test('ARCH-17: فایروال Phonebook / Restore / Print / SQLite', () => {
   ['applyBackupMergeSections','applyBackupReplaceSections','importData','savePBContact','resetAll','getPrintCenterState','getPrintSettings'].forEach(function(name){
     assertTrue(extractFunctionSource(html, name) !== null, name+' باید بماند');
   });
-  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+  assertContainsString(html, "version: '1405.6.16α'", 'نسخه');
   const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
   assertContainsString(repo, 'html-backup-engine', 'TbdMarker');
   const sqlite = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Persistence.Sqlite', 'Sirman.Persistence.Sqlite.csproj'), 'utf8');
@@ -10701,7 +10701,7 @@ test('ARCH-18: فایروال Phonebook / attachmentsIndex / Restore / Print / S
   ['applyBackupMergeSections','applyBackupReplaceSections','importData','savePBContact','resetAll','getPrintCenterState','getPrintSettings','collectRequiredBusinessSnapshot'].forEach(function(name){
     assertTrue(extractFunctionSource(html, name) !== null, name+' باید بماند');
   });
-  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+  assertContainsString(html, "version: '1405.6.16α'", 'نسخه');
   const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
   assertContainsString(repo, 'html-backup-engine', 'TbdMarker');
   const sqlite = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Persistence.Sqlite', 'Sirman.Persistence.Sqlite.csproj'), 'utf8');
@@ -10902,7 +10902,7 @@ test('ARCH-19: فایروال Restore / Phonebook / Print / SQLite / نسخه', 
   });
   assertTrue(extractFunctionSource(html, 'applyBackupReplaceSections').indexOf('attachmentsIndex') < 0, 'Replace ایندکس را به RAM نمی‌نویسد');
   assertTrue(extractFunctionSource(html, 'applyBackupMergeSections').indexOf('attachmentsIndex') < 0, 'Merge ایندکس را به RAM نمی‌نویسد');
-  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+  assertContainsString(html, "version: '1405.6.16α'", 'نسخه');
   const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
   assertContainsString(repo, 'html-backup-engine', 'TbdMarker');
   const sqlite = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Persistence.Sqlite', 'Sirman.Persistence.Sqlite.csproj'), 'utf8');
@@ -11120,8 +11120,8 @@ test('ARCH-20: شیء کامل بک‌آپ — settings/required/optional/attach
   assertEqual(JSON.stringify(full.attachmentsIndex), JSON.stringify(idx), 'attachmentsIndex');
   assertEqual(full.magic, 'SIRMAN_BACKUP', 'envelope magic');
   assertEqual(full.schemaVersion, 1, 'envelope schema');
-  assertEqual(full.version, '1405.6.3α', 'envelope version');
-  assertEqual(full.applicationVersion, '1405.6.3α', 'envelope app version');
+  assertEqual(full.version, '1405.6.16α', 'envelope version');
+  assertEqual(full.applicationVersion, '1405.6.16α', 'envelope app version');
   assertTrue(typeof full.exportedAt === 'string' && full.exportedAt.length > 0, 'exportedAt');
   assertTrue(Array.isArray(full.sections) && full.sections.indexOf('invoices') === 0, 'sections');
 });
@@ -11257,7 +11257,7 @@ test('ARCH-20: فایروال Phonebook / attachmentsIndex / Restore / Print', (
   assertEqual(arch9cSha256(extractFunctionSource(html, 'applyBackupReplaceSections')), ARCH19_REPLACE_SHA256, 'Replace SHA');
   assertEqual(arch9cSha256(extractFunctionSource(html, 'collectOptionalBusinessSnapshot')), ARCH18_OPTIONAL_ADAPTER_SHA256, 'optional adapter');
   assertEqual(arch9cSha256(extractFunctionSource(html, 'collectAttachmentIndex')), ARCH19_COLLECT_ATTACHMENT_INDEX_SHA256, 'attachment walker');
-  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+  assertContainsString(html, "version: '1405.6.16α'", 'نسخه');
   const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
   assertContainsString(repo, 'html-backup-engine', 'TbdMarker');
   const sqlite = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Persistence.Sqlite', 'Sirman.Persistence.Sqlite.csproj'), 'utf8');
@@ -11296,7 +11296,7 @@ console.log('📋 گروه: ARCH-21 cutover برش OPTIONAL کسب‌وکار د
 
 const ARCH21_OPTIONAL_KEYS = ['products','inventory','services','svcs','tasks','defectiveStock','warehouseDocs','stockMoves','warehouses','daqi','daqiWarehouse','daqiVouchers','postalHistory'];
 const ARCH21_OLD_ASSEMBLER_SHA256 = '7d0b1651e535aa28ef4d558279d8d2424978619fd80073ae0bbe27b009a4b143';
-const ARCH21_NEW_ASSEMBLER_SHA256 = 'f354ba9875b25c3160581b6f06a62e991c11fb7a6181f9172db0db93c78cbd41';
+const ARCH21_NEW_ASSEMBLER_SHA256 = '35be3af64a8fe17673c923a3a6d5512db66a23b1a076f48dcb38dc4cda366ad9';
 
 function arch21RunOldOptional(ram) {
   const ctx = arch17BaseRam(ram);
@@ -11415,8 +11415,8 @@ test('ARCH-21: شیء کامل بک‌آپ — settings/required/optional/phoneb
   assertEqual(JSON.stringify(full.attachmentsIndex), JSON.stringify(idx), 'attachmentsIndex');
   assertEqual(full.magic, 'SIRMAN_BACKUP', 'envelope magic');
   assertEqual(full.schemaVersion, 1, 'envelope schema');
-  assertEqual(full.version, '1405.6.3α', 'envelope version');
-  assertEqual(full.applicationVersion, '1405.6.3α', 'app version');
+  assertEqual(full.version, '1405.6.16α', 'envelope version');
+  assertEqual(full.applicationVersion, '1405.6.16α', 'app version');
 });
 
 test('ARCH-21: ۱۶ مورد لبه — خالی/تو در تو/services-svcs/null/یونیکد/بدون تعمیر', () => {
@@ -11539,7 +11539,7 @@ test('ARCH-21: فایروال Phonebook / attachmentsIndex / Restore / Print / a
   assertEqual(arch9cSha256(extractFunctionSource(html, 'collectRequiredBusinessSnapshot')), ARCH17_REQUIRED_ADAPTER_SHA256, 'ARCH-17 body');
   assertEqual(arch9cSha256(extractFunctionSource(html, 'collectOptionalBusinessSnapshot')), ARCH18_OPTIONAL_ADAPTER_SHA256, 'ARCH-18 body');
   assertEqual(arch9cSha256(extractFunctionSource(html, 'collectAttachmentIndex')), ARCH19_COLLECT_ATTACHMENT_INDEX_SHA256, 'walker');
-  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+  assertContainsString(html, "version: '1405.6.16α'", 'نسخه');
   const repo = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core', 'Data', 'Repositories', 'JsonBackupRepository.cs'), 'utf8');
   assertContainsString(repo, 'html-backup-engine', 'TbdMarker');
   const sqlite = fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Persistence.Sqlite', 'Sirman.Persistence.Sqlite.csproj'), 'utf8');
@@ -11576,7 +11576,7 @@ test('ARCH-21: Sirman_Final.html و Laegh_Final.html بایت‌به‌بایت 
 console.log('');
 console.log('📋 گروه: ARCH-22 آداپتر امن دفترچه تلفن + مرز هویت (بدون cutover)');
 
-const ARCH22_ASSEMBLER_SHA256 = 'f354ba9875b25c3160581b6f06a62e991c11fb7a6181f9172db0db93c78cbd41';
+const ARCH22_ASSEMBLER_SHA256 = '35be3af64a8fe17673c923a3a6d5512db66a23b1a076f48dcb38dc4cda366ad9';
 const ARCH22_PHONEBOOK_ADAPTER_SHA256 = '7595af4ed999d5c3213af78fe8ef5f74e1da4252d53961df466c998cc5e7a79c';
 const ARCH22_SAVEPB_SHA256 = '1883f9d3dd575719ae6d653a30318faa38fed4dd9e046ead32a7070730e4cf81';
 const ARCH22_FIXTURES = JSON.parse(fs.readFileSync(path.join(path.dirname(filePath), 'desktop', 'Sirman.Core.Tests', 'PhonebookFixtures.json'), 'utf8'));
@@ -11733,7 +11733,7 @@ test('ARCH-22 G1: آداپتر دفترچه هست؛ اسمبل/Restore/savePBCo
   assertTrue(adapter.indexOf('setItem') < 0, 'بدون LS');
   assertTrue(adapter.indexOf('indexedDB') < 0, 'بدون IDB');
   assertTrue(adapter.indexOf('daqi') < 0, 'بدون daqi');
-  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+  assertContainsString(html, "version: '1405.6.16α'", 'نسخه');
 });
 
 test('ARCH-22 G2: منبع ذخیره lb و فقدان هویت پایدار در savePBContact', () => {
@@ -11993,7 +11993,7 @@ test('ARCH-23 G1: قفل SHA اسمبل/آداپتر/save/Merge/Replace و نس�
   const build = extractFunctionSource(html, '_buildFullBackupData');
   assertTrue(build.indexOf('collectPhonebookSnapshot') < 0, 'اسمبل آداپتر را صدا نمی‌زند');
   assertContainsString(build, 'phonebook: _safeArr(phonebook)', 'مسیر RAM');
-  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+  assertContainsString(html, "version: '1405.6.16α'", 'نسخه');
 });
 
 test('ARCH-23 Phase1: Merge ده حالت ورودی دفترچه از کد واقعی', () => {
@@ -12135,7 +12135,7 @@ test('ARCH-24 G1: قفل SHA اسمبل/save/Merge/Replace/آداپترها/ای
   assertEqual(arch9cSha256(extractFunctionSource(html, 'collectPhonebookSnapshot')), ARCH22_PHONEBOOK_ADAPTER_SHA256, 'phonebook adapter unused');
   assertTrue(build.indexOf('collectPhonebookSnapshot') < 0, 'اسمبل آداپتر دفترچه را صدا نمی‌زند');
   assertContainsString(build, 'phonebook: _safeArr(phonebook)', 'RAM phonebook');
-  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+  assertContainsString(html, "version: '1405.6.16α'", 'نسخه');
 });
 
 test('ARCH-24: Restore هنوز HTML است؛ checksum قبل از migrate؛ rollback ایمنی', () => {
@@ -12216,7 +12216,7 @@ test('ARCH-25 G1: قفل SHA اسمبل/save/آداپترها؛ Merge/Replace ع
   assertTrue(ARCH25_REPLACE_SHA256 !== ARCH19_REPLACE_SHA256_PRE_ARCH25, 'Replace SHA must change');
   assertTrue(build.indexOf('collectPhonebookSnapshot') < 0, 'اسمبل آداپتر دفترچه را صدا نمی‌زند');
   assertContainsString(build, 'phonebook: _safeArr(phonebook)', 'RAM phonebook');
-  assertContainsString(html, "version: '1405.6.3α'", 'نسخه');
+  assertContainsString(html, "version: '1405.6.16α'", 'نسخه');
   const merge = extractFunctionSource(html, 'applyBackupMergeSections');
   assertTrue(merge.indexOf('agencyPhonebookIdx') < 0, 'merge daqi untouched');
   const replace = extractFunctionSource(html, 'applyBackupReplaceSections');

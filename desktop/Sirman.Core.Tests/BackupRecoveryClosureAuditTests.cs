@@ -40,7 +40,7 @@ public class BackupRecoveryClosureAuditTests
         Assert.Contains("var s = collectBackupSettingsSnapshot();", build);
         Assert.Contains("var b = collectRequiredBusinessSnapshot();", build);
         Assert.Contains("var o = collectOptionalBusinessSnapshot();", build);
-        Assert.Contains("1405.6.3α", build);
+        Assert.Contains("1405.6.16α", build);
         Assert.Contains("userRoles: _safeArr(userRoles)", build);
         Assert.Contains("loginPw: _safeStr(loginPw)", build);
         Assert.Contains("senderInfo: _safeObj(senderInfo)", build);
