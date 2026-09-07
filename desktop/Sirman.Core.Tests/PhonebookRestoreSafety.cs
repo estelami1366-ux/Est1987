@@ -18,7 +18,7 @@ public static class PhonebookRestoreSafety
     public const string OutcomeConflictIdentityAmbiguous = "CONFLICT_IDENTITY_AMBIGUOUS";
     public const string OutcomeInvalidInput = "INVALID_INPUT";
 
-    public const string AssemblerSha = "f354ba9875b25c3160581b6f06a62e991c11fb7a6181f9172db0db93c78cbd41";
+    public const string AssemblerSha = "35be3af64a8fe17673c923a3a6d5512db66a23b1a076f48dcb38dc4cda366ad9";
     public const string CollectPhonebookSnapshotSha = "7595af4ed999d5c3213af78fe8ef5f74e1da4252d53961df466c998cc5e7a79c";
     public const string SavePbContactSha = "1883f9d3dd575719ae6d653a30318faa38fed4dd9e046ead32a7070730e4cf81";
     public const string MergeSha = "d01ee56106db3d5389ac3e7dc9ecec3c242965fb7aee7e2ba7e04835951d6b9d";

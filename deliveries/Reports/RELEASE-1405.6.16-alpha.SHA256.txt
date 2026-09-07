@@ -1,0 +1,13 @@
+# SIRMAN 1405.6.16α release checksums
+# 2026-09-07 / 1405/06/16
+
+71643c78608402fa52073b053b92806d7454b66a20eaf8f378d323b0b2e5d68f  Sirman_Final.html
+71643c78608402fa52073b053b92806d7454b66a20eaf8f378d323b0b2e5d68f  Laegh_Final.html
+71643c78608402fa52073b053b92806d7454b66a20eaf8f378d323b0b2e5d68f  deliveries/Sirman_Setup_1405.6.16α/App/Sirman_Final.html
+887018314bce728da8421d40f2e1578174c418b880c914a50670b522cc61b273  deliveries/Sirman_Setup_1405.6.16α/App/Sirman.exe
+8e45713678d8a660fbaad1b043c6c4433aa541805bb62926af0a846b3aec4eef  deliveries/Sirman_Setup_1405.6.16α/App/Sirman.dll
+0f66467a5f891facbb2c58f02e145fa6c5bfaf7de01e5d9b13812b0a8908f937  Sirman_Setup_1405.6.16α.zip
+0f66467a5f891facbb2c58f02e145fa6c5bfaf7de01e5d9b13812b0a8908f937  deliveries/Sirman_Setup_1405.6.16α.zip
+
+# tests: HTML 1118/1118, Core 859/859, installer lifecycle 21/21
+# WebView2 1.0.2903.40  ProductVersion 1405.6.16.1

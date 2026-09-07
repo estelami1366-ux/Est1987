@@ -9,7 +9,7 @@ const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
 
-const ARCH26_ASSEMBLER = 'f354ba9875b25c3160581b6f06a62e991c11fb7a6181f9172db0db93c78cbd41';
+const ARCH26_ASSEMBLER = '35be3af64a8fe17673c923a3a6d5512db66a23b1a076f48dcb38dc4cda366ad9';
 const ARCH26_SAVEPB = '1883f9d3dd575719ae6d653a30318faa38fed4dd9e046ead32a7070730e4cf81';
 const ARCH26_ATTACH = 'ed781c62b8a0da9e80b458339cf3bf36bbabd38183ee5f5c1b81b9e686877d8f';
 const ARCH26_FP = '32eb8b515ee874e7e4eb89568e1293cbd54196e56667e863383f62add453dc15';
@@ -1103,7 +1103,7 @@ function register(h) {
     assertEqual(arch9cSha256(extractFunctionSource(html, 'applyBackupMergeSections')), ARCH26_MERGE, 'merge');
     assertEqual(arch9cSha256(extractFunctionSource(html, 'applyBackupReplaceSections')), ARCH26_REPLACE, 'replace');
     assertTrue(extractFunctionSource(html, '_buildFullBackupData').indexOf('collectPhonebookSnapshot') < 0, 'adapter unused');
-    assertTrue(html.indexOf("version: '1405.6.3α'") >= 0, 'version');
+    assertTrue(html.indexOf("version: '1405.6.16α'") >= 0, 'version');
   });
 
   test('ARCH-26 Part2 freeze golden source dataset', function () {

@@ -30,7 +30,7 @@ public class RecoveryAcceptanceTests
         var build = ExtractFunction(html, "_buildFullBackupData");
         Assert.DoesNotContain("collectPhonebookSnapshot()", build);
         Assert.Contains("phonebook: _safeArr(phonebook)", build);
-        Assert.Contains("1405.6.3α", build);
+        Assert.Contains("1405.6.16α", build);
     }
 
     [Fact]

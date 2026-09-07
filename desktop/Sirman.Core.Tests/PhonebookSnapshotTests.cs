@@ -321,7 +321,7 @@ public class PhonebookSnapshotTests
         Assert.DoesNotContain("collectPhonebookSnapshot()", ExtractFunction(html, "savePBContact"));
         Assert.DoesNotContain("collectPhonebookSnapshot()", ExtractFunction(html, "applyBackupMergeSections"));
         Assert.DoesNotContain("collectPhonebookSnapshot()", ExtractFunction(html, "applyBackupReplaceSections"));
-        Assert.Contains("1405.6.3α", build);
+        Assert.Contains("1405.6.16α", build);
         Assert.DoesNotContain("id:'PB-", ExtractFunction(html, "savePBContact"));
         var printHost = File.ReadAllText(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Sirman.Desktop", "WindowsPrintHost.cs")));
         Assert.Contains("internal sealed class WindowsPrintHost", printHost);

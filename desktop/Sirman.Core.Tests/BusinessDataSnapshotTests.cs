@@ -314,7 +314,7 @@ public class BusinessDataSnapshotTests
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(build, @"collectOptionalBusinessSnapshot\s*\(\s*\)"));
         Assert.DoesNotContain("collectOptionalBusinessSnapshot()", ExtractFunction(html, "exportData"));
         Assert.DoesNotContain("collectOptionalBusinessSnapshot()", ExtractFunction(html, "buildBackupObject"));
-        Assert.Contains("1405.6.3α", build);
+        Assert.Contains("1405.6.16α", build);
     }
 
     private static string ExtractFunction(string html, string fnName)

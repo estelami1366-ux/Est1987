@@ -251,7 +251,7 @@ public class AttachmentReferenceSnapshotTests
         var html = File.ReadAllText(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Sirman_Final.html")));
         Assert.DoesNotContain("AttachmentReferenceSnapshot", ExtractFunction(html, "_buildFullBackupData"));
         Assert.DoesNotContain("collectAttachmentReferenceSnapshot", html);
-        Assert.Contains("1405.6.3α", ExtractFunction(html, "_buildFullBackupData"));
+        Assert.Contains("1405.6.16α", ExtractFunction(html, "_buildFullBackupData"));
         Assert.Contains("parentId: parentId || ''", ExtractFunction(html, "collectAttachmentIndex"));
         Assert.Contains("walk(d && d.warranties, 'warranty')", ExtractFunction(html, "collectAttachmentIndex"));
         Assert.DoesNotContain("invoiceId", ExtractFunction(html, "collectAttachmentIndex"));
