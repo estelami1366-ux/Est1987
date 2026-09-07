@@ -17250,7 +17250,310 @@ test('P1: موفقیت ورود اکسل باید بعد از reload در lv ب�
 });
 
 console.log('');
+console.log('📋 گروه: P2 cutover انبارگردانی از طریق Core');
+
+function makeStocktakeCoreImpl(runImpl) {
+  return makeManualInvAdjustCoreImpl(function(name, json) {
+    if (typeof runImpl === 'function') {
+      const custom = runImpl(name, json);
+      if (custom != null) return custom;
+    }
+    const p = (typeof json === 'string') ? JSON.parse(json) : (json || {});
+    const item = p.item || {};
+    const id = String(item.id || item.code || '');
+    if (name === 'inventory.adjust' && id.indexOf('DEF-') === 0) {
+      const target = parseInt(p.qty, 10);
+      const t = isFinite(target) ? target : 0;
+      if (t < 0) return JSON.stringify({ok:true, result:{ok:false, err:'مقدار نامعتبر', error:'مقدار نامعتبر', persistKeys:[]}});
+      const current = parseInt(item.qty, 10);
+      const qtyNow = isFinite(current) ? current : 0;
+      const diff = t - qtyNow;
+      let next;
+      if (diff === 0) next = Object.assign({}, item);
+      else if (diff > 0) next = Object.assign({}, item, {qty: qtyNow + diff, status:'in_stock', returnedAt:null});
+      else next = Object.assign({}, item, {qty:0, status:'returned'});
+      return JSON.stringify({ok:true, result:{ok:true, item:next, stock:{qty:next.qty, reserved:0, available:next.qty || 0}, persistKeys:['inventory']}});
+    }
+    return null;
+  });
+}
+
+function makeStocktakeHarness(opts) {
+  opts = opts || {};
+  const runSrc = extractFunctionSource(html, 'runBusinessCore');
+  const takeSrc = extractFunctionSource(html, 'takeBusinessCore');
+  const hasSrc = extractFunctionSource(html, 'hasBusinessCore');
+  const availSrc = extractFunctionSource(html, 'stockDataAvailable');
+  const snapSrc = extractFunctionSource(html, 'invStockSnapshot');
+  const sumSrc = extractFunctionSource(html, '_sumByWh');
+  const recSrc = extractFunctionSource(html, 'applyCoreRecordOnto');
+  const itemSrc = extractFunctionSource(html, 'applyCoreItemOnto');
+  const findSrc = extractFunctionSource(html, 'invFindStockItem');
+  const adjSrc = extractFunctionSource(html, 'invAdjustOnItem');
+  const recMoveSrc = extractFunctionSource(html, 'recordStockMove');
+  const moveSrc = extractFunctionSource(html, '_applyStockMovement');
+  const stSrc = extractFunctionSource(html, 'applyStocktakeAdjustments');
+  assertTrue(!!stSrc && !!adjSrc && !!findSrc && !!snapSrc && !!moveSrc && !!recMoveSrc, 'توابع انبارگردانی / تنظیم موجودی پیدا نشد');
+  const hostOn = opts.hostOn !== false;
+  const fields = Object.assign({
+    'st-reason': {value: opts.reason || 'شمارش فیزیکی'},
+    'st-confirm': {checked: opts.confirm !== false, value: ''}
+  }, opts.fields || {});
+  const startInv = opts.inventory || {};
+  const startParts = opts.parts || [];
+  const startDef = opts.defectiveStock || [];
+  const startCounts = opts.counts || {};
+  const startNames = opts.names || {};
+  return new Function('runImpl', 'hostOn', 'fields', 'startInv', 'startParts', 'startDef', 'startCounts', 'startNames',
+    runSrc + '\n' + takeSrc + '\n' + hasSrc + '\n' + availSrc + '\n' + (sumSrc || '') + '\n' + recSrc + '\n' + itemSrc + '\n' + snapSrc + '\n' + findSrc + '\n' + adjSrc + '\n' + recMoveSrc + '\n' + moveSrc + '\n' + stSrc + `
+    var calls = [];
+    var payloads = [];
+    var ntfCalls = [];
+    var audits = [];
+    var ls = {};
+    var inventory = JSON.parse(JSON.stringify(startInv));
+    var parts = JSON.parse(JSON.stringify(startParts));
+    var defectiveStock = JSON.parse(JSON.stringify(startDef));
+    var stockMoves = [];
+    var _stCounts = JSON.parse(JSON.stringify(startCounts));
+    var _stNames = JSON.parse(JSON.stringify(startNames));
+    var document = { getElementById: function(id){ return fields[id] || {value:'', checked:false}; } };
+    function getSirmanHostSync(){
+      if (!hostOn) return null;
+      return { RunBusiness: function(name, json){
+        calls.push(name);
+        payloads.push({name:name, json:json});
+        return runImpl(name, json);
+      }};
+    }
+    function ntf(msg, k){ ntfCalls.push({msg:msg, k:k||''}); }
+    function closeMod(){}
+    function renderWarehouseDocs(){}
+    function auditUser(a, b){ audits.push({a:a, b:b}); }
+    function invCurrentUser(){ return 'آزمایش'; }
+    function fdt(){ return '1405/06/15'; }
+    function getDefaultWhId(){ return ''; }
+    function applyStockByWarehouse(){ return {ok:true}; }
+    function sv(){ ls.lv = JSON.stringify(inventory); }
+    function svParts(){ ls.lp2 = JSON.stringify(parts); }
+    function svDefective(){ ls.laegh_defective = JSON.stringify(defectiveStock); }
+    function svStockMoves(){ ls.stockMoves = JSON.stringify(stockMoves); }
+    applyStocktakeAdjustments();
+    return {
+      calls: calls,
+      payloads: payloads,
+      ntfCalls: ntfCalls,
+      audits: audits,
+      ls: ls,
+      inventory: inventory,
+      parts: parts,
+      defectiveStock: defectiveStock,
+      stockMoves: stockMoves,
+      _stCounts: _stCounts,
+      fields: fields
+    };
+  `)(opts.runImpl || makeStocktakeCoreImpl(), hostOn, fields, startInv, startParts, startDef, startCounts, startNames);
+}
+
+test('P2: انبارگردانی EXE باید inventory.adjust مطلق باشد نه HTML .qty', () => {
+  const src = extractFunctionSource(html, 'applyStocktakeAdjustments');
+  assertContainsString(src, 'invAdjustOnItem', 'EXE باید invAdjustOnItem باشد');
+  assertContainsString(src, 'invStockSnapshot', 'موجودی سیستم EXE باید از snapshot هسته باشد');
+  assertContainsString(src, 'invFindStockItem', 'باید آیتم از invFindStockItem پیدا شود');
+  assertContainsString(src, 'hasBusinessCore', 'باید مرز Host داشته باشد');
+  assertContainsString(src, '_applyStockMovement', 'HTML-only باید _applyStockMovement بماند');
+  assertContainsString(src, 'st-reason', 'علت باید بماند');
+  assertContainsString(src, 'st-confirm', 'تأیید مسئول باید بماند');
+  let seenWh = null;
+  let seenTarget = null;
+  const api = makeStocktakeHarness({
+    hostOn: true,
+    inventory: {'P-1': {code:'P-1', name:'کالا', qty:99, reserved:0}},
+    counts: {'P-1': 12},
+    names: {'P-1': 'کالا'},
+    runImpl: makeStocktakeCoreImpl(function(name, json){
+      const p = JSON.parse(json);
+      if (name === 'inventory.stock') {
+        return JSON.stringify({ok:true, result:{qty:10, reserved:0, available:10, min:0, reorder:0, price:0}});
+      }
+      if (name === 'inventory.adjust') {
+        seenWh = p.whId;
+        seenTarget = p.qty;
+        return JSON.stringify({ok:true, result:{ok:true, item:Object.assign({}, p.item, {qty:p.qty}), stock:{qty:p.qty, reserved:0, available:p.qty}, persistKeys:['inventory']}});
+      }
+      return null;
+    })
+  });
+  assertTrue(api.calls.indexOf('inventory.stock') >= 0, 'باید inventory.stock صدا شود');
+  assertTrue(api.calls.indexOf('inventory.adjust') >= 0, 'باید inventory.adjust صدا شود');
+  assertEqual(seenTarget, 12, 'هدف مطلق باید شمارش فیزیکی ۱۲ باشد نه دلتای HTML');
+  assertEqual(seenWh, '', 'انبارگردانی عمومی باید whId خالی باشد');
+  assertEqual(api.inventory['P-1'].qty, 12, 'qty باید از هسته ۱۲ شود نه از HTML ۹۹');
+  assertTrue(api.ntfCalls.some(function(n){ return String(n.msg).indexOf('1 آیتم تعدیل شد') >= 0 && n.k !== 'err'; }), 'موفق باید toast موفق بماند');
+});
+
+test('P2: شمارش برابر با موجودی هسته (نه HTML) باید جهش نزند', () => {
+  const skipped = makeStocktakeHarness({
+    hostOn: true,
+    inventory: {'P-1': {code:'P-1', qty:99, reserved:0}},
+    counts: {'P-1': 10},
+    names: {'P-1': 'کالا'},
+    runImpl: makeStocktakeCoreImpl(function(name, json){
+      if (name === 'inventory.stock') {
+        return JSON.stringify({ok:true, result:{qty:10, reserved:0, available:10, min:0, reorder:0, price:0}});
+      }
+      return null;
+    })
+  });
+  assertEqual(skipped.calls.indexOf('inventory.adjust') < 0, true, 'اگر شمارش=موجودی هسته، adjust نباید صدا شود');
+  assertEqual(skipped.inventory['P-1'].qty, 99, 'qty زنده نباید عوض شود');
+  const staleEqual = makeStocktakeHarness({
+    hostOn: true,
+    inventory: {'P-1': {code:'P-1', qty:99, reserved:0}},
+    counts: {'P-1': 99},
+    names: {'P-1': 'کالا'},
+    runImpl: makeStocktakeCoreImpl(function(name, json){
+      if (name === 'inventory.stock') {
+        return JSON.stringify({ok:true, result:{qty:10, reserved:0, available:10, min:0, reorder:0, price:0}});
+      }
+      return null;
+    })
+  });
+  assertTrue(staleEqual.calls.indexOf('inventory.adjust') >= 0, 'اگر HTML .qty برابر شمارش باشد ولی هسته فرق کند، باید adjust شود');
+  assertEqual(staleEqual.inventory['P-1'].qty, 99, 'هدف مطلق همان شمارش ۹۹ است');
+});
+
+test('P2: کالا / قطعه / معیوب در EXE هر کدام persist جدا دارند', () => {
+  const prod = makeStocktakeHarness({
+    hostOn: true,
+    inventory: {'G-1': {code:'G-1', name:'کالا', qty:10, reserved:0}},
+    counts: {'G-1': 15},
+    names: {'G-1': 'کالا'}
+  });
+  assertEqual(prod.inventory['G-1'].qty, 15, 'کالا باید ۱۵ شود');
+  assertEqual(JSON.parse(prod.ls.lv)['G-1'].qty, 15, 'کالا باید در lv بماند');
+  assertEqual(prod.ls.lp2 == null, true, 'کالا نباید lp2 بنویسد');
+  const part = makeStocktakeHarness({
+    hostOn: true,
+    parts: [{code:'PT-1', name:'قطعه', qty:8, reserved:0}],
+    counts: {'PT-1': 5},
+    names: {'PT-1': 'قطعه'}
+  });
+  assertEqual(part.parts[0].qty, 5, 'قطعه باید ۵ شود');
+  assertEqual(JSON.parse(part.ls.lp2)[0].qty, 5, 'قطعه باید در lp2 بماند');
+  const defIn = makeStocktakeHarness({
+    hostOn: true,
+    defectiveStock: [{id:'DEF-0001', model:'موتور', qty:1, status:'in_stock'}],
+    counts: {'DEF-0001': 2},
+    names: {'DEF-0001': 'موتور'}
+  });
+  assertEqual(defIn.defectiveStock[0].qty, 2, 'معیوب افزایش باید qty=۲ شود');
+  assertEqual(JSON.parse(defIn.ls.laegh_defective)[0].qty, 2, 'معیوب باید در laegh_defective بماند');
+  const defOut = makeStocktakeHarness({
+    hostOn: true,
+    defectiveStock: [{id:'DEF-0002', model:'پمپ', qty:1, status:'in_stock'}],
+    counts: {'DEF-0002': 0},
+    names: {'DEF-0002': 'پمپ'}
+  });
+  assertEqual(defOut.defectiveStock[0].qty, 0, 'خروج معیوب باید صفر شود');
+  assertEqual(defOut.defectiveStock[0].status, 'returned', 'خروج معیوب باید returned باشد');
+});
+
+test('P2: افزایش، کاهش، صفر، منفی و نامعتبر در انبارگردانی EXE', () => {
+  const up = makeStocktakeHarness({ hostOn:true, inventory:{'A':{code:'A', qty:10, reserved:0}}, counts:{'A':18}, names:{'A':'a'} });
+  assertEqual(up.inventory.A.qty, 18, 'افزایش باید ۱۸ شود');
+  const down = makeStocktakeHarness({ hostOn:true, inventory:{'A':{code:'A', qty:10, reserved:0}}, counts:{'A':4}, names:{'A':'a'} });
+  assertEqual(down.inventory.A.qty, 4, 'کاهش باید ۴ شود');
+  const zero = makeStocktakeHarness({ hostOn:true, inventory:{'A':{code:'A', qty:10, reserved:0}}, counts:{'A':0}, names:{'A':'a'} });
+  assertEqual(zero.inventory.A.qty, 0, 'صفر باید مجاز باشد');
+  const neg = makeStocktakeHarness({ hostOn:true, inventory:{'A':{code:'A', qty:10, reserved:0}}, counts:{'A':-3}, names:{'A':'a'} });
+  assertEqual(neg.inventory.A.qty, 10, 'منفی نباید نوشته شود');
+  assertTrue(neg.ntfCalls.some(function(n){ return n.k === 'err'; }), 'منفی باید خطا بدهد');
+  const bad = makeStocktakeHarness({ hostOn:true, inventory:{'A':{code:'A', qty:10, reserved:0}}, counts:{'A':'x'}, names:{'A':'a'} });
+  assertEqual(bad.inventory.A.qty, 10, 'نامعتبر نباید qty را عوض کند');
+  assertEqual(bad.calls.indexOf('inventory.adjust') < 0, true, 'NaN نباید adjust شود');
+});
+
+test('P2: رد هسته و شکست Host نباید fallback HTML داشته باشد', () => {
+  const rej = makeStocktakeHarness({
+    hostOn: true,
+    inventory: {'A':{code:'A', qty:10, reserved:8}},
+    counts: {'A': 1},
+    names: {'A':'a'}
+  });
+  assertTrue(rej.calls.indexOf('inventory.adjust') >= 0, 'با snapshot معتبر باید adjust صدا شود');
+  assertEqual(rej.inventory.A.qty, 10, 'رد هسته نباید qty را عوض کند');
+  assertEqual(rej.ls.lv == null, true, 'رد هسته نباید persist کند');
+  assertEqual(rej.stockMoves.length, 0, 'رد هسته نباید حرکت موفق بسازد');
+  assertTrue(rej.ntfCalls.some(function(n){ return n.k === 'err'; }), 'رد هسته نباید toast موفق باشد');
+  const hostFail = makeStocktakeHarness({
+    hostOn: true,
+    inventory: {'A':{code:'A', qty:10, reserved:0}},
+    counts: {'A': 12},
+    names: {'A':'a'},
+    runImpl: function(){ return JSON.stringify({ok:false}); }
+  });
+  assertEqual(hostFail.inventory.A.qty, 10, 'شکست Host نباید qty را عوض کند');
+  assertEqual(hostFail.calls.indexOf('inventory.adjust') < 0, true, 'بدون snapshot نباید adjust شود');
+  assertEqual(hostFail.stockMoves.length, 0, 'شکست Host نباید حرکت بسازد');
+  assertTrue(hostFail.ntfCalls.some(function(n){ return n.k === 'err'; }), 'شکست Host نباید موفق اعلام شود');
+});
+
+test('P2: دسته چندردیفه؛ موفق commit می‌شود و ناموفق عوض نمی‌شود', () => {
+  const api = makeStocktakeHarness({
+    hostOn: true,
+    inventory: {
+      'OK': {code:'OK', qty:10, reserved:0},
+      'BAD': {code:'BAD', qty:10, reserved:9}
+    },
+    counts: {'OK': 12, 'BAD': 1},
+    names: {'OK':'ok', 'BAD':'bad'}
+  });
+  assertEqual(api.inventory.OK.qty, 12, 'ردیف موفق باید commit شود');
+  assertEqual(api.inventory.BAD.qty, 10, 'ردیف ردشده باید دست‌نخورده بماند');
+  assertEqual(JSON.parse(api.ls.lv).OK.qty, 12, 'موفق باید persist شود');
+  assertEqual(JSON.parse(api.ls.lv).BAD.qty, 10, 'ناموفق نباید در persist عوض شود');
+  assertTrue(api.ntfCalls.some(function(n){ return n.k === 'err' && String(n.msg).indexOf('1 آیتم تعدیل شد') >= 0 && String(n.msg).indexOf('ناموفق') >= 0; }), 'باید شمارش موفق و ناموفق گزارش شود');
+  assertEqual(api.stockMoves.length, 1, 'فقط ردیف موفق باید حرکت داشته باشد');
+  assertEqual(api.stockMoves[0].reason, 'شمارش فیزیکی', 'علت باید روی حرکت موفق بماند');
+  assertEqual(api.stockMoves[0].source, 'stocktake', 'منبع باید انبارگردانی باشد');
+});
+
+test('P2: کلید تکراری در _stCounts یک‌بار اعمال می‌شود و علت حفظ می‌شود', () => {
+  const api = makeStocktakeHarness({
+    hostOn: true,
+    inventory: {'DUP': {code:'DUP', qty:10, reserved:0}},
+    counts: {'DUP': 7},
+    names: {'DUP': 'تکراری'}
+  });
+  assertEqual(api.calls.filter(function(n){ return n === 'inventory.adjust'; }).length, 1, 'کد تکراری شیء فقط یک adjust دارد');
+  assertEqual(api.inventory.DUP.qty, 7, 'qty باید ۷ شود');
+  assertEqual(api.stockMoves[0].reason, 'شمارش فیزیکی', 'reason باید از st-reason بیاید');
+  assertEqual(api.stockMoves[0].user, 'آزمایش', 'user باید روی حرکت موفق بماند');
+  assertEqual(api.fields['st-reason'].value, '', 'پس از ثبت باید علت خالی شود');
+  assertEqual(api.fields['st-confirm'].checked, false, 'پس از ثبت باید تأیید برداشته شود');
+});
+
+test('P2: HTML-only باید _applyStockMovement قبلی را نگه دارد', () => {
+  const api = makeStocktakeHarness({
+    hostOn: false,
+    inventory: {'H-1': {code:'H-1', qty:10}},
+    parts: [{code:'HP-1', name:'قطعه', qty:6}],
+    counts: {'H-1': 13, 'HP-1': 4},
+    names: {'H-1':'کالا', 'HP-1':'قطعه'}
+  });
+  assertEqual(api.calls.length, 0, 'HTML-only نباید RunBusiness صدا بزند');
+  assertEqual(api.inventory['H-1'].qty, 13, 'HTML-only کالا باید از .qty دلتا بگیرد');
+  assertEqual(api.parts[0].qty, 4, 'HTML-only قطعه باید از .qty دلتا بگیرد');
+  assertEqual(JSON.parse(api.ls.lv)['H-1'].qty, 13, 'HTML-only کالا باید sv شود');
+  assertEqual(JSON.parse(api.ls.lp2)[0].qty, 4, 'HTML-only قطعه باید svParts شود');
+  assertTrue(api.stockMoves.length >= 2, 'HTML-only باید حرکت ثبت کند');
+  assertTrue(api.ntfCalls.some(function(n){ return String(n.msg).indexOf('2 آیتم تعدیل شد') >= 0; }), 'HTML-only باید toast موفق قبلی را نگه دارد');
+});
+
+console.log('');
 console.log('📋 گروه: تکمیل فاز ۲ (C# منبع حقیقت عملیات حساس)');
+
 
 test('در exe جمع فاکتور و فروش نباید بعد از هسته دوباره با JS بازنویسی شود', () => {
   const calcTSrc = extractFunctionSource(html, 'calcT');
