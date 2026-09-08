@@ -13933,9 +13933,9 @@ function delSelPB(){
   var idx=normalizePBDeleteIndexes(getPBSelIdx());
   if(!idx.length){ ntf('چیزی انتخاب نشده','err'); return {ok:false, reason:'empty'}; }
   var n=idx.length;
-  if(!confirm('تعداد '+n+' مخاطب برای حذف انتخاب شده‌اند.\n\nداغی، فاکتور، فروش و گارانتی حذف نمی‌شوند.\nاندیس داغی (agencyPhonebookIdx) بازنویسی نمی‌شود و ممکن است پس از حذف نامعتبر شود.\n\nلغو برای انصراف.\nحذف '+n+' مخاطب؟')) return {ok:false, reason:'cancel'};
+  if(!confirm('تعداد '+n+' مورد انتخاب شده است.\n\nحذف مخاطبان ممکن است بر ارجاع‌های موقعیتی دفترچه در بخش داغی اثر بگذارد.\nداغی، فاکتور، فروش و گارانتی حذف نمی‌شوند.\n\nلغو برای انصراف.\nحذف '+n+' مخاطب؟')) return {ok:false, reason:'cancel'};
   if(n>=100){
-    if(!confirm('هشدار حذف پرتعداد: '+n+' مخاطب.\n\nپیشنهاد: قبل از حذف از ورود/خروج داده بک‌آپ بگیرید.\nارجاع موقعیتی داغی به‌روز نمی‌شود.\n\nحذف '+n+' مخاطب قطعی شود؟')) return {ok:false, reason:'cancel2'};
+    if(!confirm('هشدار حذف پرتعداد: '+n+' مورد انتخاب شده است.\n\nحذف مخاطبان ممکن است بر ارجاع‌های موقعیتی دفترچه در بخش داغی اثر بگذارد.\nپیشنهاد: قبل از حذف از ورود/خروج داده بک‌آپ بگیرید.\nارجاع موقعیتی داغی به‌روز نمی‌شود.\n\nحذف '+n+' مخاطب قطعی شود؟')) return {ok:false, reason:'cancel2'};
   }
   var r=applyPhonebookIndexDeletes(idx);
   if(!r.ok){
@@ -24787,9 +24787,9 @@ function dataMgmtPersistKey(key, value){
 }
 function dataMgmtDomainDefs(){
   return [
-    {id:'phonebook', cls:'B', title:'دفترچه مخاطبان', actionLabel:'پاک کردن مخاطبان', key:'lb',
-      warnTitle:'پاک کردن دفترچه مخاطبان',
-      warnBody:'این عملیات فقط مخاطبان را حذف می‌کند.\nفاکتورها، فروش‌ها و گارانتی‌ها حذف نمی‌شوند.\nداغی بازنویسی نمی‌شود؛ اندیس agencyPhonebookIdx ممکن است نامعتبر بماند.'},
+    {id:'phonebook', cls:'B', title:'دفترچه مخاطبان', actionLabel:'پاک کردن کل دفترچه مخاطبان', key:'lb',
+      warnTitle:'پاک کردن کل دفترچه مخاطبان',
+      warnBody:'این عملیات فقط مخاطبان را حذف می‌کند.\nفاکتورها، فروش‌ها و گارانتی‌ها حذف نمی‌شوند.\nداغی بازنویسی نمی‌شود و ارجاع موقعیتی آن remap نمی‌شود.\nحذف مخاطبان ممکن است بر ارجاع‌های موقعیتی دفترچه در بخش داغی اثر بگذارد.'},
     {id:'invoices', cls:'B', title:'فاکتورها', actionLabel:'پاک کردن فاکتورها', key:'li',
       warnTitle:'پاک کردن فاکتورها',
       warnBody:'فقط فهرست فاکتورها و شمارنده شماره فاکتور پاک می‌شود.\nدفتر روزنامه فاکتور (acH)، انبار، حساب‌ها و مخاطبان حذف نمی‌شوند.\nموجودی/حساب بابت فاکتورهای حذف‌شده برنمی‌گردد.'},
@@ -25074,7 +25074,7 @@ function renderDataManagementUI(){
     if(d.cls==='C'){
       html += '</div><div style="font-size:12px;color:#9a3412;margin-top:8px;line-height:1.7">برای حفظ یکپارچگی اطلاعات، پاک‌سازی مستقل این بخش در حال حاضر مجاز نیست.</div>';
     } else {
-      html += '<button type="button" class="btn btn-sm btn-r" onclick="dataMgmtResetDomain(\''+d.id+'\')">پاک کردن</button></div>';
+      html += '<button type="button" class="btn btn-sm btn-r" onclick="dataMgmtResetDomain(\''+d.id+'\')">'+d.actionLabel+'</button></div>';
     }
     html += '</div>';
   });
