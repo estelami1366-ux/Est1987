@@ -19188,6 +19188,390 @@ test('موفقیت HTTP 2xx پل باید notifiedAt را ست کند', () => {
   });
 });
 
+console.log('📋 گروه DATA-MGMT: مدیریت داده‌ها و حذف گروهی دفترچه');
+
+function dataMgmtTestSrc(){
+  return [
+    'normalizePBDeleteIndexes','applyPhonebookIndexDeletes','pbFilteredRows','getPBSelIdx',
+    'updatePBSel','selectAllPBResults','clearAllPBSel','delSelPB',
+    'dataMgmtConfirmWordOk','dataMgmtEmptyArr','dataMgmtRestoreArr','dataMgmtEmptyObj','dataMgmtRestoreObj',
+    'dataMgmtPersistKey','dataMgmtDomainDefs','dataMgmtFindDef','dataMgmtCount',
+    'dataMgmtRefreshDomain','dataMgmtExecuteReset','dataMgmtResetDomain'
+  ].map(function(n){
+    var s = extractFunctionSource(html, n);
+    if(!s) throw new Error('تابع '+n+' پیدا نشد');
+    return s;
+  }).join('\n');
+}
+
+function runDataMgmtSandbox(setup, userBody){
+  setup = setup || {};
+  const store = Object.assign({}, setup.store || {});
+  const failKeys = setup.failKeys || {};
+  const confirms = (setup.confirms || []).slice();
+  const prompts = (setup.prompts || []).slice();
+  const localStorage = {
+    setItem: function(k,v){
+      if(failKeys[k]) throw new Error('quota');
+      store[k] = String(v);
+    },
+    getItem: function(k){ return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; }
+  };
+  const vis = (setup.visibleIdx && setup.visibleIdx.length) ? setup.visibleIdx.slice() : (setup.checkedIdx || []).slice();
+  const checkedWant = {};
+  (setup.checkedIdx || []).forEach(function(i){ checkedWant[i] = true; });
+  const chkRows = vis.map(function(i){ return { dataset:{ i:String(i) }, checked: !!checkedWant[i] }; });
+  const document = setup.document || {
+    querySelectorAll: function(sel){
+      if(sel==='.pb-rchk:checked') return chkRows.filter(function(r){ return r.checked; });
+      if(sel==='.pb-rchk') return chkRows;
+      return [];
+    },
+    getElementById: function(id){
+      if(id==='pb-q') return { value: setup.q || '' };
+      return { value:'', textContent:'', style:{ display:'' }, innerHTML:'' };
+    }
+  };
+  const src = dataMgmtTestSrc();
+  const runner = new Function('setup','localStorage','document', src + '\n' +
+    'var phonebook = setup.phonebook || [];\n' +
+    'var pb = phonebook;\n' +
+    'var invoices = setup.invoices || [];\n' +
+    'var invCtr = setup.invCtr != null ? setup.invCtr : 1;\n' +
+    'var invoiceUidCtr = setup.invoiceUidCtr != null ? setup.invoiceUidCtr : 0;\n' +
+    'var sales = setup.sales || [];\n' +
+    'var saleCtr = setup.saleCtr != null ? setup.saleCtr : 1;\n' +
+    'var saleUidCtr = setup.saleUidCtr != null ? setup.saleUidCtr : 0;\n' +
+    'var warranties = setup.warranties || [];\n' +
+    'var accounts = setup.accounts || [];\n' +
+    'var parts = setup.parts || [];\n' +
+    'var inventory = setup.inventory || {};\n' +
+    'var products = setup.products || [];\n' +
+    'var warehouseDocs = setup.warehouseDocs || [];\n' +
+    'var stockMoves = setup.stockMoves || [];\n' +
+    'var warehouses = setup.warehouses || [];\n' +
+    'var daqiWarehouse = setup.daqiWarehouse || [];\n' +
+    'var daqiVouchers = setup.daqiVouchers || [];\n' +
+    'var tasks = setup.tasks || [];\n' +
+    'var services = setup.services || [];\n' +
+    'var svcs = services;\n' +
+    'var defectiveStock = setup.defectiveStock || [];\n' +
+    'var postalHistory = setup.postalHistory || [];\n' +
+    'var daqi = setup.daqi || [];\n' +
+    'var acH = setup.acH || { keep:1 };\n' +
+    'var pbCatFilter = setup.pbCatFilter || "all";\n' +
+    'function markDirty(){ setup.dirty = true; }\n' +
+    'function ntf(){ setup.ntf = Array.prototype.slice.call(arguments); }\n' +
+    'function confirm(msg){ setup.confirmMsgs = (setup.confirmMsgs||[]).concat([msg]); var v = setup._confirms.length ? setup._confirms.shift() : true; return !!v; }\n' +
+    'function prompt(msg){ setup.promptMsgs = (setup.promptMsgs||[]).concat([msg]); return setup._prompts.length ? setup._prompts.shift() : null; }\n' +
+    'function alert(){}\n' +
+    'function auditUser(){}\n' +
+    'function pbSortName(c){ return String(((c&&c.ln)||"")+" "+((c&&c.fn)||"")+" "+((c&&c.shop)||"")); }\n' +
+    'setup._confirms = setup._confirms || [];\n' +
+    'setup._prompts = setup._prompts || [];\n' +
+    'var userResult = (function(){\n' + userBody + '\n})();\n' +
+    'return { userResult:userResult, phonebook:phonebook, pb:pb, pbSame:(pb===phonebook), invoices:invoices, invCtr:invCtr, invoiceUidCtr:invoiceUidCtr, sales:sales, saleCtr:saleCtr, saleUidCtr:saleUidCtr, warranties:warranties, accounts:accounts, parts:parts, inventory:inventory, products:products, warehouseDocs:warehouseDocs, stockMoves:stockMoves, warehouses:warehouses, daqiWarehouse:daqiWarehouse, daqiVouchers:daqiVouchers, tasks:tasks, services:services, svcs:svcs, defectiveStock:defectiveStock, postalHistory:postalHistory, daqi:daqi, acH:acH, store:setup._store, ntf:setup.ntf, confirmMsgs:setup.confirmMsgs };');
+  setup._store = store;
+  setup._confirms = confirms;
+  setup._prompts = prompts;
+  return runner(setup, localStorage, document);
+}
+
+function dataMgmtFixture(extra){
+  return Object.assign({
+    phonebook:[{fn:'x'}], invoices:[{id:1}], invCtr:9, invoiceUidCtr:4,
+    sales:[{id:'SL-1'}], saleCtr:5, saleUidCtr:2,
+    warranties:[{id:1}], accounts:[{id:1}], parts:[{code:'P'}],
+    inventory:{A:3}, products:[{code:'A'}], warehouseDocs:[{id:1}], stockMoves:[{id:1}],
+    warehouses:[{id:1}], daqiWarehouse:[{id:1}], daqiVouchers:[{id:1}],
+    tasks:[{id:1}], services:[{code:'S'}], defectiveStock:[{id:1}],
+    postalHistory:[{id:1}], daqi:[{id:1, agencyPhonebookIdx:0}], acH:{keep:1}
+  }, extra || {});
+}
+function assertUnrelatedAfterReset(r, id){
+  if(id!=='phonebook') assertEqual(r.phonebook.length, 1, id+' نباید دفترچه را پاک کند');
+  if(id!=='invoices') assertEqual(r.invoices.length, 1, id+' نباید فاکتور را پاک کند');
+  if(id!=='products') assertEqual(r.products.length, 1, id+' نباید کالا را پاک کند');
+  if(id!=='inventory') assertEqual(r.inventory.A, 3, id+' نباید موجودی را پاک کند');
+  if(id!=='accounts') assertEqual(r.accounts.length, 1, id+' نباید حساب را پاک کند');
+  assertEqual(r.acH.keep, 1, id+' نباید acH را پاک کند');
+}
+
+[
+  ['1','tasks','laegh_tasks'],
+  ['2','services','ls2'],
+  ['3','defectiveStock','laegh_defective'],
+  ['4','postalHistory','laegh_postal_history'],
+  ['5','daqi','laegh_daqi'],
+  ['6','phonebook','lb'],
+  ['7','invoices','li'],
+  ['8','sales','laegh_sales'],
+  ['9','warranties','lw2'],
+  ['10','accounts','laegh_accounts'],
+  ['11','parts','lp2'],
+  ['12','inventory','lv'],
+  ['13','products','lp'],
+  ['14','warehouseDocs','laegh_warehouse'],
+  ['15','stockMoves','laegh_stockmoves'],
+  ['16','warehouses','laegh_warehouses'],
+  ['17','daqiWarehouse','laegh_daqi_warehouse'],
+  ['18','daqiVouchers','laegh_daqi_vouchers']
+].forEach(function(row){
+  test('DATA RESET '+row[0]+': reset '+row[1], () => {
+    const r = runDataMgmtSandbox(dataMgmtFixture(),
+      'var out=dataMgmtExecuteReset("'+row[1]+'"); return {out:out, count:dataMgmtCount("'+row[1]+'"), persisted:localStorage.getItem("'+row[2]+'")};');
+    assertTrue(r.userResult.out.ok, 'ریست '+row[1]+' باید موفق شود');
+    assertEqual(r.userResult.count, 0, 'بعد از ریست تعداد ۰ باشد');
+    assertTrue(r.userResult.persisted != null, 'کلید '+row[2]+' باید persist شود نه removeItem');
+    if(row[1]==='services') assertEqual(JSON.parse(r.userResult.persisted).length, 0, 'ls2 باید [] باشد');
+    if(row[1]==='phonebook'){
+      assertEqual(r.pbSame, true, 'alias pb باید همان آرایه بماند');
+      assertEqual(r.daqi[0].agencyPhonebookIdx, 0, 'داغی remap نشود');
+    }
+    assertUnrelatedAfterReset(r, row[1]);
+  });
+});
+
+test('DATA RESET 19: acH reset blocked', () => {
+  const r = runDataMgmtSandbox(dataMgmtFixture({ acH:{keep:1, extra:2} }), 'return dataMgmtExecuteReset("acH");');
+  assertEqual(r.userResult.reason, 'blocked', 'acH باید blocked باشد');
+  assertEqual(r.acH.keep, 1, 'acH نباید پاک شود');
+  assertContainsString(extractFunctionSource(html, 'renderDataManagementUI'), 'پاک‌سازی مستقل این بخش در حال حاضر مجاز نیست', 'UI باید پیام غیرمجاز را نشان دهد');
+});
+
+test('DATA RESET 20: cancel does nothing', () => {
+  const r = runDataMgmtSandbox(dataMgmtFixture({ confirms:[false] }), 'return dataMgmtResetDomain("tasks");');
+  assertEqual(r.userResult.reason, 'cancel', 'لغو باید ثبت شود');
+  assertEqual(r.tasks.length, 1, 'وظایف باید بماند');
+});
+
+test('DATA RESET 21: confirmation protection', () => {
+  const a = runDataMgmtSandbox(dataMgmtFixture({ confirms:[true, false] }), 'return dataMgmtResetDomain("tasks");');
+  assertEqual(a.userResult.reason, 'cancel2', 'تأیید دوم ریست A اگر رد شود داده بماند');
+  assertEqual(a.tasks.length, 1, 'وظایف باید بماند');
+  const b = runDataMgmtSandbox(dataMgmtFixture({ confirms:[true], prompts:['نه'] }), 'return dataMgmtResetDomain("phonebook");');
+  assertEqual(b.userResult.reason, 'confirm-word', 'کلمه اشتباه باید جلوی ریست B را بگیرد');
+  assertEqual(b.phonebook.length, 1, 'دفترچه باید بماند');
+  const c = runDataMgmtSandbox({}, 'return [dataMgmtConfirmWordOk("تایید"), dataMgmtConfirmWordOk("تأیید"), dataMgmtConfirmWordOk(" نه ")];');
+  assertEqual(c.userResult[0], true, 'تایید بدون همزه');
+  assertEqual(c.userResult[1], true, 'تأیید با همزه');
+  assertEqual(c.userResult[2], false, 'کلمه دیگر رد شود');
+});
+
+test('DATA RESET 22: persistence after reload', () => {
+  const r = runDataMgmtSandbox(dataMgmtFixture(),
+    'dataMgmtExecuteReset("tasks"); dataMgmtExecuteReset("services"); return { tasks:JSON.parse(localStorage.getItem("laegh_tasks")), services:JSON.parse(localStorage.getItem("ls2")) };');
+  assertEqual(r.userResult.tasks.length, 0, 'بعد از reload معادل، وظایف خالی باشد');
+  assertEqual(r.userResult.services.length, 0, 'بعد از reload معادل، خدمات [] باشد');
+});
+
+test('DATA RESET 23: unrelated domains unchanged', () => {
+  const r = runDataMgmtSandbox(dataMgmtFixture({
+    store:{ li: JSON.stringify([{id:1}]), lp: JSON.stringify([{code:'A'}]), lv: JSON.stringify({A:3}), la: JSON.stringify({keep:1}) }
+  }), 'var out=dataMgmtExecuteReset("phonebook"); return {out:out, li:localStorage.getItem("li"), lp:localStorage.getItem("lp"), lv:localStorage.getItem("lv"), la:localStorage.getItem("la"), lb:localStorage.getItem("lb")};');
+  assertTrue(r.userResult.out.ok, 'ریست دفترچه موفق');
+  assertEqual(r.userResult.li, JSON.stringify([{id:1}]), 'li نوشته نشود');
+  assertEqual(r.userResult.lp, JSON.stringify([{code:'A'}]), 'lp نوشته نشود');
+  assertEqual(r.userResult.lv, JSON.stringify({A:3}), 'lv نوشته نشود');
+  assertEqual(r.userResult.la, JSON.stringify({keep:1}), 'la نوشته نشود');
+  assertEqual(JSON.parse(r.userResult.lb).length, 0, 'فقط lb خالی persist شود');
+  assertEqual(r.invoices.length, 1, 'فاکتور RAM بماند');
+  assertEqual(r.daqi[0].agencyPhonebookIdx, 0, 'داغی دست‌نخورده');
+});
+
+test('PHONEBOOK 24: search result selection', () => {
+  const src = extractFunctionSource(html, 'pbFilteredRows');
+  assertContainsString(src, 'c.fn', 'جستجو باید نام را پوشش دهد');
+  assertContainsString(src, 'c.shop', 'جستجو باید شرکت را پوشش دهد');
+  assertContainsString(src, 'c.phones', 'جستجو باید تلفن را پوشش دهد');
+  assertContainsString(src, 'c.addr', 'جستجو باید آدرس را پوشش دهد');
+  assertContainsString(src, 'c.note', 'جستجو باید یادداشت را پوشش دهد');
+  assertContainsString(src, 'pbCatFilter', 'فیلتر دسته باید بماند');
+  const r = runDataMgmtSandbox({
+    phonebook: [
+      {fn:'حمید', ln:'احمدی', shop:'الف', phones:['0912'], addr:'', note:''},
+      {fn:'علی', ln:'رضایی', shop:'ب', phones:['0935'], addr:'', note:''},
+      {fn:'سارا', ln:'محمدی', shop:'حمیدکالا', phones:['0913'], addr:'', note:''}
+    ],
+    q: 'حمید'
+  }, 'return pbFilteredRows().map(function(row){ return row.i; });');
+  assertEqual(r.userResult.join(','), '0,2', 'جستجوی حمید باید خود مخاطب و شرکت شامل حمید را برگرداند، نه علی');
+});
+
+test('PHONEBOOK 25: select one', () => {
+  const r = runDataMgmtSandbox({
+    phonebook: [{fn:'a'},{fn:'b'},{fn:'c'}]
+  }, 'return applyPhonebookIndexDeletes([1]);');
+  assertTrue(r.userResult.ok, 'حذف یک مورد باید موفق شود');
+  assertEqual(r.userResult.deleted, 1, 'باید ۱ حذف شود');
+  assertEqual(r.phonebook.map(function(c){return c.fn;}).join(','), 'a,c', 'باید فقط اندیس ۱ حذف شود');
+  assertEqual(r.pbSame, true, 'pb alias بعد از حذف یک مورد معتبر بماند');
+});
+
+test('PHONEBOOK 26: select multiple', () => {
+  const r = runDataMgmtSandbox({
+    phonebook: [{fn:'a'},{fn:'b'},{fn:'c'},{fn:'d'}]
+  }, 'return applyPhonebookIndexDeletes([1,3]);');
+  assertEqual(r.phonebook.map(function(c){return c.fn;}).join(','), 'a,c', 'حذف چند مورد نباید ایندکس را خراب کند');
+});
+
+test('PHONEBOOK 27: select all results', () => {
+  const r = runDataMgmtSandbox({
+    phonebook: [{fn:'حمید'},{fn:'علی'},{fn:'حمید'}],
+    visibleIdx: [0,2]
+  }, 'var n=selectAllPBResults(); return {n:n, idx:getPBSelIdx()};');
+  assertEqual(r.userResult.n, 2, 'انتخاب همه نتایج باید ۲ ردیف مرئی را تیک بزند');
+  assertEqual(r.userResult.idx.sort(function(a,b){return a-b;}).join(','), '0,2', 'اندیس‌های انتخاب‌شده همان نتایج باشند');
+});
+
+test('PHONEBOOK 28: clear selection', () => {
+  const r = runDataMgmtSandbox({
+    phonebook: [{fn:'a'},{fn:'b'}],
+    visibleIdx: [0,1],
+    checkedIdx: [0,1]
+  }, 'clearAllPBSel(); return getPBSelIdx();');
+  assertEqual(r.userResult.length, 0, 'لغو انتخاب همه باید خالی کند');
+});
+
+test('PHONEBOOK 29: zero selected cannot delete', () => {
+  const r = runDataMgmtSandbox({
+    phonebook: [{fn:'a'},{fn:'b'}],
+    checkedIdx: []
+  }, 'return delSelPB();');
+  assertEqual(r.userResult.reason, 'empty', 'بدون انتخاب باید خالی برگردد');
+  assertEqual(r.phonebook.length, 2, 'بدون انتخاب چیزی حذف نشود');
+});
+
+test('PHONEBOOK 30: delete exact selected indexes', () => {
+  const r = runDataMgmtSandbox({
+    phonebook: [{fn:'a'},{fn:'b'},{fn:'c'},{fn:'d'}],
+    checkedIdx: [0,2],
+    confirms: [true]
+  }, 'return delSelPB();');
+  assertTrue(r.userResult.ok, 'حذف انتخاب‌شده موفق');
+  assertEqual(r.userResult.deleted, 2, 'دقیقاً ۲ حذف شود');
+  assertEqual(r.phonebook.map(function(c){return c.fn;}).join(','), 'b,d', 'فقط اندیس‌های انتخاب‌شده حذف شوند');
+});
+
+test('PHONEBOOK 31: duplicate indexes normalized', () => {
+  const r = runDataMgmtSandbox({
+    phonebook: [{fn:'a'},{fn:'b'},{fn:'c'},{fn:'d'}]
+  }, 'return normalizePBDeleteIndexes([1,1,3,99,-1,"2",NaN]);');
+  assertEqual(r.userResult.join(','), '3,2,1', 'باید duplicate حذف و نزولی شود');
+});
+
+test('PHONEBOOK 32: descending deletion', () => {
+  const src = extractFunctionSource(html, 'normalizePBDeleteIndexes');
+  assertContainsString(src, 'b-a', 'مرتب‌سازی باید نزولی باشد');
+  const r = runDataMgmtSandbox({
+    phonebook: [{fn:'0'},{fn:'1'},{fn:'2'},{fn:'3'}]
+  }, 'return applyPhonebookIndexDeletes([0,3]);');
+  assertEqual(r.phonebook.map(function(c){return c.fn;}).join(','), '1,2', 'splice نزولی نباید ردیف میانی را خراب کند');
+});
+
+test('PHONEBOOK 33: mixed search results', () => {
+  const contacts = [
+    {fn:'حمید', ln:'۱', phones:['1']},
+    {fn:'علی', ln:'۲', phones:['2']},
+    {fn:'حمید', ln:'۳', phones:['3']},
+    {fn:'مریم', ln:'۴', phones:['4']}
+  ];
+  const r = runDataMgmtSandbox({ phonebook: contacts, q:'حمید' },
+    'var rows=pbFilteredRows(); return applyPhonebookIndexDeletes(rows.map(function(x){return x.i;}));');
+  assertEqual(r.phonebook.map(function(c){return c.fn;}).join(','), 'علی,مریم', 'فقط نتایج حمید حذف شوند');
+});
+
+test('PHONEBOOK 34: large selection synthetic 2650', () => {
+  const pb = [];
+  for(let i=0;i<2650;i++) pb.push({fn:'حمید', ln:'کلون', phones:['09120000000']});
+  pb.push({fn:'علی', ln:'یکتا', phones:['0913']});
+  pb.push({fn:'سارا', ln:'یکتا', phones:['0914']});
+  const r = runDataMgmtSandbox({ phonebook: pb },
+    'var idx=[]; for(var i=0;i<2650;i++) idx.push(i); return applyPhonebookIndexDeletes(idx);');
+  assertTrue(r.userResult.ok, 'حذف ۲۶۵۰ باید موفق شود');
+  assertEqual(r.userResult.deleted, 2650, 'باید ۲۶۵۰ حذف شود');
+  assertEqual(r.phonebook.length, 2, 'دو مخاطب نامرتبط بمانند');
+  assertEqual(r.phonebook[0].fn, 'علی', 'اولین باقی‌مانده علی است');
+  assertEqual(JSON.parse(r.store.lb).length, 2, 'persist هم ۲ رکورد دارد');
+});
+
+test('PHONEBOOK 35: exact-clone selection', () => {
+  const r = runDataMgmtSandbox({
+    phonebook: [{fn:'حمید'},{fn:'حمید'},{fn:'علی'},{fn:'حمید'}]
+  }, 'return applyPhonebookIndexDeletes([0,1,3]);');
+  assertEqual(r.phonebook.length, 1, 'سه همسان حذف شوند');
+  assertEqual(r.phonebook[0].fn, 'علی', 'مخاطب غیرهمسان بماند');
+});
+
+test('PHONEBOOK 36: persistence lb only', () => {
+  const r = runDataMgmtSandbox({
+    phonebook: [{fn:'a'},{fn:'b'},{fn:'c'}],
+    store: { li:'[]', la:'{}', lp:'[]' }
+  }, 'applyPhonebookIndexDeletes([0,2]); return { lb:localStorage.getItem("lb"), li:localStorage.getItem("li"), la:localStorage.getItem("la"), lp:localStorage.getItem("lp") };');
+  assertEqual(JSON.parse(r.userResult.lb).map(function(c){return c.fn;}).join(','), 'b', 'بعد از reload معادل، فقط b در lb باشد');
+  assertEqual(r.userResult.li, '[]', 'li نوشته نشود');
+  assertEqual(r.userResult.la, '{}', 'la نوشته نشود');
+  assertEqual(r.userResult.lp, '[]', 'lp نوشته نشود');
+  const delSrc = extractFunctionSource(html, 'delSelPB');
+  assertTrue(delSrc.indexOf('sv()')<0, 'حذف گروهی دفترچه نباید sv() کامل را صدا بزند');
+});
+
+test('PHONEBOOK 37: failed persist restores in-memory array', () => {
+  const r = runDataMgmtSandbox({
+    phonebook: [{fn:'a'},{fn:'b'},{fn:'c'}],
+    failKeys: { lb:true }
+  }, 'var before=phonebook; var out=applyPhonebookIndexDeletes([0,2]); return {out:out, same: phonebook===before};');
+  assertEqual(r.userResult.out.ok, false, 'باید fail-closed شود');
+  assertEqual(r.phonebook.map(function(c){return c.fn;}).join(','), 'a,b,c', 'حافظه باید برگردد');
+  assertEqual(r.userResult.same, true, 'بازگردانی باید in-place باشد نه آرایه جدید');
+  assertTrue(r.store.lb == null, 'کلید lb نباید نوشته شود');
+});
+
+test('PHONEBOOK 38: pb alias remains valid', () => {
+  const r = runDataMgmtSandbox({
+    phonebook: [{fn:'a'},{fn:'b'}]
+  }, 'var out=applyPhonebookIndexDeletes([0]); return {out:out, same: pb===phonebook, pbFn: pb[0].fn};');
+  assertTrue(r.userResult.out.ok, 'حذف موفق');
+  assertEqual(r.userResult.same, true, 'pb === phonebook');
+  assertEqual(r.userResult.pbFn, 'b', 'alias همان داده باقی‌مانده را ببیند');
+  assertEqual(r.pbSame, true, 'sandbox هم alias را حفظ کند');
+});
+
+test('PHONEBOOK 39: Daqi index is NOT silently rewritten', () => {
+  const r = runDataMgmtSandbox({
+    phonebook: [{fn:'a'},{fn:'b'},{fn:'c'},{fn:'d'}],
+    daqi: [{id:'D1', agencyPhonebookIdx:3}]
+  }, 'var out=applyPhonebookIndexDeletes([1]); return {out:out, daqiIdx:daqi[0].agencyPhonebookIdx, daqiLen:daqi.length};');
+  assertEqual(r.userResult.out.deleted, 1, 'یک مخاطب حذف شود');
+  assertEqual(r.userResult.daqiIdx, 3, 'اندیس داغی نباید عوض شود');
+  assertEqual(r.userResult.daqiLen, 1, 'آرایه داغی دست‌نخورده بماند');
+  assertEqual(r.daqi[0].agencyPhonebookIdx, 3, 'اندیس داغی در حافظه همان ۳ بماند');
+  const delSrc = extractFunctionSource(html, 'delSelPB');
+  assertContainsString(delSrc, 'ارجاع‌های موقعیتی دفترچه در بخش داغی', 'هشدار داغی باید در تأیید حذف باشد');
+});
+
+test('delSelPB باید تعداد دقیق را در تأیید نشان دهد و با cancel هیچ حذف نکند', () => {
+  const r = runDataMgmtSandbox({
+    phonebook: [{fn:'a'},{fn:'b'}],
+    checkedIdx: [0,1],
+    confirms: [false]
+  }, 'return delSelPB();');
+  assertEqual(r.userResult.reason, 'cancel', 'لغو باید داده را نگه دارد');
+  assertEqual(r.phonebook.length, 2, 'لغو حذف نکند');
+  assertTrue((r.confirmMsgs||[])[0].indexOf('تعداد 2 مورد انتخاب شده است')>=0, 'پیام تأیید باید تعداد دقیق داشته باشد');
+});
+
+test('UI مدیریت داده‌ها و دفترچه انتخاب همه نتایج باید در HTML باشد', () => {
+  assertContainsString(html, 'id="data-mgmt-list"', 'لیست مدیریت داده‌ها پیدا نشد');
+  assertContainsString(html, 'مدیریت داده‌ها', 'عنوان مدیریت داده‌ها پیدا نشد');
+  assertContainsString(html, 'پاک کردن کل دفترچه مخاطبان', 'ریست کامل دفترچه باید برچسب صریح داشته باشد');
+  assertContainsString(html, 'selectAllPBResults()', 'دکمه انتخاب همه نتایج پیدا نشد');
+  assertContainsString(html, 'clearAllPBSel()', 'دکمه لغو انتخاب همه پیدا نشد');
+  assertContainsString(html, 'حذف انتخاب‌شده‌ها', 'دکمه حذف انتخاب‌شده‌ها پیدا نشد');
+  assertContainsString(html, 'help-cat-header">🗂 مدیریت داده‌ها', 'راهنمای مدیریت داده‌ها پیدا نشد');
+  assertContainsString(extractFunctionSource(html, 'applyPhonebookIndexDeletes'), "setItem('lb'", 'persist فقط کلید lb');
+});
+
 require('./test_installer_lifecycle').register({
   test,
   html,

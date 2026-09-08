@@ -21,10 +21,11 @@ pkg = {
     "version": VER["app"],
     "versionFa": VER["appFa"],
     "minBaseVersion": "1405.5.18ε",
-    "title": f"آپدیت کامل {VER['appFa']}",
+    "title": f"آپدیت کامل {VER['appFa']} — مدیریت داده و حذف گروهی دفترچه",
     "changelog": [
-        "کیت نصب کامل ۱۴۰۵.۶.۱۶α — منبع پایدار پس از انتقال موجودی هسته و نقطه کنترل عملیاتی",
-        "ذخیره رسانه روی هارد؛ داده زنده همان localStorage است",
+        "آپدیت درون‌نسخه ۱۴۰۵.۶.۱۶α — فقط فایل برنامه جایگزین می‌شود؛ داده فروشگاه دست‌نخورده می‌ماند",
+        "تنظیمات ← داده‌ها: ریست مستقل بخش‌ها با هشدار/تأیید و قفل دفتر روزنامه acH",
+        "دفترچه: جستجو، انتخاب تکی/گروهی/همه نتایج، شمارنده انتخاب، حذف گروهی با تأیید و برگشت هنگام شکست ذخیره",
         "آپدیت کامل برنامه — کل Sirman_Final.html جایگزین می‌شود",
     ],
     "patches": [
@@ -40,7 +41,7 @@ pkg = {
         },
         {
             "op": "notify",
-            "message": f"نسخه {VER['appFa']} کامل اعمال شد",
+            "message": f"نسخه {VER['appFa']} — مدیریت داده و حذف گروهی دفترچه اعمال شد",
         },
     ],
 }
@@ -53,6 +54,7 @@ targets = [
     ROOT / "desktop" / "Sirman_Install_Kit" / "updates" / f"Sirman_Update_{VER['app']}.json",
     ROOT / "desktop" / "Sirman_Windows_Install" / "Sirman_Pending_Update.json",
     ROOT / "desktop" / "Sirman_Windows_Install" / "updates" / f"Sirman_Update_{VER['app']}.json",
+    ROOT / "deliveries" / f"Sirman_Update_{VER['app']}.json",
 ]
 for t in targets:
     t.parent.mkdir(parents=True, exist_ok=True)
