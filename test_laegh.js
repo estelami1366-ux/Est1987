@@ -19360,10 +19360,13 @@ test('حذف دفترچه نباید اندیس داغی را remap کند', () 
   const r = runDataMgmtSandbox({
     phonebook: [{fn:'a'},{fn:'b'},{fn:'c'},{fn:'d'}],
     daqi: [{id:'D1', agencyPhonebookIdx:3}]
-  }, 'var out=applyPhonebookIndexDeletes([1]); return {out:out, daqi:daqi};');
-  assertEqual(r.userResult.deleted, 1, 'یک مخاطب حذف شود');
-  assertEqual(r.userResult.ok, true, 'حذف موفق');
-  assertEqual(r.daqi[0].agencyPhonebookIdx, 3, 'اندیس داغی نباید عوض شود');
+  }, 'var out=applyPhonebookIndexDeletes([1]); return {out:out, daqiIdx:daqi[0].agencyPhonebookIdx, daqiLen:daqi.length};');
+  assertEqual(r.userResult.out.deleted, 1, 'یک مخاطب حذف شود');
+  assertEqual(r.userResult.out.ok, true, 'حذف موفق');
+  assertEqual(r.phonebook.length, 3, 'یک ردیف حذف شود');
+  assertEqual(r.userResult.daqiIdx, 3, 'اندیس داغی نباید عوض شود');
+  assertEqual(r.userResult.daqiLen, 1, 'آرایه داغی دست‌نخورده بماند');
+  assertEqual(r.daqi[0].agencyPhonebookIdx, 3, 'اندیس داغی در حافظه همان ۳ بماند');
 });
 
 test('persist دفترچه بعد از حذف باید از کلید lb خوانده شود', () => {
