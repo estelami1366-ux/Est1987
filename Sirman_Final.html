@@ -2600,11 +2600,15 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <div id="pb-browse-crumb" class="pb-browse-crumb"></div>
   </div>
   <div class="pb-cat-tabs" id="pb-cat-tabs"></div>
-  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
-    <input type="text" id="pb-q" placeholder="جستجو: نام، شرکت، تلفن..." style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px" oninput="renderPB()">
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+    <input type="text" id="pb-q" placeholder="جستجو: نام، شرکت، تلفن..." style="flex:1;min-width:180px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px" oninput="renderPB()">
+    <span id="pb-result-cnt" style="font-size:11px;color:var(--text2);white-space:nowrap"></span>
+    <button type="button" class="btn btn-sm" onclick="selectAllPBResults()">انتخاب همه نتایج</button>
+    <button type="button" class="btn btn-sm" onclick="clearAllPBSel()">لغو انتخاب همه</button>
+    <span id="pb-sel-live" style="font-size:11px;color:var(--text2);white-space:nowrap">انتخاب‌شده: ۰</span>
     <span class="bulk-bar" id="pb-bulk" style="display:none">
       <span class="bulk-cnt" id="pb-sel-cnt">۰</span>
-      <button class="btn btn-sm btn-r" onclick="delSelPB()">🗑 حذف</button>
+      <button class="btn btn-sm btn-r" onclick="delSelPB()">🗑 حذف انتخاب‌شده‌ها</button>
     </span>
   </div>
   <div id="pb-browse-gallery" aria-live="polite"></div>
@@ -4567,6 +4571,18 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
         <button class="btn btn-p" type="button" onclick="openDataAutoSave()">💾 ذخیره خودکار</button>
       </div>
     </div>
+    <div class="card" style="max-width:760px;margin-top:14px">
+      <div class="card-title">🗂 مدیریت داده‌ها</div>
+      <p style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:10px">
+        هر دامنه را جدا پاک کنید. کل نرم‌افزار پاک نمی‌شود.
+        پاک‌سازی فوری نیست: هشدار، وابستگی‌ها، و تأیید صریح لازم است.
+        برای عملیات پرخطر از ورود/خروج داده بک‌آپ بگیرید — سیستم بک‌آپ جدا ساخته نشده است.
+      </p>
+      <div style="margin-bottom:12px">
+        <button class="btn btn-g btn-sm" type="button" onclick="exportData()">📥 دانلود بک‌اپ همین الان</button>
+      </div>
+      <div id="data-mgmt-list"></div>
+    </div>
   </div>
 
   <!-- SUBSECTION: AUTO-SAVE (opened from Data hub) -->
@@ -5091,7 +5107,7 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <li><b>☑️ انتخاب چندتایی:</b> در همه‌ی لیست‌ها (فروش قطعات، فاکتورهای ذخیره‌شده، کالاها، انبار قطعات، خدمات، دفترچه تلفن، گارانتی، انبار معیوب، وظایف، و حساب‌ها) می‌توانید با تیک‌زدن کادر کنار هر مورد، چند مورد را هم‌زمان انتخاب کنید.</li>
     <li><b>☑️ انتخاب همه:</b> در لیست‌هایی که جدول دارند، کادر سرستون (بالا) همه‌ی موارد نمایش‌داده‌شده را انتخاب/لغو می‌کند. توجه: این فقط مواردی را انتخاب می‌کند که با فیلتر/جستجوی فعلی نمایش داده شده‌اند.</li>
     <li><b>🗑 حذف انتخاب‌شده‌ها:</b> وقتی حداقل یک مورد را انتخاب کنید، نوار قرمزرنگ «حذف انتخاب‌شده‌ها» ظاهر می‌شود. تعداد انتخاب‌شده‌ها هم نشان داده می‌شود.</li>
-    <li><b>🔍 جستجو + حذف:</b> می‌توانید ابتدا جستجو کنید (مثلاً «خردکن»)، فقط نتایج نمایش داده می‌شوند، سپس همه را انتخاب و حذف کنید. مثال: در انبار قطعات، «خردکن» را جستجو کنید، همه را تیک بزنید و حذف کنید.</li>
+    <li><b>🔍 جستجو + حذف:</b> می‌توانید ابتدا جستجو کنید (مثلاً «خردکن»)، فقط نتایج نمایش داده می‌شوند، سپس همه را انتخاب و حذف کنید. مثال: در انبار قطعات، «خردکن» را جستجو کنید، همه را تیک بزنید و حذف کنید. در دفترچه تلفن دکمه «انتخاب همه نتایج» همین کار را برای نتایج جستجو انجام می‌دهد.</li>
     <li><b>📦 تأثیر روی انبار:</b> حذف گروهی فروش، همان‌طور حذف تک‌تک عمل می‌کند: فروش‌های <b>نهایی</b> موجودی‌شان به انبار برمی‌گردد، ولی پیش‌فاکتورها (که از انبار کم نشده بودند) فقط حذف می‌شوند.</li>
     <li><b>⚠️ احتیاط:</b> حذف گروهی قبل از اجرا تأیید می‌خواهد، ولی قابل بازگشت نیست. قبل از حذف انبوه، از بخش «ورود/خروج داده» بک‌آپ بگیرید.</li>
   </ul>
@@ -5471,6 +5487,22 @@ html[dir="rtl"] #autosave-dot{ left:auto; right:18px; }
     <li><b>بازگشت:</b> از داخل یک شرکت یا حرف، دکمه «همه شرکت‌ها / همه حروف» در بالای صفحه شما را به کارت‌ها برمی‌گرداند.</li>
     <li><b>📱 شبکه‌های اجتماعی:</b> از لیست (ایتا، روبیکا، بله، واتساپ، تلگرام، اینستاگرام) یکی را انتخاب کنید، آیدی را وارد کنید و «افزودن شبکه» بزنید. برای شبکهٔ ناشناس، گزینه «سایر (دستی)» را بزنید و نام شبکه را خودتان بنویسید.</li>
     <li><b>📮 برچسب پستی:</b> از فرم مخاطب می‌توانید مستقیم برچسب چاپ کنید. تاریخچهٔ چاپ‌ها در صفحهٔ برچسب پستی با تاریخ ثبت می‌شود.</li>
+    <li><b>جستجو:</b> همان جستجوی قبلی است: نام، شرکت، تلفن، آدرس و یادداشت.</li>
+    <li><b>انتخاب همه نتایج:</b> بعد از جستجو (مثلاً «حمید») فهرست نتایج می‌آید. «انتخاب همه نتایج» فقط ردیف‌های همین فهرست را تیک می‌زند.</li>
+    <li><b>حذف انتخاب‌شده‌ها:</b> تعداد دقیق را نشان می‌دهد و قبل از حذف تأیید می‌خواهد. داغی و فاکتور پاک نمی‌شوند؛ شماره ارجاع داغی عوض نمی‌شود.</li>
+  </ul>
+</div>
+
+<div class="help-cat-header">🗂 مدیریت داده‌ها</div>
+<div class="card help-card help-collapsed">
+  <div class="card-title help-toggle" onclick="toggleHelpCard(this)"><span>پاک‌سازی جداگانه هر بخش از تنظیمات</span><span class="help-chev">▾</span></div>
+  <ul style="font-size:13px;line-height:2.2;color:var(--text);padding-right:20px">
+    <li><b>کجا:</b> تنظیمات → تب 🗂 داده‌ها → مدیریت داده‌ها.</li>
+    <li><b>هدف:</b> هر دامنه (مخاطب، فاکتور، فروش، گارانتی، …) را جدا پاک کنید؛ لازم نیست کل نرم‌افزار ریست شود.</li>
+    <li><b>پاک کردن:</b> فوری اجرا نمی‌شود. اول هشدار می‌آید که دقیقاً چه چیزی حذف می‌شود و چه چیزی نمی‌شود. بخش‌های پرخطر کلمه «تایید» می‌خواهند.</li>
+    <li><b>غیرمجاز:</b> بعضی بخش‌ها (مثل دفتر روزنامه فاکتور) دکمه پاک‌سازی ندارند تا یکپارچگی داده خراب نشود.</li>
+    <li><b>بک‌آپ:</b> قبل از پاک‌سازی پرخطر از «ورود/خروج داده» بک‌آپ بگیرید. دکمه دانلود بک‌اپ در همین کارت است.</li>
+    <li><b>دفترچه:</b> پاک کردن کل دفترچه مخاطبان، داغی را عوض نمی‌کند؛ اندیس‌های قدیمی ممکن است نامعتبر بمانند.</li>
   </ul>
 </div>
 
@@ -13839,11 +13871,82 @@ function anonymizeOpenContact(){
   ntf('اطلاعات مخاطب ناشناس شد');
   try{ if(typeof auditActivity==='function') auditActivity({action:'privacy_anonymize', module:'phonebook', result:'ok', entityType:'contact', description:'ناشناس‌سازی مخاطب', sensitive:true}); }catch(_a){}
 }
-// حذف گروهی دفترچه تلفن
+// حذف گروهی دفترچه تلفن — splice نزولی روی اندیس پایدار؛ داغی remap نمی‌شود
 function togAllPB(chk){document.querySelectorAll('.pb-rchk').forEach(c=>c.checked=chk.checked);updatePBSel();}
-function updatePBSel(){var n=document.querySelectorAll('.pb-rchk:checked').length;var bar=document.getElementById('pb-bulk');var cnt=document.getElementById('pb-sel-cnt');if(bar)bar.style.display=n>0?'inline-flex':'none';if(cnt)cnt.textContent=n.toLocaleString('fa-IR');}
-function getPBSelIdx(){return Array.from(document.querySelectorAll('.pb-rchk:checked')).map(c=>parseInt(c.dataset.i));}
-function delSelPB(){var idx=getPBSelIdx();if(!idx.length){ntf('چیزی انتخاب نشده','err');return;}if(!confirm('حذف '+idx.length+' مخاطب؟'))return;idx.sort((a,b)=>b-a);idx.forEach(i=>phonebook.splice(i,1));sv();renderPB();ntf(idx.length+' مخاطب حذف شد');auditUser('حذف گروهی دفترچه تلفن',idx.length+' مورد');}
+function updatePBSel(){
+  var n=document.querySelectorAll('.pb-rchk:checked').length;
+  var bar=document.getElementById('pb-bulk');
+  var cnt=document.getElementById('pb-sel-cnt');
+  var live=document.getElementById('pb-sel-live');
+  if(bar)bar.style.display=n>0?'inline-flex':'none';
+  var fa; try{ fa=n.toLocaleString('fa-IR'); }catch(_e){ fa=String(n); }
+  if(cnt)cnt.textContent=fa;
+  if(live)live.textContent='انتخاب‌شده: '+fa;
+}
+function getPBSelIdx(){return Array.from(document.querySelectorAll('.pb-rchk:checked')).map(c=>parseInt(c.dataset.i,10));}
+function normalizePBDeleteIndexes(raw){
+  var seen={}, out=[], len=(typeof phonebook!=='undefined' && phonebook && phonebook.length) || 0;
+  (raw||[]).forEach(function(i){
+    var n=parseInt(i,10);
+    if(!isFinite(n) || n<0 || n>=len) return;
+    if(seen[n]) return;
+    seen[n]=1;
+    out.push(n);
+  });
+  out.sort(function(a,b){ return b-a; });
+  return out;
+}
+function applyPhonebookIndexDeletes(indexes){
+  var idx=normalizePBDeleteIndexes(indexes);
+  if(!idx.length) return {ok:true, deleted:0};
+  if(typeof phonebook==='undefined' || !Array.isArray(phonebook)) return {ok:false, deleted:0, error:'no-phonebook'};
+  var snap=phonebook.slice();
+  try{
+    idx.forEach(function(i){ phonebook.splice(i,1); });
+    localStorage.setItem('lb', JSON.stringify(phonebook));
+    if(typeof pb!=='undefined') pb=phonebook;
+    if(typeof markDirty==='function') markDirty();
+    return {ok:true, deleted:idx.length};
+  }catch(e){
+    phonebook.splice(0, phonebook.length);
+    snap.forEach(function(c){ phonebook.push(c); });
+    if(typeof pb!=='undefined') pb=phonebook;
+    return {ok:false, deleted:0, error:String(e&&e.message||e)};
+  }
+}
+function selectAllPBResults(){
+  var chks=document.querySelectorAll('.pb-rchk');
+  if(!chks.length){
+    ntf('برای انتخاب نتایج، جستجو کنید یا نمای لیستی را باز کنید تا فهرست نمایش داده شود','err');
+    return 0;
+  }
+  chks.forEach(function(c){ c.checked=true; });
+  updatePBSel();
+  return chks.length;
+}
+function clearAllPBSel(){
+  document.querySelectorAll('.pb-rchk').forEach(function(c){ c.checked=false; });
+  updatePBSel();
+}
+function delSelPB(){
+  if(typeof requirePermission==='function' && !requirePermission('Customer.Delete')) return {ok:false, reason:'perm'};
+  var idx=normalizePBDeleteIndexes(getPBSelIdx());
+  if(!idx.length){ ntf('چیزی انتخاب نشده','err'); return {ok:false, reason:'empty'}; }
+  var n=idx.length;
+  if(!confirm('تعداد '+n+' مخاطب برای حذف انتخاب شده‌اند.\n\nداغی، فاکتور، فروش و گارانتی حذف نمی‌شوند.\nاندیس داغی (agencyPhonebookIdx) بازنویسی نمی‌شود و ممکن است پس از حذف نامعتبر شود.\n\nلغو برای انصراف.\nحذف '+n+' مخاطب؟')) return {ok:false, reason:'cancel'};
+  if(n>=100){
+    if(!confirm('هشدار حذف پرتعداد: '+n+' مخاطب.\n\nپیشنهاد: قبل از حذف از ورود/خروج داده بک‌آپ بگیرید.\nارجاع موقعیتی داغی به‌روز نمی‌شود.\n\nحذف '+n+' مخاطب قطعی شود؟')) return {ok:false, reason:'cancel2'};
+  }
+  var r=applyPhonebookIndexDeletes(idx);
+  if(!r.ok){
+    ntf('حذف انجام نشد. داده تغییر نکرد.','err');
+    return r;
+  }
+  if(typeof renderPB==='function') renderPB();
+  ntf(r.deleted+' مخاطب حذف شد');
+  if(typeof auditUser==='function') auditUser('حذف گروهی دفترچه تلفن', r.deleted+' مورد');
+  return r;
+}
 var pbCatFilter = 'all';
 var PB_CATS = {
   shop: {label:'🏪 فروشگاه', color:'#2563eb'},
@@ -14034,6 +14137,15 @@ function renderPBAlphaGallery(rows){
       +'</div>';
   }).join('');
 }
+function pbAfterRender(rows, showGallery){
+  var el=document.getElementById('pb-result-cnt');
+  var q=(document.getElementById('pb-q') && document.getElementById('pb-q').value || '').trim();
+  if(el){
+    if(q) el.textContent = (typeof pbFaCount==='function'?pbFaCount((rows||[]).length):String((rows||[]).length))+' نتیجه';
+    else el.textContent='';
+  }
+  if(typeof updatePBSel==='function') updatePBSel();
+}
 function renderPB(){
   var q=(document.getElementById('pb-q') && document.getElementById('pb-q').value || '').trim();
   var mode=window._pbBrowseMode||'company';
@@ -14061,19 +14173,23 @@ function renderPB(){
     if(list) list.innerHTML='';
     if(mode==='alpha') renderPBAlphaGallery(rows);
     else renderPBCompanyGallery(rows);
+    pbAfterRender(rows, true);
     return;
   }
   if(window._pbBrowseCompany){
     rows=rows.filter(function(r){ return pbCompanyKey(r.c)===window._pbBrowseCompany; });
     pbRenderGroupedList(rows, 'letter');
+    pbAfterRender(rows, false);
     return;
   }
   if(window._pbBrowseLetter){
     rows=rows.filter(function(r){ return pbAlphaLetter(r.c)===window._pbBrowseLetter; });
     pbRenderGroupedList(rows, 'company');
+    pbAfterRender(rows, false);
     return;
   }
   pbRenderGroupedList(rows, 'letter');
+  pbAfterRender(rows, false);
 }
 function printPBLabelDirect(idx){
   const c=phonebook[idx];
@@ -24630,6 +24746,341 @@ function expFinancialReportExcel(){
 
 
 // ===== SETTINGS PAGE =====
+function dataMgmtConfirmWordOk(raw){
+  var finalWord = String(raw||'')
+    .trim()
+    .replace(/[ي]/g,'ی')
+    .replace(/[ك]/g,'ک')
+    .replace(/[أإآ]/g,'ا')
+    .replace(/[ؤ]/g,'و')
+    .replace(/[ئ]/g,'ی')
+    .replace(/[ء]/g,'');
+  return finalWord === 'تایید';
+}
+function dataMgmtEmptyArr(arr){
+  if(!arr || !Array.isArray(arr)) return;
+  arr.splice(0, arr.length);
+}
+function dataMgmtRestoreArr(arr, snap){
+  if(!arr || !Array.isArray(arr)) return;
+  arr.splice(0, arr.length);
+  (snap||[]).forEach(function(x){ arr.push(x); });
+}
+function dataMgmtEmptyObj(o){
+  if(!o || typeof o!=='object') return;
+  Object.keys(o).forEach(function(k){ delete o[k]; });
+}
+function dataMgmtRestoreObj(o, snap){
+  if(!o || typeof o!=='object') return;
+  dataMgmtEmptyObj(o);
+  Object.keys(snap||{}).forEach(function(k){ o[k]=snap[k]; });
+}
+function dataMgmtPersistKey(key, value){
+  try{
+    var json = (typeof value==='string') ? value : JSON.stringify(value);
+    localStorage.setItem(key, json);
+    if(typeof markDirty==='function') markDirty();
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+function dataMgmtDomainDefs(){
+  return [
+    {id:'phonebook', cls:'B', title:'دفترچه مخاطبان', actionLabel:'پاک کردن مخاطبان', key:'lb',
+      warnTitle:'پاک کردن دفترچه مخاطبان',
+      warnBody:'این عملیات فقط مخاطبان را حذف می‌کند.\nفاکتورها، فروش‌ها و گارانتی‌ها حذف نمی‌شوند.\nداغی بازنویسی نمی‌شود؛ اندیس agencyPhonebookIdx ممکن است نامعتبر بماند.'},
+    {id:'invoices', cls:'B', title:'فاکتورها', actionLabel:'پاک کردن فاکتورها', key:'li',
+      warnTitle:'پاک کردن فاکتورها',
+      warnBody:'فقط فهرست فاکتورها و شمارنده شماره فاکتور پاک می‌شود.\nدفتر روزنامه فاکتور (acH)، انبار، حساب‌ها و مخاطبان حذف نمی‌شوند.\nموجودی/حساب بابت فاکتورهای حذف‌شده برنمی‌گردد.'},
+    {id:'sales', cls:'B', title:'فروش‌ها', actionLabel:'پاک کردن فروش‌ها', key:'laegh_sales',
+      warnTitle:'پاک کردن فروش‌ها',
+      warnBody:'فقط فهرست فروش و شمارنده‌ها پاک می‌شود.\nانبار و حساب‌ها برنمی‌گردند و بازنویسی نمی‌شوند.'},
+    {id:'warranties', cls:'B', title:'گارانتی / پرونده خدمات', actionLabel:'پاک کردن گارانتی‌ها', key:'lw2',
+      warnTitle:'پاک کردن پرونده‌های گارانتی',
+      warnBody:'فقط پرونده‌های گارانتی پاک می‌شود.\nفاکتور، فروش، انبار و حساب برنمی‌گردند.'},
+    {id:'accounts', cls:'B', title:'حساب‌ها', actionLabel:'پاک کردن حساب‌ها', key:'laegh_accounts',
+      warnTitle:'پاک کردن حساب‌ها',
+      warnBody:'فقط آرایه حساب‌ها پاک می‌شود.\nدفتر روزنامه فاکتور (acH) دست نخورده می‌ماند.'},
+    {id:'parts', cls:'B', title:'قطعات', actionLabel:'پاک کردن قطعات', key:'lp2',
+      warnTitle:'پاک کردن قطعات',
+      warnBody:'فقط فهرست قطعات پاک می‌شود.\nفروش‌ها و فاکتورهای قبلی که نام قطعه را کپی کرده‌اند حذف نمی‌شوند.'},
+    {id:'inventory', cls:'B', title:'موجودی کالا', actionLabel:'پاک کردن موجودی', key:'lv',
+      warnTitle:'پاک کردن موجودی کالا',
+      warnBody:'فقط شیء موجودی (lv) خالی می‌شود.\nکالاها، اسناد انبار، حرکات و قطعات حذف نمی‌شوند.\nموجودی هسته/SQLite فراخوانی نمی‌شود.'},
+    {id:'products', cls:'B', title:'کالاها', actionLabel:'پاک کردن کالاها', key:'lp',
+      warnTitle:'پاک کردن کالاها',
+      warnBody:'فقط فهرست کالاها پاک می‌شود.\nموجودی (lv) و اسناد انبار جدا هستند و در این عمل حذف نمی‌شوند.'},
+    {id:'warehouseDocs', cls:'B', title:'اسناد انبار', actionLabel:'پاک کردن اسناد انبار', key:'laegh_warehouse',
+      warnTitle:'پاک کردن اسناد انبار',
+      warnBody:'فقط اسناد انبار پاک می‌شود.\nموجودی کالا و حرکات انبار در این عمل حذف نمی‌شوند و ممکن است ناهماهنگ بمانند.'},
+    {id:'stockMoves', cls:'B', title:'حرکات انبار', actionLabel:'پاک کردن حرکات انبار', key:'laegh_stockmoves',
+      warnTitle:'پاک کردن حرکات انبار',
+      warnBody:'فقط تاریخچه حرکات پاک می‌شود.\nموجودی فعلی و اسناد انبار حذف نمی‌شوند.'},
+    {id:'warehouses', cls:'B', title:'انبارها', actionLabel:'پاک کردن تعریف انبارها', key:'laegh_warehouses',
+      warnTitle:'پاک کردن تعریف انبارها',
+      warnBody:'فقط فهرست انبارها پاک می‌شود.\nاسناد، حرکات و موجودی کالا در این عمل حذف نمی‌شوند.'},
+    {id:'daqiWarehouse', cls:'B', title:'انبار داغی', actionLabel:'پاک کردن انبار داغی', key:'laegh_daqi_warehouse',
+      warnTitle:'پاک کردن انبار داغی',
+      warnBody:'فقط اقلام انبار داغی پاک می‌شود.\nلیست داغی و مخاطبان حذف نمی‌شوند.'},
+    {id:'daqiVouchers', cls:'B', title:'اسناد داغی', actionLabel:'پاک کردن اسناد داغی', key:'laegh_daqi_vouchers',
+      warnTitle:'پاک کردن اسناد داغی',
+      warnBody:'فقط اسناد/رسیدهای داغی پاک می‌شود.\nلیست داغی و انبار داغی در این عمل حذف نمی‌شوند.'},
+    {id:'tasks', cls:'A', title:'وظایف', actionLabel:'پاک کردن وظایف', key:'laegh_tasks',
+      warnTitle:'پاک کردن وظایف',
+      warnBody:'فقط وظایف و آینه IndexedDB وظایف پاک می‌شود.\nفاکتور، مخاطب و سایر بخش‌ها حذف نمی‌شوند.'},
+    {id:'services', cls:'A', title:'فهرست خدمات', actionLabel:'پاک کردن خدمات', key:'ls2',
+      warnTitle:'پاک کردن فهرست خدمات',
+      warnBody:'فقط کاتالوگ خدمات پاک می‌شود و آرایه خالی ذخیره می‌شود (سرویس پیش‌فرض برنمی‌گردد مگر کلید غایب باشد).\nپرونده گارانتی حذف نمی‌شود.'},
+    {id:'defectiveStock', cls:'A', title:'انبار معیوب', actionLabel:'پاک کردن انبار معیوب', key:'laegh_defective',
+      warnTitle:'پاک کردن انبار معیوب',
+      warnBody:'فقط اقلام معیوب پاک می‌شود.\nگارانتی و فاکتور حذف نمی‌شوند.'},
+    {id:'postalHistory', cls:'A', title:'تاریخچه پستی', actionLabel:'پاک کردن تاریخچه پستی', key:'laegh_postal_history',
+      warnTitle:'پاک کردن تاریخچه پستی',
+      warnBody:'فقط تاریخچه چاپ برچسب پستی پاک می‌شود.\nمخاطبان حذف نمی‌شوند.'},
+    {id:'daqi', cls:'A', title:'لیست داغی', actionLabel:'پاک کردن لیست داغی', key:'laegh_daqi',
+      warnTitle:'پاک کردن لیست داغی',
+      warnBody:'فقط آرایه داغی پاک می‌شود.\nدفترچه مخاطبان، انبار داغی و اسناد داغی حذف نمی‌شوند.'},
+    {id:'acH', cls:'C', title:'دفتر روزنامه فاکتور', actionLabel:'', key:'la',
+      warnTitle:'دفتر روزنامه فاکتور',
+      warnBody:'برای حفظ یکپارچگی اطلاعات، پاک‌سازی مستقل این بخش در حال حاضر مجاز نیست.'}
+  ];
+}
+function dataMgmtFindDef(id){
+  var list=dataMgmtDomainDefs();
+  for(var i=0;i<list.length;i++){ if(list[i].id===id) return list[i]; }
+  return null;
+}
+function dataMgmtCount(id){
+  if(id==='phonebook') return (typeof phonebook!=='undefined' && phonebook) ? phonebook.length : 0;
+  if(id==='invoices') return (typeof invoices!=='undefined' && invoices) ? invoices.length : 0;
+  if(id==='sales') return (typeof sales!=='undefined' && sales) ? sales.length : 0;
+  if(id==='warranties') return (typeof warranties!=='undefined' && warranties) ? warranties.length : 0;
+  if(id==='accounts') return (typeof accounts!=='undefined' && accounts) ? accounts.length : 0;
+  if(id==='parts') return (typeof parts!=='undefined' && parts) ? parts.length : 0;
+  if(id==='inventory') return (typeof inventory!=='undefined' && inventory) ? Object.keys(inventory).length : 0;
+  if(id==='products') return (typeof products!=='undefined' && products) ? products.length : 0;
+  if(id==='warehouseDocs') return (typeof warehouseDocs!=='undefined' && warehouseDocs) ? warehouseDocs.length : 0;
+  if(id==='stockMoves') return (typeof stockMoves!=='undefined' && stockMoves) ? stockMoves.length : 0;
+  if(id==='warehouses') return (typeof warehouses!=='undefined' && warehouses) ? warehouses.length : 0;
+  if(id==='daqiWarehouse') return (typeof daqiWarehouse!=='undefined' && daqiWarehouse) ? daqiWarehouse.length : 0;
+  if(id==='daqiVouchers') return (typeof daqiVouchers!=='undefined' && daqiVouchers) ? daqiVouchers.length : 0;
+  if(id==='tasks') return (typeof tasks!=='undefined' && tasks) ? tasks.length : 0;
+  if(id==='services') return (typeof services!=='undefined' && services) ? services.length : 0;
+  if(id==='defectiveStock') return (typeof defectiveStock!=='undefined' && defectiveStock) ? defectiveStock.length : 0;
+  if(id==='postalHistory') return (typeof postalHistory!=='undefined' && postalHistory) ? postalHistory.length : 0;
+  if(id==='daqi') return (typeof daqi!=='undefined' && daqi) ? daqi.length : 0;
+  if(id==='acH') return (typeof acH!=='undefined' && acH && typeof acH==='object') ? Object.keys(acH).length : 0;
+  return 0;
+}
+function dataMgmtRefreshDomain(id){
+  try{
+    if(id==='phonebook' && typeof renderPB==='function') renderPB();
+    if(id==='invoices' && typeof renderSaved==='function') renderSaved();
+    if(id==='sales' && typeof renderSales==='function') renderSales();
+    if(id==='warranties' && typeof renderWar==='function') renderWar();
+    if(id==='accounts' && typeof renderAccounts==='function') renderAccounts();
+    if(id==='parts' && typeof renderParts==='function') renderParts();
+    if(id==='inventory' && typeof renderInv==='function') renderInv();
+    if(id==='products' && typeof renderProds==='function') renderProds();
+    if(id==='warehouseDocs' && typeof renderWarehouseDocs==='function') renderWarehouseDocs();
+    if(id==='warehouses' && typeof renderWarehouseEntities==='function') renderWarehouseEntities();
+    if(id==='tasks' && typeof renderTasks==='function') renderTasks();
+    if(id==='services' && typeof renderSvcs==='function') renderSvcs();
+    if(id==='defectiveStock' && typeof renderDefective==='function') renderDefective();
+    if(id==='postalHistory' && typeof renderPostalHistory==='function') renderPostalHistory();
+    if(id==='daqi' && typeof renderDaqi==='function') renderDaqi();
+    if(id==='daqiWarehouse' && typeof renderDaqiWarehouse==='function') renderDaqiWarehouse();
+    if(typeof renderSidebarBadges==='function') renderSidebarBadges();
+    if(typeof renderDataStats==='function') renderDataStats();
+    if(typeof renderDataManagementUI==='function') renderDataManagementUI();
+  }catch(_e){}
+}
+function dataMgmtExecuteReset(id){
+  var d=dataMgmtFindDef(id);
+  if(!d) return {ok:false, reason:'unknown', deleted:0};
+  if(d.cls==='C' || d.cls==='D') return {ok:false, reason:'blocked', deleted:0, message:'برای حفظ یکپارچگی اطلاعات، پاک‌سازی مستقل این بخش در حال حاضر مجاز نیست.'};
+  var deleted=dataMgmtCount(id);
+  var snap={};
+  try{
+    if(id==='phonebook'){
+      snap.phonebook=phonebook.slice();
+      dataMgmtEmptyArr(phonebook);
+      if(typeof pb!=='undefined') pb=phonebook;
+      if(!dataMgmtPersistKey('lb', phonebook)) throw new Error('persist-lb');
+    } else if(id==='invoices'){
+      snap.invoices=invoices.slice(); snap.invCtr=invCtr; snap.invoiceUidCtr=invoiceUidCtr;
+      dataMgmtEmptyArr(invoices); invCtr=1; invoiceUidCtr=0;
+      if(!dataMgmtPersistKey('li', invoices)) throw new Error('persist-li');
+      try{ localStorage.setItem('lc', String(invCtr)); }catch(_e){ throw _e; }
+      try{ localStorage.setItem('laegh_invoice_uid_ctr', '0'); }catch(_e){ throw _e; }
+      if(typeof markDirty==='function') markDirty();
+    } else if(id==='sales'){
+      snap.sales=sales.slice(); snap.saleCtr=saleCtr; snap.saleUidCtr=saleUidCtr;
+      dataMgmtEmptyArr(sales); saleCtr=1; saleUidCtr=0;
+      if(typeof _persistJsonSafe==='function'){
+        if(_persistJsonSafe('laegh_sales', sales, 'فروش‌ها')===false) throw new Error('persist-sales');
+        try{ localStorage.setItem('laegh_sale_ctr', String(saleCtr||1)); }catch(_e){ throw _e; }
+        try{ localStorage.setItem('laegh_sale_uid_ctr', String(saleUidCtr||0)); }catch(_e){ throw _e; }
+        if(typeof markDirty==='function') markDirty();
+      } else if(!dataMgmtPersistKey('laegh_sales', sales)) throw new Error('persist-sales');
+    } else if(id==='warranties'){
+      snap.warranties=warranties.slice();
+      dataMgmtEmptyArr(warranties);
+      if(typeof _persistJsonSafe==='function'){
+        if(_persistJsonSafe('lw2', warranties, 'پرونده‌های گارانتی')===false) throw new Error('persist-lw2');
+        if(typeof markDirty==='function') markDirty();
+      } else if(!dataMgmtPersistKey('lw2', warranties)) throw new Error('persist-lw2');
+    } else if(id==='accounts'){
+      snap.accounts=accounts.slice();
+      dataMgmtEmptyArr(accounts);
+      if(typeof svAccounts==='function') svAccounts();
+      else if(!dataMgmtPersistKey('laegh_accounts', accounts)) throw new Error('persist-accounts');
+    } else if(id==='parts'){
+      snap.parts=parts.slice();
+      dataMgmtEmptyArr(parts);
+      if(typeof svParts==='function') svParts();
+      else if(!dataMgmtPersistKey('lp2', parts)) throw new Error('persist-lp2');
+    } else if(id==='inventory'){
+      snap.inventory=JSON.parse(JSON.stringify(inventory||{}));
+      dataMgmtEmptyObj(inventory);
+      if(!dataMgmtPersistKey('lv', inventory)) throw new Error('persist-lv');
+    } else if(id==='products'){
+      snap.products=products.slice();
+      dataMgmtEmptyArr(products);
+      if(!dataMgmtPersistKey('lp', products)) throw new Error('persist-lp');
+    } else if(id==='warehouseDocs'){
+      snap.warehouseDocs=warehouseDocs.slice();
+      dataMgmtEmptyArr(warehouseDocs);
+      if(typeof svWarehouse==='function') svWarehouse();
+      else if(!dataMgmtPersistKey('laegh_warehouse', warehouseDocs)) throw new Error('persist-wh');
+    } else if(id==='stockMoves'){
+      snap.stockMoves=stockMoves.slice();
+      dataMgmtEmptyArr(stockMoves);
+      if(typeof svStockMoves==='function') svStockMoves();
+      else if(!dataMgmtPersistKey('laegh_stockmoves', stockMoves)) throw new Error('persist-moves');
+    } else if(id==='warehouses'){
+      snap.warehouses=warehouses.slice();
+      dataMgmtEmptyArr(warehouses);
+      if(typeof svWarehouses==='function') svWarehouses();
+      else if(!dataMgmtPersistKey('laegh_warehouses', warehouses)) throw new Error('persist-whs');
+    } else if(id==='daqiWarehouse'){
+      snap.daqiWarehouse=daqiWarehouse.slice();
+      dataMgmtEmptyArr(daqiWarehouse);
+      if(typeof svDaqiWarehouse==='function') svDaqiWarehouse();
+      else if(!dataMgmtPersistKey('laegh_daqi_warehouse', daqiWarehouse)) throw new Error('persist-dqw');
+    } else if(id==='daqiVouchers'){
+      snap.daqiVouchers=daqiVouchers.slice();
+      dataMgmtEmptyArr(daqiVouchers);
+      if(typeof svDaqiVouchers==='function') svDaqiVouchers();
+      else if(!dataMgmtPersistKey('laegh_daqi_vouchers', daqiVouchers)) throw new Error('persist-dqv');
+    } else if(id==='tasks'){
+      snap.tasks=tasks.slice();
+      dataMgmtEmptyArr(tasks);
+      if(typeof svTasks==='function') svTasks();
+      else if(!dataMgmtPersistKey('laegh_tasks', tasks)) throw new Error('persist-tasks');
+    } else if(id==='services'){
+      snap.services=services.slice();
+      dataMgmtEmptyArr(services);
+      if(typeof svcs!=='undefined') svcs=services;
+      if(typeof svSvcs==='function') svSvcs();
+      else if(!dataMgmtPersistKey('ls2', services)) throw new Error('persist-ls2');
+    } else if(id==='defectiveStock'){
+      snap.defectiveStock=defectiveStock.slice();
+      dataMgmtEmptyArr(defectiveStock);
+      if(typeof svDefective==='function') svDefective();
+      else if(!dataMgmtPersistKey('laegh_defective', defectiveStock)) throw new Error('persist-def');
+    } else if(id==='postalHistory'){
+      snap.postalHistory=postalHistory.slice();
+      dataMgmtEmptyArr(postalHistory);
+      if(typeof svPostalHistory==='function') svPostalHistory();
+      else if(!dataMgmtPersistKey('laegh_postal_history', postalHistory)) throw new Error('persist-post');
+    } else if(id==='daqi'){
+      snap.daqi=daqi.slice();
+      dataMgmtEmptyArr(daqi);
+      if(typeof svDaqi==='function') svDaqi();
+      else if(!dataMgmtPersistKey('laegh_daqi', daqi)) throw new Error('persist-daqi');
+    } else {
+      return {ok:false, reason:'unknown', deleted:0};
+    }
+  }catch(e){
+    try{
+      if(id==='phonebook'){ dataMgmtRestoreArr(phonebook, snap.phonebook); if(typeof pb!=='undefined') pb=phonebook; }
+      if(id==='invoices'){ dataMgmtRestoreArr(invoices, snap.invoices); invCtr=snap.invCtr; invoiceUidCtr=snap.invoiceUidCtr; }
+      if(id==='sales'){ dataMgmtRestoreArr(sales, snap.sales); saleCtr=snap.saleCtr; saleUidCtr=snap.saleUidCtr; }
+      if(id==='warranties') dataMgmtRestoreArr(warranties, snap.warranties);
+      if(id==='accounts') dataMgmtRestoreArr(accounts, snap.accounts);
+      if(id==='parts') dataMgmtRestoreArr(parts, snap.parts);
+      if(id==='inventory') dataMgmtRestoreObj(inventory, snap.inventory);
+      if(id==='products') dataMgmtRestoreArr(products, snap.products);
+      if(id==='warehouseDocs') dataMgmtRestoreArr(warehouseDocs, snap.warehouseDocs);
+      if(id==='stockMoves') dataMgmtRestoreArr(stockMoves, snap.stockMoves);
+      if(id==='warehouses') dataMgmtRestoreArr(warehouses, snap.warehouses);
+      if(id==='daqiWarehouse') dataMgmtRestoreArr(daqiWarehouse, snap.daqiWarehouse);
+      if(id==='daqiVouchers') dataMgmtRestoreArr(daqiVouchers, snap.daqiVouchers);
+      if(id==='tasks') dataMgmtRestoreArr(tasks, snap.tasks);
+      if(id==='services'){ dataMgmtRestoreArr(services, snap.services); if(typeof svcs!=='undefined') svcs=services; }
+      if(id==='defectiveStock') dataMgmtRestoreArr(defectiveStock, snap.defectiveStock);
+      if(id==='postalHistory') dataMgmtRestoreArr(postalHistory, snap.postalHistory);
+      if(id==='daqi') dataMgmtRestoreArr(daqi, snap.daqi);
+    }catch(_r){}
+    return {ok:false, reason:'persist', deleted:0, error:String(e&&e.message||e), message:'پاک‌سازی انجام نشد. داده تغییر نکرد.'};
+  }
+  dataMgmtRefreshDomain(id);
+  return {ok:true, deleted:deleted, id:id};
+}
+function dataMgmtResetDomain(id){
+  var d=dataMgmtFindDef(id);
+  if(!d){ if(typeof ntf==='function') ntf('بخش ناشناخته','err'); return {ok:false, reason:'unknown'}; }
+  if(d.cls==='C'){
+    if(typeof ntf==='function') ntf('برای حفظ یکپارچگی اطلاعات، پاک‌سازی مستقل این بخش در حال حاضر مجاز نیست.','err');
+    return {ok:false, reason:'blocked'};
+  }
+  if(typeof requirePermission==='function' && !requirePermission('Config.Edit')) return {ok:false, reason:'perm'};
+  var n=dataMgmtCount(id);
+  var msg=d.warnTitle+'\n\n'+d.warnBody+'\n\nتعداد فعلی: '+n+'\n\nپیشنهاد: قبل از پاک‌سازی از ورود/خروج داده بک‌آپ بگیرید.\n\nادامه؟';
+  if(!confirm(msg)) return {ok:false, reason:'cancel'};
+  if(d.cls==='A'){
+    if(!confirm('تأیید دوم: «'+d.actionLabel+'» اجرا شود؟')) return {ok:false, reason:'cancel2'};
+  } else {
+    var raw=prompt('برای تأیید نهایی، کلمه «تایید» را تایپ کنید:');
+    if(raw===null) return {ok:false, reason:'cancel2'};
+    if(!dataMgmtConfirmWordOk(raw)){
+      alert('پاک‌سازی لغو شد. کلمه با «تایید» مطابقت نداشت.');
+      return {ok:false, reason:'confirm-word'};
+    }
+  }
+  var r=dataMgmtExecuteReset(id);
+  if(!r.ok){
+    if(typeof ntf==='function') ntf(r.message||'پاک‌سازی انجام نشد. داده تغییر نکرد.','err');
+    return r;
+  }
+  if(typeof ntf==='function') ntf(d.actionLabel+' — '+r.deleted+' مورد پاک شد');
+  if(typeof auditUser==='function') auditUser('پاک‌سازی بخش', d.title+' / '+r.deleted);
+  return r;
+}
+function renderDataManagementUI(){
+  var el=document.getElementById('data-mgmt-list');
+  if(!el) return;
+  var clsLbl={A:'مستقل', B:'با هشدار وابستگی', C:'غیرمجاز'};
+  var html='';
+  dataMgmtDomainDefs().forEach(function(d){
+    var n=dataMgmtCount(d.id);
+    var nFa; try{ nFa=n.toLocaleString('fa-IR'); }catch(_e){ nFa=String(n); }
+    html += '<div style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;background:var(--bg2)">';
+    html += '<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap">';
+    html += '<div><b>'+d.title+'</b>';
+    html += '<div style="font-size:11px;color:var(--text2);margin-top:4px">کلاس '+d.cls+' — '+clsLbl[d.cls]+' — تعداد: '+nFa+'</div></div>';
+    if(d.cls==='C'){
+      html += '</div><div style="font-size:12px;color:#9a3412;margin-top:8px;line-height:1.7">برای حفظ یکپارچگی اطلاعات، پاک‌سازی مستقل این بخش در حال حاضر مجاز نیست.</div>';
+    } else {
+      html += '<button type="button" class="btn btn-sm btn-r" onclick="dataMgmtResetDomain(\''+d.id+'\')">پاک کردن</button></div>';
+    }
+    html += '</div>';
+  });
+  el.innerHTML=html;
+}
+
 function showStgTab(id, el) {
   document.querySelectorAll('.stg-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.stg-panel').forEach(p => p.classList.remove('active'));
@@ -24637,6 +25088,7 @@ function showStgTab(id, el) {
   if(el) el.classList.add('active');
   const panel = document.getElementById('stg-' + id);
   if(panel) panel.classList.add('active');
+  if(id === 'data' && typeof renderDataManagementUI === 'function') renderDataManagementUI();
   if(id === 'access') renderRolesList();
   if(id === 'update' && typeof loadUpdateUI === 'function') loadUpdateUI();
   if(id === 'printer' && typeof refreshPrintCenterUI === 'function') refreshPrintCenterUI();
