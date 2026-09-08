@@ -100,7 +100,17 @@ On persist throw/false: restore snapshot **in place** (`splice(0)` + `push`). Do
 
 ## 10. Test totals
 
-Recorded after the commands in this packet (see following run). Focused DATA RESET 1–23 and PHONEBOOK 24–39 are execution-based in `test_laegh.js`.
+```
+node test_laegh.js Sirman_Final.html
+  کل تست‌ها: 1159
+  موفق: 1159
+  ناموفق: 0
+
+/home/ubuntu/.dotnet/dotnet test desktop/Sirman.Core.Tests
+  Passed: 859  Failed: 0  Total: 859
+```
+
+Focused coverage: DATA RESET 1–23 and PHONEBOOK 24–39, all execution-based. Existing tests were not weakened.
 
 ## 11. Known limitations
 
