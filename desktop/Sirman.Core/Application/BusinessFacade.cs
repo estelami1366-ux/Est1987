@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Sirman.Core.Business;
 using Sirman.Core.Data;
+using Sirman.Core.Diagnostics;
 using Sirman.Core.Infrastructure;
 
 namespace Sirman.Core.Application;
@@ -13,28 +14,134 @@ namespace Sirman.Core.Application;
 public sealed class BusinessFacade
 {
     private readonly CurrentJsonStore _store = new();
+    private readonly DiagnosticService? _diagnostics;
+
+    public BusinessFacade(DiagnosticService? diagnostics = null)
+    {
+        _diagnostics = diagnostics;
+    }
 
     public IInventoryRepository InventoryStore => _store;
     public IWarrantyRepository WarrantyStore => _store;
     public IInvoiceRepository InvoiceStore => _store;
     public IPaymentRepository PaymentStore => _store;
 
+    /// <summary>P1 test seam: Core exception path without changing business operations.</summary>
+    internal Exception? TestForceException { get; set; }
+
     public string Run(string name, string json)
     {
+        using var scope = CorrelationScope.Enter(CorrelationScope.TryReadFromJson(json));
+        var corr = scope.Value;
+        name = (name ?? "").Trim();
         try
         {
-            name = (name ?? "").Trim();
             JsonObject obj;
             try { obj = JsonVal.Obj(json); }
-            catch { return SafeError.Json("invalid-json", "داده نامعتبر است"); }
+            catch
+            {
+                return FailEnvelope("invalid-json", "داده نامعتبر است", "invalid-json", name, corr, null, DataImpact.Unchanged);
+            }
+
+            if (TestForceException != null)
+                throw TestForceException;
 
             var result = Dispatch(name, obj);
-            return JsonSerializer.Serialize(new { ok = true, op = name, result });
+            var diagnostic = TryPublishInnerFailure(name, corr, result);
+            return SuccessEnvelope(name, result, corr, diagnostic);
         }
         catch (Exception ex)
         {
-            return SafeError.Json("business-failed", "محاسبه انجام نشد", ex);
+            var alias = string.Equals(ex.Message, "unknown-op", StringComparison.Ordinal)
+                ? "unknown-op"
+                : "business-failed";
+            return FailEnvelope("business-failed", "محاسبه انجام نشد", alias, name, corr, ex, DataImpact.Unknown);
         }
+    }
+
+    static string SuccessEnvelope(string name, object? result, string corr, DiagnosticResult? diagnostic)
+    {
+        var json = JsonSerializer.Serialize(new { ok = true, op = name, result, correlationId = corr });
+        if (diagnostic is null) return json;
+        return DiagnosticEnvelope.Augment(json, corr, diagnostic);
+    }
+
+    string FailEnvelope(string wireError, string wireMessage, string alias, string operation, string corr, Exception? ex, DataImpact impact)
+    {
+        var ctx = Context(operation, corr, impact);
+        DiagnosticResult diagnostic;
+        try
+        {
+            if (ex != null && _diagnostics != null)
+            {
+                ctx.Operation = string.IsNullOrWhiteSpace(operation) ? "RunBusiness" : operation;
+                _diagnostics.TryRecordException(ex, ctx, out var evt, out _);
+                diagnostic = evt != null ? _diagnostics.ToSafeResult(evt) : GuidanceEngine.ForFailure(alias, corr, impact);
+            }
+            else if (_diagnostics != null)
+            {
+                _diagnostics.TryRecordFailure(ctx, alias, ex?.Message ?? alias, out var evt, out _);
+                diagnostic = evt != null ? _diagnostics.ToSafeResult(evt) : GuidanceEngine.ForFailure(alias, corr, impact);
+            }
+            else
+            {
+                diagnostic = GuidanceEngine.ForFailure(alias, corr, impact);
+            }
+        }
+        catch
+        {
+            diagnostic = GuidanceEngine.ForFailure(alias, corr, impact);
+        }
+        return DiagnosticEnvelope.SafeErrorWithDiagnostic(wireError, wireMessage, corr, diagnostic, ex);
+    }
+
+    DiagnosticResult? TryPublishInnerFailure(string name, string corr, object? result)
+    {
+        try
+        {
+            var node = JsonSerializer.SerializeToNode(result);
+            if (node is not JsonObject o) return null;
+            if (o["ok"] is not JsonValue okVal || !okVal.TryGetValue<bool>(out var innerOk) || innerOk)
+                return null;
+            var kind = ReadString(o, "kind");
+            var alias = kind is "validation" or "business-rule" ? kind : "business-failed";
+            var technical = ReadString(o, "error");
+            if (string.IsNullOrWhiteSpace(technical)) technical = ReadString(o, "err");
+            var impact = DataImpact.Unknown;
+            if (o["persistKeys"] is JsonArray keys && keys.Count == 0)
+                impact = DataImpact.Unchanged;
+            var ctx = Context(name, corr, impact);
+            DiagnosticResult diagnostic;
+            if (_diagnostics != null)
+            {
+                _diagnostics.TryRecordFailure(ctx, alias, technical, out var evt, out _);
+                diagnostic = evt != null ? _diagnostics.ToSafeResult(evt) : GuidanceEngine.ForFailure(alias, corr, impact);
+            }
+            else
+            {
+                diagnostic = GuidanceEngine.ForFailure(alias, corr, impact);
+            }
+            return diagnostic;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    DiagnosticContext Context(string operation, string corr, DataImpact impact) => new()
+    {
+        CorrelationId = corr,
+        Operation = string.IsNullOrWhiteSpace(operation) ? "RunBusiness" : operation,
+        Module = DiagnosticOperation.ModuleFor(operation),
+        Source = DiagnosticSource.Core,
+        DataImpact = impact
+    };
+
+    static string ReadString(JsonObject o, string name)
+    {
+        if (o[name] is not JsonValue v) return "";
+        return v.TryGetValue<string>(out var s) ? s ?? "" : v.ToString();
     }
 
     private object? Dispatch(string name, JsonObject o) => name switch

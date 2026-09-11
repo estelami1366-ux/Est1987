@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using Sirman.Core.Diagnostics;
 using Sirman.Core.Infrastructure;
 
 namespace Sirman.Desktop;
@@ -46,7 +47,20 @@ public class SirmanHostObject
     public string GetSecurityStatus() => DesktopSecurity.Current.GetSecurityStatus();
     public string SaveSecret(string name, string value) => DesktopSecurity.Current.SaveSecret(name, value);
     public string LoadSecret(string name) => DesktopSecurity.Current.LoadSecret(name);
-    public string RunBusiness(string name, string json) => DesktopSecurity.Business.Run(name, json);
+    public string RunBusiness(string name, string json)
+    {
+        try
+        {
+            return DesktopSecurity.Business.Run(name, json);
+        }
+        catch (Exception ex)
+        {
+            var corr = CorrelationScope.ResolveFromJsonOrNew(json);
+            DiagnosticRuntime.PublishHostFailure("RunBusiness", ex, corr);
+            var diagnostic = GuidanceEngine.ForFailure("business-failed", corr, DataImpact.Unknown);
+            return DiagnosticEnvelope.SafeErrorWithDiagnostic("business-failed", "محاسبه انجام نشد", corr, diagnostic, ex);
+        }
+    }
 
     /// <summary>P0: mint a Core correlation id. Does not start a business operation.</summary>
     public string NewDiagnosticCorrelationId()

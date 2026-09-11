@@ -28,4 +28,18 @@ public static class GuidanceEngine
             CorrelationId = corr
         };
     }
+
+    public static DiagnosticResult ForFailure(string? codeOrAlias, string correlationId, DataImpact impact = DataImpact.Unknown)
+    {
+        var def = ErrorCatalog.Require(codeOrAlias);
+        var resolvedImpact = impact == DataImpact.Unknown ? def.DataImpact : impact;
+        return ToResult(new Incident
+        {
+            CorrelationId = correlationId ?? "",
+            PrimaryCode = def.Code,
+            Severity = def.Severity,
+            Module = def.Module,
+            DataImpact = resolvedImpact
+        }, Array.Empty<DiagnosticEvent>());
+    }
 }
