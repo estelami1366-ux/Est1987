@@ -1,0 +1,99 @@
+namespace Sirman.Core.Diagnostics;
+
+/// <summary>
+/// P0 catalog: reserved namespaces + unscoped aliases only. No final business numeric codes.
+/// </summary>
+public static class ErrorCatalog
+{
+    public const string SysDeskUnscoped = "SYS-DESK-UNSCOPED";
+    public const string SysHostUnscoped = "SYS-HOST-UNSCOPED";
+    public const string SysUiUnscoped = "SYS-UI-UNSCOPED";
+    public const string SysWebViewUnscoped = "SYS-WEBVIEW-UNSCOPED";
+
+    static readonly ErrorDefinition[] Rows =
+    {
+        Def(SysDeskUnscoped, DiagnosticSeverity.Critical, DiagnosticModule.System,
+            "خطای داخلی پوسته رومیزی",
+            "یک استثنای مهارنشده در پوسته ویندوز رخ داد.",
+            "اشکال پیش‌بینی‌نشده در exe یا WebView2.",
+            "کد پیگیری را نگه دارید. برنامه را دوباره باز کنید. داده فروشگاه را پاک نکنید.",
+            "Desktop unhandled / UI thread / task exception (P0 unscoped).",
+            "برنامه را ببندید و دوباره باز کنید. اگر تکرار شد بسته پشتیبانی را بفرستید.",
+            DataImpact.Unknown,
+            "desktop-unhandled", "thread-exception", "task-exception"),
+        Def(SysHostUnscoped, DiagnosticSeverity.Error, DiagnosticModule.Host,
+            "خطای پل Host",
+            "فراخوانی sirmanHost با خطا تمام شد.",
+            "استثنا در متد Host؛ منطق کسب‌وکار در P0 سیم نشده است.",
+            "پیام روی صفحه را بخوانید. اگر کار ذخیره بود، نتیجه را در همان بخش بررسی کنید.",
+            "Host method catch published as unscoped P0 event.",
+            "کد پیگیری و نام متد Host را برای پشتیبانی نگه دارید.",
+            DataImpact.Unknown,
+            "business-failed", "invalid-json", "verify-failed", "login-failed"),
+        Def(SysWebViewUnscoped, DiagnosticSeverity.Critical, DiagnosticModule.System,
+            "خطای WebView2",
+            "موتور نمایش صفحه با خطا روبه‌رو شد.",
+            "Runtime وب‌ویو در دسترس نیست یا ناوبری شکست خورد.",
+            "WebView2 Runtime را بررسی کنید. برنامه را دوباره باز کنید.",
+            "ProcessFailed / navigation failure / init catch.",
+            "نصب WebView2 Runtime را در ویندوز بررسی کنید.",
+            DataImpact.Unchanged,
+            "webview2-failed", "webview2-init", "webview2-navigation"),
+        Def(SysUiUnscoped, DiagnosticSeverity.Error, DiagnosticModule.System,
+            "خطای رابط",
+            "رویداد خطا از رابط گزارش شد.",
+            "P0 هنوز طبقه‌بندی JS ندارد.",
+            "صفحه را نوسازی کنید. اگر تکرار شد کد پیگیری را بدهید.",
+            "Reserved for P2 ReportUiFault.",
+            "بدون تغییر داده تا خلاف آن ثبت شود.",
+            DataImpact.Unchanged)
+    };
+
+    static readonly Dictionary<string, ErrorDefinition> ByCode =
+        Rows.ToDictionary(r => r.Code, StringComparer.OrdinalIgnoreCase);
+
+    static readonly Dictionary<string, ErrorDefinition> ByAlias = BuildAliases();
+
+    public static IReadOnlyList<ErrorDefinition> All => Rows;
+
+    public static ErrorDefinition? Find(string? codeOrAlias)
+    {
+        var key = (codeOrAlias ?? "").Trim();
+        if (key.Length == 0) return null;
+        if (ByCode.TryGetValue(key, out var row)) return row;
+        if (ByAlias.TryGetValue(key, out row)) return row;
+        return null;
+    }
+
+    public static ErrorDefinition Require(string? codeOrAlias) =>
+        Find(codeOrAlias) ?? ByCode[SysHostUnscoped];
+
+    static Dictionary<string, ErrorDefinition> BuildAliases()
+    {
+        var map = new Dictionary<string, ErrorDefinition>(StringComparer.OrdinalIgnoreCase);
+        foreach (var row in Rows)
+        {
+            foreach (var alias in row.LegacyAliases)
+                map[alias] = row;
+        }
+        return map;
+    }
+
+    static ErrorDefinition Def(
+        string code, DiagnosticSeverity sev, DiagnosticModule mod,
+        string title, string what, string why, string action, string dev, string recover,
+        DataImpact impact, params string[] aliases) => new()
+    {
+        Code = code,
+        Title = title,
+        Severity = sev,
+        Module = mod,
+        UserExplanation = what,
+        ProbableCause = why,
+        RecommendedAction = action,
+        DeveloperDetail = dev,
+        RecoveryGuidance = recover,
+        DataImpact = impact,
+        LegacyAliases = aliases
+    };
+}

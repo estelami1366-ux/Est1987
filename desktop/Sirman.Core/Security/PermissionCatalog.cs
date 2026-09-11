@@ -48,7 +48,10 @@ public static class PermissionCatalog
             ["ReadWorkspaceFile"] = "Network.Pull",
             ["PrintHtml"] = "Print.Use",
             ["PrintDocument"] = "Print.Use",
-            ["GetPrintJob"] = "Print.Use"
+            ["GetPrintJob"] = "Print.Use",
+            ["GetRecentDiagnostics"] = "Audit.View",
+            ["GetDiagnosticIncident"] = "Audit.View",
+            ["ExportDiagnosticReport"] = "Audit.View"
         };
 
     /// <summary>متدهایی که بدون نشست هم باید کار کنند (خروج، بک‌آپ، سلامت).</summary>
@@ -59,7 +62,7 @@ public static class PermissionCatalog
         "GetPrinters", "GetMachineInfo", "GetNetworkInfo",
         "Login", "Logout", "BindSession", "CheckPermission", "HashPassword", "VerifyPassword",
         "ValidateEntity", "GetSecurityStatus", "SaveSecret", "LoadSecret", "RunBusiness",
-        "RunPrintHardwareDiagnostic"
+        "RunPrintHardwareDiagnostic", "NewDiagnosticCorrelationId"
     };
 
     public static string? PageFor(string permission) =>

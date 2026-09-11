@@ -39,7 +39,7 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return SafeError.Json("verify-failed", "بررسی رمز انجام نشد", ex);
+            return HostFail("VerifyPassword", "verify-failed", "بررسی رمز انجام نشد", ex);
         }
     }
     public string ValidateEntity(string entity, string json) => DesktopSecurity.Current.ValidateEntity(entity, json);
@@ -47,6 +47,43 @@ public class SirmanHostObject
     public string SaveSecret(string name, string value) => DesktopSecurity.Current.SaveSecret(name, value);
     public string LoadSecret(string name) => DesktopSecurity.Current.LoadSecret(name);
     public string RunBusiness(string name, string json) => DesktopSecurity.Business.Run(name, json);
+
+    /// <summary>P0: mint a Core correlation id. Does not start a business operation.</summary>
+    public string NewDiagnosticCorrelationId()
+    {
+        try { return DiagnosticRuntime.Facade.NewCorrelationId(); }
+        catch (Exception ex) { return HostFail("NewDiagnosticCorrelationId", "diagnostic-failed", "شناسه پیگیری ساخته نشد", ex); }
+    }
+
+    public string GetRecentDiagnostics(string json)
+    {
+        var denied = Guard("GetRecentDiagnostics");
+        if (denied != null) return denied;
+        try { return DiagnosticRuntime.Facade.GetRecentDiagnostics(json ?? "{}"); }
+        catch (Exception ex) { return HostFail("GetRecentDiagnostics", "diagnostic-failed", "خواندن رویدادهای عیب‌یابی انجام نشد", ex); }
+    }
+
+    public string GetDiagnosticIncident(string correlationId)
+    {
+        var denied = Guard("GetDiagnosticIncident");
+        if (denied != null) return denied;
+        try { return DiagnosticRuntime.Facade.GetDiagnosticIncident(correlationId ?? ""); }
+        catch (Exception ex) { return HostFail("GetDiagnosticIncident", "diagnostic-failed", "خواندن حادثه انجام نشد", ex); }
+    }
+
+    public string ExportDiagnosticReport(string correlationId)
+    {
+        var denied = Guard("ExportDiagnosticReport");
+        if (denied != null) return denied;
+        try { return DiagnosticRuntime.Facade.ExportDiagnosticReport(correlationId ?? ""); }
+        catch (Exception ex) { return HostFail("ExportDiagnosticReport", "diagnostic-failed", "خروجی گزارش عیب‌یابی انجام نشد", ex); }
+    }
+
+    static string HostFail(string method, string error, string message, Exception ex)
+    {
+        DiagnosticRuntime.PublishHostFailure(method, ex);
+        return SafeError.Json(error, message, ex);
+    }
 
     /// <summary>بستن فوری پنجرهٔ exe (بعد از بک‌آپ/خروج HTML).</summary>
     public void CloseApp() => _form.RequestForceClose();
@@ -91,7 +128,7 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return SafeError.Json("backup-write", "نوشتن فایل پشتیبان انجام نشد", ex);
+            return HostFail("WriteBackupText", "backup-write", "نوشتن فایل پشتیبان انجام نشد", ex);
         }
     }
 
@@ -107,7 +144,7 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return SafeError.Json("backup-finalize", "نهایی‌سازی پشتیبان انجام نشد", ex);
+            return HostFail("FinalizeBackup", "backup-finalize", "نهایی‌سازی پشتیبان انجام نشد", ex);
         }
     }
 
@@ -123,7 +160,7 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return SafeError.Json("backup-dry-run", "پیش‌نمایش پشتیبان انجام نشد", ex);
+            return HostFail("TestRestoreBackup", "backup-dry-run", "پیش‌نمایش پشتیبان انجام نشد", ex);
         }
     }
 
@@ -139,7 +176,7 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return SafeError.Json("backup-snapshot-consume", "مصرف snapshot انجام نشد", ex);
+            return HostFail("ConsumeBackupSnapshot", "backup-snapshot-consume", "مصرف snapshot انجام نشد", ex);
         }
     }
 
@@ -164,7 +201,7 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return SafeError.Json("UNKNOWN_PRINT_FAILURE", "تشخیص چاپ انجام نشد", ex);
+            return HostFail("RunPrintHardwareDiagnostic", "UNKNOWN_PRINT_FAILURE", "تشخیص چاپ انجام نشد", ex);
         }
     }
 
@@ -268,7 +305,7 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return SafeError.Json("network-config", "تنظیم شبکه ذخیره نشد", ex);
+            return HostFail("SetNetworkConfig", "network-config", "تنظیم شبکه ذخیره نشد", ex);
         }
     }
 
@@ -287,7 +324,7 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return SafeError.Json("workspace-write", "نوشتن فضای کاری انجام نشد", ex);
+            return HostFail("WriteWorkspaceFile", "workspace-write", "نوشتن فضای کاری انجام نشد", ex);
         }
     }
 
@@ -311,7 +348,7 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return SafeError.Json("workspace-read", "خواندن فضای کاری انجام نشد", ex);
+            return HostFail("ReadWorkspaceFile", "workspace-read", "خواندن فضای کاری انجام نشد", ex);
         }
     }
 
@@ -388,7 +425,7 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return SafeError.Json("PRINT_ASYNC_FAILED", "چاپ انجام نشد: " + ex.Message, ex);
+            return HostFail("PrintHtml", "PRINT_ASYNC_FAILED", "چاپ انجام نشد: " + ex.Message, ex);
         }
     }
 
@@ -435,7 +472,7 @@ public class SirmanHostObject
         }
         catch (Exception ex)
         {
-            return SafeError.Json("PRINT_ASYNC_FAILED", "چاپ انجام نشد: " + ex.Message, ex);
+            return HostFail("PrintDocument", "PRINT_ASYNC_FAILED", "چاپ انجام نشد: " + ex.Message, ex);
         }
     }
 

@@ -25,6 +25,7 @@ static class Program
         ApplicationConfiguration.Initialize();
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
+        DiagnosticRuntime.InstallProcessHooks();
 
         try
         {
