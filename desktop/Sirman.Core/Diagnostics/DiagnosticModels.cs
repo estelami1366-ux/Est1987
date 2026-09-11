@@ -141,6 +141,17 @@ public sealed class DiagnosticExportResult
     public string? Message { get; set; }
 }
 
+/// <summary>P3 Host/Core result for a forwarded UI fault. No filesystem paths.</summary>
+public sealed class UiFaultReport
+{
+    public bool Ok { get; init; } = true;
+    public bool Recorded { get; init; }
+    public bool Suppressed { get; init; }
+    public string CorrelationId { get; init; } = "";
+    public string Code { get; init; } = ErrorCatalog.SysUiUnscoped;
+    public GuidanceView Guidance { get; init; } = new();
+}
+
 public interface IDiagnosticStore
 {
     bool TryAppend(DiagnosticEvent evt, out string? error);

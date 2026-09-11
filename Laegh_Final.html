@@ -28868,7 +28868,25 @@ function exportDbgLog() {
 
 function toggleAutoDbg(el) { dbgAutoEnabled = el.checked; }
 
+function reportUiFaultToHost(raw){
+  try{
+    var h = (typeof getSirmanHostSync === 'function') ? getSirmanHostSync() : null;
+    if(!h || typeof h.ReportUiFault !== 'function') return;
+    h.ReportUiFault(JSON.stringify(raw || {}));
+  }catch(_e){}
+}
+
 window.addEventListener('error', function(ev) {
+  try{
+    reportUiFaultToHost({
+      message: ev.message || '',
+      source: ev.filename || '',
+      line: ev.lineno || 0,
+      column: ev.colno || 0,
+      stack: (ev.error && ev.error.stack) ? String(ev.error.stack) : '',
+      kind: 'window.onerror'
+    });
+  }catch(_r){}
   if (!dbgAutoEnabled) return;
   try{
     var tech = redactSensitive((ev.message||'') + (ev.filename ? (' @'+ev.filename+':'+ev.lineno) : ''));
@@ -28877,12 +28895,24 @@ window.addEventListener('error', function(ev) {
 });
 
 window.addEventListener('unhandledrejection', function(ev) {
-  if (!dbgAutoEnabled) return;
   try{
     var msg = ev.reason ? (ev.reason.message || String(ev.reason)) : 'Promise rejected';
-    presentAppError(toAppError({ message: msg }, 'ERR-JS-001'), {});
+    reportUiFaultToHost({
+      message: msg,
+      source: '',
+      line: 0,
+      column: 0,
+      stack: (ev.reason && ev.reason.stack) ? String(ev.reason.stack) : '',
+      kind: 'unhandledrejection'
+    });
+  }catch(_r){}
+  if (!dbgAutoEnabled) return;
+  try{
+    var msg2 = ev.reason ? (ev.reason.message || String(ev.reason)) : 'Promise rejected';
+    presentAppError(toAppError({ message: msg2 }, 'ERR-JS-001'), {});
   }catch(_e){}
 });
+window.__SIRMAN_UI_FAULT_HOOK = 1;
 
 // Full diagnostic
 function runFullDiag() {
