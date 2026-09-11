@@ -79,6 +79,53 @@ public sealed class DiagnosticService
     public Incident BuildIncident(IReadOnlyList<DiagnosticEvent> events) =>
         IncidentProjector.FromEvents(events);
 
+    public DiagnosticResult ToSafeResult(DiagnosticEvent evt) =>
+        GuidanceEngine.ToResult(IncidentProjector.FromEvents(new[] { evt }), new[] { evt });
+
+    public bool TryRecordFailure(DiagnosticContext? context, string alias, string? technicalMessage, out DiagnosticEvent? evt, out string? error)
+    {
+        var ctx = context ?? new DiagnosticContext();
+        var corr = string.IsNullOrWhiteSpace(ctx.CorrelationId)
+            ? CorrelationId.New().Value
+            : ctx.CorrelationId.Trim();
+        var def = ErrorCatalog.Require(alias);
+        evt = new DiagnosticEvent
+        {
+            CorrelationId = corr,
+            Severity = def.Severity,
+            Code = def.Code,
+            Module = ctx.Module == DiagnosticModule.Unknown ? def.Module : ctx.Module,
+            Operation = string.IsNullOrWhiteSpace(ctx.Operation) ? "RunBusiness" : ctx.Operation,
+            Outcome = OperationOutcome.Failed,
+            Success = false,
+            DataImpact = def.DataImpact,
+            DataChanged = false,
+            Source = ctx.Source == default ? DiagnosticSource.Core : ctx.Source,
+            AppVersion = ctx.AppVersion ?? _appVersion,
+            AssemblyVersion = ctx.AssemblyVersion ?? _assemblyVersion,
+            Os = ctx.Os ?? RuntimeInformation.OSDescription,
+            Runtime = ctx.Runtime ?? RuntimeInformation.FrameworkDescription,
+            TechnicalMessage = SafeMetadataPolicy.Redact(technicalMessage)
+        };
+        if (ctx.DataImpact != DataImpact.Unknown)
+            evt.DataImpact = ctx.DataImpact;
+        evt.DataChanged = evt.DataImpact is DataImpact.Unchanged ? false : null;
+        var extra = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["operation"] = evt.Operation,
+            ["code"] = evt.Code,
+            ["correlationId"] = corr,
+            ["technicalMessage"] = evt.TechnicalMessage
+        };
+        evt.Metadata = SafeMetadataPolicy.Sanitize(extra);
+        if (!_store.TryAppend(evt, out error))
+        {
+            evt = null;
+            return false;
+        }
+        return true;
+    }
+
     static string GuessAlias(DiagnosticContext ctx)
     {
         var op = (ctx.Operation ?? "").ToLowerInvariant();

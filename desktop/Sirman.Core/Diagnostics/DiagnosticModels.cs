@@ -10,6 +10,7 @@ public sealed class DiagnosticContext
     public string? Os { get; set; }
     public string? Runtime { get; set; }
     public DiagnosticSource Source { get; set; } = DiagnosticSource.Core;
+    public DataImpact DataImpact { get; set; } = DataImpact.Unknown;
     public bool? SessionAuthenticated { get; set; }
     public string? RoleName { get; set; }
 }

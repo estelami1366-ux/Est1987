@@ -64,7 +64,7 @@ public enum DiagnosticSource
     UiForwarded = 3
 }
 
-/// <summary>Reserved code prefixes. Final numeric business codes are not assigned in P0.</summary>
+/// <summary>Reserved code prefixes. Final numeric business codes are not assigned in P0/P1.</summary>
 public static class DiagnosticCodeNamespaces
 {
     public const string Inventory = "INV";
@@ -73,4 +73,24 @@ public static class DiagnosticCodeNamespaces
     public const string Print = "PRN";
     public const string Data = "DAT";
     public const string System = "SYS";
+}
+
+/// <summary>Boundary-only module guess from RunBusiness op name. Does not classify business errors.</summary>
+public static class DiagnosticOperation
+{
+    public static DiagnosticModule ModuleFor(string? operation)
+    {
+        var n = (operation ?? "").Trim().ToLowerInvariant();
+        var dot = n.IndexOf('.');
+        var prefix = dot < 0 ? n : n[..dot];
+        return prefix switch
+        {
+            "inventory" => DiagnosticModule.Inventory,
+            "invoice" or "sale" => DiagnosticModule.Sales,
+            "warranty" or "service" => DiagnosticModule.Warranty,
+            "payment" => DiagnosticModule.Accounts,
+            "calc" or "rules" => DiagnosticModule.System,
+            _ => DiagnosticModule.Host
+        };
+    }
 }

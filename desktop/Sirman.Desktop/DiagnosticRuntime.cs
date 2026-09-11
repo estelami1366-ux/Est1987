@@ -85,12 +85,12 @@ internal static class DiagnosticRuntime
         Publish(ex, "WebView2.Navigation", DiagnosticSource.Desktop, DiagnosticModule.System);
     }
 
-    public static void PublishHostFailure(string method, Exception ex)
+    public static void PublishHostFailure(string method, Exception ex, string? correlationId = null)
     {
-        Publish(ex, method, DiagnosticSource.Host, DiagnosticModule.Host);
+        Publish(ex, method, DiagnosticSource.Host, DiagnosticModule.Host, correlationId);
     }
 
-    public static void Publish(Exception ex, string operation, DiagnosticSource source, DiagnosticModule module)
+    public static void Publish(Exception ex, string operation, DiagnosticSource source, DiagnosticModule module, string? correlationId = null)
     {
         try
         {
@@ -98,6 +98,7 @@ internal static class DiagnosticRuntime
             var (app, asm) = Versions();
             var ctx = new DiagnosticContext
             {
+                CorrelationId = correlationId ?? "",
                 Operation = operation,
                 Source = source,
                 Module = module,
