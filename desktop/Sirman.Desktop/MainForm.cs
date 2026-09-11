@@ -544,11 +544,19 @@ public sealed class MainForm : Form
             {
                 _webView.CoreWebView2.AddHostObjectToScript("sirmanHost", _hostObject);
             }
-            catch { /* برخی محیط‌ها host object را محدود می‌کنند — postMessage باقی است */ }
+            catch (Exception hostEx)
+            {
+                DiagnosticRuntime.PublishHostFailure("AddHostObjectToScript", hostEx);
+            }
+            DiagnosticRuntime.AttachWebView2(_webView.CoreWebView2);
             _webView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
             _webView.CoreWebView2.NavigationCompleted += async (_, e) =>
             {
-                if (!e.IsSuccess) return;
+                if (!e.IsSuccess)
+                {
+                    DiagnosticRuntime.PublishNavigationFailure((int)e.WebErrorStatus, e.WebErrorStatus.ToString());
+                    return;
+                }
                 try { await InjectDesktopHostBridgeAsync(); } catch { /* ignore */ }
             };
 
@@ -558,6 +566,7 @@ public sealed class MainForm : Form
         }
         catch (Exception ex)
         {
+            DiagnosticRuntime.Publish(ex, "WebView2.Init", Sirman.Core.Diagnostics.DiagnosticSource.Desktop, Sirman.Core.Diagnostics.DiagnosticModule.System);
             SetStatus("خطا در راه‌اندازی");
             MessageBox.Show(
                 "راه‌اندازی WebView2 ناموفق بود.\n\n" +
