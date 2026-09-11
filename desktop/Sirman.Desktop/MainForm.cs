@@ -267,6 +267,17 @@ public sealed class MainForm : Form
         else Go();
     }
 
+    public void RequestOpenDiagnosticCenter()
+    {
+        void Go()
+        {
+            using var dlg = new DiagnosticCenterForm();
+            dlg.ShowDialog(this);
+        }
+        if (InvokeRequired) BeginInvoke(Go);
+        else Go();
+    }
+
     public int GetNotifyBridgePort() => _notify.Port;
 
     public string ListPrintersJson() => _printHost.ListPrintersJson();
@@ -423,6 +434,7 @@ public sealed class MainForm : Form
         }));
 
         var help = new ToolStripMenuItem("راهنما");
+        help.DropDownItems.Add(new ToolStripMenuItem("مرکز گزارش و تشخیص…", null, (_, _) => RequestOpenDiagnosticCenter()));
         help.DropDownItems.Add(new ToolStripMenuItem("آزمایش اعلان ویندوز", null, (_, _) =>
         {
             _notify.ShowToast("✅ اعلان سیرمان", "پل اعلان دسکتاپ فعال است. این یک پیام آزمایشی است.");

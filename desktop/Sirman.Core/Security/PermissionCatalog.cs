@@ -62,7 +62,7 @@ public static class PermissionCatalog
         "GetPrinters", "GetMachineInfo", "GetNetworkInfo",
         "Login", "Logout", "BindSession", "CheckPermission", "HashPassword", "VerifyPassword",
         "ValidateEntity", "GetSecurityStatus", "SaveSecret", "LoadSecret", "RunBusiness",
-        "RunPrintHardwareDiagnostic", "NewDiagnosticCorrelationId"
+        "RunPrintHardwareDiagnostic", "NewDiagnosticCorrelationId", "OpenDiagnosticCenter"
     };
 
     public static string? PageFor(string permission) =>

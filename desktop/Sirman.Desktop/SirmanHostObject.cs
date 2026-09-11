@@ -93,6 +93,13 @@ public class SirmanHostObject
         catch (Exception ex) { return HostFail("ExportDiagnosticReport", "diagnostic-failed", "خروجی گزارش عیب‌یابی انجام نشد", ex); }
     }
 
+    /// <summary>P2: open the native diagnostic center. No HTML diagnostic logic.</summary>
+    public void OpenDiagnosticCenter()
+    {
+        try { _form.RequestOpenDiagnosticCenter(); }
+        catch (Exception ex) { DiagnosticRuntime.PublishHostFailure("OpenDiagnosticCenter", ex); }
+    }
+
     static string HostFail(string method, string error, string message, Exception ex)
     {
         DiagnosticRuntime.PublishHostFailure(method, ex);
