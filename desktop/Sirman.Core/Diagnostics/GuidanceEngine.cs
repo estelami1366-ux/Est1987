@@ -42,4 +42,11 @@ public static class GuidanceEngine
             DataImpact = resolvedImpact
         }, Array.Empty<DiagnosticEvent>());
     }
+
+    public static GuidanceView ToGuidance(Incident incident, IReadOnlyList<DiagnosticEvent> events)
+    {
+        var last = events is { Count: > 0 } ? events[^1] : null;
+        var ts = last?.TimestampLocal ?? last?.TimestampUtc ?? incident.UpdatedAtUtc ?? incident.OpenedAtUtc ?? "";
+        return GuidanceCatalog.For(incident.PrimaryCode, incident.CorrelationId ?? "", incident.DataImpact, ts, incident.Module);
+    }
 }

@@ -36,7 +36,8 @@ public sealed class DiagnosticFacade
             return JsonSerializer.Serialize(new { ok = false, error = "not-found", message = "حادثه‌ای با این شناسه نیست" }, DiagnosticJson.Options);
         var incident = _service.BuildIncident(events);
         var result = GuidanceEngine.ToResult(incident, events);
-        return JsonSerializer.Serialize(new { ok = true, incident, result, events }, DiagnosticJson.Options);
+        var guidance = GuidanceEngine.ToGuidance(incident, events);
+        return JsonSerializer.Serialize(new { ok = true, incident, result, guidance, events }, DiagnosticJson.Options);
     }
 
     public string ExportDiagnosticReport(string correlationId)
@@ -89,5 +90,28 @@ public sealed class DiagnosticFacade
             /* empty query — caller still gets recent events */
         }
         return q;
+    }
+
+    public IReadOnlyList<DiagnosticEvent> ListRecent(DiagnosticQuery? query = null) =>
+        _store.QueryRecentAsync(query ?? new DiagnosticQuery()).GetAwaiter().GetResult();
+
+    public DiagnosticIncidentView? LoadIncident(string correlationId)
+    {
+        var events = _store.GetByCorrelationIdAsync(correlationId ?? "").GetAwaiter().GetResult();
+        if (events.Count == 0) return null;
+        var incident = _service.BuildIncident(events);
+        return new DiagnosticIncidentView
+        {
+            Incident = incident,
+            Result = GuidanceEngine.ToResult(incident, events),
+            Guidance = GuidanceEngine.ToGuidance(incident, events),
+            Events = events
+        };
+    }
+
+    public DiagnosticExportResult ExportIncident(string correlationId)
+    {
+        Directory.CreateDirectory(_exportDirectory);
+        return _store.ExportIncidentAsync(correlationId ?? "", _exportDirectory).GetAwaiter().GetResult();
     }
 }

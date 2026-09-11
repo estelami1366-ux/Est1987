@@ -95,6 +95,30 @@ public sealed class DiagnosticResult
     public string CorrelationId { get; set; } = "";
 }
 
+/// <summary>P2 operator-facing guidance. Deterministic catalog projection; no secrets.</summary>
+public sealed class GuidanceView
+{
+    public string Title { get; init; } = "";
+    public string UserMessage { get; init; } = "";
+    public string Why { get; init; } = "";
+    public string Impact { get; init; } = "";
+    public string NextAction { get; init; } = "";
+    public string SupportAction { get; init; } = "";
+    public string Code { get; init; } = "";
+    public string CorrelationId { get; init; } = "";
+    public DiagnosticSeverity Severity { get; init; } = DiagnosticSeverity.Error;
+    public string Module { get; init; } = "";
+    public string Timestamp { get; init; } = "";
+}
+
+public sealed class DiagnosticIncidentView
+{
+    public Incident Incident { get; init; } = new();
+    public DiagnosticResult Result { get; init; } = new();
+    public GuidanceView Guidance { get; init; } = new();
+    public IReadOnlyList<DiagnosticEvent> Events { get; init; } = Array.Empty<DiagnosticEvent>();
+}
+
 public sealed class DiagnosticQuery
 {
     public int Limit { get; set; } = 100;
