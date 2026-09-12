@@ -118,6 +118,9 @@ public static class NativeUpdateValidator
                 return NativeUpdateValidationResult.Fail("native-hash-mismatch", "SHA-256 فایل با manifest یکی نیست: " + rel);
         }
 
+        var runtime = NativeUpdateRuntimeIndependence.Check(filesDirectory);
+        if (!runtime.Ok) return runtime;
+
         return NativeUpdateValidationResult.Pass(manifest);
     }
 

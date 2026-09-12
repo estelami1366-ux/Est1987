@@ -60,7 +60,7 @@ public static class NativeUpdateAllowList
         "Presentation",
         "WindowsBase",
         "WindowsForms",
-        "Accessibility.",
+        "Accessibility",
         "DirectWrite",
         "wpfgfx",
         "D3DCompiler",
@@ -134,6 +134,24 @@ public static class NativeUpdateAllowList
             if (name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 return true;
         }
+        return false;
+    }
+
+    /// <summary>Debug/dump artifacts that a self-contained publish may emit but are not required to launch.</summary>
+    public static bool IsPackagingExcluded(string relativePath)
+    {
+        var name = Path.GetFileName(NormalizeRelative(relativePath));
+        var ext = Path.GetExtension(name);
+        if (ext.Equals(".pdb", StringComparison.OrdinalIgnoreCase) ||
+            ext.Equals(".xml", StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (name.Equals("createdump.exe", StringComparison.OrdinalIgnoreCase) ||
+            name.Equals("createdump", StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (name.StartsWith("mscordaccore", StringComparison.OrdinalIgnoreCase) ||
+            name.Equals("mscordbi.dll", StringComparison.OrdinalIgnoreCase) ||
+            name.Equals("mscorrc.dll", StringComparison.OrdinalIgnoreCase))
+            return true;
         return false;
     }
 

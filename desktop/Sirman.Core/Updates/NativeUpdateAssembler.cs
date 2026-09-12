@@ -4,7 +4,8 @@ namespace Sirman.Core.Updates;
 
 /// <summary>
 /// Builds a native-only package from a publish/App directory.
-/// Never opens HTML / test_laegh.js. Does not apply or replace installed files.
+/// Copies every allow-listed native/runtime file (self-contained win-x64), never HTML.
+/// Does not apply or replace installed files.
 /// </summary>
 public static class NativeUpdateAssembler
 {
@@ -33,28 +34,34 @@ public static class NativeUpdateAssembler
         Directory.CreateDirectory(filesDir);
 
         var entries = new List<NativeUpdateFileEntry>();
+        var copied = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         foreach (var name in NativeUpdateAllowList.DefaultPayloadFiles)
         {
             var src = Path.Combine(sourceDirectory, name);
             if (!File.Exists(src)) continue;
-            if (NativeUpdateAllowList.IsForbiddenHtml(name))
-                return NativeUpdateAssembleResult.Fail("native-html-forbidden", "منبع HTML را به‌عنوان بومی نمی‌توان بسته‌بندی کرد.");
-            var dest = Path.Combine(filesDir, name);
-            Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
-            File.Copy(src, dest, overwrite: true);
-            var info = new FileInfo(dest);
-            if (info.Length < 1)
-                return NativeUpdateAssembleResult.Fail("native-size-mismatch", "فایل بومی خالی است: " + name);
-            entries.Add(new NativeUpdateFileEntry
-            {
-                Path = name.Replace('\\', '/'),
-                Sha256 = NativeUpdateHasher.Sha256File(dest),
-                Bytes = info.Length
-            });
+            var added = TryAddPayload(sourceDirectory, filesDir, name, entries, copied);
+            if (!added.Ok) return NativeUpdateAssembleResult.Fail(added.Error, added.Message);
+        }
+
+        foreach (var src in Directory.EnumerateFiles(sourceDirectory, "*", SearchOption.AllDirectories))
+        {
+            var rel = NativeUpdateAllowList.NormalizeRelative(
+                Path.GetRelativePath(sourceDirectory, src).Replace('\\', '/'));
+            if (NativeUpdateAllowList.IsForbiddenHtml(rel) || NativeUpdateAllowList.IsPackagingExcluded(rel))
+                continue;
+            if (!NativeUpdateAllowList.IsAllowedNative(rel))
+                continue;
+            var added = TryAddPayload(sourceDirectory, filesDir, rel, entries, copied);
+            if (!added.Ok) return NativeUpdateAssembleResult.Fail(added.Error, added.Message);
         }
 
         if (entries.Count == 0)
             return NativeUpdateAssembleResult.Fail("native-empty", "هیچ فایل بومی مجازی در منبع نبود.");
+
+        var runtime = NativeUpdateRuntimeIndependence.Check(filesDir);
+        if (!runtime.Ok)
+            return NativeUpdateAssembleResult.Fail(runtime.Error, runtime.Message);
 
         var manifest = new NativeUpdateManifest
         {
@@ -101,5 +108,35 @@ public static class NativeUpdateAssembler
         {
             return null;
         }
+    }
+
+    static (bool Ok, string Error, string Message) TryAddPayload(
+        string sourceDirectory,
+        string filesDir,
+        string relative,
+        List<NativeUpdateFileEntry> entries,
+        HashSet<string> copied)
+    {
+        var rel = NativeUpdateAllowList.NormalizeRelative(relative);
+        if (!copied.Add(rel))
+            return (true, "", "");
+        if (NativeUpdateAllowList.IsForbiddenHtml(rel))
+            return (false, "native-html-forbidden", "منبع HTML را به‌عنوان بومی نمی‌توان بسته‌بندی کرد.");
+        var src = Path.Combine(sourceDirectory, rel.Replace('/', Path.DirectorySeparatorChar));
+        if (!File.Exists(src))
+            return (false, "native-file-missing", "فایل بومی در منبع نیست: " + rel);
+        var dest = Path.Combine(filesDir, rel.Replace('/', Path.DirectorySeparatorChar));
+        Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+        File.Copy(src, dest, overwrite: true);
+        var info = new FileInfo(dest);
+        if (info.Length < 1)
+            return (false, "native-size-mismatch", "فایل بومی خالی است: " + rel);
+        entries.Add(new NativeUpdateFileEntry
+        {
+            Path = rel,
+            Sha256 = NativeUpdateHasher.Sha256File(dest),
+            Bytes = info.Length
+        });
+        return (true, "", "");
     }
 }

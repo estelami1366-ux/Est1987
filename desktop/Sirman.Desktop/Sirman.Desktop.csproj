@@ -15,6 +15,7 @@
     <Company>سیرمان</Company>
     <Description>پوسته ویندوزی سیرمان — Sirman.exe (WebView2 + آپدیت + نصب + اعلان + پرسش بک‌آپ خروج)</Description>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <SelfContained Condition="'$(RuntimeIdentifier)' == 'win-x64'">true</SelfContained>
   </PropertyGroup>
 
   <ItemGroup>
