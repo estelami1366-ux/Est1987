@@ -100,6 +100,13 @@ public class SirmanHostObject
         catch (Exception ex) { DiagnosticRuntime.PublishHostFailure("OpenDiagnosticCenter", ex); }
     }
 
+    /// <summary>P3: accept raw UI faults. Core classifies, sanitizes, persists, and dedups.</summary>
+    public string ReportUiFault(string json)
+    {
+        try { return DiagnosticRuntime.Facade.ReportUiFault(json ?? ""); }
+        catch (Exception ex) { return HostFail("ReportUiFault", "diagnostic-failed", "ثبت خطای رابط انجام نشد", ex); }
+    }
+
     static string HostFail(string method, string error, string message, Exception ex)
     {
         DiagnosticRuntime.PublishHostFailure(method, ex);

@@ -8,12 +8,14 @@ public sealed class DiagnosticFacade
     readonly DiagnosticService _service;
     readonly IDiagnosticStore _store;
     readonly string _exportDirectory;
+    readonly UiFaultRecorder _uiFaults;
 
-    public DiagnosticFacade(DiagnosticService service, IDiagnosticStore store, string exportDirectory)
+    public DiagnosticFacade(DiagnosticService service, IDiagnosticStore store, string exportDirectory, UiFaultDeduper? uiDeduper = null)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _exportDirectory = exportDirectory ?? throw new ArgumentNullException(nameof(exportDirectory));
+        _uiFaults = new UiFaultRecorder(_service, uiDeduper);
     }
 
     public string NewCorrelationId()
@@ -91,6 +93,22 @@ public sealed class DiagnosticFacade
         }
         return q;
     }
+
+    public string ReportUiFault(string json)
+    {
+        var report = _uiFaults.Record(json);
+        return JsonSerializer.Serialize(new
+        {
+            ok = report.Ok,
+            recorded = report.Recorded,
+            suppressed = report.Suppressed,
+            correlationId = report.CorrelationId,
+            code = report.Code,
+            guidance = report.Guidance
+        }, DiagnosticJson.Options);
+    }
+
+    public UiFaultReport RecordUiFault(string json) => _uiFaults.Record(json);
 
     public IReadOnlyList<DiagnosticEvent> ListRecent(DiagnosticQuery? query = null) =>
         _store.QueryRecentAsync(query ?? new DiagnosticQuery()).GetAwaiter().GetResult();

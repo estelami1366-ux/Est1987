@@ -19188,6 +19188,41 @@ test('موفقیت HTTP 2xx پل باید notifiedAt را ست کند', () => {
   });
 });
 
+console.log('');
+console.log('📋 گروه: Diagnostic P3 — UI fault adapter');
+
+test('P3: HTML فقط raw را به Host می‌فرستد و طبقه‌بندی نمی‌کند', () => {
+  const src = extractFunctionSource(html, 'reportUiFaultToHost');
+  assertTrue(!!src, 'تابع reportUiFaultToHost پیدا نشد');
+  assertContainsString(src, 'ReportUiFault', 'باید sirmanHost.ReportUiFault را صدا بزند');
+  assertTrue(src.indexOf('toAppError') === -1, 'adapter نباید toAppError صدا بزند');
+  assertTrue(src.indexOf('ERROR_CATALOG') === -1, 'adapter نباید کاتالوگ HTML داشته باشد');
+  assertTrue(src.indexOf('GuidanceCatalog') === -1, 'adapter نباید guidance بسازد');
+  assertTrue(src.indexOf('events.jsonl') === -1, 'adapter نباید persistence داشته باشد');
+  const sent = [];
+  const fn = new Function('getSirmanHostSync', src + '\nreturn reportUiFaultToHost;');
+  const report = fn(function(){ return { ReportUiFault: function(j){ sent.push(j); } }; });
+  report({ message: 'boom', source: 'a.js', line: 4, column: 2, kind: 'window.onerror' });
+  assertEqual(sent.length, 1, 'باید یک بار Host را صدا بزند');
+  const payload = JSON.parse(sent[0]);
+  assertEqual(payload.message, 'boom', 'باید پیام خام را بفرستد');
+  assertEqual(payload.source, 'a.js', 'باید source خام را بفرستد');
+  assertEqual(payload.line, 4, 'باید line را بفرستد');
+  assertTrue(!Object.prototype.hasOwnProperty.call(payload, 'code'), 'نباید code کاتالوگ بفرستد');
+});
+
+test('P3: onerror و unhandledrejection بدون Host نباید صفحه را بشکنند', () => {
+  const src = extractFunctionSource(html, 'reportUiFaultToHost');
+  const fn = new Function('getSirmanHostSync', src + '\nreturn reportUiFaultToHost;');
+  const report = fn(function(){ return null; });
+  report({ message: 'x' });
+  const report2 = fn(function(){ throw new Error('host missing'); });
+  report2({ message: 'y' });
+  assertContainsString(html, "addEventListener('error'", 'باید window error را بشنود');
+  assertContainsString(html, "addEventListener('unhandledrejection'", 'باید unhandledrejection را بشنود');
+  assertContainsString(html, 'dbgAutoEnabled', 'مسیر dbg قبلی باید بماند');
+});
+
 require('./test_installer_lifecycle').register({
   test,
   html,

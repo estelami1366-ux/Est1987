@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>SirmanUpdater</AssemblyName>
+    <RootNamespace>Sirman.Updater</RootNamespace>
+    <Product>سیرمان</Product>
+    <Company>سیرمان</Company>
+    <Description>به‌روزرسان بومی جدا — جایگزینی allow-list بدون HTML و بدون بارگذاری داخل Sirman.exe</Description>
+    <RollForward>LatestMajor</RollForward>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sirman.Core\Sirman.Core.csproj" />
+  </ItemGroup>
+</Project>

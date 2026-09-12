@@ -938,6 +938,37 @@ public sealed class MainForm : Form
                     return window.chrome && chrome.webview && chrome.webview.hostObjects && chrome.webview.hostObjects.sync && chrome.webview.hostObjects.sync.sirmanHost;
                   }catch(_e){ return null; }
                 }
+                if(!window.__SIRMAN_UI_FAULT_HOOK){
+                  window.__SIRMAN_UI_FAULT_HOOK = 1;
+                  function _sirmanReportUiFault(p){
+                    try{
+                      var h=_sirmanHost();
+                      if(h && h.ReportUiFault) h.ReportUiFault(JSON.stringify(p||{}));
+                    }catch(_f){}
+                  }
+                  window.addEventListener('error', function(ev){
+                    _sirmanReportUiFault({
+                      message: String((ev&&ev.message)||''),
+                      source: String((ev&&ev.filename)||''),
+                      line: (ev&&ev.lineno)||0,
+                      column: (ev&&ev.colno)||0,
+                      stack: String((ev&&ev.error&&ev.error.stack)||''),
+                      kind: 'window.onerror'
+                    });
+                  });
+                  window.addEventListener('unhandledrejection', function(ev){
+                    var r = ev && ev.reason;
+                    var msg = r ? (r.message || String(r)) : 'Promise rejected';
+                    _sirmanReportUiFault({
+                      message: String(msg),
+                      source: '',
+                      line: 0,
+                      column: 0,
+                      stack: String((r && r.stack) || ''),
+                      kind: 'unhandledrejection'
+                    });
+                  });
+                }
                 window.sirmanDesktopNotify = function(title, opts){
                   opts = opts || {};
                   try{

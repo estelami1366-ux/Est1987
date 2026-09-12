@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Sirman.Core\Sirman.Core.csproj" />
     <ProjectReference Include="..\Sirman.Persistence.Sqlite\Sirman.Persistence.Sqlite.csproj" />
+    <ProjectReference Include="..\Sirman.Updater\Sirman.Updater.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="InvoicePricingParityVectors.json" CopyToOutputDirectory="PreserveNewest" />

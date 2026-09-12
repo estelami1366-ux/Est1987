@@ -42,12 +42,13 @@ public static class ErrorCatalog
             "webview2-failed", "webview2-init", "webview2-navigation"),
         Def(SysUiUnscoped, DiagnosticSeverity.Error, DiagnosticModule.System,
             "خطای رابط",
-            "رویداد خطا از رابط گزارش شد.",
-            "P0 هنوز طبقه‌بندی JS ندارد.",
-            "صفحه را نوسازی کنید. اگر تکرار شد کد پیگیری را بدهید.",
-            "Reserved for P2 ReportUiFault.",
-            "بدون تغییر داده تا خلاف آن ثبت شود.",
-            DataImpact.Unchanged)
+            "یک خطای پیش‌بینی‌نشده در صفحه رخ داد.",
+            "اشکال در اسکریپت صفحه یا وعده‌ای که رد شد.",
+            "صفحه را نوسازی کنید. اگر کاری در حال ذخیره بود، نتیجه را همان‌جا بررسی کنید. داده فروشگاه را پاک نکنید.",
+            "UI window.onerror / unhandledrejection forwarded via ReportUiFault (P3).",
+            "از مرکز تشخیص، گزارش همین کد پیگیری را صادر کنید و برای پشتیبانی بفرستید.",
+            DataImpact.Unchanged,
+            "ui-fault", "ERR-JS-001", "window-onerror", "unhandledrejection")
     };
 
     static readonly Dictionary<string, ErrorDefinition> ByCode =

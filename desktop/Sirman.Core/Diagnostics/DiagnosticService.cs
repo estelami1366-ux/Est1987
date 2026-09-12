@@ -126,10 +126,53 @@ public sealed class DiagnosticService
         return true;
     }
 
+    public bool TryRecordUiFault(string correlationId, string? technicalMessage, string? stack, string? operation, out DiagnosticEvent? evt, out string? error)
+    {
+        var corr = CorrelationId.IsWellFormed(correlationId) ? correlationId.Trim() : CorrelationId.New().Value;
+        var def = ErrorCatalog.Require(ErrorCatalog.SysUiUnscoped);
+        var op = string.IsNullOrWhiteSpace(operation) ? UiFaultRecorder.DefaultOperation : operation.Trim();
+        evt = new DiagnosticEvent
+        {
+            CorrelationId = corr,
+            Severity = def.Severity,
+            Code = def.Code,
+            Module = DiagnosticModule.System,
+            Operation = op,
+            Outcome = OperationOutcome.Failed,
+            Success = false,
+            DataImpact = DataImpact.Unchanged,
+            DataChanged = false,
+            Source = DiagnosticSource.UiForwarded,
+            AppVersion = _appVersion,
+            AssemblyVersion = _assemblyVersion,
+            Os = RuntimeInformation.OSDescription,
+            Runtime = RuntimeInformation.FrameworkDescription,
+            TechnicalMessage = SafeMetadataPolicy.Redact(technicalMessage),
+            StackHash = SafeMetadataPolicy.StackHash(stack)
+        };
+        var extra = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["operation"] = evt.Operation,
+            ["code"] = evt.Code,
+            ["correlationId"] = corr,
+            ["technicalMessage"] = evt.TechnicalMessage,
+            ["stackHash"] = evt.StackHash,
+            ["source"] = DiagnosticSource.UiForwarded.ToString()
+        };
+        evt.Metadata = SafeMetadataPolicy.Sanitize(extra);
+        if (!_store.TryAppend(evt, out error))
+        {
+            evt = null;
+            return false;
+        }
+        return true;
+    }
+
     static string GuessAlias(DiagnosticContext ctx)
     {
         var op = (ctx.Operation ?? "").ToLowerInvariant();
         if (op.Contains("webview", StringComparison.Ordinal)) return ErrorCatalog.SysWebViewUnscoped;
+        if (ctx.Source == DiagnosticSource.UiForwarded) return ErrorCatalog.SysUiUnscoped;
         if (ctx.Source == DiagnosticSource.Host) return ErrorCatalog.SysHostUnscoped;
         if (ctx.Source == DiagnosticSource.Desktop) return ErrorCatalog.SysDeskUnscoped;
         return ErrorCatalog.SysHostUnscoped;
