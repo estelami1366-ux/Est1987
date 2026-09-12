@@ -118,6 +118,48 @@ public class BackupDryRunTests
     }
 
     [Fact]
+    public void ValidOriginalSectionChecksums_AreNotReCheckedAfterMigrate()
+    {
+        var products = new JsonArray
+        {
+            new JsonObject
+            {
+                ["name"] = "Mixer",
+                ["code"] = "MX-1",
+                ["price"] = 100
+            }
+        };
+        var originalHash = BackupCanonicalChecksum.SectionHash(products);
+        var pkg = new JsonObject
+        {
+            ["schemaVersion"] = 1,
+            ["invoices"] = new JsonArray(),
+            ["warranties"] = new JsonArray(),
+            ["sales"] = new JsonArray(),
+            ["parts"] = new JsonArray(),
+            ["accounts"] = new JsonArray(),
+            ["products"] = products.DeepClone(),
+            ["sectionChecksums"] = new JsonObject { ["products"] = originalHash }
+        };
+
+        Assert.True(BackupPortableIntegrity.Validate(pkg).Ok);
+
+        var dry = BackupDryRunService.Run(pkg);
+        Assert.True(dry.Ok, string.Join("; ", dry.Errors));
+        Assert.True(dry.MigrationPerformed);
+        Assert.NotNull(dry.Data);
+
+        var postHash = BackupCanonicalChecksum.SectionHash(dry.Data!["products"]);
+        Assert.NotEqual(originalHash, postHash);
+
+        var recheck = dry.Data.DeepClone()!.AsObject();
+        recheck["sectionChecksums"] = new JsonObject { ["products"] = originalHash };
+        var afterMigrate = BackupPortableIntegrity.Validate(recheck);
+        Assert.False(afterMigrate.Ok);
+        Assert.Contains("products", afterMigrate.SectionChecksumMismatches);
+    }
+
+    [Fact]
     public void T14_AbsentChecksum_IsNotVerifiable_ButCompatible()
     {
         var r = RunNamed("T14-checksum-absent");
