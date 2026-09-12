@@ -166,8 +166,8 @@ git diff --check 368c7ea HEAD
 
 ## 10. Commit hash
 
-Implementation (HTML + tests + Core lock):
+Code fix (HTML + tests + Core lock):
 
 `850f7a7137a6f5ba4cc833122b8d367db9d4c2c6`
 
-This report is committed separately on the same branch; tip is recorded in the delivery status block after that commit.
+Documentation for this packet is on the same branch immediately after that commit. Delivery status `COMMIT` is the branch tip after this report.
